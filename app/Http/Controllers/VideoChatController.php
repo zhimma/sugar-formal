@@ -16,9 +16,17 @@ use App\Services\RealAuthPageService;
 use LZCompressor\LZString;
 use App\Models\WebrtcSignalData;
 use App\Http\Controllers\Admin\UserController;
+use App\Services\UserService;
+use App\Services\VipLogService;
+use App\Repositories\SuspiciousRepository;
 
-class VideoChatController extends Controller
+class VideoChatController extends BaseController
 {
+    
+    public function __construct(UserService $userService, VipLogService $logService, SuspiciousRepository $suspiciousRepo, RealAuthPageService $rap_service)
+    {
+        parent::__construct();
+    }    
     
     public function callUser(Request $request)
     {
@@ -346,13 +354,13 @@ class VideoChatController extends Controller
         }
         
         $users = DB::table('role_user')->leftJoin('users', 'role_user.user_id', '=', 'users.id')->where('users.id', '<>', Auth::id())->get();
-
+        //$users->isSelfAuthWaitingCheck = $rap_service->isSelfAuthWaitingCheck();
         $logArr['step'] = 'end';
         $logArr['title'] = 'before return view(\'auth.user_video_chat_verify\', [\'users\' => $users]);';
         $logArr['data']['users'] = $users->pluck('id')->all();;
         $this->logByArr($logArr);        
         
-        return view('auth.user_video_chat_verify', ['users' => $users]);
+        return view('auth.user_video_chat_verify', ['users' => $users,'rap_service'=>$rap_service]);
     }
 
     public function videoChatTest(Request $request)

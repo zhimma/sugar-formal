@@ -39,54 +39,37 @@ class ChatShowContent extends Component
         $showSlide = $this->showSlide;
         $admin_id = AdminService::checkAdmin()->id;
 
-        if(Blocked::isBlocked($to->id, auth()->user()->id)) {
+        if (Blocked::isBlocked($to->id, auth()->user()->id)) {
             $blockTime = Blocked::getBlockTime($to->id, auth()->user()->id);
             //用model會抓不到unsend欄位 所以這邊用DB來抓
-            $messages = DB::table('message')->where(
-                function ($q) use ($to, $admin_id, $blockTime) {
-                    $q->where([
-                        ['to_id', $to->id],
-                        ['to_id', '!=', $admin_id],
-                        ['from_id', auth()->user()->id],
-                        ['created_at', '<=', $blockTime->created_at]
-                    ])->orWhere([
-                        ['from_id', $to->id],
-                        ['from_id', '!=',$admin_id],
-                        ['to_id', auth()->user()->id]
-                    ])->orWhere([
-                        ['to_id', auth()->user()->id],
-                        ['from_id',$admin_id],
-                        ['chat_with_admin',1]
-                    ])->orWhere([
-                        ['from_id', auth()->user()->id],
-                        ['to_id', $admin_id], ['chat_with_admin',1]
-                    ]);
-                }
-            )->distinct()->orderBy('created_at', 'desc');
-        }else{
+            $messages = DB::table('message')->where(function ($q) use ($to, $blockTime) {
+                $q->where([
+                    ['to_id', $to->id],
+                    ['from_id', auth()->user()->id],
+                    ['created_at', '<=', $blockTime->created_at]
+                ])->orWhere([
+                    ['from_id', $to->id],
+                    ['to_id', auth()->user()->id]]);
+                })->distinct()->orderBy('created_at', 'desc');
+        } else {
             //用model會抓不到unsend欄位 所以這邊用DB來抓
-            $messages = DB::table('message')->where(
-                function ($q) use($to, $admin_id) {
-                    $q->where([
-                        ['to_id', $to->id],
-                        ['to_id', '!=', $admin_id],
-                        ['from_id', auth()->user()->id]
-                    ])->orWhere([
-                        ['from_id', $to->id],
-                        ['from_id', '!=', $admin_id],
-                        ['to_id', auth()->user()->id]
-                    ])->orWhere([
-                        ['to_id', auth()->user()->id],
-                        ['from_id', $admin_id],
-                        ['chat_with_admin', 1]
-                    ])->orWhere([
-                        ['from_id', auth()->user()->id],
-                        ['to_id', $admin_id],
-                        ['chat_with_admin', 1]
-                    ]);
-                }
-            )->distinct()->orderBy('created_at', 'desc');
+            $messages = DB::table('message')->where(function ($q) use ($to) {
+                $q->where([
+                    ['to_id', $to->id],
+                    ['from_id', auth()->user()->id]
+                ])->orWhere([
+                    ['from_id', $to->id],
+                    ['to_id', auth()->user()->id]]);
+                })->distinct()->orderBy('created_at', 'desc');
+
         }
+        
+        if ($to->id == $admin_id || $user->id == $admin_id) {
+            $messages->where('chat_with_admin', 1);
+        }
+        
+        $uid = $user->id;
+        $messages->where([['message.is_row_delete_1','<>',$uid],['message.is_single_delete_1', '<>' ,$uid], ['message.all_delete_count', '<>' ,$uid],['message.is_row_delete_2', '<>' ,$uid],['message.is_single_delete_2', '<>' ,$uid],['message.temp_id', '=', DB::raw('0')]]);
        
         $messages = Message::addAutoDestroyWhereToQuery($messages)
                 ->paginate($this->limitPerPage)

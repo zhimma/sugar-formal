@@ -6,18 +6,20 @@
         .gender_2, a.gender_2.email_link, a.gender_2.email_link:visited, a.gender_2.email_link:active, a.gender_2.email_link:hover {color:red;}
         .reject_detail_edit_block {display:none;}
     </style>
-    <h1>站長審核 - 匿名評價訊息</h1>
+    <h1>
+        站長審核 - 匿名評價訊息
+        <button type="button" class="btn btn-primary" onclick="toggle_row(1,this);" ><span>開啟</span>已通過</button>
+        <button type="button" class="btn btn-primary" onclick="toggle_row(2,this);" ><span>開啟</span>不通過</button>        
+    </h1>
     <table class="table-bordered table-hover center-block table" id="table">
         <thead>
-            <tr>
+            <tr style="border-bottom:solid;">
+                <th scope="row" width="3em"></th>
                 <th width="15%" scope="col">email</th>
-                <th width="10%" scope="col">暱稱</th>
-                <th width="5%" scope="col">VIP</th>
-                <th width="5%" scope="col">性別</th>
-                <th width="10%" scope="col">被檢舉分數</th>
-                <th width="15%" scope="col">評價對象</th>
-                <th width="20%" scope="col">評價內容</th>
-                <th width="5%" scope="col">評價圖片</th>
+                <th width="8em" scope="col">暱稱</th>
+                <th width="3em" scope="col">VIP</th>
+                <th scope="col">評價內容</th>
+                <th  scope="col" width="20%" style="min-width:150px;">評價圖片</th>
                 <th width="5%" scope="col">審核狀態</th>
                 <th width="10%" scope="col">評價時間</th>
             </tr>
@@ -27,8 +29,10 @@
             @php
                 $Vip = \App\Models\Vip::vip_diamond($row->id);
                 $cur_to_user = \App\Models\User::with('aw_relation', 'banned', 'implicitlyBanned')->find($row->to_id)??new \App\Models\User;            
+                $cur_to_user_Vip = \App\Models\Vip::vip_diamond($cur_to_user->id);
             @endphp
-            <tr>
+            <tr class="status_{{$row->anonymous_content_status}}">
+                <td scope="row">評價者</td>
                 <td scope="row"
                         @if($row->is_banned())
                             bgcolor="#FDFF8C"
@@ -44,8 +48,8 @@
                             bgcolor="#A9D4F5"
                         @endif                  
                 ><a href="users/advInfo/{{$row->id}}" target="_blank" class="gender_{{$row->engroup}} email_link ">{{$row->email}}</a></td>
-                <td>{{$row->name}}</td>
-                <td>
+                <td nowrap>{{$row->name}}</td>
+                <td nowrap>
                     @if($row->isVip()==1)
                         @if($Vip=='diamond_black')
                             <img src="/img/diamond_black.png" style="height: 1.5rem;">
@@ -55,33 +59,31 @@
                             @endfor
                         @endif
                     @endif
+                    <button type="button" class="btn btn-warning" onclick="window.open('{{route('admin/showAdminCheckAnonymousBetweenMessages',['evaluate_from'=>$row->id,'evaluate_to'=>$cur_to_user->id])}}');" style="vertical-align:bottom;display:block;" >站內對話</button>
+                </td>                
+                <td rowspan="2" style="word-break: break-all">
+                    <div class="show_content_{{$row->evaluation_id}}">
+                    {{$row->content}}
+                    </div>
+                    @if ($row->content_violation_processing != 'return')
+                    <form method="POST" action="{{ route('evaluationModifyContent', $row->evaluation_id) }}" style="margin:0px;display:inline;">
+                        {!! csrf_field() !!}
+                        <input type="hidden" name="id" value="{{$row->evaluation_id}}">
+                        <textarea class="form-control m-input content_{{$row->evaluation_id}}" type="textarea" name="evaluation_content" rows="3" maxlength="300" style="display: none;">{{$row->content}}</textarea>
+                        <div class="btn btn_edit btn-success modify_content_btn_{{$row->evaluation_id}}" onclick="showTextArea({{$row->evaluation_id}})">修改評價內容</div>
+                        <button type="submit" class="text-white btn btn-info modify_content_submit evaluation_content_btn_{{ $row->evaluation_id }}" style="display: none;">確認修改</button>
+                        <button type="submit" class="text-white btn btn-danger modify_content_cancel evaluation_content_cancel_btn_{{ $row->evaluation_id }}" style="display: none;" onclick="cancelTextArea({{$row->evaluation_id}});">取消</button>
+                    </form>
+                    @endif                    
                 </td>
-                <td>@if($row->engroup==1)男@else女@endif</td>
-                <td>{{$row->WarnedScore()}}</td>
-                <td scope="row"
-                        @if($cur_to_user->is_banned())
-                            bgcolor="#FDFF8C"
-                        @elseif($cur_to_user->is_warned())
-                            bgcolor="#B0FFB1"
-                        @elseif(!$cur_to_user->accountStatus)
-                            bgcolor="#C9C9C9"
-                        @elseif(!$cur_to_user->account_status_admin)
-                            bgcolor="#969696"
-                        @elseif($cur_to_user->is_waiting_for_more_data())
-                            bgcolor="#DBA5F2"
-                        @elseif($cur_to_user->is_waiting_for_more_data_with_login_time())
-                            bgcolor="#A9D4F5"
-                        @endif                
-                ><a href="users/advInfo/{{$cur_to_user->id}}" target="_blank" class="gender_{{$cur_to_user->engroup}} email_link ">{{$cur_to_user->email}}</a></td>
-                <td style="word-break: break-all">{{$row->content}}</td>
-                <td class="evaluation_zoomIn">
+                <td rowspan="2" class="evaluation_zoomIn">
                     @foreach($row['pic'] as $evaluationPic)
                         <li>
                             <img src="{{ $evaluationPic->pic }}" style="max-width:130px;max-height:130px;margin-right: 5px;">
                         </li>
                     @endforeach
                 </td>
-                <td>
+                <td rowspan="2" nowrap>
                     <div>
                         @switch($row->content_violation_processing)
                             @case('modify_directly')
@@ -94,7 +96,11 @@
                     </div>
                     @switch($row->anonymous_content_status)
                         @case(0)
+                            @if($row->deleted_at)
+                                (刪)
+                            @else
                             <button type="button" class="btn btn-primary" onclick="checkAction({{$row->evaluation_id}},1,{{ $row->id }})" >通過</button>
+                            <button type="button" class="btn btn-primary" onclick="checkAction({{$row->evaluation_id}},1,{{ $row->id }},null,1)" >通過<br>(不附照片)</button>
                             <br>
                             <button type="button" class="btn btn-danger reject_button" onclick="showRejectDetailBlock(this);" >不通過</button>
                             <div class="reject_detail_edit_block">
@@ -109,47 +115,67 @@
                                     <button class="btn btn-danger" onclick="closeRejectDetailBlock(this);">取消</button>
                                 </div>
                             </div>
-                            <a class="btn btn-dark" href="{{ route('admin/showAnonymousChatMessage', $row->evaluation_id) }}" target="_blank">對話紀錄</a>
-                            @if ($row->content_violation_processing != 'return')
-                            <form method="POST" action="{{ route('evaluationModifyContent', $row->evaluation_id) }}" style="margin:0px;display:inline;">
-                                {!! csrf_field() !!}
-                                <input type="hidden" name="id" value="{{$row->evaluation_id}}">
-                                <textarea class="form-control m-input content_{{$row->evaluation_id}}" type="textarea" name="evaluation_content" rows="3" maxlength="300" style="display: none;">{{$row->content}}</textarea>
-                                <div class="btn btn_edit btn-success modify_content_btn_{{$row->evaluation_id}}" onclick="showTextArea({{$row->evaluation_id}})">修改評價內容</div>
-                                <button type="submit" class="text-white btn btn-primary modify_content_submit evaluation_content_btn_{{ $row->evaluation_id }}" style="display: none;">確認修改</button>
-                            </form>
                             @endif
                         @break
                         @case(1)
-                            通過<br>
-                            <a class="btn btn-dark" href="{{ route('admin/showAnonymousChatMessage', $row->evaluation_id) }}" target="_blank">對話紀錄</a>
-                            @if ($row->content_violation_processing != 'return')
-                            <form method="POST" action="{{ route('evaluationModifyContent', $row->evaluation_id) }}" style="margin:0px;display:inline;">
-                                {!! csrf_field() !!}
-                                <input type="hidden" name="id" value="{{$row->evaluation_id}}">
-                                <textarea class="form-control m-input content_{{$row->evaluation_id}}" type="textarea" name="evaluation_content" rows="3" maxlength="300" style="display: none;">{{$row->content}}</textarea>
-                                <div class="btn btn_edit btn-success modify_content_btn_{{$row->evaluation_id}}" onclick="showTextArea({{$row->evaluation_id}})">修改評價內容</div>
-                                <button type="submit" class="text-white btn btn-primary modify_content_submit evaluation_content_btn_{{ $row->evaluation_id }}" style="display: none;">確認修改</button>
-                            </form>
+                            通過
+                            @if($row->only_show_text)
+                                (不附照片)
+                            @endif
+                            
+                            @if($row->deleted_at)
+                            (刪)
+                            @else
+                            <br>
+                            <button type="button" class="btn btn-danger" onclick="checkAction({{$row->evaluation_id}},0,{{ $row->id }});" >取消通過</button>
                             @endif
                         @break
                         @case(2)
-                            不通過<br>
-                            <a class="btn btn-dark" href="{{ route('admin/showAnonymousChatMessage', $row->evaluation_id) }}" target="_blank">對話紀錄</a>
-                            @if ($row->content_violation_processing != 'return')
-                            <form method="POST" action="{{ route('evaluationModifyContent', $row->evaluation_id) }}" style="margin:0px;display:inline;">
-                                {!! csrf_field() !!}
-                                <input type="hidden" name="id" value="{{$row->evaluation_id}}">
-                                <textarea class="form-control m-input content_{{$row->evaluation_id}}" type="textarea" name="evaluation_content" rows="3" maxlength="300" style="display: none;">{{$row->content}}</textarea>
-                                <div class="btn btn_edit btn-success modify_content_btn_{{$row->evaluation_id}}" onclick="showTextArea({{$row->evaluation_id}})">修改評價內容</div>
-                                <button type="submit" class="text-white btn btn-primary modify_content_submit evaluation_content_btn_{{ $row->evaluation_id }}" style="display: none;">確認修改</button>
-                            </form>
+                            不通過
+                            @if($row->deleted_at)
+                            (刪)
+                            @else
+                            <br>
+                            <button type="button" class="btn btn-danger" onclick="checkAction({{$row->evaluation_id}},0,{{ $row->id }});" >取消不通過</button>
                             @endif
                         @break
                     @endswitch
+                    <br>
+                    <a class="btn btn-dark" href="{{ route('admin/showAnonymousChatMessage', $row->evaluation_id) }}" target="_blank">對話紀錄</a>                           
+                    <br>
                     <a href="/admin/users/message/anonymous-checked/to/{{$row->id}}/{{$row->evaluation_id}}" target="_blank" class="btn btn-dark">發送站長訊息</a>
                 </td>
-                <td>{{$row->created_at}}</td>
+                <td rowspan="2">{{$row->created_at}}</td>
+            </tr>
+            <tr style="border-bottom:solid;"  class="status_{{$row->anonymous_content_status}}">
+                <td scope="row" nowrap>被評價者</td>
+                <td scope="row"
+                        @if($cur_to_user->is_banned())
+                            bgcolor="#FDFF8C"
+                        @elseif($cur_to_user->is_warned())
+                            bgcolor="#B0FFB1"
+                        @elseif(!$cur_to_user->accountStatus)
+                            bgcolor="#C9C9C9"
+                        @elseif(!$cur_to_user->account_status_admin)
+                            bgcolor="#969696"
+                        @elseif($cur_to_user->is_waiting_for_more_data())
+                            bgcolor="#DBA5F2"
+                        @elseif($cur_to_user->is_waiting_for_more_data_with_login_time())
+                            bgcolor="#A9D4F5"
+                        @endif                
+                ><a href="users/advInfo/{{$cur_to_user->id}}" target="_blank" class="gender_{{$cur_to_user->engroup}} email_link ">{{$cur_to_user->email}}</a></td>                
+                <td scope="row"  nowrap>{{$cur_to_user->name}}</td>
+                <td  nowrap>
+                    @if($cur_to_user->isVip()==1)
+                        @if($cur_to_user_Vip=='diamond_black')
+                            <img src="/img/diamond_black.png" style="height: 1.5rem;">
+                        @else
+                            @for($z = 0; $z < $cur_to_user_Vip; $z++)
+                                <img src="/img/diamond.png" style="height: 1.5rem;">
+                            @endfor
+                        @endif
+                    @endif
+                </td>         
             </tr>
         @endforeach
         </tbody>
@@ -201,11 +227,13 @@
 <link rel="stylesheet" type="text/css" href="/new/css/swiper2.min.css"/>
 <script type="text/javascript" src="/new/js/swiper.min.js"></script>
 <script>
-    function checkAction(evaluation_id, status, user_id,dom=null){
+    $('tr.status_1,tr.status_2').hide();
+    function checkAction(evaluation_id, status, user_id,dom=null,only_show_text=0){
         let send_data = {
                 _token: '{{csrf_token()}}',
                 evaluation_id: evaluation_id,
                 status: status,
+                only_show_text:only_show_text,
             };
             
         if(status==2 && dom!=null) {
@@ -224,9 +252,20 @@
 
     function showTextArea(evaluation_id){
         $('.modify_content_btn_'+ evaluation_id).hide();
+        $('.show_content_'+ evaluation_id).hide();
         $('.content_'+ evaluation_id).show();
         $('.evaluation_content_btn_'+ evaluation_id).show();
+        $('.evaluation_content_cancel_btn_'+ evaluation_id).show();
     }
+    
+    function cancelTextArea(evaluation_id){
+        $('.modify_content_btn_'+ evaluation_id).show();
+        $('.show_content_'+ evaluation_id).show();
+        $('.content_'+ evaluation_id).hide();
+        $('.evaluation_content_btn_'+ evaluation_id).hide();
+        $('.evaluation_content_cancel_btn_'+ evaluation_id).hide();
+    }    
+    
     $('.modify_content_submit').on('click',function(e){
         if(!confirm('確定要修改該筆評價內容?')){
             e.preventDefault();
@@ -315,6 +354,7 @@
     
     function showRejectDetailBlock(dom) 
     {
+        window.open('/admin/users/message/anonymous-checked/to/{{$row->id}}/{{$row->evaluation_id}}');
         let now_elt = $(dom);
         let now_parent = now_elt.closest('td');
         now_parent.children().hide();
@@ -327,6 +367,23 @@
         let now_parent = now_elt.closest('td');
         now_parent.children().show();
         now_parent.find('.reject_detail_edit_block').hide(); 
-    }    
+    }  
+
+    function toggle_row(status,dom)
+    {
+       let cur_elt = $(dom);
+       let switch_elt = cur_elt.children('span').first();
+
+       switch(switch_elt.html()) {
+           case '開啟':
+               $('#table').find('tr.status_'+status).css('display','');
+               switch_elt.html('隱藏');           
+           break;
+           case '隱藏':
+               $('#table').find('tr.status_'+status).hide();
+               switch_elt.html('開啟');                      
+           break;           
+       }
+    }
 </script>
 @stop

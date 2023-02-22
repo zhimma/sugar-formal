@@ -41,14 +41,14 @@ use App\Models\StayOnlineRecord;
 use App\Models\PuppetAnalysisRow;
 use Illuminate\Support\Facades\Cache;
 use Tymon\JWTAuth\Contracts\JWTSubject;
-use Outl1ne\ScoutBatchSearchable\BatchSearchable;
 use App\Models\UserRemarksLog;
 use App\Models\UserVideoVerifyRecord;
 use App\Models\UserVideoVerifyMemo;
+use App\Services\AdminService;
 
 class User extends Authenticatable implements JWTSubject
 {
-    use HasFactory, Notifiable, BatchSearchable;
+    use HasFactory, Notifiable;
     /**
      * The database table used by the model.
      *
@@ -722,6 +722,50 @@ class User extends Authenticatable implements JWTSubject
             })->get()->count();
 
         return $c > 0;
+    }
+
+    /**
+     * 判斷在匿名聊天室檢舉次數已達禁言
+     *
+     *
+     * @param string|int $id 對象id
+     *
+     * @return boolean
+     */
+    public static function isAnonymousChatReportedSilence($id)
+    {
+        $user = User::findById($id);
+        $times = 3;
+        if($user->isVVIP()){
+            $times = 5;
+        }
+        $this_week = Carbon::now()->startOfWeek()->toDateTimeString();
+
+        //檢查上週是否還在禁言中
+        $last_week = Carbon::now()->startOfWeek(Carbon::now()->dayOfWeek+1)->subWeek()->setTimeFromTimeString('23:59:59');
+        $checkReport_last_week = AnonymousChatReport::select('user_id', 'created_at')
+            ->where('reported_user_id', $id)
+            ->where('created_at', '>', $last_week)
+            ->where('created_at', '<', $this_week)
+            ->groupBy('user_id')
+            ->orderBy('created_at', 'desc')
+            ->get();
+        if(count($checkReport_last_week) >= $times && Carbon::parse($checkReport_last_week[0]->created_at)->diffInDays(Carbon::now())<3){
+            return true;
+        }
+        //檢查上週是否還在禁言中_end
+
+        $checkReport = AnonymousChatReport::select('user_id', 'created_at')
+            ->where('reported_user_id', $id)
+            ->where('created_at', '>=', $this_week)
+            ->groupBy('user_id')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        if(count($checkReport) >= $times && Carbon::parse($checkReport[0]->created_at)->diffInDays(Carbon::now())<3){
+            return true;
+        }
+        return false;
     }
 
     public function is_waiting_for_more_data()
@@ -2001,6 +2045,44 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany(Message::class, 'from_id', 'id');
     }
     
+    public function message_accepted()
+    {
+        return $this->hasMany(Message::class, 'to_id', 'id');
+    } 
+    
+    public function message_sent_to_admin()
+    {
+        $admin = AdminService::checkAdmin();
+
+        return $this->addChatWithAdminClauseToQuery($this->message_sent())->where('to_id',$admin->id);
+    }
+    
+    public function message_accepted_from_admin()
+    {
+        $admin = AdminService::checkAdmin();
+        return $this->addChatWithAdminClauseToQuery($this->message_accepted())->where('from_id',$admin->id);
+    } 
+
+    public function message_with_admin()
+    {
+        return $this->message_sent_to_admin->merge($this->message_accepted_from_admin);
+    } 
+
+    public function latest_message_with_admin()
+    {
+        return $this->message_with_admin()->sortByDesc('created_at')->first();
+    }     
+
+    public static function addChatWithAdminClauseToQuery($query)
+    {
+        $during_date = Carbon::parse("180 days ago")->toDateTimeString();
+        $query->withTrashed()
+                ->where('created_at','>=',$during_date)
+                ->where('chat_with_admin', 1)
+                ;                
+        return $query;
+    }
+    
     /**
      * Get the identifier that will be stored in the subject claim of the JWT.
      *
@@ -2291,6 +2373,39 @@ class User extends Authenticatable implements JWTSubject
 //        if(isset($VVIPisBeInvitedCheckStatus)){ return 1;}
 //        return 0;
 //    }
+    public function isVvipSelectionRewardActive($to_user)
+    {
+        if($this->engroup==2){
+            $check1 = VvipSelectionReward::select('id')
+                ->where('user_id', $to_user)
+                ->whereIn('status', [1, 3])
+                ->get();
+            $check2 = null;
+            if($check1) {
+                $check2 = VvipSelectionRewardApply::whereIn('vvip_selection_reward_id', $check1)
+                    ->where('user_id', $this->id)
+                    ->where('status', 1)
+                    ->get();
+            }
+
+            return count($check1)>0 && count($check2)>0;
+
+        }
+        else if($this->engroup==1){
+            $check1 = VvipSelectionRewardApply::select('vvip_selection_reward_id')
+                ->where('user_id', $to_user)
+                ->where('status', 1)
+                ->get();
+            $check2 = null;
+            if($check1) {
+                $check2 = VvipSelectionReward::whereIn('id', $check1)
+                    ->where('user_id', $this->id)
+                    ->whereIn('status', [1, 3])
+                    ->get();
+            }
+            return count($check1)>0 && count($check2)>0;
+        }
+    }
 
     //--VVIP END--//
     public static function retrive($id)

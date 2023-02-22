@@ -17,11 +17,10 @@ class SetAutoBanController extends \App\Http\Controllers\BaseController
      * @return \Illuminate\Http\Response
      */
     public function getAutoBanedCheck(Request $request){
-        $email = $request->email;
-        $getBanList = SetAutoBan::local_machine_ban_and_warn_check($email);
-
-        $status = count($getBanList)>0 ? 1 : 0;
-        return ['status'=> $status];
+        $user_json = $request->user_json;
+        $ip = $request->ip ?? '0.0.0.0';
+        [$status, $ban_type] = SetAutoBan::local_machine_ban_and_warn_check(json_decode($user_json), $ip);
+        return ['status'=> $status, 'ban_type'=> $ban_type];
     }
     public function index(Request $request)
     {

@@ -76,7 +76,7 @@
 								session()->put('viewuser_vvip_page_position', 'messageBoard_'.$postDetail->mid);
 							}
 							else{
-								if(!str_contains($_SERVER['HTTP_REFERER'], 'MessageBoard/edit') && !str_contains($_SERVER['HTTP_REFERER'], 'MessageBoard/post_detail')){
+								if(isset($_SERVER['HTTP_REFERER']) && !str_contains($_SERVER['HTTP_REFERER'], 'MessageBoard/edit') && !str_contains($_SERVER['HTTP_REFERER'], 'MessageBoard/post_detail')){
 								    session()->forget('viewuser_page_position');
 									session()->forget('viewuser_vvip_page_position');
 								}
@@ -85,11 +85,14 @@
 							if(isset($_SERVER['HTTP_REFERER']) && str_contains($_SERVER['HTTP_REFERER'], 'from_message_board')){
 								$previous_url='/dashboard/viewuser/'.$postDetail->uid;
 							}
-							if(str_contains($_SERVER['REQUEST_URI'], 'from_viewuser_vvip_page')){
+							if(isset($_SERVER['REQUEST_URI']) && str_contains($_SERVER['REQUEST_URI'], 'from_viewuser_vvip_page')){
 								$previous_url='/dashboard/viewuser_vvip/'.$postDetail->uid.'#messageBoard_'.$postDetail->mid;
 							}
-							if(str_contains($_SERVER['REQUEST_URI'], 'from_viewuser_page')){
+							if(isset($_SERVER['REQUEST_URI']) && str_contains($_SERVER['REQUEST_URI'], 'from_viewuser_page')){
 								$previous_url='/dashboard/viewuser/'.$postDetail->uid.'#messageBoard_'.$postDetail->mid;
+							}
+							if(isset($_SERVER['HTTP_REFERER']) && str_contains($_SERVER['HTTP_REFERER'], 'back_message_board_list')){
+								$previous_url='/MessageBoard/showList';
 							}
 						@endphp
 						<a href="{{ $previous_url }}" class="toug_back btn_img">
@@ -345,8 +348,9 @@
         async mounted () {
 			let pid={{$pid}};
 			let return_page='{{$return_page}}';
+			let page_referer='{{ array_get($_SERVER,'HTTP_REFERER') }}';
 			await axios
-                .post('/MessageBoard/getItemHeader', { pid:pid })
+                .post('/MessageBoard/getItemHeader', { pid:pid, page_referer:page_referer })
                 .then(response => {
 					console.log(response,'getItemHeader');
                     this.itemHeader = response.data.ssrData;

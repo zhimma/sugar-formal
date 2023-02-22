@@ -26,25 +26,22 @@ use Session;
 
 class UserService
 {
+    public static $today_greeting_rate = 0;
     /**
      * User model
      * @var User
      */
     public $model;
-
     /**
      * User Meta model
      * @var UserMeta
      */
     protected $userMeta;
-
     /**
      * Role Service
      * @var RoleService
      */
     protected $role;
-
-    public static $today_greeting_rate = 0;
 
     public function __construct(
         User     $model,
@@ -56,24 +53,768 @@ class UserService
         $this->role = $role;
     }
 
-    /**
-     * Get all users
-     *
-     * @return array
-     */
-    public function all()
-    {
-        return $this->model->all();
+    public static function getBannedId($except = null){
+        $banned = \App\Models\SimpleTables\banned_users::select('member_id AS user_id')->get();
+        if($except){
+            $implicitlyBanned = \App\Models\BannedUsersImplicitly::select('target AS user_id')->where('target' , '<>', $except)->get();
+        } else{
+            $implicitlyBanned = \App\Models\BannedUsersImplicitly::select('target AS user_id')->get();
+        }
+
+        return $implicitlyBanned->toBase()->merge($banned);
     }
 
-    /**
-     * Find a user
-     * @param  integer $id
-     * @return User
-     */
-    public function find($id)
+    public static function isPersonalTagShow($to, $user) {
+        if(($to->id == $user->id)) {
+            return true;
+        }
+        if(($to->engroup == $user->engroup)) {
+            return true;
+        }
+        $setting = $to->self_auth_tags_display;
+        $show = false;
+        if($user->meta->isWarned == 1 || $user->aw_relation){
+            $show = false;
+        } else{
+            $getPr  =   $user->pr_log?$user->pr_log->pr:0;
+            if($setting) {
+                if($user->isVip() && $setting->vip_show) {
+                    $show = true;
+                }
+                if(!is_null($setting->more_than_pr_show) && !$show) {
+                    $show   =   ($getPr >=$setting->more_than_pr_show);
+                }
+            }
+
+            if($user->isVVIP() || $getPr>=80 ){
+                // if($user->isVVIP() || ($user->isVip() && $getPr>=80) ){
+                $show = true;
+            }
+
+        }
+        return $show;
+    }
+
+    public static function isBlurAvatar($to, $user) {
+        if(($to->id == $user->id)) {
+            return false;
+        }
+        if(($to->engroup == $user->engroup)) {
+            return false;
+        }
+        $blurryAvatar = isset($to->meta->blurryAvatar)? $to->meta->blurryAvatar : "";
+        $blurryAvatar = explode(',', $blurryAvatar);
+        if($user->meta->isWarned == 1 || $user->aw_relation){
+            $isBlurAvatar = true;
+        } else{
+            if(sizeof($blurryAvatar)>1){
+                $nowB = $user->isVipOrIsVvip()? 'VIP' : 'general';
+                $isBlurAvatar = in_array($nowB, $blurryAvatar);
+            } else {
+                $isBlurAvatar = false;
+            }
+
+            $getPr=$user->pr_log?$user->pr_log->pr:0;
+            foreach ($blurryAvatar as $value){
+                if(str_contains($value, 'PR_')){
+                    $set_pr_value=str_replace('PR_',"",$value);
+                    $isBlurAvatar=($set_pr_value>=$getPr) ? true : false;
+                }
+            }
+            if($user->isVVIP() || $getPr>=80 ){
+                // if($user->isVVIP() || ($user->isVip() && $getPr>=80) ){
+                $isBlurAvatar = false;
+            }
+
+        }
+        return $isBlurAvatar;
+    }
+
+    public static function isBlurLifePhoto($to, $user) {
+        if(($to->id == $user->id)) {
+            return false;
+        }
+        $blurryLifePhoto = isset($to->meta->blurryLifePhoto)? $to->meta->blurryLifePhoto : "";
+        $blurryLifePhoto = explode(',', $blurryLifePhoto);
+        if($user->meta->isWarned == 1 || $user->aw_relation ){
+            $isBlurLifePhoto = true;
+        } else{
+            if(sizeof($blurryLifePhoto)>1){
+                $nowB = $user->isVipOrIsVvip()? 'VIP' : 'general';
+                $isBlurLifePhoto = in_array($nowB, $blurryLifePhoto);
+            } else {
+                $isBlurLifePhoto = false;
+            }
+
+            $getPr=$user->pr_log?$user->pr_log->pr:0;
+            foreach ($blurryLifePhoto as $value){
+                if(str_contains($value, 'PR_')){
+                    $set_pr_value=str_replace('PR_',"",$value);
+                    $isBlurLifePhoto=($set_pr_value>=$getPr) ? true : false;
+                }
+            }
+
+            if($user->isVVIP() || $getPr>=80 ){
+                // if($user->isVVIP() || ($user->isVip() && $getPr>=80) ){
+                $isBlurLifePhoto = false;
+            }
+
+        }
+        return $isBlurLifePhoto;
+    }
+
+    public static function checkcfp($hash, $user_id){
+        if(!$hash){
+            return false;
+        }
+        $cfp = \App\Models\CustomFingerPrint::where('hash', $hash)->first();
+        if(!$cfp){
+            $cfp = new \App\Models\CustomFingerPrint;
+            $cfp->hash = $hash;
+            $cfp->host = request()->getHttpHost();
+            $cfp->save();
+        }
+        $exists = \App\Models\CFP_User::where('cfp_id', $cfp->id)->where('user_id', $user_id)->count();
+        if($exists == 0){
+            $cfp_user = new \App\Models\CFP_User;
+            $cfp_user->cfp_id = $cfp->id;
+            $cfp_user->user_id = $user_id;
+            $cfp_user->save();
+        }
+
+        return $cfp;
+    }
+
+    public static function checkNewSugarForbidMsg($femaleUser,$maleUser) {
+
+        $new_sugar_no_msg_days = 7;
+        $new_sugar_error_user_type = '普通';
+
+        if(($maleUser->user_meta->isWarned??false) || ($maleUser->aw_relation??false)) {
+            $new_sugar_no_msg_days = 20;
+            $new_sugar_error_user_type = '警示';
+        }
+
+        $recommend_data = UserService::checkRecommendedUser($femaleUser);
+        $femaleUser_cdate = Carbon::parse($femaleUser->created_at);
+
+        if($femaleUser->engroup==1) return false;
+        if(!($recommend_data['description']??null)) return false;
+        if($maleUser->isVipOrIsVvip() && $new_sugar_no_msg_days == 7) return false;
+        if($femaleUser_cdate->diffInDays(Carbon::now())>=$new_sugar_no_msg_days ) return false;
+        if($femaleUser->sentMessages()->where('to_id',$maleUser->id)->count()>0) return false;
+        if($new_sugar_no_msg_days == 7 && (($femaleUser->tiny_setting()->where('cat','new_sugar_chat_with_notvip')->first()->value)??null))  return false;
+
+        return ['days'=>$new_sugar_no_msg_days
+            ,'user_type_str'=>$new_sugar_error_user_type
+            ,'end_date'=>$femaleUser_cdate->addDays($new_sugar_no_msg_days )->format('Y/m/d H:i')];
+    }
+
+    public static function checkRecommendedUser($targetUser){
+        $description = null;
+        $stars = null;
+        $background = null;
+        $title = null;
+        $button = null;
+        $height = null;
+        $now = \Carbon\Carbon::now();
+        if($targetUser->engroup == 1 && ($targetUser->isVipOrIsVvip() || $targetUser->isVVIP()) ){
+            $vip_date = Vip::select('id', 'updated_at')->where('member_id', $targetUser->id)->orderBy('updated_at', 'desc')->get()->first();
+            if(!isset($vip_date->updated_at)){
+                return ['description' => $description,
+                    'stars' => $stars,
+                    'background' => $background,
+                    'title' => $title,
+                    'button' =>  $button,
+                    'height' => $height];
+            }
+            $vip_date = \Carbon\Carbon::createFromFormat('Y-m-d H:s:i', $vip_date->updated_at);
+            $diff_in_months = $vip_date->diffInMonths($now);
+            switch ($diff_in_months){
+                case 0:  //未滿一個月
+                    break;
+                case 1:
+                case 2:
+                    $tip_count = Tip::select('id')->where('member_id', $targetUser->id)->count();
+                    if($tip_count >= 1){
+                        $description = $targetUser->name."是本站於".$vip_date->toDateString()."成為VIP的新進的VIP會員，願意使用站方的車馬費制度。建議甜心可請求".$targetUser->name."向站方支付車馬費與您進行第一次約會。<a href='".url('feature')."' target='_blank'>(甚麼是車馬費?)</a>";
+                        $stars = "<img src='../../img/member_tags/star_19.png'>
+                                  <img src='../../img/member_tags/star_19.png'>
+                                  <img src='../../img/member_tags/star_19.png'>
+                                  <img src='../../img/member_tags/star_23.png'>
+                                  <img src='../../img/member_tags/star_23.png'>";
+                        $height = '480px';
+                    }
+                    break;
+                case 3:
+                    $tip_count = Tip::select('id')->where('member_id', $targetUser->id)->count();
+                    if($tip_count >= 1){
+                        $description = $targetUser->name."是本站於".$vip_date->toDateString()."成為VIP的長期VIP會員，願意使用站方的車馬費制度。建議甜心可請求".$targetUser->name."向站方支付車馬費與您進行第一次約會。<a href='".url('feature')."' target='_blank'>(甚麼是車馬費?)</a>";
+                        $stars = "<img src='../../img/member_tags/star_19.png'>
+                                  <img src='../../img/member_tags/star_19.png'>
+                                  <img src='../../img/member_tags/star_19.png'>
+                                  <img src='../../img/member_tags/star_21.png'>
+                                  <img src='../../img/member_tags/star_23.png'>";
+                        $height = '480px';
+                    } else{
+                        $description = $targetUser->name."是本站於".$vip_date->toDateString()."成為VIP的長期VIP會員。";
+                        $stars = "<img src='../../img/member_tags/star_19.png'>
+                                  <img src='../../img/member_tags/star_19.png'>
+                                  <img src='../../img/member_tags/star_19.png'>
+                                  <img src='../../img/member_tags/star_23.png'>
+                                  <img src='../../img/member_tags/star_23.png'>";
+                        $height = '380px';
+                    }
+                    break;
+                case 4:
+                    $tip_count = Tip::select('id')->where('member_id', $targetUser->id)->count();
+                    if($tip_count >= 1){
+                        $description = $targetUser->name."是本站於".$vip_date->toDateString()."成為VIP的長期VIP會員，願意使用站方的車馬費制度。建議甜心可請求".$targetUser->name."向站方支付車馬費與您進行第一次約會。<a href='".url('feature')."' target='_blank'>(甚麼是車馬費?)</a>";
+                        $stars = "<img src='../../img/member_tags/star_19.png'>
+                                  <img src='../../img/member_tags/star_19.png'>
+                                  <img src='../../img/member_tags/star_19.png'>
+                                  <img src='../../img/member_tags/star_19.png'>
+                                  <img src='../../img/member_tags/star_21.png'>";
+                        $height = '480px';
+                    } else{
+                        $description = $targetUser->name."是本站於".$vip_date->toDateString()."成為VIP的長期VIP會員。";
+                        $stars = "<img src='../../img/member_tags/star_19.png'>
+                                  <img src='../../img/member_tags/star_19.png'>
+                                  <img src='../../img/member_tags/star_19.png'>
+                                  <img src='../../img/member_tags/star_19.png'>
+                                  <img src='../../img/member_tags/star_23.png'>";
+                        $height = '380px';
+                    }
+                    break;
+                default:  //五個月以上
+                    $description = $targetUser->name."是本站於".$vip_date->toDateString()."成為VIP的長期VIP會員。";
+                    $stars = "<img src='../../img/member_tags/star_19.png'>
+                              <img src='../../img/member_tags/star_19.png'>
+                              <img src='../../img/member_tags/star_19.png'>
+                              <img src='../../img/member_tags/star_19.png'>
+                              <img src='../../img/member_tags/star_19.png'>";
+                    $height = '380px';
+                    break;
+            }
+            if(isset($description)){
+                $background = '../../img/member_tags/bg_1.png';
+                $title = "優選糖爹";
+                $button = "../../img/member_tags/rcmd_daddy.png";
+            }
+        }
+        //elseif ($targetUser->engroup == 2 && $targetUser->isVipOrIsVvip() && isset($targetUser->created_at)){
+        //210914 新進甜心移除VIP條件 改成「30天內註冊的女會員」
+        elseif ($targetUser->engroup == 2 && isset($targetUser->created_at)){
+            $registration_date = \Carbon\Carbon::createFromFormat('Y-m-d H:s:i', $targetUser->created_at);
+            $diff_in_months = $registration_date->diffInMonths($now);
+            if($diff_in_months == 0){
+                $background = '../../img/member_tags/bg_2.png';
+                $button = "../../img/member_tags/new_baby.png";
+                $title = "新進甜心";
+                $description = $targetUser->name."是本站新註冊的甜心寶貝。";
+                $stars = "<img src='../../img/member_tags/star_19.png'>
+                          <img src='../../img/member_tags/star_19.png'>
+                          <img src='../../img/member_tags/star_19.png'>
+                          <img src='../../img/member_tags/star_19.png'>
+                          <img src='../../img/member_tags/star_19.png'>";
+                $height = '380px';
+            }
+        }
+
+        return ['description' => $description,
+            'stars' => $stars,
+            'background' => $background,
+            'title' => $title,
+            'button' =>  $button,
+            'height' => $height];
+    }
+
+    public static function isShowMultiUserForbidHintUserId($value,$type,$user_id=null) {
+
+        $type = strtolower($type);
+        $logUserArr = [];
+        $logEntrys = [];
+        switch($type) {
+            case 'ip':
+                $query = LogUserLogin::queryOfIpUsedByOtherUserId($value,$user_id);
+                if($query)
+                    $logEntrys = $query->distinct('user_id')->get();
+                break;
+            case 'cfp_id':
+                $query = LogUserLogin::queryOfCfpIdUsedByOtherUserId($value,$user_id);
+                if($query)
+                    $logEntrys = $query->distinct('user_id')->get();
+                break;
+        }
+        $user_list = [];
+        $b_count_total=0;
+        $w_count_total=0;
+        $b_vip_pass_count_total =0;
+        $w_vip_pass_count_total = 0;
+
+        foreach($logEntrys as $logEntry) {
+            $b_vip_pass_count = 0;
+            $w_vip_pass_count = 0;
+            $b_count = 0;
+            $w_count = 0;
+            if($logEntry->user->user_meta->isWarned??null) return false;
+
+            if(($logEntry->user->aw_relation??null) && $logEntry->user->aw_relation()->where('vip_pass',0)->count()) {
+                return false;
+            }
+            if($logEntry->user->implicitlyBanned??null) return false;
+
+
+            if(($logEntry->user->banned??null) && $logEntry->user->banned()->where('vip_pass',0)->count()) {
+                return false;
+            }
+
+            if(($logEntry->user->banned)??null) $b_vip_pass_count= ($logEntry->user->banned()->where('vip_pass',1)->count())??0;
+            if(($logEntry->user->aw_relation)??null) $w_vip_pass_count= ($logEntry->user->aw_relation()->where('vip_pass',1)->count())??0;
+            if(($logEntry->user->is_banned_log)??null) $b_count= $logEntry->user->is_banned_log()->count();
+            if(($logEntry->user->is_warned_log)??null) $w_count= $logEntry->user->is_warned_log()->count();
+            if(($b_count - $b_vip_pass_count)>0 || ($w_count- $w_vip_pass_count)>0) return false;
+
+            $b_count_total+=$b_count;
+            $w_count_total+=$w_count;
+            $b_vip_pass_count_total+=$b_vip_pass_count;
+            $w_vip_pass_count_total+=$w_vip_pass_count;
+        }
+
+        return !(($b_count_total+$w_count_total-$b_vip_pass_count_total - $w_vip_pass_count_total)>0 ) ;
+
+    }
+
+    public static function isAdvAuthUsableByUser($user) {
+        return !($user->isForbidAdvAuth()
+            || $user->isPauseAdvAuth()
+            || $user->isDuplicateAdvAuth()
+            || LogAdvAuthApi::isPauseApi());
+
+    }
+
+    public static function computeCanMessagePercent_7($uid)
     {
-        return $this->model->findById($id);
+        $targetUser = User::where('id', $uid)->where('accountStatus',1)->where('account_status_admin',1)->get()->first();
+
+        if(!$targetUser) {
+            return 100;
+        }
+
+        $date_start = date("Y-m-d",strtotime("-6 days", strtotime(date('Y-m-d'))));
+        $date_end = date('Y-m-d');
+        $query = Message::select('users.email','users.name','users.title','users.engroup','users.created_at','users.last_login','message.id','message.from_id','message.content','user_meta.about')
+            ->join('users', 'message.from_id', '=', 'users.id')
+            ->join('user_meta', 'message.from_id', '=', 'user_meta.user_id')
+            ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'message.from_id')
+            ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'message.from_id')
+            ->leftJoin('warned_users as wu', function($join) {
+                $join->on('wu.member_id', '=', 'message.from_id')
+                    ->where(function($join) {
+                        $join->where('wu.expire_date', '>=', Carbon::now())
+                            ->orWhere('wu.expire_date', null);
+                    }); })
+            ->whereNull('b1.member_id')
+            ->whereNull('b3.target')
+            ->whereNull('wu.member_id')
+            ->where('users.id', $targetUser->id)
+            ->where('users.accountStatus', 1)
+            ->where('users.account_status_admin', 1)
+            ->where(function($query)use($date_start,$date_end) {
+                $query->where('message.from_id','<>',1049)
+                    ->where('message.sys_notice', 0)
+                    ->orWhereNull('message.sys_notice')
+                    ->whereBetween('message.created_at', array($date_start . ' 00:00', $date_end . ' 23:59'));
+            });
+        $results_a = $query->distinct('message.from_id')->get();
+
+        if ($results_a != null) {
+            $msg = array();
+            $from_content = array();
+            $user_similar_msg = array();
+
+            $messages = Message::select('id','content','created_at')
+                ->where('from_id', $targetUser->id)
+                ->where(function ($query) {
+                    $query->where('sys_notice', 0)
+                        ->orWhereNull('sys_notice');
+                })
+                ->whereBetween('created_at', array($date_start . ' 00:00', $date_end . ' 23:59'))
+                ->orderBy('created_at','desc')
+                ->take(100)
+                ->get();
+
+            foreach($messages as $row){
+                array_push($msg,array('id'=>$row->id,'content'=>$row->content,'created_at'=>$row->created_at));
+            }
+
+            array_push($from_content,  array('msg'=>$msg));
+
+            $unique_id = array(); //過濾重複ID用
+            //比對訊息
+            foreach($from_content as $data) {
+                foreach ($data['msg'] as $word1) {
+                    foreach ($data['msg'] as $word2) {
+                        if ($word1['created_at'] != $word2['created_at']) {
+                            if(strlen($word1['content']) > 200) {
+                                continue;
+                            }
+                            similar_text($word1['content'], $word2['content'], $percent);
+                            if ($percent >= 70) {
+                                if(!in_array($word1['id'],$unique_id)) {
+                                    array_push($unique_id,$word1['id']);
+                                    array_push($user_similar_msg, array($word1['id'], $word1['content'], $word1['created_at'], $percent));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        $message_percent_7 = count($user_similar_msg) > 0 ? round( (count($user_similar_msg) / count($messages))*100 )  : 0;
+        return $message_percent_7;
+    }
+
+    public static function computeCanMessagePercent_15($uid)
+    {
+        $targetUser = User::where('id', $uid)->where('accountStatus',1)->where('account_status_admin',1)->get()->first();
+
+        if(!$targetUser) {
+            return 100;
+        }
+
+        $date_start = date("Y-m-d",strtotime("-14 days", strtotime(date('Y-m-d'))));
+        $date_end = date('Y-m-d');
+        $query = Message::select('users.email','users.name','users.title','users.engroup','users.created_at','users.last_login','message.id','message.from_id','message.content','user_meta.about')
+            ->join('users', 'message.from_id', '=', 'users.id')
+            ->join('user_meta', 'message.from_id', '=', 'user_meta.user_id')
+            ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'message.from_id')
+            ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'message.from_id')
+            ->leftJoin('warned_users as wu', function($join) {
+                $join->on('wu.member_id', '=', 'message.from_id')
+                    ->where(function($join) {
+                        $join->where('wu.expire_date', '>=', Carbon::now())
+                            ->orWhere('wu.expire_date', null);
+                    }); })
+            ->whereNull('b1.member_id')
+            ->whereNull('b3.target')
+            ->whereNull('wu.member_id')
+            ->where('users.id', $targetUser->id)
+            ->where('users.accountStatus', 1)
+            ->where('users.account_status_admin', 1)
+            ->where(function($query)use($date_start,$date_end) {
+                $query->where('message.from_id','<>',1049)
+                    ->where('message.sys_notice', 0)
+                    ->orWhereNull('message.sys_notice')
+                    ->whereBetween('message.created_at', array($date_start . ' 00:00', $date_end . ' 23:59'));
+            });
+        $results_a = $query->distinct('message.from_id')->get();
+
+        if ($results_a != null) {
+            $msg = array();
+            $from_content = array();
+            $user_similar_msg = array();
+
+            $messages = Message::select('id','content','created_at')
+                ->where('from_id', $targetUser->id)
+                ->where(function ($query) {
+                    $query->where('sys_notice', 0)
+                        ->orWhereNull('sys_notice');
+                })
+                ->whereBetween('created_at', array($date_start . ' 00:00', $date_end . ' 23:59'))
+                ->orderBy('created_at','desc')
+                ->take(100)
+                ->get();
+
+            foreach($messages as $row){
+                array_push($msg,array('id'=>$row->id,'content'=>$row->content,'created_at'=>$row->created_at));
+            }
+
+            array_push($from_content,  array('msg'=>$msg));
+
+            $unique_id = array(); //過濾重複ID用
+            //比對訊息
+            foreach($from_content as $data) {
+                foreach ($data['msg'] as $word1) {
+                    foreach ($data['msg'] as $word2) {
+                        if ($word1['created_at'] != $word2['created_at']) {
+                            if(strlen($word1['content']) > 200) {
+                                continue;
+                            }
+                            similar_text($word1['content'], $word2['content'], $percent);
+                            if ($percent >= 70) {
+                                if(!in_array($word1['id'],$unique_id)) {
+                                    array_push($unique_id,$word1['id']);
+                                    array_push($user_similar_msg, array($word1['id'], $word1['content'], $word1['created_at'], $percent));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        $message_percent_15 = count($user_similar_msg) > 0 ? round( (count($user_similar_msg) / count($messages))*100 )  : 0;
+        return $message_percent_15;
+    }
+
+    public static function toPostfix($infix){
+        $infix_arr = preg_split('~|(-?\d*(?:Max|Min|Avg|Median|\.\d+)?|[()*/+-])~', $infix, 0, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
+        $stack = [];
+        $opt = [];
+
+        foreach ($infix_arr as $k=> $v) {
+
+            switch($v){
+                case 'Max':case 'Min':case ',':case '(':
+                array_push($stack, $v);
+
+                break;
+
+                case'+':case'-':case'*':case'/':
+
+                $top = count($stack);
+                if($top) {
+                    while(UserService::priority($stack[$top-1]) >= UserService::priority($v) ){
+                        array_push($opt, $stack[$top--]);
+                    }
+                }
+                array_push($stack, $v);
+                break;
+
+                case ')':
+                    $top = count($stack);
+                    $isCompare = false;
+
+                    while($stack[$top-1]!='('){
+
+                        $isCompare = $stack[$top-1]==',';
+                        if(!$isCompare){
+                            array_push($opt, $stack[$top-1]);
+                        }
+                        array_splice($stack,$top-1,1);
+                        $top--;
+                    }
+                    array_splice($stack,$top-1,1);
+                    $top--;
+
+                    if($isCompare){
+                        array_push($opt, $stack[$top-1]);
+                        array_splice($stack,$top-1,1);
+                    }
+                    break;
+                default:
+                    array_push($opt, $v);
+                    break;
+            }
+        }
+
+        while(count($stack)>0){
+            $top = count($stack);
+            array_push($opt, $stack[$top-1]);
+            array_splice($stack,$top-1,1);
+            $top--;
+        }
+
+        return implode(",", $opt);
+    }
+
+    public static function priority($op)
+    {
+        switch($op){
+            case'+': case'-': return 1;
+            case'*': case'/': return 2;
+            default: return 0;
+        }
+    }
+
+    public static function checkCanMessageWithGreetingRate($user, $to_id, $content)
+    {
+        $gr_exceed = UserService::isGreetingFrequently($user->id);
+        $today_post_count = Message::where('from_id', $user->id)->where('to_id', $to_id)->whereDate('created_at', Carbon::today())->count();
+
+        if ($gr_exceed && $today_post_count == 1) {
+
+            $date_start = date("Y-m-d",strtotime("-15 days", strtotime(date('Y-m-d'))));
+            $date_end = date('Y-m-d',strtotime("-1 days", strtotime(date('Y-m-d'))));
+
+            $messages = Message::select('id','content','created_at')
+                ->where('from_id', $user->id)
+                ->where('sys_notice','<>', 1)
+                ->whereBetween('created_at', array($date_start . ' 00:00', $date_end . ' 23:59'))
+                ->orderBy('created_at','desc')
+                ->get();
+
+            $isCanMessage = false;
+            // $can_pr = UserService::computeCanMessagePercent_15($user->id);
+            $can_pr = 50;
+            foreach($messages as $data) {
+                similar_text($content, $data['content'], $percent);
+                if ($percent >= $can_pr) {
+                    $isCanMessage = true;
+                    $user_open_alert = $user->can_message_alert;
+                    if ($user_open_alert) {
+                        return true;
+                    }else {
+                        return false;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    public static function isGreetingFrequently($from_id)
+    {
+        //        $query = DB::table('log_system_day_statistic')->whereDate('date', Carbon::today())->first();
+        //        $avg = $query?->average_recipients_count_of_vip_male_senders;
+        //        $median = $query?->median_recipients_count_of_vip_male_senders;
+        //        $greeting_rate = max($avg ?? 999, $median ?? 999) * 1.75;
+        // 招手比後台調整，測試 OK 再使用下面2行，並刪除或註解上面 4行
+        $postfix = DB::table('greeting_rate_calculations')->first()->postfix;
+        $greeting_rate = UserService::computeGreetingRate($postfix);
+        $recipients_count = UserMeta::where('user_id', $from_id)->pluck('recipients_count')->first();
+
+        return $recipients_count > $greeting_rate;
+    }
+
+    public static function computeGreetingRate($postfix)
+    {
+        $query = DB::table('log_system_day_statistic')->whereDate('date', Carbon::today())->first();
+        $avg = $query?->average_recipients_count_of_vip_male_senders;
+        $median = $query?->median_recipients_count_of_vip_male_senders;
+
+        $postfix_arr = explode(",", $postfix);
+        $postfix_arr = str_replace('Avg', $avg ?? 999, $postfix_arr);
+        $postfix_arr = str_replace('Median', $median ?? 999, $postfix_arr);
+        $stack = [];
+        foreach ($postfix_arr as $v) {
+            switch($v) {
+                case '+':
+                    $top = count($stack);
+                    $stack[$top-2] = $stack[$top-2] + $stack[$top-1];
+                    array_splice($stack,$top-1,1);
+                    break;
+                case '-':
+                    $top = count($stack);
+                    $stack[$top-2] = $stack[$top-2] - $stack[$top-1];
+                    array_splice($stack,$top-1,1);
+                    break;
+                case '*':
+                    $top = count($stack);
+
+                    $stack[$top-2] = $stack[$top-2] * $stack[$top-1];
+                    array_splice($stack,$top-1,1);
+                    break;
+                case '/':
+                    $top = count($stack);
+                    $stack[$top-2] = $stack[$top-2] / $stack[$top-1];
+                    array_splice($stack,$top-1,1);
+                    break;
+                case 'Max':
+                    $top = count($stack);
+                    $stack[$top-2] = max($stack[$top-2], $stack[$top-1]);
+                    array_splice($stack,$top-1,1);
+                    break;
+                case 'Min':
+                    $top = count($stack);
+                    $stack[$top-2] = min($stack[$top-2], $stack[$top-1]);
+                    array_splice($stack,$top-1,1);
+                    break;
+                default:
+                    array_push($stack, $v);
+                    break;
+            }
+        }
+        return $stack[0];
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Roles
+    |--------------------------------------------------------------------------
+    */
+
+    public static function checkCanPicMessageWithGreetingRate($user, $msg_entry)
+    {
+        $user_open_alert = $user->can_message_alert;
+        UserService::isGreetingFrequently($user->id);
+        $today_greeting_rate = UserService::$today_greeting_rate;
+        $today_post_count = Message::where('from_id', $user->id)->where('to_id', $msg_entry->to_id)->whereDate('created_at', Carbon::today())->whereNotNull('pic')->where('pic','!=','')->count();
+        $compare_found_count = 0;
+
+        if ( $today_post_count == 1) {
+
+            $date_start = date("Y-m-d",strtotime("-15 days", strtotime(date('Y-m-d'))));
+            $date_end = date('Y-m-d',strtotime("-1 days", strtotime(date('Y-m-d'))));
+
+            $messages = Message::select('id','pic','created_at')
+                ->where('from_id', $user->id)
+                ->where('sys_notice','<>', 1)
+                ->whereBetween('created_at', array($date_start . ' 00:00', $date_end . ' 23:59'))
+                ->orderBy('created_at','desc')
+                ->whereNotNull('pic')->where('pic','!=','')
+                ->get();
+
+            $isCanMessage = false;
+
+            $date_count_arr = [];
+
+            $src_pic_arr = json_decode($msg_entry->pic,true);
+            foreach($src_pic_arr as $src_pic) {
+
+                $srcEncodeEntry = ImagesCompareEncode::where('pic',$src_pic['file_path'])->first();
+
+                foreach($messages as $data) {
+                    $now_msg_date = Carbon::parse($data['created_at'])->format('Y-m-d');
+                    $date_count_arr[$now_msg_date] = 0;;
+                    if($date_count_arr[$now_msg_date]>3) continue;
+                    else $date_count_arr[$now_msg_date]++;
+                    $now_pic_arr = json_decode($data->pic,true);
+
+                    foreach($now_pic_arr as $msg_pic) {
+
+                        $targetEncodeEntry = ImagesCompareEncode::where('pic',$msg_pic['file_path'])->first();
+
+                        $compareRs = ImagesCompareService::comparePairImageEncodeEntry($srcEncodeEntry,$targetEncodeEntry);
+
+                        if($compareRs) {
+                            foreach($compareRs as $crk=> $crv) {
+                                $$crk = $crv;
+                            }
+
+                            if((($srcPercent>=90 && $targetPercent>=90) || ($srcEncodeEntry->file_md5==$targetEncodeEntry->file_md5))
+                                && $srcInterPercent>=50 && $targetInterPercent>=50
+                            ) {
+                                $compare_found_count++;
+                                if ($user_open_alert && $compare_found_count>$today_greeting_rate*0.5) return true;
+                            }
+                        }
+                    }
+
+                }
+            }
+
+            if ($user_open_alert && $compare_found_count>$today_greeting_rate*0.5) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+        return false;
+    }
+
+    public static function getRegisterDaysByUser($userEntry)
+    {
+        $now = Carbon::now();
+        $register_at = Carbon::parse($userEntry->created_at);
+        $diff_days = $register_at->diffInDays($now);
+
+        return $diff_days;
+    }
+
+    public static function getOptionWordByWeightValue($weight)
+    {
+        return $weight?($weight-4).' ~ '.$weight:str_replace('0','不填寫',$weight);
     }
 
     /**
@@ -106,11 +847,6 @@ class UserService
         return $this->model->findByEmail($email);
     }
 
-    public function findByName($name)
-    {
-        return $this->model->findByName($name);
-    }
-
     /**
      * Find by Role ID
      * @param  integer $id
@@ -131,6 +867,16 @@ class UserService
     }
 
     /**
+     * Get all users
+     *
+     * @return array
+     */
+    public function all()
+    {
+        return $this->model->all();
+    }
+
+    /**
      * Find by the user meta activation token
      *
      * @param  string $token
@@ -145,6 +891,26 @@ class UserService
         }
 
         return false;
+    }
+
+    /**
+     * Invite a new member
+     * @param  array $info
+     * @return void
+     */
+    public function invite($info)
+    {
+        $password = substr(md5(rand(1111, 9999)), 0, 10);
+
+        return DB::transaction(function () use ($password, $info) {
+            $user = $this->model->create([
+                'email' => $info['email'],
+                'name' => $info['name'],
+                'password' => bcrypt($password)
+            ]);
+
+            return $this->create($user, $password, $info['roles'], db_config('send-email'));
+        });
     }
 
     /**
@@ -230,6 +996,22 @@ class UserService
             logger($e);
             throw new Exception("We were unable to generate your profile, please try again later. " . $e, 1);
         }
+    }
+
+    /**
+     * Set and send the user activation token via email
+     *
+     * @param void
+     */
+    public function setAndSendUserActivationToken($user)
+    {
+        $token = md5(str_random(40));
+
+        $user->meta_()->update([
+            'activation_token' => $token
+        ]);
+
+        $user->notify(new ActivateUserEmail($token));
     }
 
     /**
@@ -603,144 +1385,49 @@ class UserService
         }
     }
 
-
-    public static function checkRecommendedUser($targetUser){
-        $description = null;
-        $stars = null;
-        $background = null;
-        $title = null;
-        $button = null;
-        $height = null;
-        $now = \Carbon\Carbon::now();
-        if($targetUser->engroup == 1 && ($targetUser->isVipOrIsVvip() || $targetUser->isVVIP()) ){
-            $vip_date = Vip::select('id', 'updated_at')->where('member_id', $targetUser->id)->orderBy('updated_at', 'desc')->get()->first();
-            if(!isset($vip_date->updated_at)){
-                return ['description' => $description,
-                    'stars' => $stars,
-                    'background' => $background,
-                    'title' => $title,
-                    'button' =>  $button,
-                    'height' => $height];
-            }
-            $vip_date = \Carbon\Carbon::createFromFormat('Y-m-d H:s:i', $vip_date->updated_at);
-            $diff_in_months = $vip_date->diffInMonths($now);
-            switch ($diff_in_months){
-                case 0:  //未滿一個月
-                    break;
-                case 1:
-                case 2:
-                    $tip_count = Tip::select('id')->where('member_id', $targetUser->id)->count();
-                    if($tip_count >= 1){
-                        $description = $targetUser->name."是本站於".$vip_date->toDateString()."成為VIP的新進的VIP會員，願意使用站方的車馬費制度。建議甜心可請求".$targetUser->name."向站方支付車馬費與您進行第一次約會。<a href='".url('feature')."' target='_blank'>(甚麼是車馬費?)</a>";
-                        $stars = "<img src='../../img/member_tags/star_19.png'>
-                                  <img src='../../img/member_tags/star_19.png'>
-                                  <img src='../../img/member_tags/star_19.png'>
-                                  <img src='../../img/member_tags/star_23.png'>
-                                  <img src='../../img/member_tags/star_23.png'>";
-                        $height = '480px';
-                    }
-                    break;
-                case 3:
-                    $tip_count = Tip::select('id')->where('member_id', $targetUser->id)->count();
-                    if($tip_count >= 1){
-                        $description = $targetUser->name."是本站於".$vip_date->toDateString()."成為VIP的長期VIP會員，願意使用站方的車馬費制度。建議甜心可請求".$targetUser->name."向站方支付車馬費與您進行第一次約會。<a href='".url('feature')."' target='_blank'>(甚麼是車馬費?)</a>";
-                        $stars = "<img src='../../img/member_tags/star_19.png'>
-                                  <img src='../../img/member_tags/star_19.png'>
-                                  <img src='../../img/member_tags/star_19.png'>
-                                  <img src='../../img/member_tags/star_21.png'>
-                                  <img src='../../img/member_tags/star_23.png'>";
-                        $height = '480px';
-                    } else{
-                        $description = $targetUser->name."是本站於".$vip_date->toDateString()."成為VIP的長期VIP會員。";
-                        $stars = "<img src='../../img/member_tags/star_19.png'>
-                                  <img src='../../img/member_tags/star_19.png'>
-                                  <img src='../../img/member_tags/star_19.png'>
-                                  <img src='../../img/member_tags/star_23.png'>
-                                  <img src='../../img/member_tags/star_23.png'>";
-                        $height = '380px';
-                    }
-                    break;
-                case 4:
-                    $tip_count = Tip::select('id')->where('member_id', $targetUser->id)->count();
-                    if($tip_count >= 1){
-                        $description = $targetUser->name."是本站於".$vip_date->toDateString()."成為VIP的長期VIP會員，願意使用站方的車馬費制度。建議甜心可請求".$targetUser->name."向站方支付車馬費與您進行第一次約會。<a href='".url('feature')."' target='_blank'>(甚麼是車馬費?)</a>";
-                        $stars = "<img src='../../img/member_tags/star_19.png'>
-                                  <img src='../../img/member_tags/star_19.png'>
-                                  <img src='../../img/member_tags/star_19.png'>
-                                  <img src='../../img/member_tags/star_19.png'>
-                                  <img src='../../img/member_tags/star_21.png'>";
-                        $height = '480px';
-                    } else{
-                        $description = $targetUser->name."是本站於".$vip_date->toDateString()."成為VIP的長期VIP會員。";
-                        $stars = "<img src='../../img/member_tags/star_19.png'>
-                                  <img src='../../img/member_tags/star_19.png'>
-                                  <img src='../../img/member_tags/star_19.png'>
-                                  <img src='../../img/member_tags/star_19.png'>
-                                  <img src='../../img/member_tags/star_23.png'>";
-                        $height = '380px';
-                    }
-                    break;
-                default:  //五個月以上
-                    $description = $targetUser->name."是本站於".$vip_date->toDateString()."成為VIP的長期VIP會員。";
-                    $stars = "<img src='../../img/member_tags/star_19.png'>
-                              <img src='../../img/member_tags/star_19.png'>
-                              <img src='../../img/member_tags/star_19.png'>
-                              <img src='../../img/member_tags/star_19.png'>
-                              <img src='../../img/member_tags/star_19.png'>";
-                    $height = '380px';
-                    break;
-            }
-            if(isset($description)){
-                $background = '../../img/member_tags/bg_1.png';
-                $title = "優選糖爹";
-                $button = "../../img/member_tags/rcmd_daddy.png";
-            }
-        }
-        //elseif ($targetUser->engroup == 2 && $targetUser->isVipOrIsVvip() && isset($targetUser->created_at)){
-        //210914 新進甜心移除VIP條件 改成「30天內註冊的女會員」
-        elseif ($targetUser->engroup == 2 && isset($targetUser->created_at)){
-            $registration_date = \Carbon\Carbon::createFromFormat('Y-m-d H:s:i', $targetUser->created_at);
-            $diff_in_months = $registration_date->diffInMonths($now);
-            if($diff_in_months == 0){
-                $background = '../../img/member_tags/bg_2.png';
-                $button = "../../img/member_tags/new_baby.png";
-                $title = "新進甜心";
-                $description = $targetUser->name."是本站新註冊的甜心寶貝。";
-                $stars = "<img src='../../img/member_tags/star_19.png'>
-                          <img src='../../img/member_tags/star_19.png'>
-                          <img src='../../img/member_tags/star_19.png'>
-                          <img src='../../img/member_tags/star_19.png'>
-                          <img src='../../img/member_tags/star_19.png'>";
-                $height = '380px';
-            }
-        }
-
-        return ['description' => $description,
-            'stars' => $stars,
-            'background' => $background,
-            'title' => $title,
-            'button' =>  $button,
-            'height' => $height];
+    /**
+     * Find a user
+     * @param  integer $id
+     * @return User
+     */
+    public function find($id)
+    {
+        return $this->model->findById($id);
     }
 
     /**
-     * Invite a new member
-     * @param  array $info
+     * Unassign all roles from the user
+     *
+     * @param  string $roleName
+     * @param  integer $userId
      * @return void
      */
-    public function invite($info)
+    public function unassignAllRoles($userId)
     {
-        $password = substr(md5(rand(1111, 9999)), 0, 10);
+        //$user = $this->model->find($userId);
+        $user = $this->find($userId);
+        $user->roles()->detach();
+    }
 
-        return DB::transaction(function () use ($password, $info) {
-            $user = $this->model->create([
-                'email' => $info['email'],
-                'name' => $info['name'],
-                'password' => bcrypt($password)
-            ]);
+    /**
+     * Assign a role to the user
+     *
+     * @param  string $roleName
+     * @param  integer $userId
+     * @return void
+     */
+    public function assignRole($roleName, $userId)
+    {
+        $role = $this->role->findByName($roleName);
+        //$user = $this->model->find($userId);
+        $user = $this->find($userId);
 
-            return $this->create($user, $password, $info['roles'], db_config('send-email'));
-        });
+        $user->roles()->attach($role);
+    }
+
+    public function findByName($name)
+    {
+        return $this->model->findByName($name);
     }
 
     /**
@@ -805,22 +1492,6 @@ class UserService
         }
     }
 
-    /**
-     * Set and send the user activation token via email
-     *
-     * @param void
-     */
-    public function setAndSendUserActivationToken($user)
-    {
-        $token = md5(str_random(40));
-
-        $user->meta_()->update([
-            'activation_token' => $token
-        ]);
-
-        $user->notify(new ActivateUserEmail($token));
-    }
-
     public function setAndSendUserAdvAuthEmailToken($user)
     {
         $token = md5(str_random(40));
@@ -839,28 +1510,6 @@ class UserService
         $user->save();
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Roles
-    |--------------------------------------------------------------------------
-    */
-
-    /**
-     * Assign a role to the user
-     *
-     * @param  string $roleName
-     * @param  integer $userId
-     * @return void
-     */
-    public function assignRole($roleName, $userId)
-    {
-        $role = $this->role->findByName($roleName);
-        //$user = $this->model->find($userId);
-        $user = $this->find($userId);
-
-        $user->roles()->attach($role);
-    }
-
     /**
      * Unassign a role from the user
      *
@@ -875,31 +1524,6 @@ class UserService
         $user = $this->find($userId);
 
         $user->roles()->detach($role);
-    }
-
-    public static function getBannedId($except = null){
-        $banned = \App\Models\SimpleTables\banned_users::select('member_id AS user_id')->get();
-        if($except){
-            $implicitlyBanned = \App\Models\BannedUsersImplicitly::select('target AS user_id')->where('target' , '<>', $except)->get();
-        } else{
-            $implicitlyBanned = \App\Models\BannedUsersImplicitly::select('target AS user_id')->get();
-        }
-
-        return $implicitlyBanned->toBase()->merge($banned);
-    }
-
-    /**
-     * Unassign all roles from the user
-     *
-     * @param  string $roleName
-     * @param  integer $userId
-     * @return void
-     */
-    public function unassignAllRoles($userId)
-    {
-        //$user = $this->model->find($userId);
-        $user = $this->find($userId);
-        $user->roles()->detach();
     }
 
     /**
@@ -991,55 +1615,6 @@ class UserService
     }
 
     /**
-     * Is recommend member
-     *
-     * @param int id
-     *
-     * @return bool
-     */
-    public function isRecommendMember($id)
-    {
-        $member = Vip::leftjoin('member_tip', 'member_tip.member_id', '=', 'member_vip.member_id')
-            ->where('member_vip.member_id', $id)
-            ->where('active', 1)
-            ->where('expiry', '!=', '0000-00-00 00:00:00')
-            ->where(function($query){
-                ///成為VIP超過三個月
-                $query->where('member_vip.created_at', '<', \Carbon\Carbon::now()->subMonths(3))
-                    ->orWhere(function($query){
-                        //或成為VIP超過一個月且有使用車馬費邀請過
-                        $query->where('member_vip.created_at', '<', \Carbon\Carbon::now()->subMonths(1));
-                    });
-            });
-
-        return $member->first() ? true : false;
-    }
-
-    /**
-     * Grouping male member
-     *
-     * @param array users
-     *
-     * @return array The keys are 'normal', 'vip', 'recommend'
-     */
-    public function groupingMale($userIds)
-    {
-        $results = array('Recommend'=>array(), 'Vip'=>array(), 'Normal'=>array());
-        foreach($userIds as $id) {
-            $isVip = Vip::select('active')->where('member_id', $id)->where('active', 1)->orderBy('created_at', 'desc')->first();
-
-            if($this->isRecommendMember($id)) {
-                array_push($results['Recommend'], $id);
-            } else if($isVip) {
-                array_push($results['Vip'], $id);
-            } else {
-                array_push($results['Normal'], $id);
-            }
-        }
-        return $results;
-    }
-
-    /**
      * 日期區間內, 所有男 or 女會員發送的訊息
      *
      * @param int gender
@@ -1099,6 +1674,55 @@ class UserService
         return ['messages' => $groupingMsg, 'replied' => $groupingReplied];
     }
 
+    /**
+     * Grouping male member
+     *
+     * @param array users
+     *
+     * @return array The keys are 'normal', 'vip', 'recommend'
+     */
+    public function groupingMale($userIds)
+    {
+        $results = array('Recommend'=>array(), 'Vip'=>array(), 'Normal'=>array());
+        foreach($userIds as $id) {
+            $isVip = Vip::select('active')->where('member_id', $id)->where('active', 1)->orderBy('created_at', 'desc')->first();
+
+            if($this->isRecommendMember($id)) {
+                array_push($results['Recommend'], $id);
+            } else if($isVip) {
+                array_push($results['Vip'], $id);
+            } else {
+                array_push($results['Normal'], $id);
+            }
+        }
+        return $results;
+    }
+
+    /**
+     * Is recommend member
+     *
+     * @param int id
+     *
+     * @return bool
+     */
+    public function isRecommendMember($id)
+    {
+        $member = Vip::leftjoin('member_tip', 'member_tip.member_id', '=', 'member_vip.member_id')
+            ->where('member_vip.member_id', $id)
+            ->where('active', 1)
+            ->where('expiry', '!=', '0000-00-00 00:00:00')
+            ->where(function($query){
+                ///成為VIP超過三個月
+                $query->where('member_vip.created_at', '<', \Carbon\Carbon::now()->subMonths(3))
+                    ->orWhere(function($query){
+                        //或成為VIP超過一個月且有使用車馬費邀請過
+                        $query->where('member_vip.created_at', '<', \Carbon\Carbon::now()->subMonths(1));
+                    });
+            });
+
+        return $member->first() ? true : false;
+    }
+
     public function dispatchCheckECPay($userIsVip, $userIsFreeVip, $vipData){
         if(!$userIsFreeVip){
             if(is_object($vipData)){
@@ -1109,631 +1733,29 @@ class UserService
         }
     }
 
-    public static function isPersonalTagShow($to, $user) {
-        if(($to->id == $user->id)) {
-            return true;
-        }
-        if(($to->engroup == $user->engroup)) {
-            return true;
-        }
-        $setting = $to->self_auth_tags_display;
-        $show = false;
-        if($user->meta->isWarned == 1 || $user->aw_relation){
-            $show = false;
+    public function dispatchCheckECPayForValueAddedService($service_name, $valueAddedServiceData){
+
+        if(is_object($valueAddedServiceData)){
+            \App\Jobs\CheckECpayForValueAddedService::dispatch($valueAddedServiceData);
         } else{
-            $getPr  =   $user->pr_log?$user->pr_log->pr:0;
-            if($setting) {
-                if($user->isVip() && $setting->vip_show) {
-                    $show = true;
-                }
-                if(!is_null($setting->more_than_pr_show) && !$show) {
-                    $show   =   ($getPr >=$setting->more_than_pr_show);
-                }
-            }
-
-            if($user->isVVIP() || $getPr>=80 ){
-                // if($user->isVVIP() || ($user->isVip() && $getPr>=80) ){
-                $show = true;
-            }
-
+            Log::info($service_name.' data null, user id: ' . \Auth::user()->id);
         }
-        return $show;
-    }
-
-    public static function isBlurAvatar($to, $user) {
-        if(($to->id == $user->id)) {
-            return false;
-        }
-        if(($to->engroup == $user->engroup)) {
-            return false;
-        }
-        $blurryAvatar = isset($to->meta->blurryAvatar)? $to->meta->blurryAvatar : "";
-        $blurryAvatar = explode(',', $blurryAvatar);
-        if($user->meta->isWarned == 1 || $user->aw_relation){
-            $isBlurAvatar = true;
-        } else{
-            if(sizeof($blurryAvatar)>1){
-                $nowB = $user->isVipOrIsVvip()? 'VIP' : 'general';
-                $isBlurAvatar = in_array($nowB, $blurryAvatar);
-            } else {
-                $isBlurAvatar = false;
-            }
-
-            $getPr=$user->pr_log?$user->pr_log->pr:0;
-            foreach ($blurryAvatar as $value){
-                if(str_contains($value, 'PR_')){
-                    $set_pr_value=str_replace('PR_',"",$value);
-                    $isBlurAvatar=($set_pr_value>=$getPr) ? true : false;
-                }
-            }
-            if($user->isVVIP() || $getPr>=80 ){
-                // if($user->isVVIP() || ($user->isVip() && $getPr>=80) ){
-                $isBlurAvatar = false;
-            }
-
-        }
-        return $isBlurAvatar;
-    }
-
-    public static function isBlurLifePhoto($to, $user) {
-        if(($to->id == $user->id)) {
-            return false;
-        }
-        $blurryLifePhoto = isset($to->meta->blurryLifePhoto)? $to->meta->blurryLifePhoto : "";
-        $blurryLifePhoto = explode(',', $blurryLifePhoto);
-        if($user->meta->isWarned == 1 || $user->aw_relation ){
-            $isBlurLifePhoto = true;
-        } else{
-            if(sizeof($blurryLifePhoto)>1){
-                $nowB = $user->isVipOrIsVvip()? 'VIP' : 'general';
-                $isBlurLifePhoto = in_array($nowB, $blurryLifePhoto);
-            } else {
-                $isBlurLifePhoto = false;
-            }
-
-            $getPr=$user->pr_log?$user->pr_log->pr:0;
-            foreach ($blurryLifePhoto as $value){
-                if(str_contains($value, 'PR_')){
-                    $set_pr_value=str_replace('PR_',"",$value);
-                    $isBlurLifePhoto=($set_pr_value>=$getPr) ? true : false;
-                }
-            }
-
-            if($user->isVVIP() || $getPr>=80 ){
-                // if($user->isVVIP() || ($user->isVip() && $getPr>=80) ){
-                $isBlurLifePhoto = false;
-            }
-
-        }
-        return $isBlurLifePhoto;
-    }
-
-    public static function checkcfp($hash, $user_id){
-        if(!$hash){
-            return false;
-        }
-        $cfp = \App\Models\CustomFingerPrint::where('hash', $hash)->first();
-        if(!$cfp){
-            $cfp = new \App\Models\CustomFingerPrint;
-            $cfp->hash = $hash;
-            $cfp->host = request()->getHttpHost();
-            $cfp->save();
-        }
-        $exists = \App\Models\CFP_User::where('cfp_id', $cfp->id)->where('user_id', $user_id)->count();
-        if($exists == 0){
-            $cfp_user = new \App\Models\CFP_User;
-            $cfp_user->cfp_id = $cfp->id;
-            $cfp_user->user_id = $user_id;
-            $cfp_user->save();
-        }
-
-        return $cfp;
-    }
-
-    public static function checkNewSugarForbidMsg($femaleUser,$maleUser) {
-
-        $new_sugar_no_msg_days = 7;
-        $new_sugar_error_user_type = '普通';
-
-        if(($maleUser->user_meta->isWarned??false) || ($maleUser->aw_relation??false)) {
-            $new_sugar_no_msg_days = 20;
-            $new_sugar_error_user_type = '警示';
-        }
-
-        $recommend_data = UserService::checkRecommendedUser($femaleUser);
-        $femaleUser_cdate = Carbon::parse($femaleUser->created_at);
-
-        if($femaleUser->engroup==1) return false;
-        if(!($recommend_data['description']??null)) return false;
-        if($maleUser->isVipOrIsVvip() && $new_sugar_no_msg_days == 7) return false;
-        if($femaleUser_cdate->diffInDays(Carbon::now())>=$new_sugar_no_msg_days ) return false;
-        if($femaleUser->sentMessages()->where('to_id',$maleUser->id)->count()>0) return false;
-        if($new_sugar_no_msg_days == 7 && (($femaleUser->tiny_setting()->where('cat','new_sugar_chat_with_notvip')->first()->value)??null))  return false;
-
-        return ['days'=>$new_sugar_no_msg_days
-            ,'user_type_str'=>$new_sugar_error_user_type
-            ,'end_date'=>$femaleUser_cdate->addDays($new_sugar_no_msg_days )->format('Y/m/d H:i')];
-    }
-
-    public static function isShowMultiUserForbidHintUserId($value,$type,$user_id=null) {
-
-        $type = strtolower($type);
-        $logUserArr = [];
-        $logEntrys = [];
-        switch($type) {
-            case 'ip':
-                $query = LogUserLogin::queryOfIpUsedByOtherUserId($value,$user_id);
-                if($query)
-                    $logEntrys = $query->distinct('user_id')->get();
-                break;
-            case 'cfp_id':
-                $query = LogUserLogin::queryOfCfpIdUsedByOtherUserId($value,$user_id);
-                if($query)
-                    $logEntrys = $query->distinct('user_id')->get();
-                break;
-        }
-        $user_list = [];
-        $b_count_total=0;
-        $w_count_total=0;
-        $b_vip_pass_count_total =0;
-        $w_vip_pass_count_total = 0;
-
-        foreach($logEntrys as $logEntry) {
-            $b_vip_pass_count = 0;
-            $w_vip_pass_count = 0;
-            $b_count = 0;
-            $w_count = 0;
-            if($logEntry->user->user_meta->isWarned??null) return false;
-
-            if(($logEntry->user->aw_relation??null) && $logEntry->user->aw_relation()->where('vip_pass',0)->count()) {
-                return false;
-            }
-            if($logEntry->user->implicitlyBanned??null) return false;
-
-
-            if(($logEntry->user->banned??null) && $logEntry->user->banned()->where('vip_pass',0)->count()) {
-                return false;
-            }
-
-            if(($logEntry->user->banned)??null) $b_vip_pass_count= ($logEntry->user->banned()->where('vip_pass',1)->count())??0;
-            if(($logEntry->user->aw_relation)??null) $w_vip_pass_count= ($logEntry->user->aw_relation()->where('vip_pass',1)->count())??0;
-            if(($logEntry->user->is_banned_log)??null) $b_count= $logEntry->user->is_banned_log()->count();
-            if(($logEntry->user->is_warned_log)??null) $w_count= $logEntry->user->is_warned_log()->count();
-            if(($b_count - $b_vip_pass_count)>0 || ($w_count- $w_vip_pass_count)>0) return false;
-
-            $b_count_total+=$b_count;
-            $w_count_total+=$w_count;
-            $b_vip_pass_count_total+=$b_vip_pass_count;
-            $w_vip_pass_count_total+=$w_vip_pass_count;
-        }
-
-        return !(($b_count_total+$w_count_total-$b_vip_pass_count_total - $w_vip_pass_count_total)>0 ) ;
-
-    }
-
-    public static function isAdvAuthUsableByUser($user) {
-        return !($user->isForbidAdvAuth()
-            || $user->isPauseAdvAuth()
-            || $user->isDuplicateAdvAuth()
-            || LogAdvAuthApi::isPauseApi());
-
-    }
-
-    public static function computeCanMessagePercent_7($uid)
-    {
-        $targetUser = User::where('id', $uid)->where('accountStatus',1)->where('account_status_admin',1)->get()->first();
-
-        if(!$targetUser) {
-            return 100;
-        }
-
-        $date_start = date("Y-m-d",strtotime("-6 days", strtotime(date('Y-m-d'))));
-        $date_end = date('Y-m-d');
-        $query = Message::select('users.email','users.name','users.title','users.engroup','users.created_at','users.last_login','message.id','message.from_id','message.content','user_meta.about')
-            ->join('users', 'message.from_id', '=', 'users.id')
-            ->join('user_meta', 'message.from_id', '=', 'user_meta.user_id')
-            ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'message.from_id')
-            ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'message.from_id')
-            ->leftJoin('warned_users as wu', function($join) {
-                $join->on('wu.member_id', '=', 'message.from_id')
-                    ->where(function($join) {
-                        $join->where('wu.expire_date', '>=', Carbon::now())
-                            ->orWhere('wu.expire_date', null);
-                    }); })
-            ->whereNull('b1.member_id')
-            ->whereNull('b3.target')
-            ->whereNull('wu.member_id')
-            ->where('users.id', $targetUser->id)
-            ->where('users.accountStatus', 1)
-            ->where('users.account_status_admin', 1)
-            ->where(function($query)use($date_start,$date_end) {
-                $query->where('message.from_id','<>',1049)
-                    ->where('message.sys_notice', 0)
-                    ->orWhereNull('message.sys_notice')
-                    ->whereBetween('message.created_at', array($date_start . ' 00:00', $date_end . ' 23:59'));
-            });
-        $results_a = $query->distinct('message.from_id')->get();
-
-        if ($results_a != null) {
-            $msg = array();
-            $from_content = array();
-            $user_similar_msg = array();
-
-            $messages = Message::select('id','content','created_at')
-                ->where('from_id', $targetUser->id)
-                ->where(function ($query) {
-                    $query->where('sys_notice', 0)
-                        ->orWhereNull('sys_notice');
-                })
-                ->whereBetween('created_at', array($date_start . ' 00:00', $date_end . ' 23:59'))
-                ->orderBy('created_at','desc')
-                ->take(100)
-                ->get();
-
-            foreach($messages as $row){
-                array_push($msg,array('id'=>$row->id,'content'=>$row->content,'created_at'=>$row->created_at));
-            }
-
-            array_push($from_content,  array('msg'=>$msg));
-
-            $unique_id = array(); //過濾重複ID用
-            //比對訊息
-            foreach($from_content as $data) {
-                foreach ($data['msg'] as $word1) {
-                    foreach ($data['msg'] as $word2) {
-                        if ($word1['created_at'] != $word2['created_at']) {
-                            if(strlen($word1['content']) > 200) {
-                                continue;
-                            }
-                            similar_text($word1['content'], $word2['content'], $percent);
-                            if ($percent >= 70) {
-                                if(!in_array($word1['id'],$unique_id)) {
-                                    array_push($unique_id,$word1['id']);
-                                    array_push($user_similar_msg, array($word1['id'], $word1['content'], $word1['created_at'], $percent));
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        $message_percent_7 = count($user_similar_msg) > 0 ? round( (count($user_similar_msg) / count($messages))*100 )  : 0;
-        return $message_percent_7;
-    }
-
-    public static function computeCanMessagePercent_15($uid)
-    {
-        $targetUser = User::where('id', $uid)->where('accountStatus',1)->where('account_status_admin',1)->get()->first();
-
-        if(!$targetUser) {
-            return 100;
-        }
-
-        $date_start = date("Y-m-d",strtotime("-14 days", strtotime(date('Y-m-d'))));
-        $date_end = date('Y-m-d');
-        $query = Message::select('users.email','users.name','users.title','users.engroup','users.created_at','users.last_login','message.id','message.from_id','message.content','user_meta.about')
-            ->join('users', 'message.from_id', '=', 'users.id')
-            ->join('user_meta', 'message.from_id', '=', 'user_meta.user_id')
-            ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'message.from_id')
-            ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'message.from_id')
-            ->leftJoin('warned_users as wu', function($join) {
-                $join->on('wu.member_id', '=', 'message.from_id')
-                    ->where(function($join) {
-                        $join->where('wu.expire_date', '>=', Carbon::now())
-                            ->orWhere('wu.expire_date', null);
-                    }); })
-            ->whereNull('b1.member_id')
-            ->whereNull('b3.target')
-            ->whereNull('wu.member_id')
-            ->where('users.id', $targetUser->id)
-            ->where('users.accountStatus', 1)
-            ->where('users.account_status_admin', 1)
-            ->where(function($query)use($date_start,$date_end) {
-                $query->where('message.from_id','<>',1049)
-                    ->where('message.sys_notice', 0)
-                    ->orWhereNull('message.sys_notice')
-                    ->whereBetween('message.created_at', array($date_start . ' 00:00', $date_end . ' 23:59'));
-            });
-        $results_a = $query->distinct('message.from_id')->get();
-
-        if ($results_a != null) {
-            $msg = array();
-            $from_content = array();
-            $user_similar_msg = array();
-
-            $messages = Message::select('id','content','created_at')
-                ->where('from_id', $targetUser->id)
-                ->where(function ($query) {
-                    $query->where('sys_notice', 0)
-                        ->orWhereNull('sys_notice');
-                })
-                ->whereBetween('created_at', array($date_start . ' 00:00', $date_end . ' 23:59'))
-                ->orderBy('created_at','desc')
-                ->take(100)
-                ->get();
-
-            foreach($messages as $row){
-                array_push($msg,array('id'=>$row->id,'content'=>$row->content,'created_at'=>$row->created_at));
-            }
-
-            array_push($from_content,  array('msg'=>$msg));
-
-            $unique_id = array(); //過濾重複ID用
-            //比對訊息
-            foreach($from_content as $data) {
-                foreach ($data['msg'] as $word1) {
-                    foreach ($data['msg'] as $word2) {
-                        if ($word1['created_at'] != $word2['created_at']) {
-                            if(strlen($word1['content']) > 200) {
-                                continue;
-                            }
-                            similar_text($word1['content'], $word2['content'], $percent);
-                            if ($percent >= 70) {
-                                if(!in_array($word1['id'],$unique_id)) {
-                                    array_push($unique_id,$word1['id']);
-                                    array_push($user_similar_msg, array($word1['id'], $word1['content'], $word1['created_at'], $percent));
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        $message_percent_15 = count($user_similar_msg) > 0 ? round( (count($user_similar_msg) / count($messages))*100 )  : 0;
-        return $message_percent_15;
-    }
-
-    public static function priority($op)
-    {
-        switch($op){
-            case'+': case'-': return 1;
-            case'*': case'/': return 2;
-            default: return 0;
-        }
-    }
-
-    public static function toPostfix($infix){
-        $infix_arr = preg_split('~|(-?\d*(?:Max|Min|Avg|Median|\.\d+)?|[()*/+-])~', $infix, 0, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
-        $stack = [];
-        $opt = [];
-
-        foreach ($infix_arr as $k=> $v) {
-
-            switch($v){
-                case 'Max':case 'Min':case ',':case '(':
-                array_push($stack, $v);
-
-                break;
-
-                case'+':case'-':case'*':case'/':
-
-                $top = count($stack);
-                if($top) {
-                    while(UserService::priority($stack[$top-1]) >= UserService::priority($v) ){
-                        array_push($opt, $stack[$top--]);
-                    }
-                }
-                array_push($stack, $v);
-                break;
-
-                case ')':
-                    $top = count($stack);
-                    $isCompare = false;
-
-                    while($stack[$top-1]!='('){
-
-                        $isCompare = $stack[$top-1]==',';
-                        if(!$isCompare){
-                            array_push($opt, $stack[$top-1]);
-                        }
-                        array_splice($stack,$top-1,1);
-                        $top--;
-                    }
-                    array_splice($stack,$top-1,1);
-                    $top--;
-
-                    if($isCompare){
-                        array_push($opt, $stack[$top-1]);
-                        array_splice($stack,$top-1,1);
-                    }
-                    break;
-                default:
-                    array_push($opt, $v);
-                    break;
-            }
-        }
-
-        while(count($stack)>0){
-            $top = count($stack);
-            array_push($opt, $stack[$top-1]);
-            array_splice($stack,$top-1,1);
-            $top--;
-        }
-
-        return implode(",", $opt);
-    }
-
-    public static function computeGreetingRate($postfix)
-    {
-        $query = DB::table('log_system_day_statistic')->whereDate('date', Carbon::today())->first();
-        $avg = $query?->average_recipients_count_of_vip_male_senders;
-        $median = $query?->median_recipients_count_of_vip_male_senders;
-
-        $postfix_arr = explode(",", $postfix);
-        $postfix_arr = str_replace('Avg', $avg ?? 999, $postfix_arr);
-        $postfix_arr = str_replace('Median', $median ?? 999, $postfix_arr);
-        $stack = [];
-        foreach ($postfix_arr as $v) {
-            switch($v) {
-                case '+':
-                    $top = count($stack);
-                    $stack[$top-2] = $stack[$top-2] + $stack[$top-1];
-                    array_splice($stack,$top-1,1);
-                    break;
-                case '-':
-                    $top = count($stack);
-                    $stack[$top-2] = $stack[$top-2] - $stack[$top-1];
-                    array_splice($stack,$top-1,1);
-                    break;
-                case '*':
-                    $top = count($stack);
-
-                    $stack[$top-2] = $stack[$top-2] * $stack[$top-1];
-                    array_splice($stack,$top-1,1);
-                    break;
-                case '/':
-                    $top = count($stack);
-                    $stack[$top-2] = $stack[$top-2] / $stack[$top-1];
-                    array_splice($stack,$top-1,1);
-                    break;
-                case 'Max':
-                    $top = count($stack);
-                    $stack[$top-2] = max($stack[$top-2], $stack[$top-1]);
-                    array_splice($stack,$top-1,1);
-                    break;
-                case 'Min':
-                    $top = count($stack);
-                    $stack[$top-2] = min($stack[$top-2], $stack[$top-1]);
-                    array_splice($stack,$top-1,1);
-                    break;
-                default:
-                    array_push($stack, $v);
-                    break;
-            }
-        }
-        return $stack[0];
-    }
-
-    public static function isGreetingFrequently($from_id)
-    {
-        //        $query = DB::table('log_system_day_statistic')->whereDate('date', Carbon::today())->first();
-        //        $avg = $query?->average_recipients_count_of_vip_male_senders;
-        //        $median = $query?->median_recipients_count_of_vip_male_senders;
-        //        $greeting_rate = max($avg ?? 999, $median ?? 999) * 1.75;
-        // 招手比後台調整，測試 OK 再使用下面2行，並刪除或註解上面 4行
-        $postfix = DB::table('greeting_rate_calculations')->first()->postfix;
-        $greeting_rate = UserService::computeGreetingRate($postfix);
-        $recipients_count = UserMeta::where('user_id', $from_id)->pluck('recipients_count')->first();
-        
-        return $recipients_count > $greeting_rate;
-    }
-
-    public static function checkCanMessageWithGreetingRate($user, $to_id, $content)
-    {
-        $gr_exceed = UserService::isGreetingFrequently($user->id);
-        $today_post_count = Message::where('from_id', $user->id)->where('to_id', $to_id)->whereDate('created_at', Carbon::today())->count();
-
-        if ($gr_exceed && $today_post_count == 1) {
-
-            $date_start = date("Y-m-d",strtotime("-15 days", strtotime(date('Y-m-d'))));
-            $date_end = date('Y-m-d',strtotime("-1 days", strtotime(date('Y-m-d'))));
-
-            $messages = Message::select('id','content','created_at')
-                ->where('from_id', $user->id)
-                ->where('sys_notice','<>', 1)
-                ->whereBetween('created_at', array($date_start . ' 00:00', $date_end . ' 23:59'))
-                ->orderBy('created_at','desc')
-                ->get();
-
-            $isCanMessage = false;
-            // $can_pr = UserService::computeCanMessagePercent_15($user->id);
-            $can_pr = 50;
-            foreach($messages as $data) {
-                similar_text($content, $data['content'], $percent);
-                if ($percent >= $can_pr) {
-                    $isCanMessage = true;
-                    $user_open_alert = $user->can_message_alert;
-                    if ($user_open_alert) {
-                        return true;
-                    }else {
-                        return false;
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
-
-    public static function checkCanPicMessageWithGreetingRate($user, $msg_entry)
-    {
-        $user_open_alert = $user->can_message_alert;
-        UserService::isGreetingFrequently($user->id);
-        $today_greeting_rate = UserService::$today_greeting_rate;
-        $today_post_count = Message::where('from_id', $user->id)->where('to_id', $msg_entry->to_id)->whereDate('created_at', Carbon::today())->whereNotNull('pic')->where('pic','!=','')->count();
-        $compare_found_count = 0;
-
-        if ( $today_post_count == 1) {
-
-            $date_start = date("Y-m-d",strtotime("-15 days", strtotime(date('Y-m-d'))));
-            $date_end = date('Y-m-d',strtotime("-1 days", strtotime(date('Y-m-d'))));
-
-            $messages = Message::select('id','pic','created_at')
-                ->where('from_id', $user->id)
-                ->where('sys_notice','<>', 1)
-                ->whereBetween('created_at', array($date_start . ' 00:00', $date_end . ' 23:59'))
-                ->orderBy('created_at','desc')
-                ->whereNotNull('pic')->where('pic','!=','')
-                ->get();
-
-            $isCanMessage = false;
-
-            $date_count_arr = [];
-
-            $src_pic_arr = json_decode($msg_entry->pic,true);
-            foreach($src_pic_arr as $src_pic) {
-
-                $srcEncodeEntry = ImagesCompareEncode::where('pic',$src_pic['file_path'])->first();
-
-                foreach($messages as $data) {
-                    $now_msg_date = Carbon::parse($data['created_at'])->format('Y-m-d');
-                    $date_count_arr[$now_msg_date] = 0;;
-                    if($date_count_arr[$now_msg_date]>3) continue;
-                    else $date_count_arr[$now_msg_date]++;
-                    $now_pic_arr = json_decode($data->pic,true);
-
-                    foreach($now_pic_arr as $msg_pic) {
-
-                        $targetEncodeEntry = ImagesCompareEncode::where('pic',$msg_pic['file_path'])->first();
-
-                        $compareRs = ImagesCompareService::comparePairImageEncodeEntry($srcEncodeEntry,$targetEncodeEntry);
-
-                        if($compareRs) {
-                            foreach($compareRs as $crk=> $crv) {
-                                $$crk = $crv;
-                            }
-
-                            if((($srcPercent>=90 && $targetPercent>=90) || ($srcEncodeEntry->file_md5==$targetEncodeEntry->file_md5))
-                                && $srcInterPercent>=50 && $targetInterPercent>=50
-                            ) {
-                                $compare_found_count++;
-                                if ($user_open_alert && $compare_found_count>$today_greeting_rate*0.5) return true;
-                            }
-                        }
-                    }
-
-                }
-            }
-
-            if ($user_open_alert && $compare_found_count>$today_greeting_rate*0.5) {
-                return true;
-            } else {
-                return false;
-            }
-        }
-        return false;
     }
 
     public function AdminCheckExchangePeriodSave($request,$raa_service)
     {
-        $id = $request->id??null;
-        if(!$id) $id = $this->model->id;
+        $id = $request->id ?? null;
+        if (!$id) $id = $this->model->id;
         $status = $request->status;
-        $reject_content = $request->reject_content??null;
+        $reject_content = $request->reject_content ?? null;
         DB::table('account_exchange_period')->where('user_id', $id)
             ->update(['status' => $status, 'passed_at' => now(), 'reject_content' => $reject_content]);
 
         $current_data = DB::table('account_exchange_period')->where('user_id', $id)->first();
+
+        if (!$current_data) {
+            return "會員 ID: " . $id . "，找不到包養資料";
+        }
 
         //notify
         if ($current_data->reject_content == '') {
@@ -1760,20 +1782,6 @@ class UserService
         Message::post(1049, $user->id, $content, true, 1);
 
         return $current_data->status==$status;
-    }
-
-    public static function getRegisterDaysByUser($userEntry)
-    {
-        $now = Carbon::now();
-        $register_at = Carbon::parse($userEntry->created_at);
-        $diff_days = $register_at->diffInDays($now);
-
-        return $diff_days;
-    }
-
-    public static function getOptionWordByWeightValue($weight)
-    {
-        return $weight?($weight-4).' ~ '.$weight:str_replace('0','不填寫',$weight);
     }
 
     public function riseByUserEntry($userEntry)

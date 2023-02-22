@@ -2,9 +2,7 @@
   <div style="margin-top:1em;">
     <div v-if="videoCallParams.users.length>1"  class="video_status_online_intro">
       
-        <a href="/user_video_chat_verify" style="color:#e44e71;">
-            請點此立即進行視訊驗證！
-        </a>
+        站方人員可從本站任一頁面跟您視訊，請等候站方人員撥打視訊通話給您，謝謝。
         
     </div>
     <div v-if="videoCallParams.users.length<=1" class="video_status_offline_intro">

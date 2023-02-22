@@ -94,8 +94,8 @@ class RealAuthUserApply extends Model
     public function first_modify() 
     {
         return $this->hasOne(RealAuthUserModify::class,'apply_id','id')
-                ->orderBy('id')->take(1);        
-    } 
+                ->oldest();        
+    }     
 
     public function latest_modify() 
     {

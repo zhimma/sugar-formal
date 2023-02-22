@@ -29,7 +29,8 @@
                         <video-verify-user 
                             :allusers="{{ $users }}" 
                             :authUserId="{{ auth()->id() }}" 
-                            :authUser="{{ auth()->user()->load('self_auth_unchecked_apply') }}"
+                            :authUser="{{ auth()->user()->load('self_auth_unchecked_apply.first_modify') }}"
+                            :authUserIsSelfAuthWaitingCheck="{{intval(!!$rap_service->isSelfAuthWaitingCheck())}}"
                             user_permission = "normal"
                             ice_server_json="" 
                         />

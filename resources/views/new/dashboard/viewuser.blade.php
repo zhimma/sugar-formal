@@ -1651,16 +1651,18 @@
                                                                     @else
                                                                         <p class="many-txt">{!! nl2br($row->content) !!}@if(!is_null($row->admin_comment))<span style="color: red;">{{ ' ('.$row->admin_comment.')' }}</span> @endif</p>
                                                                     @endif
-                                                                    @php
-                                                                        $evaluationPics=\App\Models\EvaluationPic::where('evaluation_id',$row->id)->where('member_id',$row->from_id)->get();
-                                                                    @endphp
-                                                                    @if($row->is_check==0)
-                                                                        @if($evaluationPics->count()>0)
-                                                                            <ul class="zap_photo {{ $evaluationPics->count()>3 ? 'huiyoic':'' }}">
-                                                                                @foreach($evaluationPics as $evaluationPic)
-                                                                                    <li><img src="{{ $evaluationPic->pic }}"></li>
-                                                                                @endforeach
-                                                                            </ul>
+                                                                    @if(!$row->only_show_text)
+                                                                        @php
+                                                                            $evaluationPics=\App\Models\EvaluationPic::where('evaluation_id',$row->id)->where('member_id',$row->from_id)->get();
+                                                                        @endphp
+                                                                        @if($row->is_check==0)
+                                                                            @if($evaluationPics->count()>0)
+                                                                                <ul class="zap_photo {{ $evaluationPics->count()>3 ? 'huiyoic':'' }}">
+                                                                                    @foreach($evaluationPics as $evaluationPic)
+                                                                                        <li><img src="{{ $evaluationPic->pic }}"></li>
+                                                                                    @endforeach
+                                                                                </ul>
+                                                                            @endif
                                                                         @endif
                                                                     @endif
                                                                     <h4>
@@ -1702,16 +1704,18 @@
                                                                                 @else
                                                                                     <div id="test" class="context-wrap" style="word-break: break-all;">{!! nl2br($row->re_content) !!}</div>
                                                                                 @endif
-                                                                                @php
-                                                                                    $evaluationPics=\App\Models\EvaluationPic::where('evaluation_id',$row->id)->where('member_id',$to->id)->get();
-                                                                                @endphp
-                                                                                @if($row->is_check==0)
-                                                                                    @if($evaluationPics->count()>0)
-                                                                                        <ul class="zap_photo {{ $evaluationPics->count()>3 ? 'huiyoic':'' }}">
-                                                                                            @foreach($evaluationPics as $evaluationPic)
-                                                                                                <li><img src="{{ $evaluationPic->pic }}"></li>
-                                                                                            @endforeach
-                                                                                        </ul>
+                                                                                @if(!$row->only_show_text)
+                                                                                    @php
+                                                                                        $evaluationPics=\App\Models\EvaluationPic::where('evaluation_id',$row->id)->where('member_id',$to->id)->get();
+                                                                                    @endphp
+                                                                                    @if($row->is_check==0)
+                                                                                        @if($evaluationPics->count()>0)
+                                                                                            <ul class="zap_photo {{ $evaluationPics->count()>3 ? 'huiyoic':'' }}">
+                                                                                                @foreach($evaluationPics as $evaluationPic)
+                                                                                                    <li><img src="{{ $evaluationPic->pic }}"></li>
+                                                                                                @endforeach
+                                                                                            </ul>
+                                                                                        @endif
                                                                                     @endif
                                                                                 @endif
                                                                             </div>
@@ -1776,16 +1780,18 @@
                                                                             @else
                                                                                 <p class="many-txt">{!! nl2br($row->content) !!}@if(!is_null($row->admin_comment))<span style="color: red;">{{ ' ('.$row->admin_comment.')' }}</span> @endif</p>
                                                                             @endif
-                                                                            @php
-                                                                                $evaluationPics=\App\Models\EvaluationPic::where('evaluation_id',$row->id)->where('member_id',$row->from_id)->get();
-                                                                            @endphp
-                                                                            @if($row->is_check==0)
-                                                                                @if($evaluationPics->count()>0)
-                                                                                    <ul class="zap_photo {{ $evaluationPics->count()>3 ? 'huiyoic':'' }}">
-                                                                                        @foreach($evaluationPics as $evaluationPic)
-                                                                                            <li><img src="{{ $evaluationPic->pic }}"></li>
-                                                                                        @endforeach
-                                                                                    </ul>
+                                                                            @if(!$row->only_show_text)
+                                                                                @php
+                                                                                    $evaluationPics=\App\Models\EvaluationPic::where('evaluation_id',$row->id)->where('member_id',$row->from_id)->get();
+                                                                                @endphp
+                                                                                @if($row->is_check==0)
+                                                                                    @if($evaluationPics->count()>0)
+                                                                                        <ul class="zap_photo {{ $evaluationPics->count()>3 ? 'huiyoic':'' }}">
+                                                                                            @foreach($evaluationPics as $evaluationPic)
+                                                                                                <li><img src="{{ $evaluationPic->pic }}"></li>
+                                                                                            @endforeach
+                                                                                        </ul>
+                                                                                    @endif
                                                                                 @endif
                                                                             @endif
                                                                             <h4>
@@ -1828,16 +1834,18 @@
                                                                                     @else
                                                                                         <div id="test" class="context-wrap" style="word-break: break-all;">{!! nl2br($row->re_content) !!}</div>
                                                                                     @endif
-                                                                                    @php
-                                                                                        $evaluationPics=\App\Models\EvaluationPic::where('evaluation_id',$row->id)->where('member_id',$to->id)->get();
-                                                                                    @endphp
-                                                                                    @if($row->is_check==0)
-                                                                                        @if($evaluationPics->count()>0)
-                                                                                            <ul class="zap_photo {{ $evaluationPics->count()>3 ? 'huiyoic':'' }}">
-                                                                                                @foreach($evaluationPics as $evaluationPic)
-                                                                                                    <li><img src="{{ $evaluationPic->pic }}"></li>
-                                                                                                @endforeach
-                                                                                            </ul>
+                                                                                    @if(!$row->only_show_text)
+                                                                                        @php
+                                                                                            $evaluationPics=\App\Models\EvaluationPic::where('evaluation_id',$row->id)->where('member_id',$to->id)->get();
+                                                                                        @endphp
+                                                                                        @if($row->is_check==0)
+                                                                                            @if($evaluationPics->count()>0)
+                                                                                                <ul class="zap_photo {{ $evaluationPics->count()>3 ? 'huiyoic':'' }}">
+                                                                                                    @foreach($evaluationPics as $evaluationPic)
+                                                                                                        <li><img src="{{ $evaluationPic->pic }}"></li>
+                                                                                                    @endforeach
+                                                                                                </ul>
+                                                                                            @endif
                                                                                         @endif
                                                                                     @endif
                                                                                 </div>
@@ -2126,7 +2134,8 @@
             <div class="new_tkfont" style="text-align: left;margin-top: 10px;">
                 <span>1:請盡量附上證據(對話截圖或其他)，若無相關證據有可能被移除。</span><br>
                 <span>2:請平鋪直敘事情經過，<span style="color: red;">禁止人身攻擊，情緒性發言</span>。</span><br>
-                <span>3:相關證據請保留兩周，供站方查核</span>
+                <span>3:相關證據請保留兩周，供站方查核</span><br>
+                <span>4:匿名評價為站方代會員發表較為嚴重的評價，例如放鴿子，言行前後不一等，心情抒發與好評請直接具名評價。</span>
             </div>
             <div class="n_bbutton" style="margin-top:10px;">
                 <div style="display: inline-flex;">
@@ -2850,66 +2859,79 @@
                 // $(".announce_bg").show();
                 // $('body').css("overflow", "hidden");
             @else
-                c5('您已評價過');
+                c5('您好，對於 {{$to->name}} 您於 {{\Carbon\Carbon::parse($evaluation_self->created_at)->format("Y-m-d")}}已經有過評價，不能重複評價哦!');
                 return false;
             @endif
+            @if($too_soon_evaluation)
+                c5('您好，系統限制30分鐘之內只能給出一個評價');
+                return false;
+            
+            @else
+                $('.alert_tip').text('');
+                $('.self_illustrate').find('input[name="agree"]').prop('checked', false); // 清除偽裝的犯罪現場
+                resetImageUploader(document.querySelector('#form1'));
 
-            $('.alert_tip').text('');
-            $('.self_illustrate').find('input[name="agree"]').prop('checked', false); // 清除偽裝的犯罪現場
-            resetImageUploader(document.querySelector('#form1'));
-
-            $('.vipDays').addClass('hide');
-            $('.phone_auth').addClass('hide');
-            $('.need_vip').addClass('hide');
-            $('.advance_auth').addClass('hide');
-            $('.enter_tab_evaluation').removeClass('evaluation_type_anonymous');
-            $('.enter_tab_evaluation').removeClass('evaluation_type_myself');
-            $('.anonymous_illustrate').hide();
-            $('.self_illustrate').show();
-            $('input[name=content_processing_method]').val('');
-            @if($user->engroup==2)
-                $('#tab_reject_female').show();
-                $('.phone_auth').removeClass('hide');
-                $(".announce_bg").show();
-                $('.enter_tab_evaluation').addClass('evaluation_type_myself');
-            @elseif($user->engroup==1)
-                $('#tab_reject_male').show();
-                $('.vipDays').removeClass('hide');
-                $(".announce_bg").show();
-                $('.enter_tab_evaluation').addClass('evaluation_type_myself');
+                $('.vipDays').addClass('hide');
+                $('.phone_auth').addClass('hide');
+                $('.need_vip').addClass('hide');
+                $('.advance_auth').addClass('hide');
+                $('.enter_tab_evaluation').removeClass('evaluation_type_anonymous');
+                $('.enter_tab_evaluation').removeClass('evaluation_type_myself');
+                $('.anonymous_illustrate').hide();
+                $('.self_illustrate').show();
+                $('input[name=content_processing_method]').val('');
+                @if($user->engroup==2)
+                    $('#tab_reject_female').show();
+                    $('.phone_auth').removeClass('hide');
+                    $(".announce_bg").show();
+                    $('.enter_tab_evaluation').addClass('evaluation_type_myself');
+                @elseif($user->engroup==1)
+                    $('#tab_reject_male').show();
+                    $('.vipDays').removeClass('hide');
+                    $(".announce_bg").show();
+                    $('.enter_tab_evaluation').addClass('evaluation_type_myself');
+                @endif
             @endif
         });
 
         // 匿名評價
         $('.anonymous_evaluation').click(function() {
-            // 首先清除狀態
-            $('#evaluation_description').find('input[name="message_processing"]').prop('checked', false);
-            $('#evaluation_description').find('.evaluation_check_alert_tip').text('');
-            $('.alert_tip').text('');
-            resetImageUploader(document.querySelector('#form1'));
-
-            $('.vipDays').addClass('hide');
-            $('.phone_auth').addClass('hide');
-            $('.need_vip').addClass('hide');
-            $('.advance_auth').addClass('hide');
-            $('.enter_tab_evaluation').removeClass('evaluation_type_anonymous');
-            $('.enter_tab_evaluation').removeClass('evaluation_type_myself');
-            @if($user->engroup==2)
-                $('#tab_reject_female').show();
-                //$('.new_tkfont').text('您目前未達匿名評價標準，無法使用');
-                $('.advance_auth').removeClass('hide');
-                $(".announce_bg").show();
-                $('.enter_tab_evaluation').addClass('evaluation_type_anonymous');
-            @elseif($user->engroup==1)
-                $('#tab_reject_male').show();
-                //$('.new_tkfont').text('您目前未達匿名評價標準，無法使用');
-                $('.need_vip').removeClass('hide');
-                $(".announce_bg").show();
-                $('.enter_tab_evaluation').addClass('evaluation_type_anonymous');
+            @if(($evaluation_anonymous??null))
+                c5('您好，對於 {{$to->name}} 您於 {{\Carbon\Carbon::parse($evaluation_anonymous->created_at)->format("Y-m-d")}}已經有過匿名評價，不能重複評價哦!');
+                return false;
+            @elseif($too_soon_evaluation)
+                c5('您好，系統限制30分鐘之內只能給出一個評價');
+                return false;
             @else
-                // 訊息處理選擇
-                // $('#evaluation_description').show();
-                // $(".announce_bg").show();
+                // 首先清除狀態
+                $('#evaluation_description').find('input[name="message_processing"]').prop('checked', false);
+                $('#evaluation_description').find('.evaluation_check_alert_tip').text('');
+                $('.alert_tip').text('');
+                resetImageUploader(document.querySelector('#form1'));
+
+                $('.vipDays').addClass('hide');
+                $('.phone_auth').addClass('hide');
+                $('.need_vip').addClass('hide');
+                $('.advance_auth').addClass('hide');
+                $('.enter_tab_evaluation').removeClass('evaluation_type_anonymous');
+                $('.enter_tab_evaluation').removeClass('evaluation_type_myself');
+                @if($user->engroup==2)
+                    $('#tab_reject_female').show();
+                    //$('.new_tkfont').text('您目前未達匿名評價標準，無法使用');
+                    $('.advance_auth').removeClass('hide');
+                    $(".announce_bg").show();
+                    $('.enter_tab_evaluation').addClass('evaluation_type_anonymous');
+                @elseif($user->engroup==1)
+                    $('#tab_reject_male').show();
+                    //$('.new_tkfont').text('您目前未達匿名評價標準，無法使用');
+                    $('.need_vip').removeClass('hide');
+                    $(".announce_bg").show();
+                    $('.enter_tab_evaluation').addClass('evaluation_type_anonymous');
+                @else
+                    // 訊息處理選擇
+                    // $('#evaluation_description').show();
+                    // $(".announce_bg").show();
+                @endif
             @endif
         });
 
@@ -3219,7 +3241,7 @@
             theme: 'thumbnails',
             enableApi: true,
             addMore: true,
-            limit: 5,
+            limit: 15,
             thumbnails: {
                 box: '<div class="fileuploader-items">' +
                     '<ul class="fileuploader-items-list">' +
@@ -3385,7 +3407,12 @@ function resetImageUploader(form) {
 function rendorItemNthText(parentEl) {
     parentEl.find('.fileuploader-item, .fileuploader-thumbnails-input').each(function (i) {
         let nthText = rendorItemNthText.nthEnum[i] || 'N';
-
+        if(i>9) {
+            nthText = '';
+            let i_str_arr = i.toString().split('');
+            nthText+= rendorItemNthText.nthEnum[9];
+            nthText+= rendorItemNthText.nthEnum[i_str_arr[1]];
+        }
         this.setAttribute('data-nth-text', `第${nthText}張`);
     });
 }

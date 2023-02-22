@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Jobs\CheckECpayForValueAddedService;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Requests\ProfileUpdateRequest;
 use App\Models\AccountStatusLog;
 use App\Models\AdminAnnounce;
 use App\Models\AdminCommonText;
@@ -12,101 +13,100 @@ use App\Models\AnonymousChatForbid;
 use App\Models\AnonymousChatMessage;
 use App\Models\AnonymousChatReport;
 use App\Models\BannedUsersImplicitly;
+use App\Models\BasicSetting;
+use App\Models\Blocked;
+use App\Models\Board;
+use App\Models\CheckPointUser;
+use App\Models\ComeFromAdvertise;
 use App\Models\EssencePosts;
 use App\Models\EssencePostsRewardLog;
 use App\Models\Evaluation;
 use App\Models\EvaluationPic;
+use App\Models\Fingerprint;
+use App\Models\Forum;
 use App\Models\ForumChat;
 use App\Models\ForumManage;
 use App\Models\ForumPosts;
 use App\Models\hideOnlineData;
+use App\Models\IsBannedLog;
+use App\Models\IsWarnedLog;
 use App\Models\lineNotifyChatSet;
+use App\Models\LogAdvAuthApi;
+use App\Models\LogFreeVipPicAct;
 use App\Models\LogUserLogin;
+use App\Models\MemberFav;
+use App\Models\MemberPic;
+use App\Models\Message;
 use App\Models\Message_new;
 use App\Models\MessageBoard;
 use App\Models\MessageBoardPic;
-use App\Models\Forum;
+use App\Models\MessageErrorLog;
 use App\Models\MessageUserNote;
 use App\Models\Order;
+use App\Models\Posts;
 use App\Models\PostsMood;
 use App\Models\PostsVvip;
 use App\Models\RealAuthUserTagsDisplay;
-use App\Models\ReportedMessageBoard;
-use App\Models\SimpleTables\warned_users;
-use App\Models\Suspicious;
-use App\Models\VipLog;
-use App\Models\VvipApplication;
-use App\Models\VvipInfo;
-use App\Notifications\BannedUserImplicitly;
-use Auth;
-use Carbon\Carbon;
-use Illuminate\Http\Request;
-use App\Services\UserService;
-use App\Services\VipLogService;
-use App\Services\FaqUserService;
-use App\Services\FaqService;
-use App\Services\RealAuthPageService;
-use App\Services\ShortMessageService;
-use App\Models\Fingerprint;
-use App\Models\Visited;
-use App\Models\Board;
-use App\Models\Message;
 use App\Models\Reported;
 use App\Models\ReportedAvatar;
+use App\Models\ReportedMessageBoard;
 use App\Models\ReportedPic;
+use App\Models\SimpleTables\banned_users;
+use App\Models\SimpleTables\short_message;
+use App\Models\SimpleTables\warned_users;
+use App\Models\StayOnlineRecord;
+use App\Models\Suspicious;
+use App\Models\Tip;
 use App\Models\User;
+use App\Models\UserMeta;
+use App\Models\UserOptionsXref;
+use App\Models\UserProvisionalVariables;
+use App\Models\UserRecord;
+use App\Models\UserTinySetting;
+use App\Models\ValueAddedService;
 use App\Models\Vip;
 use App\Models\VipExpiryLog;
-use App\Models\Tip;
-use App\Models\MemberFav;
-use App\Models\Blocked;
-use App\Models\BasicSetting;
-use App\Models\Posts;
-use App\Models\UserMeta;
-use App\Models\MemberPic;
-use App\Http\Requests\ProfileUpdateRequest;
-use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Config;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
-use App\Models\SimpleTables\banned_users;
-use Intervention\Image\Facades\Image;
-use App\Models\ValueAddedService;
-use App\Repositories\SuspiciousRepository;
-use App\Services\AdminService;
-use App\Models\LogFreeVipPicAct;
-use App\Models\UserTinySetting;
-use App\Http\Controllers\Admin\UserController;
-use App\Models\CheckPointUser;
-use App\Models\ComeFromAdvertise;
-use App\Models\IsBannedLog;
-use App\Models\IsWarnedLog;
-use App\Models\SimpleTables\short_message;
-use App\Models\LogAdvAuthApi;
-use App\Models\StayOnlineRecord;
-use App\Models\UserProvisionalVariables;
-use Illuminate\Support\Facades\Http;
-use App\Services\SearchIgnoreService;
-use \FileUploader;
-use App\Models\UserRecord;
-use App\Models\OptionOccupation;
-use App\Models\UserOptionsXref;
+use App\Models\VipLog;
+use App\Models\Visited;
+use App\Models\VvipApplication;
 use App\Models\VvipAssetsImage;
+use App\Models\VvipInfo;
 use App\Models\VvipOptionXref;
 use App\Models\VvipQualityLifeImage;
+use App\Models\VvipSelectionReward;
+use App\Models\VvipSelectionRewardApply;
+use App\Models\VvipSelectionRewardIgnore;
 use App\Models\VvipSubOptionXref;
+use App\Repositories\SuspiciousRepository;
+use App\Services\AdminService;
 use App\Services\EnvironmentService;
+use App\Services\FaqService;
+use App\Services\FaqUserService;
 use App\Services\PaymentService;
-use App\Models\InboxRefuseSet;
+use App\Services\RealAuthPageService;
+use App\Services\SearchIgnoreService;
+use App\Services\ShortMessageService;
+use App\Services\UserService;
+use App\Services\VipLogService;
+use Auth;
+use Carbon\Carbon;
+use FileUploader;
+use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
+use Intervention\Image\Facades\Image;
 
 class PagesController extends BaseController
 {
     protected $suspiciousRepo = null;
-    public function __construct(UserService $userService, VipLogService $logService, SuspiciousRepository $suspiciousRepo,RealAuthPageService $rap_service)
+
+    public function __construct(UserService $userService, VipLogService $logService, SuspiciousRepository $suspiciousRepo, RealAuthPageService $rap_service)
     {
         parent::__construct();
         $this->service = $userService;
@@ -114,12 +114,8 @@ class PagesController extends BaseController
         $this->suspiciousRepo = $suspiciousRepo;
         $this->middleware('throttle:400,1');
         $this->middleware('pseudoThrottle:250,1');
-        $this->rap_service = $rap_service;        
-        \View::share('rap_service',$this->rap_service);
-    }
-
-    public function error() {
-        return view('errors.exception');
+        $this->rap_service = $rap_service;
+        \View::share('rap_service', $this->rap_service);
     }
 
     /**
@@ -133,7 +129,7 @@ class PagesController extends BaseController
 
         if ($user) {
             return view('user.settings')
-            ->with('user', $user);
+                ->with('user', $user);
         }
 
         return back()->withErrors(['找不到用戶']);
@@ -149,13 +145,11 @@ class PagesController extends BaseController
     }
 
     public function profileUpdate(Request $request, ProfileUpdateRequest $profileUpdateRequest)
-    {       
+    {
         //Custom validation.
-        Validator::extend('not_contains', function($attribute, $value, $parameters)
-        {
+        Validator::extend('not_contains', function ($attribute, $value, $parameters) {
             $words = array('站長', '管理員');
-            foreach ($words as $word)
-            {
+            foreach ($words as $word) {
                 if (stripos($value, $word) !== false) return false;
             }
             return true;
@@ -163,42 +157,38 @@ class PagesController extends BaseController
         $rules = [
             'name'     => ['required', 'max:255', 'not_contains'],
             'tattoo_part'=> ['required_with:tattoo_range'],
-            'tattoo_range'=> ['required_with:tattoo_part']        
+            'tattoo_range' => ['required_with:tattoo_part']
         ];
         $messages = [
             'not_contains'  => '請勿使用包含「站長」或「管理員」的字眼做為暱稱！',
             'tattoo_part' => '請選擇刺青位置',
-            'tattoo_range' => '請選擇刺青面積'            
+            'tattoo_range' => '請選擇刺青面積'
         ];
         $validator = \Validator::make($request->all(), $rules, $messages);
-        if($validator->fails()){
+        if ($validator->fails()) {
             return redirect('/dashboard')->withErrors(['請勿使用包含「站長」或「管理員」的字眼做為暱稱！']);
-        }
-        else{
+        } else {
             if ($this->service->update(auth()->id(), $request->all())) {
 
                 //更新完後判斷是否需備自動封鎖
                 //SetAutoBan::auto_ban(auth()->id());
-                
+
                 return redirect('/dashboard')->with('message', '資料更新成功');
             }
             return redirect('/dashboard')->withErrors(['沒辦法更新']);
-        } 
+        }
         return redirect('/dashboard')->withErrors(['沒辦法更新']);
     }
 
-    //新版編輯會員資料
     public function profileUpdate_ajax(Request $request, ProfileUpdateRequest $profileUpdateRequest)
     {
         $rap_service = $this->rap_service;
         //Log::Info('profileUpdate_ajax');
         //Log::Info($request->all());
         //Custom validation.
-        Validator::extend('not_contains', function($attribute, $value, $parameters)
-        {
+        Validator::extend('not_contains', function ($attribute, $value, $parameters) {
             $words = array('站長', '管理員');
-            foreach ($words as $word)
-            {
+            foreach ($words as $word) {
                 if (stripos($value, $word) !== false) return false;
             }
             return true;
@@ -231,12 +221,11 @@ class PagesController extends BaseController
                     'msg' => '資料更新成功',
                     'redirect'=>'/dashboard',
                 ];
-                
-                if($rap_service->riseByUserId(auth()->id())->isInRealAuthProcess()) {
-                    $status_data['redirect'] = url('/advance_auth/').'?real_auth='.request()->real_auth;
-                }
-                else {
-                    if($rap_service->isApplyEffectByAuthTypeId(1) && !$rap_service->isPassedByAuthTypeId(1)) {
+
+                if ($rap_service->riseByUserId(auth()->id())->isInRealAuthProcess()) {
+                    $status_data['redirect'] = url('/advance_auth/') . '?real_auth=' . request()->real_auth;
+                } else {
+                    if ($rap_service->isApplyEffectByAuthTypeId(1) && !$rap_service->isPassedByAuthTypeId(1)) {
                         $rap_service->riseByUserEntry(auth()->user())->saveProfileModifyByReq($request);
                     }
                 }
@@ -248,20 +237,22 @@ class PagesController extends BaseController
             }
         }
         if(empty($status_data))
-            $status_data=[
-                    'status' => true,
-                    'msg' => '無法更新',
+            $status_data= [
+                'status' => true,
+                'msg' => '無法更新',
             ];
 
         CheckPointUser::where('user_id', auth()->id())->delete();
 
         return response()->json($status_data, 200)
-                ->header("Cache-Control", "no-cache, no-store, must-revalidate")
-                ->header("Pragma", "no-cache")
-                ->header("Last-Modified", gmdate("D, d M Y H:i:s")." GMT")
-                ->header("Cache-Control", "post-check=0, pre-check=0", false)
-                ->header("Expires", "Fri, 01 Jan 1990 00:00:00 GMT");
+            ->header("Cache-Control", "no-cache, no-store, must-revalidate")
+            ->header("Pragma", "no-cache")
+            ->header("Last-Modified", gmdate("D, d M Y H:i:s") . " GMT")
+            ->header("Cache-Control", "post-check=0, pre-check=0", false)
+            ->header("Expires", "Fri, 01 Jan 1990 00:00:00 GMT");
     }
+
+    //新版編輯會員資料
 
     public function postBoard(Request $request)
     {
@@ -269,7 +260,8 @@ class PagesController extends BaseController
         return back()->with('message', '留言成功!');
     }
 
-    public  function postChatpayEC(Request $request){
+    public function postChatpayEC(Request $request)
+    {
         return '1|OK';
     }
 
@@ -287,8 +279,7 @@ class PagesController extends BaseController
         $url = $request->fullUrl();
         //dd($url);
 
-        if ($user == null)
-        {
+        if ($user == null) {
             $aid = auth()->id();
             $user = User::findById($aid);
         }
@@ -311,22 +302,22 @@ class PagesController extends BaseController
                 // Message::post($user->id, $targetUserID, "系統通知: 車馬費邀請");
                 if($user->engroup == 1) {
                     //取資料庫並替換名字
-                    $tip_msg1 = AdminCommonText::getCommonText(1);//id2給男會員訊息                    
+                    $tip_msg1 = AdminCommonText::getCommonText(1);//id2給男會員訊息
                     $tip_msg1 = str_replace('NAME', User::findById($targetUserID)->name, $tip_msg1);
                     $tip_msg1 = str_replace('|$report|', User::findById($targetUserID)->name, $tip_msg1);
-                    $tip_msg1 = str_replace('LINE_ICON', AdminService::$line_icon_html, $tip_msg1); 
+                    $tip_msg1 = str_replace('LINE_ICON', AdminService::$line_icon_html, $tip_msg1);
                     $tip_msg1 = str_replace('|$lineIcon|', AdminService::$line_icon_html, $tip_msg1);
                     $tip_msg1 = str_replace('|$responseTime|', date("Y-m-d H:i:s"), $tip_msg1);
                     $tip_msg1 = str_replace('|$reportTime|', date("Y-m-d H:i:s"), $tip_msg1);
-                    $tip_msg1 = str_replace('NOW_TIME', date("Y-m-d H:i:s"), $tip_msg1); 
-                    $tip_msg2 = AdminCommonText::getCommonText(2);//id3給女會員訊息                    
+                    $tip_msg1 = str_replace('NOW_TIME', date("Y-m-d H:i:s"), $tip_msg1);
+                    $tip_msg2 = AdminCommonText::getCommonText(2);//id3給女會員訊息
                     $tip_msg2 = str_replace('NAME', $user->name, $tip_msg2);
                     $tip_msg2 = str_replace('|$report|', $user->name, $tip_msg2);
-                    $tip_msg2 = str_replace('LINE_ICON', AdminService::$line_icon_html, $tip_msg2); 
+                    $tip_msg2 = str_replace('LINE_ICON', AdminService::$line_icon_html, $tip_msg2);
                     $tip_msg2 = str_replace('|$lineIcon|', AdminService::$line_icon_html, $tip_msg2);
                     $tip_msg2 = str_replace('|$responseTime|', date("Y-m-d H:i:s"), $tip_msg2);
                     $tip_msg2 = str_replace('|$reportTime|', date("Y-m-d H:i:s"), $tip_msg2);
-                    $tip_msg2 = str_replace('NOW_TIME', date("Y-m-d H:i:s"), $tip_msg2);  
+                    $tip_msg2 = str_replace('NOW_TIME', date("Y-m-d H:i:s"), $tip_msg2);
                     // 給男會員訊息（需在發送方的訊息框看到，所以是由男會員發送）
                     Message::post($user->id, $targetUserID, $tip_msg1, false, 1);
                     // 給女會員訊息（需在接收方的訊息框看到，所以是由女會員發送）
@@ -334,20 +325,29 @@ class PagesController extends BaseController
                     // 給男會員訊息
                     // Message::post($user->id, $targetUserID, "系統通知: 車馬費邀請\n您已經向 ". User::findById($targetUserID)->name ." 發動車馬費邀請。\n流程如下\n1:網站上進行車馬費邀請\n2:網站上訊息約見(重要，站方判斷約見時間地點，以網站留存訊息為準)\n3:雙方見面\n\n如果雙方在第二步就約見失敗。\n將扣除手續費 288 元後，1500匯入您指定的帳戶。也可以用現金袋或者西聯匯款方式進行。\n(聯繫我們有站方聯絡方式)\n\n若雙方有見面意願，被女方放鴿子。\n站方會參照女方提出的證據，判斷是否將尾款交付女方。", false);
                     // Message::post($targetUserID, $user->id, "系統通知: 車馬費邀請\n". $user->name . " 已經向 您 發動車馬費邀請。\n流程如下\n1:網站上進行車馬費邀請\n2:網站上訊息約見(重要，站方判斷約見時間地點，以網站留存訊息為準)\n3:雙方見面(建議約在知名連鎖店丹堤星巴克或者麥當勞之類)\n\n若成功見面男方沒有提出異議，那站方會在發動後 7~14 個工作天\n將 1500 匯入您指定的帳戶。若您不想提供銀行帳戶。\n也可以用現金袋或者西聯匯款方式進行。\n(聯繫我們有站方聯絡方式)\n\n若男方提出當天女方未到場的爭議。請您提出當天消費的發票證明之。\n所以請約在知名連鎖店以利站方驗證。\n", false);
-                }
-                else if($user->engroup == 2) {
+                } else if ($user->engroup == 2) {
                     // 給女會員訊息
                     // Message::post($user->id, $payload['P_OrderNumber'], "系統通知: 車馬費邀請\n". $user->name . " 已經向 您 發動車馬費邀請。\n流程如下\n1:網站上進行車馬費邀請\n2:網站上訊息約見(重要，站方判斷約見時間地點，以網站留存訊息為準)\n3:雙方見面(建議約在知名連鎖店丹堤星巴克或者麥當勞之類)\n\n若成功見面男方沒有提出異議，那站方會在發動後 7~14 個工作天\n將 1500 匯入您指定的帳戶。若您不想提供銀行帳戶。\n也可以用現金袋或者西聯匯款方式進行。\n(聯繫我們有站方聯絡方式)\n\n若男方提出當天女方未到場的爭議。請您提出當天消費的發票證明之。\n所以請約在知名連鎖店以利站方驗證。\n");
                 }
                 //return redirect('/dashboard/chat/' . $payload['P_OrderNumber'] . '?invite=success');
-                return redirect()->route('chat2WithUser', [ 'id' => $targetUserID ])->with('message', '車馬費已成功發送！');
+                return redirect()->route('chat2WithUser', ['id' => $targetUserID])->with('message', '車馬費已成功發送！');
+            } else {
+                return redirect()->route('chat2WithUser', ['id' => $targetUserID])->withErrors(['交易系統回傳結果顯示交易未成功，車馬費無法發送！請檢查信用卡資訊。']);
             }
-            else{
-                return redirect()->route('chat2WithUser', [ 'id' => $targetUserID ])->withErrors(['交易系統回傳結果顯示交易未成功，車馬費無法發送！請檢查信用卡資訊。']);
-            }
-        }
-        else{
+        } else {
             return redirect()->route('chat2View')->withErrors(['交易系統沒有回傳資料，車馬費無法發送！請檢查網路是否順暢。']);
+        }
+    }
+
+    public function upgrade(Request $request)
+    {
+        $user = $request->user();
+        if ($user) {
+            $log = new \App\Models\LogClickUpgrade();
+            $log->user_id = $user->id;
+            $log->save();
+            return view('dashboard.upgrade')
+                ->with('user', $user);
         }
     }
 
@@ -489,6 +489,7 @@ class PagesController extends BaseController
             ->with('imgUserM', $imgUserM)
             ->with('imgUserF', $imgUserF);
     }
+
     public function fingerprint(){
         return view('fingerprint');
     }
@@ -496,11 +497,10 @@ class PagesController extends BaseController
     public function saveFingerprint(Request $request){
         $fingerprintValue = $request->fingerprintValue;
         $user = User::findByEmail($request->email);
-        if(Fingerprint::isExist(['fingerprintValue'=>$fingerprintValue])){
+        if (Fingerprint::isExist(['fingerprintValue' => $fingerprintValue])) {
             Log::info('User id: ' . isset($user) ? $user->id : null . ', fingerprint value: ' . $fingerprintValue);
             return '找到相符合資料';
-        }
-        else{
+        } else {
             $fingerprintValue = Hash::make($fingerprintValue . $request->ip());
             $data = [
                 'user_id' => isset($user) ? $user->id : null,
@@ -523,11 +523,10 @@ class PagesController extends BaseController
     public function saveFingerprintPOST($payload){
         $fingerprintValue = $payload['fingerprintValue'];
         $user = User::findByEmail($payload['email']);
-        if(Fingerprint::isExist(['fingerprintValue'=>$fingerprintValue])){
+        if (Fingerprint::isExist(['fingerprintValue' => $fingerprintValue])) {
             Log::info('User id: ' . isset($user) ? $user->id : null . ', fingerprint value: ' . $fingerprintValue);
             return '找到相符合資料';
-        }
-        else{
+        } else {
             $fingerprintValue = Hash::make($fingerprintValue . $payload['ip']);
             $data = [
                 'user_id' => isset($user) ? $user->id : null,
@@ -556,14 +555,13 @@ class PagesController extends BaseController
     {
         //如果由外部廣告連結進入則進入廣告用首頁
         $come_from_advertise = 0;
-        if($request->come_from_advertise??false)
-        {
+        if ($request->come_from_advertise ?? false) {
             $come_from_advertise = 1;
         }
         Log::Info('come_from_advertise : '.$come_from_advertise);
 
         \Session::forget('is_remind_puppet');
-        \Session::forget('filled_data');        
+        \Session::forget('filled_data');
         // (SELECT CEIL(RAND() * (SELECT MAX(id) FROM random)) AS id) as u2
         $imgUserM = User::select('users.name', 'users.title', 'user_meta.pic')
             ->join(\DB::raw("(SELECT CEIL(RAND() * (SELECT MAX(id) FROM users)) AS id) as u2"), function($join){
@@ -599,19 +597,16 @@ class PagesController extends BaseController
             ->where('engroup', 2)->take(3)->get();
 
         //判斷是否進入廣告用首頁
-        if($come_from_advertise)
-        {
+        if ($come_from_advertise) {
             return view('new.advertise_welcome')
-            ->with('cur', view()->shared('user'))
-            ->with('imgUserM', $imgUserM)
-            ->with('imgUserF', $imgUserF);
-        }
-        else
-        {
+                ->with('cur', view()->shared('user'))
+                ->with('imgUserM', $imgUserM)
+                ->with('imgUserF', $imgUserF);
+        } else {
             return view('new.welcome')
-            ->with('cur', view()->shared('user'))
-            ->with('imgUserM', $imgUserM)
-            ->with('imgUserF', $imgUserF);
+                ->with('cur', view()->shared('user'))
+                ->with('imgUserM', $imgUserM)
+                ->with('imgUserF', $imgUserF);
         }
     }
 
@@ -677,10 +672,9 @@ class PagesController extends BaseController
         $url = $request->fullUrl();
         //echo $url;
 
-        if(str_contains($url, '?img')) {
+        if (str_contains($url, '?img')) {
             $tabName = 'm_user_profile_tab_4';
-        }
-        else {
+        } else {
             $tabName = 'm_user_profile_tab_1';
         }
 
@@ -690,7 +684,7 @@ class PagesController extends BaseController
         $month = $birthday[1];
         $day = $birthday[2];
         $no_avatar = AdminCommonText::where('alias','no_avatar')->get()->first();
-        
+
         if ($user) {
             $cancel_notice = $request->session()->get('cancel_notice');
             $message = $request->session()->get('message');
@@ -707,13 +701,13 @@ class PagesController extends BaseController
                     ->with('no_avatar', isset($no_avatar)?$no_avatar->content:'');
             }
             return view('dashboard')
-            ->with('user', $user)
-            ->with('tabName', $tabName)
-            ->with('cur', $user)
-            ->with('year', $year)
-            ->with('month', $month)
-            ->with('day', $day)
-            ->with('no_avatar', isset($no_avatar)?$no_avatar->content:'');
+                ->with('user', $user)
+                ->with('tabName', $tabName)
+                ->with('cur', $user)
+                ->with('year', $year)
+                ->with('month', $month)
+                ->with('day', $day)
+                ->with('no_avatar', isset($no_avatar) ? $no_avatar->content : '');
         }
     }
 
@@ -721,11 +715,11 @@ class PagesController extends BaseController
     {
         $rap_service = $this->rap_service;
         $notInRaProcessReturn = $rap_service->returnInWrongRealAuthProcess();
-        if($notInRaProcessReturn) return $notInRaProcessReturn; 
+        if ($notInRaProcessReturn) return $notInRaProcessReturn;
         // 驗證 VIP 是否成功付款
         //      1. 綠界：連 API 檢查，使用 Laravel Queue 執行檢查
         //      2. 藍新：後台手動
-        
+
         $user = $this->user;
         $rap_service->riseByUserEntry($user);
         $url = $request->fullUrl();
@@ -733,25 +727,19 @@ class PagesController extends BaseController
         if($user->vip_any) {
             $this->service->dispatchCheckECPay($this->userIsVip, $this->userIsFreeVip, $user->vip_any->first());
         }
-        //valueAddedService
-        if($this->valueAddedServices['hideOnline'] == 1){
-            //如未來service有多個以上則此段需設計並再改寫成ALL in one的方式
-            $service_name = 'hideOnline';
-            $valueAddedServiceData = \App\Models\ValueAddedService::getData($user->id,'hideOnline');
-            if(is_object($valueAddedServiceData)){
-                $this->dispatch(new CheckECpayForValueAddedService($valueAddedServiceData));
-            }
-            else{
-                Log::info('ValueAddedService '.$service_name.' data null, user id: ' . $user->id);
-            }
-
+        $valueAddedServiceData_hideOnline = ValueAddedService::getData($user->id, 'hideOnline');
+        if($valueAddedServiceData_hideOnline){
+            $this->service->dispatchCheckECPayForValueAddedService('hideOnline', $valueAddedServiceData_hideOnline);
+        }
+        $valueAddedServiceData_VVIP = ValueAddedService::getData($user->id, 'VVIP');
+        if($valueAddedServiceData_VVIP){
+            $this->service->dispatchCheckECPayForValueAddedService('VVIP', $valueAddedServiceData_VVIP);
         }
 
 
-        if(str_contains($url, '?img')) {
+        if (str_contains($url, '?img')) {
             $tabName = 'm_user_profile_tab_4';
-        }
-        else {
+        } else {
             $tabName = 'm_user_profile_tab_1';
         }
 
@@ -777,101 +765,83 @@ class PagesController extends BaseController
         //系統固定選項
         //$option->occupation = OptionOccupation::where('is_custom',false)->get();
         $relationship_status = DB::table('option_relationship_status')
-                                    ->leftJoin('user_options_xref', function($join) use($user)
-                                    {
-                                        $join->on('option_relationship_status.id', '=', 'user_options_xref.option_id')
-                                            ->where('user_options_xref.user_id', '=', $user->id)
-                                            ->where('user_options_xref.option_type', '=', 2)
-                                            ;
-                                    })
-                                    ->select('option_relationship_status.*', 'user_options_xref.id as xref_id')
-                                    ->get();
+            ->leftJoin('user_options_xref', function ($join) use ($user) {
+                $join->on('option_relationship_status.id', '=', 'user_options_xref.option_id')
+                    ->where('user_options_xref.user_id', '=', $user->id)
+                    ->where('user_options_xref.option_type', '=', 2);
+            })
+            ->select('option_relationship_status.*', 'user_options_xref.id as xref_id')
+            ->get();
         $looking_for_relationships = DB::table('option_looking_for_relationships')
-                                    ->leftJoin('user_options_xref', function($join) use($user)
-                                    {
-                                        $join->on('option_looking_for_relationships.id', '=', 'user_options_xref.option_id')
-                                            ->where('user_options_xref.user_id', '=', $user->id)
-                                            ->where('user_options_xref.option_type', '=', 3)
-                                            ;
-                                    })
-                                    ->select('option_looking_for_relationships.*', 'user_options_xref.id as xref_id')
-                                    ->get();
+            ->leftJoin('user_options_xref', function ($join) use ($user) {
+                $join->on('option_looking_for_relationships.id', '=', 'user_options_xref.option_id')
+                    ->where('user_options_xref.user_id', '=', $user->id)
+                    ->where('user_options_xref.option_type', '=', 3);
+            })
+            ->select('option_looking_for_relationships.*', 'user_options_xref.id as xref_id')
+            ->get();
         $expect = DB::table('option_expect')
-                                    ->leftJoin('user_options_xref', function($join) use($user)
-                                    {
-                                        $join->on('option_expect.id', '=', 'user_options_xref.option_id')
-                                            ->where('user_options_xref.user_id', '=', $user->id)
-                                            ->where('user_options_xref.option_type', '=', 4)
-                                            ;
-                                    })
-                                    ->select('option_expect.*', 'user_options_xref.id as xref_id')
-                                    ->get();
+            ->leftJoin('user_options_xref', function ($join) use ($user) {
+                $join->on('option_expect.id', '=', 'user_options_xref.option_id')
+                    ->where('user_options_xref.user_id', '=', $user->id)
+                    ->where('user_options_xref.option_type', '=', 4);
+            })
+            ->select('option_expect.*', 'user_options_xref.id as xref_id')
+            ->get();
         $favorite_food = DB::table('option_favorite_food')
-                                    ->leftJoin('user_options_xref', function($join) use($user)
-                                    {
-                                        $join->on('option_favorite_food.id', '=', 'user_options_xref.option_id')
-                                            ->where('user_options_xref.user_id', '=', $user->id)
-                                            ->where('user_options_xref.option_type', '=', 5)
-                                            ;
-                                    })
-                                    ->select('option_favorite_food.*', 'user_options_xref.id as xref_id')
-                                    ->get();
+            ->leftJoin('user_options_xref', function ($join) use ($user) {
+                $join->on('option_favorite_food.id', '=', 'user_options_xref.option_id')
+                    ->where('user_options_xref.user_id', '=', $user->id)
+                    ->where('user_options_xref.option_type', '=', 5);
+            })
+            ->select('option_favorite_food.*', 'user_options_xref.id as xref_id')
+            ->get();
         $preferred_date_location = DB::table('option_preferred_date_location')
-                                    ->leftJoin('user_options_xref', function($join) use($user)
-                                    {
-                                        $join->on('option_preferred_date_location.id', '=', 'user_options_xref.option_id')
-                                            ->where('user_options_xref.user_id', '=', $user->id)
-                                            ->where('user_options_xref.option_type', '=', 6)
-                                            ;
-                                    })
-                                    ->select('option_preferred_date_location.*', 'user_options_xref.id as xref_id')
-                                    ->get();
+            ->leftJoin('user_options_xref', function ($join) use ($user) {
+                $join->on('option_preferred_date_location.id', '=', 'user_options_xref.option_id')
+                    ->where('user_options_xref.user_id', '=', $user->id)
+                    ->where('user_options_xref.option_type', '=', 6);
+            })
+            ->select('option_preferred_date_location.*', 'user_options_xref.id as xref_id')
+            ->get();
         $expected_type = DB::table('option_expected_type')
-                                    ->leftJoin('user_options_xref', function($join) use($user)
-                                    {
-                                        $join->on('option_expected_type.id', '=', 'user_options_xref.option_id')
-                                            ->where('user_options_xref.user_id', '=', $user->id)
-                                            ->where('user_options_xref.option_type', '=', 7)
-                                            ;
-                                    })
-                                    ->select('option_expected_type.*', 'user_options_xref.id as xref_id')
-                                    ->get();
+            ->leftJoin('user_options_xref', function ($join) use ($user) {
+                $join->on('option_expected_type.id', '=', 'user_options_xref.option_id')
+                    ->where('user_options_xref.user_id', '=', $user->id)
+                    ->where('user_options_xref.option_type', '=', 7);
+            })
+            ->select('option_expected_type.*', 'user_options_xref.id as xref_id')
+            ->get();
         $frequency_of_getting_along = DB::table('option_frequency_of_getting_along')
-                                    ->leftJoin('user_options_xref', function($join) use($user)
-                                    {
-                                        $join->on('option_frequency_of_getting_along.id', '=', 'user_options_xref.option_id')
-                                            ->where('user_options_xref.user_id', '=', $user->id)
-                                            ->where('user_options_xref.option_type', '=', 8)
-                                            ;
-                                    })
-                                    ->select('option_frequency_of_getting_along.*', 'user_options_xref.id as xref_id')
-                                    ->get();
+            ->leftJoin('user_options_xref', function ($join) use ($user) {
+                $join->on('option_frequency_of_getting_along.id', '=', 'user_options_xref.option_id')
+                    ->where('user_options_xref.user_id', '=', $user->id)
+                    ->where('user_options_xref.option_type', '=', 8);
+            })
+            ->select('option_frequency_of_getting_along.*', 'user_options_xref.id as xref_id')
+            ->get();
         $personality_traits = DB::table('option_personality_traits')
-                                    ->leftJoin('user_options_xref', function($join) use($user)
-                                    {
-                                        $join->on('option_personality_traits.id', '=', 'user_options_xref.option_id')
-                                            ->where('user_options_xref.user_id', '=', $user->id)
-                                            ->where('user_options_xref.option_type', '=', 9)
-                                        ;
-                                    })
-                                    ->select('option_personality_traits.*', 'user_options_xref.id as xref_id')
-                                    ->where('option_personality_traits.is_custom', 0)
-                                    ->orderBy('option_personality_traits.id')
-                                    ->get();
-        $personality_traits_other=UserOptionsXref::get_user_option($user->id, 'personality_traits');
+            ->leftJoin('user_options_xref', function ($join) use ($user) {
+                $join->on('option_personality_traits.id', '=', 'user_options_xref.option_id')
+                    ->where('user_options_xref.user_id', '=', $user->id)
+                    ->where('user_options_xref.option_type', '=', 9);
+            })
+            ->select('option_personality_traits.*', 'user_options_xref.id as xref_id')
+            ->where('option_personality_traits.is_custom', 0)
+            ->orderBy('option_personality_traits.id')
+            ->get();
+        $personality_traits_other = UserOptionsXref::get_user_option($user->id, 'personality_traits');
         $life_style = DB::table('option_life_style')
-                                    ->leftJoin('user_options_xref', function($join) use($user)
-                                    {
-                                        $join->on('option_life_style.id', '=', 'user_options_xref.option_id')
-                                            ->where('user_options_xref.user_id', '=', $user->id)
-                                            ->where('user_options_xref.option_type', '=', 10)
-                                        ;
-                                    })
-                                    ->where('option_life_style.is_custom', 0)
-                                    ->select('option_life_style.*', 'user_options_xref.id as xref_id')
-                                    ->orderBy('option_life_style.id')
-                                    ->get();
-        $life_style_other=UserOptionsXref::get_user_option($user->id, 'life_style');
+            ->leftJoin('user_options_xref', function ($join) use ($user) {
+                $join->on('option_life_style.id', '=', 'user_options_xref.option_id')
+                    ->where('user_options_xref.user_id', '=', $user->id)
+                    ->where('user_options_xref.option_type', '=', 10);
+            })
+            ->where('option_life_style.is_custom', 0)
+            ->select('option_life_style.*', 'user_options_xref.id as xref_id')
+            ->orderBy('option_life_style.id')
+            ->get();
+        $life_style_other = UserOptionsXref::get_user_option($user->id, 'life_style');
 
         //使用者選擇的選項
         $user_option_xref = UserOptionsXref::where('user_id', $user->id);
@@ -887,7 +857,7 @@ class PagesController extends BaseController
                 $pr = '無';
             }
             $cancel_notice = $request->session()->get('cancel_notice');
-            $message = $request->session()->get('message');            
+            $message = $request->session()->get('message');
             if(isset($cancel_notice)){
                 return view('dashboard')
                     ->with('user', $user)
@@ -899,9 +869,8 @@ class PagesController extends BaseController
                     ->with('message', $message)
                     ->with('cancel_notice', $cancel_notice)
                     ->with('add_avatar', $add_avatar)
-                    ->with('no_avatar', isset($no_avatar)?$no_avatar->content:'')
-                    ->with('rap_service',$rap_service)
-                    ;
+                    ->with('no_avatar', isset($no_avatar) ? $no_avatar->content : '')
+                    ->with('rap_service', $rap_service);
             }
             return view('new.dashboard')
                 ->with('user', $user)
@@ -928,8 +897,7 @@ class PagesController extends BaseController
                 ->with('personality_traits', $personality_traits)
                 ->with('personality_traits_other', $personality_traits_other)
                 ->with('life_style', $life_style)
-                ->with('life_style_other',$life_style_other)
-                ;
+                ->with('life_style_other', $life_style_other);
         }
     }
 
@@ -957,18 +925,17 @@ class PagesController extends BaseController
     {
         $rap_service = $this->rap_service;
         $notInRaProcessReturn = $rap_service->returnInWrongRealAuthProcess();
-        
+
         if($notInRaProcessReturn) return $notInRaProcessReturn;
-        
+
         $user = $request->user();
         $url = $request->fullUrl();
         $rap_service->riseByUserEntry($user);
         //echo $url;
 
-        if(str_contains($url, '?img')) {
+        if (str_contains($url, '?img')) {
             $tabName = 'm_user_profile_tab_4';
-        }
-        else {
+        } else {
             $tabName = 'm_user_profile_tab_1';
         }
 
@@ -1033,12 +1000,11 @@ class PagesController extends BaseController
 
         $pic = MemberPic::where('member_id', $user_id)->where('id', $pic_id)->first();
         //delete file
-        try{
+        try {
             \File::delete(public_path($pic->pic));
             //delete data
             MemberPic::where('member_id', $user_id)->where('id', $pic_id)->delete();
-        }
-        catch(\Exception $e){
+        } catch (\Exception $e) {
             Log::info("delPic failed, pic_id = $pic_id.");
         }
 
@@ -1063,7 +1029,7 @@ class PagesController extends BaseController
                 );
             }
         }
-        
+
         return json_encode($data);
     }
 
@@ -1105,38 +1071,36 @@ class PagesController extends BaseController
         // $userObj->profile_pic = $safeName;
 
 
-        if(count($member_pics)==0){
+        if (count($member_pics) == 0) {
             $data = array(
-                'code'=>'600'
+                'code' => '600'
             );
             // dd('123');
-        }
-        else{
+        } else {
             // dd('456');
             //VER.3
             $pic_count = MemberPic::where('member_id', $user->id)->count();
-            for($i=0;$i<count($member_pics);$i++){
-                if($pic_count>=6){
+            for ($i = 0; $i < count($member_pics); $i++) {
+                if ($pic_count >= 6) {
                     $data = array(
-                        'code'=>'400',
+                        'code' => '400',
                     );
                     break;
                 }
                 $now = date("Ymdhis", strtotime(now()));
-                if(isset($pic_infos[$i])){
+                if (isset($pic_infos[$i])) {
                     $image = $pic_infos[$i];  // your base64 encoded
                     // $image = str_replace('data:image/png;base64,', '', $image);
                     // $image = str_replace(' ', '+', $image);
                     // $imageName = str_random(10).'.'.'png';
                     list($type, $image) = explode(';', $image);
-                    list(, $image)      = explode(',', $image);
+                    list(, $image) = explode(',', $image);
                     $image = base64_decode($image);
-                    \File::put(public_path(). '/Member_pics' .'/'. $user->id.'_'.$now.$member_pics[$i], $image);
+                    \File::put(public_path() . '/Member_pics' . '/' . $user->id . '_' . $now . $member_pics[$i], $image);
                     MemberPic::insert(
-                        array('member_id' => $user->id, 'pic' => '/Member_pics'.'/'.$user->id.'_'.$now.$member_pics[$i], 'isHidden' => 0, 'created_at'=>now(), 'updated_at'=>now())
+                        array('member_id' => $user->id, 'pic' => '/Member_pics' . '/' . $user->id . '_' . $now . $member_pics[$i], 'isHidden' => 0, 'created_at' => now(), 'updated_at' => now())
                     );
-                }
-                else{
+                } else {
                     Log::info('save_img() failed, user id: ' . $user->id);
                     return false;
                 }
@@ -1189,10 +1153,9 @@ class PagesController extends BaseController
         $url = $request->fullUrl();
         //echo $url;
 
-        if(str_contains($url, '?img')) {
+        if (str_contains($url, '?img')) {
             $tabName = 'm_user_profile_tab_4';
-        }
-        else {
+        } else {
             $tabName = 'm_user_profile_tab_1';
         }
 
@@ -1244,12 +1207,12 @@ class PagesController extends BaseController
         return view('new.dashboard.password')->with('user', $user)->with('cur', $user);
     }
 
-    public function viewSuspicious(Request $request) 
+    public function viewSuspicious(Request $request)
     {
         $user = $request->user();
         $suspicious = [];
 
-        if($request->has('q') && !empty($request->input('q'))) {
+        if ($request->has('q') && !empty($request->input('q'))) {
             $suspicious = $this->suspiciousRepo->wherePaginate($request->input('q'));
         } else {
             $suspicious = $this->suspiciousRepo->paginate();
@@ -1286,25 +1249,60 @@ class PagesController extends BaseController
             ->with('suspicious_type2', $suspicious_type2)
             ->with('query', $request->input('q'));
     }
+
     public function suspicious_posts(Request $request)
     {
-        $message_to_id=Message::whereRaw('(select count(*) from role_user where  role_user.user_id=message.to_id) =0')->where('from_id', auth()->user()->id)->groupBy('to_id')->get()->pluck('to_id')->toArray();
-        $message_from_id=Message::whereRaw('(select count(*) from role_user where  role_user.user_id=message.from_id) =0')->where('to_id', auth()->user()->id)->groupBy('from_id')->get()->pluck('from_id')->toArray();
-        $message_user_list=array_unique(array_merge($message_to_id, $message_from_id));
+        $message_to_id = Message::whereRaw('(select count(*) from role_user where  role_user.user_id=message.to_id) =0')->where('from_id', auth()->user()->id)->groupBy('to_id')->get()->pluck('to_id')->toArray();
+        $message_from_id = Message::whereRaw('(select count(*) from role_user where  role_user.user_id=message.from_id) =0')->where('to_id', auth()->user()->id)->groupBy('from_id')->get()->pluck('from_id')->toArray();
+        $message_user_list = array_unique(array_merge($message_to_id, $message_from_id));
 
-        $suspicious_id=$request->get('suspicious_id');
-        return view('new.dashboard.suspicious_posts', compact('message_user_list','suspicious_id'));
+        $suspicious_id = $request->get('suspicious_id');
+        return view('new.dashboard.suspicious_posts', compact('message_user_list', 'suspicious_id'));
+    }
+
+    public function suspicious_doPosts(Request $request)
+    {
+        //儲存照片
+        $fileuploaderListImages = $request->get('fileuploader-list-images');
+        $destinationPath = $this->suspicious_pic_save($request->get('suspicious_id'), $fileuploaderListImages, $request->file('images'));
+
+        $target_user_id = $request->get('target_user_id');
+        $target_user = User::findById($target_user_id);
+
+        if ($request->get('action') == 'update') {
+            Suspicious::find($request->get('suspicious_id'))
+                ->update([
+                    'user_id' => $request->get('target_user_id'),
+                    'name' => $target_user ? $target_user->name : '',
+                    'account_text' => $request->get('account_text'),
+                    'reason' => $request->get('reason'),
+                    'images' => isset($destinationPath) ? $destinationPath : null,
+                    'report_type' => $request->get('type'),
+                ]);
+            return redirect('/dashboard/suspicious_list?s=false')->with('message', '修改成功');
+        } else {
+            Suspicious::create([
+                'user_id' => $request->get('target_user_id'),
+                'name' => $target_user ? $target_user->name : '',
+                'account_text' => $request->get('account_text'),
+                'reason' => $request->get('reason'),
+                'images' => isset($destinationPath) ? $destinationPath : null,
+                'report_type' => $request->get('type'),
+                'reporter_user_id' => auth()->user()->id,
+            ]);
+            return redirect('/dashboard/suspicious_list?s=false')->with('message', '提報成功');
+        }
     }
 
     public function suspicious_pic_save($suspicious_id, $images, $newImages)
     {
-        $suspicious=Suspicious::where('id',$suspicious_id)->first();
-        $suspiciousImages=$suspicious && !is_null($suspicious->images)? json_decode($suspicious->images, true) : [];
-        $nowImageList=array();
-        $images=json_decode($images, true);
-        if($images){
-            foreach ($images as $imageList){
-                $nowImageList[]=array_get($imageList,'file');
+        $suspicious = Suspicious::where('id', $suspicious_id)->first();
+        $suspiciousImages = $suspicious && !is_null($suspicious->images) ? json_decode($suspicious->images, true) : [];
+        $nowImageList = array();
+        $images = json_decode($images, true);
+        if ($images) {
+            foreach ($images as $imageList) {
+                $nowImageList[] = array_get($imageList, 'file');
             }
         }
 
@@ -1322,16 +1320,15 @@ class PagesController extends BaseController
 
         $destinationPath = [];
         //新增新加入照片
-        if($files = $newImages)
-        {
+        if ($files = $newImages) {
             foreach ($files as $file) {
                 $now = Carbon::now()->format('Ymd');
-                $input['imagename'] = $now . rand(100000000,999999999) . '.' . $file->getClientOriginalExtension();
+                $input['imagename'] = $now . rand(100000000, 999999999) . '.' . $file->getClientOriginalExtension();
 
                 $rootPath = public_path('/img/Suspicious');
-                $tempPath = $rootPath . '/' . substr($input['imagename'], 0, 4) . '/' . substr($input['imagename'], 4, 2) . '/'. substr($input['imagename'], 6, 2) . '/';
+                $tempPath = $rootPath . '/' . substr($input['imagename'], 0, 4) . '/' . substr($input['imagename'], 4, 2) . '/' . substr($input['imagename'], 6, 2) . '/';
 
-                if(!is_dir($tempPath)) {
+                if (!is_dir($tempPath)) {
                     File::makeDirectory($tempPath, 0777, true);
                 }
 
@@ -1347,41 +1344,6 @@ class PagesController extends BaseController
         //整理images
         $destinationPath = json_encode(array_merge($suspiciousImages, $destinationPath));
         return $destinationPath;
-    }
-
-
-    public function suspicious_doPosts(Request $request)
-    {
-        //儲存照片
-        $fileuploaderListImages = $request->get('fileuploader-list-images');
-        $destinationPath=$this->suspicious_pic_save($request->get('suspicious_id'), $fileuploaderListImages, $request->file('images'));
-
-        $target_user_id=$request->get('target_user_id');
-        $target_user=User::findById($target_user_id);
-
-        if($request->get('action') == 'update'){
-            Suspicious::find($request->get('suspicious_id'))
-                ->update([
-                    'user_id'=>$request->get('target_user_id'),
-                    'name'=>$target_user? $target_user->name :'',
-                    'account_text'=>$request->get('account_text'),
-                    'reason'=>$request->get('reason'),
-                    'images' => isset($destinationPath) ? $destinationPath : null,
-                    'report_type'=>$request->get('type'),
-                ]);
-            return redirect('/dashboard/suspicious_list?s=false')->with('message','修改成功');
-        }else{
-            Suspicious::create([
-                'user_id'=>$request->get('target_user_id'),
-                'name'=>$target_user? $target_user->name :'',
-                'account_text'=>$request->get('account_text'),
-                'reason'=>$request->get('reason'),
-                'images' => isset($destinationPath) ? $destinationPath : null,
-                'report_type'=>$request->get('type'),
-                'reporter_user_id'=>auth()->user()->id,
-            ]);
-            return redirect('/dashboard/suspicious_list?s=false')->with('message','提報成功');
-        }
     }
 
     public function view_suspicious_edit($id)
@@ -1413,6 +1375,7 @@ class PagesController extends BaseController
         $images=$imagesGroup;
         return view('new.dashboard.suspicious_edit',compact('suspicious', 'message_user_list', 'images'));
     }
+
     public function suspicious_delete($id)
     {
         $suspicious = Suspicious::where('id', $id)->first();
@@ -1423,6 +1386,7 @@ class PagesController extends BaseController
             return response()->json(['msg'=>'刪除成功!','redirectTo'=>'/dashboard/suspicious_list?s=false']);
         }
     }
+
     public function suspicious_count($id)
     {
         $suspicious = Suspicious::where('id', $id)->first();
@@ -1452,7 +1416,7 @@ class PagesController extends BaseController
             return back()->with('message', '確認新密碼不符合，請重新操作');
         }
 
-       // dd(Hash::make($request->input('old_password')));
+        // dd(Hash::make($request->input('old_password')));
         if( Hash::check($request->input('old_password'),$user->password) ) {
             $password = $request->input('password') == null ? '123456' : $request->input('password');
             $user->password = bcrypt($password);
@@ -1475,18 +1439,18 @@ class PagesController extends BaseController
         $user = $request->user();
         $input = $request->input();
 
-        if($user->email == $input['email']){
-            if(Auth::attempt(array('email' => $input['email'], 'password' => $input['password'])) ){
+        if(strtolower(trim($user->email)) == strtolower(trim($input['email']))){
+            $input['email'] = $user->email;
+            if(Auth::attempt(array('email' => strtolower( $input['email']), 'password' => $input['password'])) ){
                 //驗證成功
                 $reasonType = $request->get('reasonType');
-                if($reasonType == '3'){
+                if ($reasonType == '3') {
                     $this->updateAccountStatus($request);
                     //關閉帳號後需登出
-                    session()->put('needLogOut','Y');
+                    session()->put('needLogOut', 'Y');
                     return redirect('/dashboard/openCloseAccount')->with('message', '非常感謝您選擇甜心花園來為您提供服務，也恭喜您找到適合的他/她，您的帳號目前為關閉狀態，系統將於30秒後自動登出。');
-                }
-                else
-                    return view('new.dashboard.closeAccountReason', compact('user','reasonType'));
+                } else
+                    return view('new.dashboard.closeAccountReason', compact('user', 'reasonType'));
             }else{
                 //驗證失敗
                 return back()->with('message', '帳號驗證失敗');
@@ -1506,17 +1470,16 @@ class PagesController extends BaseController
             if($request->get('reasonType') ==1){
 
                 $images = $request->file('image');
-                if(!is_null($images))
-                {
+                if (!is_null($images)) {
                     $destinationPath = [];
-                    foreach ($images as $image){
+                    foreach ($images as $image) {
                         $now = Carbon::now()->format('Ymd');
-                        $input['imagename'] = $now . rand(100000000,999999999) . '.' . $image->getClientOriginalExtension();
+                        $input['imagename'] = $now . rand(100000000, 999999999) . '.' . $image->getClientOriginalExtension();
 
                         $rootPath = public_path('/img/Member');
-                        $tempPath = $rootPath . '/' . substr($input['imagename'], 0, 4) . '/' . substr($input['imagename'], 4, 2) . '/'. substr($input['imagename'], 6, 2) . '/';
+                        $tempPath = $rootPath . '/' . substr($input['imagename'], 0, 4) . '/' . substr($input['imagename'], 4, 2) . '/' . substr($input['imagename'], 6, 2) . '/';
 
-                        if(!is_dir($tempPath)) {
+                        if (!is_dir($tempPath)) {
                             File::makeDirectory($tempPath, 0777, true);
                         }
                         $destinationPath[] = '/img/Member/'. substr($input['imagename'], 0, 4) . '/' . substr($input['imagename'], 4, 2) . '/'. substr($input['imagename'], 6, 2) . '/' . $input['imagename'];
@@ -1564,25 +1527,24 @@ class PagesController extends BaseController
             }
 
             //關閉帳號後需登出
-            session()->put('needLogOut','Y');
+            session()->put('needLogOut', 'Y');
             return redirect('/dashboard/openCloseAccount')->with('message', $closeMsg);
-        }
-        else if ($status == 'open')
-        {
-            if($user->account_status_admin==0){
+        } else if ($status == 'open') {
+            if ($user->account_status_admin == 0) {
                 return back()->with('message', '此帳號已被站方關閉，若有疑問請點選右下方，加站長line@');
             }
-            $dbCloseDay = \App\Models\AccountStatusLog::where('user_id',$user->id)->orderBy('created_at', 'desc')->first();
+            $dbCloseDay = \App\Models\AccountStatusLog::where('user_id', $user->id)->orderBy('created_at', 'desc')->first();
             $waitDay = 30;
-            if(!is_null($dbCloseDay)){
-                $baseDay = date("Y-m-d",strtotime("+30 days",substr(strtotime($dbCloseDay->created_at), 0 ,10)));
+            if (!is_null($dbCloseDay)) {
+                $baseDay = date("Y-m-d", strtotime("+30 days", substr(strtotime($dbCloseDay->created_at), 0, 10)));
                 $nowDay = date("Y-m-d");
-                $waitDay = round((strtotime($baseDay)-strtotime($nowDay))/3600/24);
+                $waitDay = round((strtotime($baseDay) - strtotime($nowDay)) / 3600 / 24);
             }
 
             if((auth()->user()->isVip() || auth()->user()->isVVIP()) || $waitDay <=0){
-                if($user->email == $input['email']){
-                    if(Auth::attempt(array('email' => $input['email'], 'password' => $input['password'])) ){
+                if(strtolower(trim($user->email)) == strtolower(trim($input['email']))){
+                    $input['email'] = $user->email;
+                    if(Auth::attempt(array('email' => strtolower( $input['email']), 'password' => $input['password'])) ){
                         //驗證成功
                         $user->accountStatus = 1;
                         $user->accountStatus_updateTime = Carbon::now();
@@ -1611,13 +1573,46 @@ class PagesController extends BaseController
         $userWrongMsg = $this->advance_auth_get_msg('have_wrong');
         $userForbidMsg = $this->advance_auth_get_msg('user_forbid');
         return view('new.dashboard.account_manage')->with('user', $user)->with('cur', $user)
-                ->with('is_pause_api',LogAdvAuthApi::isPauseApi())
-                ->with('isAdvAuthUsable',$user->isAdvanceAuth()?$user->isAdvanceAuth():UserService::isAdvAuthUsableByUser($user))
-                ->with('userPauseMsg',$userPauseMsg??null)
-                ->with('apiPauseMsg',$apiPauseMsg??null)
-                ->with('userWrongMsg',$userWrongMsg)
-                ->with('userForbidMsg',$userForbidMsg)
-                ;
+            ->with('is_pause_api', LogAdvAuthApi::isPauseApi())
+            ->with('isAdvAuthUsable', $user->isAdvanceAuth() ? $user->isAdvanceAuth() : UserService::isAdvAuthUsableByUser($user))
+            ->with('userPauseMsg', $userPauseMsg ?? null)
+            ->with('apiPauseMsg', $apiPauseMsg ?? null)
+            ->with('userWrongMsg', $userWrongMsg)
+            ->with('userForbidMsg', $userForbidMsg);
+    }
+
+    public function advance_auth_get_msg($type = null)
+    {
+        $msg = null;
+        $rap_service = $this->rap_service;
+
+        switch ($type) {
+            case 'have_wrong':
+                $msg = '您的進階驗證功能有誤，請加站長 line 與站長聯絡<a href="https://lin.ee/rLqcCns" target="_blank"> <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="height: 26px; float: unset;"></a>';
+                break;
+            case 'user_forbid':
+                $msg = '您的驗證次數已滿三次，請加站長 line 與站長聯絡<a href="https://lin.ee/rLqcCns" target="_blank"> <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="height: 26px; float: unset;"></a> ';
+                break;
+            case 'user_pause':
+                $chinese_num_arr = ['一', '二', '三', '四', '五', '六', '七', '八', '九'];
+                $user_pause_during = config('memadvauth.user.pause_during');
+                $msg = '驗證失敗需' . (($user_pause_during % 1440 || $user_pause_during / 1440 >= 10) ? $user_pause_during . '分鐘' : $chinese_num_arr[$user_pause_during / 1440 - 1] . '天') . '後才能重新申請。';
+                break;
+            case 'user_pause2':
+                $chinese_num_arr = ['一', '二', '三', '四', '五', '六', '七', '八', '九'];
+                $user_pause_during = config('memadvauth.user.pause_during');
+                $msg = '失敗後要等' . (($user_pause_during % 1440 || $user_pause_during / 1440 >= 10) ? $user_pause_during . '分鐘' : $chinese_num_arr[$user_pause_during / 1440 - 1] . '天') . '才能重新申請。';
+                break;
+            case 'api_pause':
+                $api_pause_during = config('memadvauth.api.pause_during');
+                $msg = '本日進階驗證功能維修，請 ' . (intval($api_pause_during / 60) ? intval($api_pause_during / 60) . 'hr' : '') . (($api_pause_during % 60) ? ($api_pause_during % 60) . '分鐘' : '') . ' 後再試。';
+                break;
+            case 'api_fault':
+                $msg = ' 驗證主機目前維修中，請八個小時後再驗證，如果還是不行，請點此聯絡站長 <a href="https://lin.ee/rLqcCns" target="_blank"> <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="height: 26px; float: unset;"></a> ';
+                break;
+        }
+
+        return $msg;
     }
 
     public function view_name_modify(Request $request)
@@ -1626,9 +1621,10 @@ class PagesController extends BaseController
         return view('new.dashboard.account_name_modify')->with('user', $user)->with('cur', $user);
     }
 
-    public function changeName(Request $request){
+    public function changeName(Request $request)
+    {
         $user = $request->user();
-        if( Hash::check($request->input('password'),$user->password) ) {
+        if (Hash::check($request->input('password'), $user->password)) {
             $name = $request->input('name');
             $reason = $request->input('reason');
             if (!isset($name)) {
@@ -1799,14 +1795,11 @@ class PagesController extends BaseController
         $user_provisional_variables = UserProvisionalVariables::where('user_id', $user->id)->first();
         $user_login_count = LogUserLogin::where('user_id', $user->id)->count();
 
-        if($user_login_count == 10 && $user_provisional_variables->has_adjusted_period_first_time == 0)
-        {
+        if ($user_login_count == 10 && $user_provisional_variables->has_adjusted_period_first_time == 0) {
             return view('new.dashboard.first_account_exchange_period')
                 ->with('user', $user)
                 ->with('user_login_count', $user_login_count);
-        }
-        else
-        {
+        } else {
             return view('new.dashboard.account_exchange_period')
                 ->with('user', $user);
         }
@@ -1828,7 +1821,7 @@ class PagesController extends BaseController
                 //未動過者首次直接通過
                 User::where('id', $user->id)->update(['exchange_period' => $period]);
                 $rs = DB::table('exchange_period_temp')->insert(['user_id' => $user->id, 'created_at' => \Carbon\Carbon::now()]);
-                if($rs) {
+                if($rs && $rap_service->getApplyByAuthTypeId(1)) {
                     $rap_service->riseByUserEntry($user)->saveProfileModifyByReq($request);
                 }
                 return back()->with('message', '已完成首次設定，無需審核');
@@ -1840,11 +1833,11 @@ class PagesController extends BaseController
                 $rs = DB::table('account_exchange_period')->insert(
                     ['user_id' => $user->id, 'exchange_period' => $period, 'before_exchange_period' => $user->exchange_period, 'reason' => $reason, 'status' => 0, 'created_at' => Carbon::now()]
                 );
-                
-                if($rs) {
+
+                if ($rs) {
                     $rap_service->riseByUserEntry($user)->saveProfileModifyByReq($request);
-                }                
-                
+                }
+
                 return back()->with('message', '已送出申請，等待48hr站長審核');
             }
         }else{
@@ -2034,8 +2027,9 @@ class PagesController extends BaseController
         $isHideOnline = $request->input('isHideOnline');
         $insertData = false;
         $status_msg = 'error';
+        $user = User::where('id', $user_id)->get()->first();
 
-        if($isHideOnline == 0){
+        if($isHideOnline == 0 || $user->valueAddedServiceStatus('hideOnline') == 0){
 
             User::where('id', $user_id)->update(['is_hide_online' => 0]);
             $status_msg = '搜索排序設定已變更。';
@@ -2043,7 +2037,6 @@ class PagesController extends BaseController
         }else if($isHideOnline == 1){
             //check current is_hide_online
             $checkHideOnlineData = hideOnlineData::where('user_id',$user_id)->where('deleted_at', null)->get()->first();
-            $user = User::where('id', $user_id)->get()->first();
             $insertData = true;
 
             if($user->is_hide_online==2 && isset($checkHideOnlineData)){
@@ -2057,7 +2050,6 @@ class PagesController extends BaseController
         }else if($isHideOnline == 2){
             //check current is_hide_online
             $checkHideOnlineData = hideOnlineData::where('user_id',$user_id)->where('deleted_at', null)->get()->first();
-            $user = User::where('id', $user_id)->get()->first();
             $insertData = true;
 
             if($user->is_hide_online==1 && isset($checkHideOnlineData)){
@@ -2069,8 +2061,8 @@ class PagesController extends BaseController
             $status_msg = '搜索排序設定已變更。';
         }
 
-//        if($insertData == true) {
-//            //如當前使用者為隱藏is_hide_online=2 則跳離快照
+        //        if($insertData == true) {
+        //            //如當前使用者為隱藏is_hide_online=2 則跳離快照
 //            $register_time = $user->created_at;
 //            $login_time = Carbon::now();
 //            /*每周平均上線次數*/
@@ -2262,21 +2254,20 @@ class PagesController extends BaseController
                 logger('$before_cancelValueAddedService:'.$valueAddedServiceData->updated_at);
                 if( strpos(\Storage::disk('local')->get($file[0]), $file[1]) !== false) {
                     $array = ValueAddedService::cancel($user->id, $payload['service_name']);
-                    if(isset($array["str"])){
+                    if (isset($array["str"])) {
                         $offVIP = $array["str"];
-                    }
-                    else{
+                    } else {
                         $data = ValueAddedService::where('member_id', $user->id)->where('service_name', $payload['service_name'])->where('expiry', '!=', '0000-00-00 00:00:00')->get()->first();
                         $date = date('Y年m月d日', strtotime($data->expiry));
-                        if($payload['service_name'] == 'hideOnline') {
+                        if ($payload['service_name'] == 'hideOnline') {
                             $offVIP = '您已成功取消付費隱藏功能，下個月起將不再繼續扣款，目前的付費功能權限可以維持到 ' . $date;
-                        }elseif($payload['service_name'] == 'VVIP') {
-//                            $type = $user->applyVVIP_getData()->plan;
-//                            if($type == 'VVIP_B') {
-//                                $offVIP = '您已成功取消 VVIP，下個月起將不再繼續扣款，目前的付費功能權限可以維持到 ' . $date . '，您的預備金還剩' . $user->VvipMargin->balance .  '元';
-//                            }
-//                            else {
-                                $offVIP = '您已成功取消 VVIP，下個月起將不再繼續扣款，目前的付費功能權限可以維持到 ' . $date;
+                        } elseif ($payload['service_name'] == 'VVIP') {
+                            //                            $type = $user->applyVVIP_getData()->plan;
+                            //                            if($type == 'VVIP_B') {
+                            //                                $offVIP = '您已成功取消 VVIP，下個月起將不再繼續扣款，目前的付費功能權限可以維持到 ' . $date . '，您的預備金還剩' . $user->VvipMargin->balance .  '元';
+                            //                            }
+                            //                            else {
+                            $offVIP = '您已成功取消 VVIP，下個月起將不再繼續扣款，目前的付費功能權限可以維持到 ' . $date;
 //                            }
                         }
                         logger('$expiry: ' . $data->expiry);
@@ -2286,26 +2277,37 @@ class PagesController extends BaseController
                     logger('User ' . $user->id . ' ValueAddedService cancellation finished, type: ' . $payload['service_name']);
                     $request->session()->flash('cancel_notice', $offVIP);
                     $request->session()->save();
-                    if($payload['service_name']=='hideOnline') {
+                    if ($payload['service_name'] == 'hideOnline') {
                         return redirect('/dashboard/valueAddedHideOnline#valueAddedServiceCanceled')->with('user', $user)->with('message', $offVIP);
                     }
-                    if($payload['service_name']=='VVIP') {
+                    if ($payload['service_name'] == 'VVIP') {
                         return redirect('/dashboard/vvipCancel#valueAddedServiceCanceled')->with('user', $user)->with('message', $offVIP);
                     }
-                }
-                else{
+                } else {
                     return redirect('/dashboard/valueAddedHideOnline')->with('user', $user)->withErrors(['取消失敗！'])->with('cancel_notice', '本次取消資訊沒有成功寫入，請再試一次。');
                 }
-            }
-            else{
+            } else {
                 return back()->with('message', '帳號密碼輸入錯誤');
             }
-        }
-        else{
+        } else {
             Log::error('User not found.');
         }
 
         return back()->with('message', 'error');
+    }
+
+    public function cancel(Request $request)
+    {
+        $user = $request->user();
+        if ($user) {
+            return view('dashboard.cancel')
+                ->with('user', $user);
+        }
+    }
+
+    public function error()
+    {
+        return view('errors.exception');
     }
 
     public function view_vipSelect(Request $request)
@@ -2315,10 +2317,11 @@ class PagesController extends BaseController
             ->with('user', $user)->with('cur', $user);
     }
 
-    public function viewuser2(Request $request, $uid = -1) {
+    public function viewuser2(Request $request, $uid = -1)
+    {
         $user = $request->user();
         $rap_service = $this->rap_service;
-        
+
         $vipDays=0;
         if($user->isVip()||$user->isVVIP()) {
             $vip_record = Carbon::parse($user->vip_record);
@@ -2334,15 +2337,15 @@ class PagesController extends BaseController
             $request->merge(['page_mode'=>'edit']);
         }
         if (isset($user) && isset($uid)) {
-            $targetUser = User::where('id', $uid)->where('accountStatus',1)->where('account_status_admin',1)->get()->first();
+            $targetUser = User::where('id', $uid)->where('accountStatus', 1)->where('account_status_admin', 1)->get()->first();
             $rap_service->riseByUserEntry($targetUser);
             if (!isset($targetUser)) {
                 return view('errors.nodata');
             }
             // if(User::isBanned($uid)){
-                // Session::flash('closed', true);
-                // Session::flash('message', '此用戶已關閉資料');
-                // return view('new.dashboard.viewuser', compact('user'));
+            // Session::flash('closed', true);
+            // Session::flash('message', '此用戶已關閉資料');
+            // return view('new.dashboard.viewuser', compact('user'));
             // }
 
             //check forum manage users
@@ -2353,7 +2356,7 @@ class PagesController extends BaseController
             //$forum = Forum::where('user_id', $user->id)->orderBy('id','desc')->first();
             //if($forum??false)
             //{
-                //$canViewUsers = ForumManage::where('forum_id', $forum->id)->where('user_id',$targetUser->id)->first();
+            //$canViewUsers = ForumManage::where('forum_id', $forum->id)->where('user_id',$targetUser->id)->first();
             //}
 
 
@@ -2368,20 +2371,19 @@ class PagesController extends BaseController
 
             $visited_id = 0;
             if ($user->id != $uid) {
-                if(isset($canViewUsers)){
-                    if( $user->is_hide_online != 1 ) {
+                if (isset($canViewUsers)) {
+                    if ($user->is_hide_online != 1 && $user->is_hide_online != 2) {
                         $visited_id = Visited::visit($user->id, $targetUser);
                     }
-                }
-                elseif(
+                } elseif (
                     //檢查性別
                     $user->engroup == $targetUser->engroup
                     //檢查是否被封鎖
                     //|| User::isBanned($user->id)
-                ){
+                ) {
                     return redirect()->route('listSeatch2');
-                }else{
-                    if( $user->is_hide_online != 1 ) {
+                } else {
+                    if ($user->is_hide_online != 1 && $user->is_hide_online != 2) {
                         $visited_id = Visited::visit($user->id, $targetUser);
                     }
                 }
@@ -2460,7 +2462,6 @@ class PagesController extends BaseController
             $label_vip = $adminCommonTextArray['label_vip'];
             /*編輯文案-label_vip-END*/
 
-            
 
             /**
              * 效能調整：使用左結合以大幅降低處理時間，並且減少 query 次數，進一步降低時間及程式碼複雜度
@@ -2477,17 +2478,17 @@ class PagesController extends BaseController
                 ->leftJoin('warned_users as w2', 'w2.member_id', '=', 'evaluation.from_id')
                 //->leftJoin('users as u2', 'u2.id', '=', 'evaluation.from_id')
                 //->leftJoin('user_meta as um', function($join) {
-                    //$join->on('um.user_id', '=', 'evaluation.from_id')
-                    //->where('isWarned', 1); })
+                //$join->on('um.user_id', '=', 'evaluation.from_id')
+                //->where('isWarned', 1); })
                 //->leftJoin('warned_users as wu', function($join) {
-                    //$join->on('wu.member_id', '=', 'evaluation.from_id')
-                    //->where(function($query){
-                        //$query->where('wu.expire_date', '>=', Carbon::now())
-                        //->orWhere('wu.expire_date', null); }); })
+                //$join->on('wu.member_id', '=', 'evaluation.from_id')
+                //->where(function($query){
+                //$query->where('wu.expire_date', '>=', Carbon::now())
+                //->orWhere('wu.expire_date', null); }); })
                 ->whereNull('evaluation.content_violation_processing')
                 ->whereNull('b1.member_id')
                 ->whereNull('b3.target')
-                ->where('um.isWarned',0)
+                ->where('um.isWarned', \DB::raw('0'))
                 ->whereNull('w2.id')
                 ->whereNotNull('u1.id')
                 //->whereNotNull('u2.id')
@@ -2502,7 +2503,7 @@ class PagesController extends BaseController
                 ->where('evaluation.anonymous_content_status', 1)
                 ->whereNull('b1.member_id')
                 ->whereNull('b3.target')
-                ->where('um.isWarned',0)
+                ->where('um.isWarned', \DB::raw('0'))
                 ->whereNull('w2.id')
                 ->whereNotNull('u1.id')
                 ->where('u1.accountStatus', 1)
@@ -2511,15 +2512,21 @@ class PagesController extends BaseController
                 ->where('evaluation.to_id', $uid);
 
             $evaluation_data = $query->paginate(10);
+            $evaluation_anonymous = Evaluation::where('to_id',$uid)->where('from_id',$user->id)->whereNotNull('content_violation_processing')->orderByDesc('created_at')->first();
+            $evaluation_self = Evaluation::where('to_id',$uid)->where('from_id',$user->id)->whereNull('content_violation_processing')->orderByDesc('created_at')->first();
+            $too_soon_evaluation = false;
 
-            $evaluation_self = Evaluation::where('to_id',$uid)->where('from_id',$user->id)->whereNull('content_violation_processing')->first();
+            $latest_evaluation = Evaluation::where('from_id',$user->id)->orderByDesc('created_at')->first();
+            if($latest_evaluation) {
+                $too_soon_evaluation = Carbon::now()->diffInMinutes(Carbon::parse($latest_evaluation->created_at))<=30;
+            }
             /*編輯文案-被封鎖者看不到封鎖者的提示-START*/
             //$user_closed = AdminCommonText::where('alias','user_closed')->get()->first();
             /*編輯文案-被封鎖者看不到封鎖者的提示-END*/
 
             // todo: 此處程式碼有誤，應檢查檢視者是否被被檢視者封鎖，若是，才存入變數
             //if(User::isBanned($uid)){
-                //Session::flash('message', $user_closed->content);
+            //Session::flash('message', $user_closed->content);
             //}
             if($uid == $user->id) {
                 \App\Models\Evaluation::where('to_id',$uid)->update(['read'=>0]);
@@ -2586,102 +2593,84 @@ class PagesController extends BaseController
             // die();
             //關於我,期待的約會模式
             $relationship_status = DB::table('option_relationship_status')
-                                        ->leftJoin('user_options_xref', function($join) use($to)
-                                        {
-                                            $join->on('option_relationship_status.id', '=', 'user_options_xref.option_id')
-                                                ->where('user_options_xref.user_id', '=', $to->id)
-                                                ->where('user_options_xref.option_type', '=', 2)
-                                                ;
-                                        })
-                                        ->select('option_relationship_status.*', 'user_options_xref.id as xref_id')
-                                        ->whereNotNull('user_options_xref.id')
-                                        ->get();
+                ->leftJoin('user_options_xref', function ($join) use ($to) {
+                    $join->on('option_relationship_status.id', '=', 'user_options_xref.option_id')
+                        ->where('user_options_xref.user_id', '=', $to->id)
+                        ->where('user_options_xref.option_type', '=', 2);
+                })
+                ->select('option_relationship_status.*', 'user_options_xref.id as xref_id')
+                ->whereNotNull('user_options_xref.id')
+                ->get();
             $looking_for_relationships = DB::table('option_looking_for_relationships')
-                                        ->leftJoin('user_options_xref', function($join) use($to)
-                                        {
-                                            $join->on('option_looking_for_relationships.id', '=', 'user_options_xref.option_id')
-                                                ->where('user_options_xref.user_id', '=', $to->id)
-                                                ->where('user_options_xref.option_type', '=', 3)
-                                                ;
-                                        })
-                                        ->select('option_looking_for_relationships.*', 'user_options_xref.id as xref_id')
-                                        ->whereNotNull('user_options_xref.id')
-                                        ->get();
+                ->leftJoin('user_options_xref', function ($join) use ($to) {
+                    $join->on('option_looking_for_relationships.id', '=', 'user_options_xref.option_id')
+                        ->where('user_options_xref.user_id', '=', $to->id)
+                        ->where('user_options_xref.option_type', '=', 3);
+                })
+                ->select('option_looking_for_relationships.*', 'user_options_xref.id as xref_id')
+                ->whereNotNull('user_options_xref.id')
+                ->get();
             $expect = DB::table('option_expect')
-                                        ->leftJoin('user_options_xref', function($join) use($to)
-                                        {
-                                            $join->on('option_expect.id', '=', 'user_options_xref.option_id')
-                                                ->where('user_options_xref.user_id', '=', $to->id)
-                                                ->where('user_options_xref.option_type', '=', 4)
-                                                ;
-                                        })
-                                        ->select('option_expect.*', 'user_options_xref.id as xref_id')
-                                        ->whereNotNull('user_options_xref.id')
-                                        ->get();
+                ->leftJoin('user_options_xref', function ($join) use ($to) {
+                    $join->on('option_expect.id', '=', 'user_options_xref.option_id')
+                        ->where('user_options_xref.user_id', '=', $to->id)
+                        ->where('user_options_xref.option_type', '=', 4);
+                })
+                ->select('option_expect.*', 'user_options_xref.id as xref_id')
+                ->whereNotNull('user_options_xref.id')
+                ->get();
             $favorite_food = DB::table('option_favorite_food')
-                                        ->leftJoin('user_options_xref', function($join) use($to)
-                                        {
-                                            $join->on('option_favorite_food.id', '=', 'user_options_xref.option_id')
-                                                ->where('user_options_xref.user_id', '=', $to->id)
-                                                ->where('user_options_xref.option_type', '=', 5)
-                                                ;
-                                        })
-                                        ->select('option_favorite_food.*', 'user_options_xref.id as xref_id')
-                                        ->whereNotNull('user_options_xref.id')
-                                        ->get();
+                ->leftJoin('user_options_xref', function ($join) use ($to) {
+                    $join->on('option_favorite_food.id', '=', 'user_options_xref.option_id')
+                        ->where('user_options_xref.user_id', '=', $to->id)
+                        ->where('user_options_xref.option_type', '=', 5);
+                })
+                ->select('option_favorite_food.*', 'user_options_xref.id as xref_id')
+                ->whereNotNull('user_options_xref.id')
+                ->get();
             $preferred_date_location = DB::table('option_preferred_date_location')
-                                        ->leftJoin('user_options_xref', function($join) use($to)
-                                        {
-                                            $join->on('option_preferred_date_location.id', '=', 'user_options_xref.option_id')
-                                                ->where('user_options_xref.user_id', '=', $to->id)
-                                                ->where('user_options_xref.option_type', '=', 6)
-                                                ;
-                                        })
-                                        ->select('option_preferred_date_location.*', 'user_options_xref.id as xref_id')
-                                        ->whereNotNull('user_options_xref.id')
-                                        ->get();
+                ->leftJoin('user_options_xref', function ($join) use ($to) {
+                    $join->on('option_preferred_date_location.id', '=', 'user_options_xref.option_id')
+                        ->where('user_options_xref.user_id', '=', $to->id)
+                        ->where('user_options_xref.option_type', '=', 6);
+                })
+                ->select('option_preferred_date_location.*', 'user_options_xref.id as xref_id')
+                ->whereNotNull('user_options_xref.id')
+                ->get();
             $expected_type = DB::table('option_expected_type')
-                                        ->leftJoin('user_options_xref', function($join) use($to)
-                                        {
-                                            $join->on('option_expected_type.id', '=', 'user_options_xref.option_id')
-                                                ->where('user_options_xref.user_id', '=', $to->id)
-                                                ->where('user_options_xref.option_type', '=', 7)
-                                                ;
-                                        })
-                                        ->select('option_expected_type.*', 'user_options_xref.id as xref_id')
-                                        ->whereNotNull('user_options_xref.id')
-                                        ->get();
+                ->leftJoin('user_options_xref', function ($join) use ($to) {
+                    $join->on('option_expected_type.id', '=', 'user_options_xref.option_id')
+                        ->where('user_options_xref.user_id', '=', $to->id)
+                        ->where('user_options_xref.option_type', '=', 7);
+                })
+                ->select('option_expected_type.*', 'user_options_xref.id as xref_id')
+                ->whereNotNull('user_options_xref.id')
+                ->get();
             $frequency_of_getting_along = DB::table('option_frequency_of_getting_along')
-                                        ->leftJoin('user_options_xref', function($join) use($to)
-                                        {
-                                            $join->on('option_frequency_of_getting_along.id', '=', 'user_options_xref.option_id')
-                                                ->where('user_options_xref.user_id', '=', $to->id)
-                                                ->where('user_options_xref.option_type', '=', 8)
-                                                ;
-                                        })
-                                        ->select('option_frequency_of_getting_along.*', 'user_options_xref.id as xref_id')
-                                        ->whereNotNull('user_options_xref.id')
-                                        ->get();
+                ->leftJoin('user_options_xref', function ($join) use ($to) {
+                    $join->on('option_frequency_of_getting_along.id', '=', 'user_options_xref.option_id')
+                        ->where('user_options_xref.user_id', '=', $to->id)
+                        ->where('user_options_xref.option_type', '=', 8);
+                })
+                ->select('option_frequency_of_getting_along.*', 'user_options_xref.id as xref_id')
+                ->whereNotNull('user_options_xref.id')
+                ->get();
             $personality_traits = DB::table('option_personality_traits')
-                                        ->leftJoin('user_options_xref', function($join) use($user)
-                                        {
-                                            $join->on('option_personality_traits.id', '=', 'user_options_xref.option_id')
-                                                ->where('user_options_xref.user_id', '=', $user->id)
-                                                ->where('user_options_xref.option_type', '=', 9)
-                                            ;
-                                        })
-                                        ->select('option_personality_traits.*', 'user_options_xref.id as xref_id')
-                                        ->get();
+                ->leftJoin('user_options_xref', function ($join) use ($user) {
+                    $join->on('option_personality_traits.id', '=', 'user_options_xref.option_id')
+                        ->where('user_options_xref.user_id', '=', $user->id)
+                        ->where('user_options_xref.option_type', '=', 9);
+                })
+                ->select('option_personality_traits.*', 'user_options_xref.id as xref_id')
+                ->get();
             $life_style = DB::table('option_life_style')
-                                        ->leftJoin('user_options_xref', function($join) use($user)
-                                        {
-                                            $join->on('option_life_style.id', '=', 'user_options_xref.option_id')
-                                                ->where('user_options_xref.user_id', '=', $user->id)
-                                                ->where('user_options_xref.option_type', '=', 10)
-                                            ;
-                                        })
-                                        ->select('option_life_style.*', 'user_options_xref.id as xref_id')
-                                        ->get();
+                ->leftJoin('user_options_xref', function ($join) use ($user) {
+                    $join->on('option_life_style.id', '=', 'user_options_xref.option_id')
+                        ->where('user_options_xref.user_id', '=', $user->id)
+                        ->where('user_options_xref.option_type', '=', 10);
+                })
+                ->select('option_life_style.*', 'user_options_xref.id as xref_id')
+                ->get();
             //工作/學業
             $user_option_xref = UserOptionsXref::where('user_id', $to->id);
             $user_option = new \stdClass();
@@ -2697,301 +2686,330 @@ class PagesController extends BaseController
             $data['note']   =    MessageUserNote::where('user_id', $user->id)->where('message_user_id', $to->id)->first();
 
             //留言板
-            $message_board_list=MessageBoard::where('user_id', $to->id)
-                ->whereRaw('(message_expiry_time >="'.date("Y-m-d H:i:s").'" OR set_period is NULL)')
-                ->where('hide_by_admin',0)
-                ->orderBy('created_at','desc')->get();
+            $bannedId =  \App\Services\UserService::getBannedId();
+            $banTheUser = \App\Models\Blocked::where('member_id', $user->id)->get();
+            $banByUser = \App\Models\Blocked::where('member_id', $to->id)->get();
+            
+            $total_ban_num = $bannedId->where('user_id',$to->id)->count()
+                            + $bannedId->where('user_id',$user->id)->count()
+                            + $banTheUser->where('blocked_id',$to->id)->count()
+                             + $banByUser->where('blocked_id',$user->id)->count()
+                             ;
+                             
+            if($total_ban_num) {
+                $message_board_list = collect([]);
+            }
+            else {
+            
+                $message_board_list=MessageBoard::where('user_id', $to->id)
+                    ->whereRaw('(message_expiry_time >="'.date("Y-m-d H:i:s").'" OR set_period is NULL)')
+                    ->where('hide_by_admin',0)
+                    ->orderBy('created_at','desc')->get();
+            }
             if(!str_contains($_SERVER['HTTP_REFERER'],'MessageBoard/post_detail')) {
                 session()->forget('viewuser_page_position');
             }
             return view('new.dashboard.viewuser', $data ?? [])
-                    ->with('user', $user)
-                    ->with('blockadepopup', $blockadepopup)
-                    ->with('to', $to)
-                    ->with('valueAddedServiceStatus', $valueAddedServicesStatus)
-                    ->with('isSent3Msg', $isSent3Msg)
-                    ->with('cur', $user)
-                    ->with('member_pic',$member_pic)
-                    ->with('isVip', $isVip)
-                    ->with('engroup', $user->engroup)
-                    ->with('report_reason',$report_reason->content)
-                    ->with('report_member',$report_member->content)
-                    ->with('report_avatar',$report_avatar->content)
-                    ->with('new_sweet',$new_sweet->content)
-                    ->with('well_member',$well_member->content)
-                    ->with('money_cert',$money_cert->content)
-                    ->with('alert_account',$alert_account->content)
-                    ->with('label_vip',$label_vip->content)
-                    // ->with('rating_avg',$rating_avg)
-                    //->with('user_closed',$user_closed->content)
-                    ->with('evaluation_self',$evaluation_self)
-                    ->with('evaluation_data',$evaluation_data)
-                    ->with('vipDays',$vipDays)
-                    ->with('isReadIntro',$isReadIntro)
-                    ->with('auth_check',$auth_check)
-                    ->with('is_banned',User::isBanned($user->id))
-                    ->with('is_banned_v2', User::isBanned_v2($user->id))
-                    ->with('pr', $pr)
-                    ->with('isBlocked',$isBlocked)
-                    ->with('visited_id', $visited_id)
-                    ->with('rap_service',$rap_service)
-                    ->with('transport_fare_reported', $transport_fare_reported)
-                    ->with('month_budget_reported', $month_budget_reported)
-                    ->with('user_option', $user_option)
-                    ->with('relationship_status', $relationship_status)
-                    ->with('looking_for_relationships', $looking_for_relationships)
-                    ->with('expect', $expect)
-                    ->with('favorite_food', $favorite_food)
-                    ->with('preferred_date_location', $preferred_date_location)
-                    ->with('expected_type', $expected_type)
-                    ->with('frequency_of_getting_along', $frequency_of_getting_along)
-                    ->with('personality_traits', $personality_traits)
-                    ->with('life_style', $life_style)
-                    ->with('advance_auth_status', $advance_auth_status)
-                    ->with('bool_value', $bool_value)
-                    ->with('message_board_list', $message_board_list)
-                    ;
+                ->with('user', $user)
+                ->with('blockadepopup', $blockadepopup)
+                ->with('to', $to)
+                ->with('valueAddedServiceStatus', $valueAddedServicesStatus)
+                ->with('isSent3Msg', $isSent3Msg)
+                ->with('cur', $user)
+                ->with('member_pic', $member_pic)
+                ->with('isVip', $isVip)
+                ->with('engroup', $user->engroup)
+                ->with('report_reason', $report_reason->content)
+                ->with('report_member', $report_member->content)
+                ->with('report_avatar', $report_avatar->content)
+                ->with('new_sweet', $new_sweet->content)
+                ->with('well_member', $well_member->content)
+                ->with('money_cert', $money_cert->content)
+                ->with('alert_account', $alert_account->content)
+                ->with('label_vip', $label_vip->content)
+                // ->with('rating_avg',$rating_avg)
+                //->with('user_closed',$user_closed->content)
+                ->with('evaluation_self', $evaluation_self)
+                ->with('evaluation_anonymous', $evaluation_anonymous)
+                ->with('too_soon_evaluation',$too_soon_evaluation)
+                ->with('evaluation_data', $evaluation_data)
+                ->with('vipDays', $vipDays)
+                ->with('isReadIntro', $isReadIntro)
+                ->with('auth_check', $auth_check)
+                ->with('is_banned', User::isBanned($user->id))
+                ->with('is_banned_v2', User::isBanned_v2($user->id))
+                ->with('pr', $pr)
+                ->with('isBlocked', $isBlocked)
+                ->with('visited_id', $visited_id)
+                ->with('rap_service', $rap_service)
+                ->with('transport_fare_reported', $transport_fare_reported)
+                ->with('month_budget_reported', $month_budget_reported)
+                ->with('user_option', $user_option)
+                ->with('relationship_status', $relationship_status)
+                ->with('looking_for_relationships', $looking_for_relationships)
+                ->with('expect', $expect)
+                ->with('favorite_food', $favorite_food)
+                ->with('preferred_date_location', $preferred_date_location)
+                ->with('expected_type', $expected_type)
+                ->with('frequency_of_getting_along', $frequency_of_getting_along)
+                ->with('personality_traits', $personality_traits)
+                ->with('life_style', $life_style)
+                ->with('advance_auth_status', $advance_auth_status)
+                ->with('bool_value', $bool_value)
+                ->with('message_board_list', $message_board_list);
         }
 
     }
 
-    public function getHideData(Request $request){
-            
-            $user = $request->user();
-            $is_vip = ($user->isVip()||$user->isVVIP());
-            $uid = $request->uid;
-            $targetUser = User::where('id', $uid)->where('accountStatus',1)->where('account_status_admin',1)->get()->first();
-            /*七天前*/
-            $date = date('Y-m-d H:m:s', strtotime('-7 days'));
-            /*車馬費邀請次數*/
-            if($targetUser->engroup==2) {
-                $tip_count = Tip::where('to_id', $uid)->get()->count();
-            }else{
-                $tip_count = Tip::where('member_id', $uid)->get()->count();
+    public function getHideData(Request $request)
+    {
+
+        $user = $request->user();
+        if (!$user) {
+            return false;
+        }
+        $is_vip = ($user->isVip() || $user->isVVIP());
+        $uid = $request->uid;
+        $targetUser = User::where('id', $uid)->where('accountStatus', 1)->where('account_status_admin', 1)->get()->first();
+        if (!$targetUser) {
+            return false;
+        }
+        /*七天前*/
+        $date = date('Y-m-d H:m:s', strtotime('-7 days'));
+        /*車馬費邀請次數*/
+        if ($targetUser->engroup == 2) {
+            $tip_count = Tip::where('to_id', $uid)->get()->count();
+        } else {
+            $tip_count = Tip::where('member_id', $uid)->get()->count();
+        }
+        /*是否封鎖我*/
+        $is_block_mid = Blocked::where('blocked_id', $user->id)->where('member_id', $uid)->count() >= 1 ? '是' : '否';
+        /*是否看過我*/
+        $is_visit_mid = Visited::where('visited_id', $user->id)->where('member_id', $uid)->count() >= 1 ? '是' : '否';
+
+        /*瀏覽其他會員次數*/
+        $visit_other_count = Visited::where('member_id', $uid)->distinct('visited_id')->count();
+
+        /*被瀏覽次數*/
+        $be_visit_other_count = Visited::where('visited_id', $uid)->distinct('member_id')->count();
+
+        /*過去7天瀏覽其他會員次數*/
+        $visit_other_count_7 = Visited::where('member_id', $uid)->where('created_at', '>=', $date)->distinct('visited_id')->count();
+
+        /*過去7天被瀏覽次數*/
+        $be_visit_other_count_7 = Visited::where('visited_id', $uid)->where('created_at', '>=', $date)->distinct('member_id')->count();
+
+
+        /*發信＆回信次數統計*/
+        $messages_all = Message::select('id', 'to_id', 'from_id', 'created_at')->where('to_id', $uid)->orwhere('from_id', $uid)->orderBy('id')->get();
+        $countInfo['message_count'] = 0;
+        $countInfo['message_reply_count'] = 0;
+        $countInfo['message_reply_count_7'] = 0;
+        $send = [];
+        $receive = [];
+        foreach ($messages_all as $message) {
+            //uid主動第一次發信
+            if ($message->from_id == $uid && array_get($send, $message->to_id) < $message->id) {
+                $send[$message->to_id][] = $message->id;
             }
-            /*是否封鎖我*/
-            $is_block_mid = Blocked::where('blocked_id', $user->id)->where('member_id', $uid)->count() >= 1 ? '是' : '否';
-            /*是否看過我*/
-            $is_visit_mid = Visited::where('visited_id', $user->id)->where('member_id', $uid)->count() >= 1 ? '是' : '否';
-
-            /*瀏覽其他會員次數*/
-            $visit_other_count = Visited::where('member_id', $uid)->distinct('visited_id')->count();
-
-            /*被瀏覽次數*/
-            $be_visit_other_count = Visited::where('visited_id', $uid)->distinct('member_id')->count();
-
-            /*過去7天瀏覽其他會員次數*/
-            $visit_other_count_7 = Visited::where('member_id', $uid)->where('created_at', '>=', $date)->distinct('visited_id')->count();
-
-            /*過去7天被瀏覽次數*/
-            $be_visit_other_count_7 = Visited::where('visited_id', $uid)->where('created_at', '>=', $date)->distinct('member_id')->count();
-           
-
-            /*發信＆回信次數統計*/
-            $messages_all = Message::select('id','to_id','from_id','created_at')->where('to_id', $uid)->orwhere('from_id', $uid)->orderBy('id')->get();
-            $countInfo['message_count'] = 0;
-            $countInfo['message_reply_count'] = 0;
-            $countInfo['message_reply_count_7'] = 0;
-            $send = [];
-            $receive = [];
-            foreach ($messages_all as $message) {
-                //uid主動第一次發信
-                if($message->from_id == $uid && array_get($send, $message->to_id) < $message->id){
-                    $send[$message->to_id][]= $message->id;
-                }
-                //紀錄每個帳號第一次發信給uid
-                if ($message->to_id == $uid && array_get($receive, $message->from_id) < $message->id) {
-                    $receive[$message->from_id][] = $message->id;
-                }
-                if(!is_null(array_get($receive, $message->to_id))){
-                    $countInfo['message_reply_count'] += 1;
-                    if($message->created_at >= $date){
-                        //計算七天內回信次數
-                        $countInfo['message_reply_count_7'] += 1;
-                    }
-                }
+            //紀錄每個帳號第一次發信給uid
+            if ($message->to_id == $uid && array_get($receive, $message->from_id) < $message->id) {
+                $receive[$message->from_id][] = $message->id;
             }
-            $countInfo['message_count'] = count($send);
-
-            $messages_7days = Message::select('id','to_id','from_id','created_at')->whereRaw('(to_id ='. $uid. ' OR from_id='.$uid .')')->where('created_at','>=', $date)->orderBy('id')->get();
-            $countInfo['message_count_7'] = 0;
-            $send = [];
-            foreach ($messages_7days as $message) {
-                //七天內uid主動第一次發信
-                if($message->from_id == $uid && array_get($send, $message->to_id) < $message->id){
-                    $send[$message->to_id][]= $message->id;
+            if (!is_null(array_get($receive, $message->to_id))) {
+                $countInfo['message_reply_count'] += 1;
+                if ($message->created_at >= $date) {
+                    //計算七天內回信次數
+                    $countInfo['message_reply_count_7'] += 1;
                 }
             }
-            $countInfo['message_count_7'] = count($send);
+        }
+        $countInfo['message_count'] = count($send);
 
-            /*發信次數*/
-            $message_count = $countInfo['message_count'];
-            /*過去7天發信次數*/
-            $message_count_7 = $countInfo['message_count_7'];
-            /*回信次數*/
-            $message_reply_count = $countInfo['message_reply_count'];
-            /*過去7天回信次數*/
-            $message_reply_count_7 = $countInfo['message_reply_count_7'];
-            /*過去7天罐頭訊息比例*/
-            $date_start = date("Y-m-d",strtotime("-6 days", strtotime(date('Y-m-d'))));
-            $date_end = date('Y-m-d');
+        $messages_7days = Message::select('id', 'to_id', 'from_id', 'created_at')->whereRaw('(to_id =' . $uid . ' OR from_id=' . $uid . ')')->where('created_at', '>=', $date)->orderBy('id')->get();
+        $countInfo['message_count_7'] = 0;
+        $send = [];
+        foreach ($messages_7days as $message) {
+            //七天內uid主動第一次發信
+            if ($message->from_id == $uid && array_get($send, $message->to_id) < $message->id) {
+                $send[$message->to_id][] = $message->id;
+            }
+        }
+        $countInfo['message_count_7'] = count($send);
 
-            /**
-             * 效能調整：使用左結合以大幅降低處理時間
-             *
-             * @author LZong <lzong.tw@gmail.com>
-             */
-            $query = Message::select('users.email','users.name','users.title','users.engroup','users.created_at','users.last_login','message.id','message.from_id','message.content','user_meta.about')
-                ->join('users', 'message.from_id', '=', 'users.id')
-                ->join('user_meta', 'message.from_id', '=', 'user_meta.user_id')
-                ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'message.from_id')
-                ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'message.from_id')
-                ->leftJoin('warned_users as wu', function($join) {
-                    $join->on('wu.member_id', '=', 'message.from_id')
-                         ->where(function($join) {                            
-                            $join->where('wu.expire_date', '>=', Carbon::now())
+        /*發信次數*/
+        $message_count = $countInfo['message_count'];
+        /*過去7天發信次數*/
+        $message_count_7 = $countInfo['message_count_7'];
+        /*回信次數*/
+        $message_reply_count = $countInfo['message_reply_count'];
+        /*過去7天回信次數*/
+        $message_reply_count_7 = $countInfo['message_reply_count_7'];
+        /*過去7天罐頭訊息比例*/
+        $date_start = date("Y-m-d", strtotime("-6 days", strtotime(date('Y-m-d'))));
+        $date_end = date('Y-m-d');
+
+        /**
+         * 效能調整：使用左結合以大幅降低處理時間
+         *
+         * @author LZong <lzong.tw@gmail.com>
+         */
+        $query = Message::select('users.email', 'users.name', 'users.title', 'users.engroup', 'users.created_at', 'users.last_login', 'message.id', 'message.from_id', 'message.content', 'user_meta.about')
+            ->join('users', 'message.from_id', '=', 'users.id')
+            ->join('user_meta', 'message.from_id', '=', 'user_meta.user_id')
+            ->leftJoin('banned_users as b1', 'b1.member_id', '=', 'message.from_id')
+            ->leftJoin('banned_users_implicitly as b3', 'b3.target', '=', 'message.from_id')
+            ->leftJoin('warned_users as wu', function ($join) {
+                $join->on('wu.member_id', '=', 'message.from_id')
+                    ->where(function ($join) {
+                        $join->where('wu.expire_date', '>=', Carbon::now())
                             ->orWhere('wu.expire_date', null);
-                         }); })
-                ->whereNull('b1.member_id')
-                ->whereNull('b3.target')
-                ->whereNull('wu.member_id')
-                ->where('users.accountStatus', 1)
-                ->where('users.account_status_admin', 1)
-                ->where(function($query)use($date_start,$date_end) {
-                    $query->where('message.from_id','<>',1049)
-                        ->where('message.sys_notice', 0)
-                        ->orWhereNull('message.sys_notice')
-                        ->whereBetween('message.created_at', array($date_start . ' 00:00', $date_end . ' 23:59'));
-                });
-            $query->where('users.email',$targetUser->email);
-            $results_a = $query->distinct('message.from_id')->get();
+                    });
+            })
+            ->whereNull('b1.member_id')
+            ->whereNull('b3.target')
+            ->whereNull('wu.member_id')
+            ->where('users.accountStatus', 1)
+            ->where('users.account_status_admin', 1)
+            ->where(function ($query) use ($date_start, $date_end) {
+                $query->where('message.from_id', '<>', 1049)
+                    ->where('message.sys_notice', 0)
+                    ->orWhereNull('message.sys_notice')
+                    ->whereBetween('message.created_at', array($date_start . ' 00:00', $date_end . ' 23:59'));
+            });
+        $query->where('users.email', $targetUser->email);
+        $results_a = $query->distinct('message.from_id')->get();
 
-            if ($results_a != null) {
-                $msg = array();
-                $from_content = array();
-                $user_similar_msg = array();
+        if ($results_a != null) {
+            $msg = array();
+            $from_content = array();
+            $user_similar_msg = array();
 
-                $messages = Message::select('id','content','created_at')
-                    ->where('from_id', $targetUser->id)
-                    ->where(function ($query) {
-                        $query->where('sys_notice', 0)
+            $messages = Message::select('id', 'content', 'created_at')
+                ->where('from_id', $targetUser->id)
+                ->where(function ($query) {
+                    $query->where('sys_notice', 0)
                         ->orWhereNull('sys_notice');
-                    })
-                    ->whereBetween('created_at', array($date_start . ' 00:00', $date_end . ' 23:59'))
-                    ->orderBy('created_at','desc')
-                    ->take(100)
-                    ->get();
+                })
+                ->whereBetween('created_at', array($date_start . ' 00:00', $date_end . ' 23:59'))
+                ->orderBy('created_at', 'desc')
+                ->take(100)
+                ->get();
 
-                foreach($messages as $row){
-                    array_push($msg,array('id'=>$row->id,'content'=>$row->content,'created_at'=>$row->created_at));
-                }
+            foreach ($messages as $row) {
+                array_push($msg, array('id' => $row->id, 'content' => $row->content, 'created_at' => $row->created_at));
+            }
 
-                array_push($from_content,  array('msg'=>$msg));
+            array_push($from_content, array('msg' => $msg));
 
-                $unique_id = array(); //過濾重複ID用
-                //比對訊息
-                foreach($from_content as $data) {
-                    foreach ($data['msg'] as $word1) {
-                        foreach ($data['msg'] as $word2) {
-                            if ($word1['created_at'] != $word2['created_at']) {
-                                if(strlen($word1['content']) > 200) {
-                                    continue;
-                                }
-                                similar_text($word1['content'], $word2['content'], $percent);
-                                if ($percent >= 70) {
-                                    if(!in_array($word1['id'],$unique_id)) {
-                                        array_push($unique_id,$word1['id']);
-                                        array_push($user_similar_msg, array($word1['id'], $word1['content'], $word1['created_at'], $percent));
-                                    }
+            $unique_id = array(); //過濾重複ID用
+            //比對訊息
+            foreach ($from_content as $data) {
+                foreach ($data['msg'] as $word1) {
+                    foreach ($data['msg'] as $word2) {
+                        if ($word1['created_at'] != $word2['created_at']) {
+                            if (strlen($word1['content']) > 200) {
+                                continue;
+                            }
+                            similar_text($word1['content'], $word2['content'], $percent);
+                            if ($percent >= 70) {
+                                if (!in_array($word1['id'], $unique_id)) {
+                                    array_push($unique_id, $word1['id']);
+                                    array_push($user_similar_msg, array($word1['id'], $word1['content'], $word1['created_at'], $percent));
                                 }
                             }
                         }
                     }
                 }
             }
-            $message_percent_7 = count($user_similar_msg) > 0 ? round( (count($user_similar_msg) / count($messages))*100 ).'%'  : '0%';
-
-            
-
-            /*每周平均上線次數*/
-            $datetime1 = new \DateTime(now());
-            $datetime2 = new \DateTime($targetUser->created_at);
-            $diffDays = $datetime1->diff($datetime2)->days;
-            $week = ceil($diffDays / 7);
-            if($week == 0){
-                $login_times_per_week = 0;
-            }
-            else{
-                $login_times_per_week = round(($targetUser->login_times / $week), 0);
-            }
-
-            $last_login = $targetUser->last_login;
-
-            $is_banned = null;
-
-        
-            $userHideOnlinePayStatus = ValueAddedService::status($uid,'hideOnline');
-            if($userHideOnlinePayStatus == 1 && $targetUser->is_hide_online == 1){
-                $hideOnlineData = hideOnlineData::where('user_id',$uid)->where('deleted_at',null)->get()->first();
-                if(isset($hideOnlineData)){
-                    // $hideOnlineDays = now()->diffInDays($hideOnlineData->created_at);
-                    $login_times_per_week = $hideOnlineData->login_times_per_week;
-                    // $be_fav_count = $hideOnlineData->be_fav_count;//new add
-                    // $fav_count = $hideOnlineData->fav_count;//new add
-                    $tip_count = $hideOnlineData->tip_count;//new add
-                    $message_count = $hideOnlineData->message_count;//new add
-                    $message_count_7 = $hideOnlineData->message_count_7;
-                    $message_reply_count = $hideOnlineData->message_reply_count;//new add
-                    $message_reply_count_7 = $hideOnlineData->message_reply_count_7;
-                    $message_percent_7 = $hideOnlineData->message_percent_7;
-                    $visit_other_count = $hideOnlineData->visit_other_count;//new add
-                    $visit_other_count_7 = $hideOnlineData->visit_other_count_7;
-                    $be_visit_other_count = $hideOnlineData->be_visit_other_count;//new add
-                    $be_visit_other_count_7 = $hideOnlineData->be_visit_other_count_7;//new add
-                    // $blocked_other_count = $hideOnlineData->blocked_other_count;//new add
-                    // $be_blocked_other_count = $hideOnlineData->be_blocked_other_count;//new add
-                    $last_login = $hideOnlineData->login_time; //new add
-
-                    //此段僅測試用
-                    //上正式機前起移除
-                    // $message_count_7_old = $hideOnlineData->message_count_7;
-                    // $message_reply_count_7_old = $hideOnlineData->message_reply_count_7;
-                    // $visit_other_count_7_old = $hideOnlineData->visit_other_count_7;
-                    //end
-
-                    // for($x=0; $x<$hideOnlineDays; $x++) {
-
-                    //     $message_count_7 = $message_count_7 - ($message_count_7 / 7);
-                    //     $message_reply_count_7 = $message_reply_count_7 - ($message_reply_count_7 / 7);
-                    //     $visit_other_count_7 = $visit_other_count_7 - ($visit_other_count_7 / 7);
-
-                    //     if($message_count_7<0 && $message_reply_count_7<0 && $visit_other_count_7<0){
-                    //         break;
-                    //     }
-                    // }
-
-                    // $message_count_7 = round((int)$message_count_7);
-                    // $message_reply_count_7 = round((int)$message_reply_count_7);
-                    // $visit_other_count_7 = round((int)$visit_other_count_7);
+        }
+        $message_percent_7 = count($user_similar_msg) > 0 ? round((count($user_similar_msg) / count($messages)) * 100) . '%' : '0%';
 
 
-                    //至目前為止離隱藏日期過了幾天
-                    $hideOnlineDays = now()->diffInDays($hideOnlineData->created_at);
+        /*每周平均上線次數*/
+        $datetime1 = new \DateTime(now());
+        $datetime2 = new \DateTime($targetUser->created_at);
+        $diffDays = $datetime1->diff($datetime2)->days;
+        $week = ceil($diffDays / 7);
+        if ($week == 0) {
+            $login_times_per_week = 0;
+        } else {
+            $login_times_per_week = round(($targetUser->login_times / $week), 0);
+        }
 
-                    $message_count_7 = $message_count_7 - ($message_count_7 / 7) * $hideOnlineDays;
-                    $message_reply_count_7 = $message_reply_count_7 - ($message_reply_count_7 / 7) * $hideOnlineDays;
-                    $visit_other_count_7 = $visit_other_count_7 - ($visit_other_count_7 / 7) * $hideOnlineDays;
+        $last_login = $targetUser->last_login;
 
-                    if($message_count_7 < 0){$message_count_7 = 0;}
-                    if($message_reply_count_7 < 0){$message_reply_count_7 = 0;}
-                    if($visit_other_count_7 < 0){$visit_other_count_7 = 0;}
+        $is_banned = null;
 
-                    $message_count_7 = round((int)$message_count_7);
-                    $message_reply_count_7 = round((int)$message_reply_count_7);
-                    $visit_other_count_7 = round((int)$visit_other_count_7);
 
+        $userHideOnlinePayStatus = ValueAddedService::status($uid, 'hideOnline');
+        if ($userHideOnlinePayStatus == 1 && ($targetUser->is_hide_online == 1 || $targetUser->is_hide_online == 2)) {
+            $hideOnlineData = hideOnlineData::where('user_id', $uid)->where('deleted_at', null)->get()->first();
+            if (isset($hideOnlineData)) {
+                // $hideOnlineDays = now()->diffInDays($hideOnlineData->created_at);
+                $login_times_per_week = $hideOnlineData->login_times_per_week;
+                // $be_fav_count = $hideOnlineData->be_fav_count;//new add
+                // $fav_count = $hideOnlineData->fav_count;//new add
+                $tip_count = $hideOnlineData->tip_count;//new add
+                $message_count = $hideOnlineData->message_count;//new add
+                $message_count_7 = $hideOnlineData->message_count_7;
+                $message_reply_count = $hideOnlineData->message_reply_count;//new add
+                $message_reply_count_7 = $hideOnlineData->message_reply_count_7;
+                $message_percent_7 = $hideOnlineData->message_percent_7;
+                $visit_other_count = $hideOnlineData->visit_other_count;//new add
+                $visit_other_count_7 = $hideOnlineData->visit_other_count_7;
+                $be_visit_other_count = $hideOnlineData->be_visit_other_count;//new add
+                $be_visit_other_count_7 = $hideOnlineData->be_visit_other_count_7;//new add
+                // $blocked_other_count = $hideOnlineData->blocked_other_count;//new add
+                // $be_blocked_other_count = $hideOnlineData->be_blocked_other_count;//new add
+                $last_login = $hideOnlineData->login_time; //new add
+
+                //此段僅測試用
+                //上正式機前起移除
+                // $message_count_7_old = $hideOnlineData->message_count_7;
+                // $message_reply_count_7_old = $hideOnlineData->message_reply_count_7;
+                // $visit_other_count_7_old = $hideOnlineData->visit_other_count_7;
+                //end
+
+                // for($x=0; $x<$hideOnlineDays; $x++) {
+
+                //     $message_count_7 = $message_count_7 - ($message_count_7 / 7);
+                //     $message_reply_count_7 = $message_reply_count_7 - ($message_reply_count_7 / 7);
+                //     $visit_other_count_7 = $visit_other_count_7 - ($visit_other_count_7 / 7);
+
+                //     if($message_count_7<0 && $message_reply_count_7<0 && $visit_other_count_7<0){
+                //         break;
+                //     }
+                // }
+
+                // $message_count_7 = round((int)$message_count_7);
+                // $message_reply_count_7 = round((int)$message_reply_count_7);
+                // $visit_other_count_7 = round((int)$visit_other_count_7);
+
+
+                //至目前為止離隱藏日期過了幾天
+                $hideOnlineDays = now()->diffInDays($hideOnlineData->created_at);
+
+                $message_count_7 = $message_count_7 - ($message_count_7 / 7) * $hideOnlineDays;
+                $message_reply_count_7 = $message_reply_count_7 - ($message_reply_count_7 / 7) * $hideOnlineDays;
+                $visit_other_count_7 = $visit_other_count_7 - ($visit_other_count_7 / 7) * $hideOnlineDays;
+
+                if ($message_count_7 < 0) {
+                    $message_count_7 = 0;
                 }
+                if ($message_reply_count_7 < 0) {
+                    $message_reply_count_7 = 0;
+                }
+                if ($visit_other_count_7 < 0) {
+                    $visit_other_count_7 = 0;
+                }
+
+                $message_count_7 = round((int)$message_count_7);
+                $message_reply_count_7 = round((int)$message_reply_count_7);
+                $visit_other_count_7 = round((int)$visit_other_count_7);
+
             }
+        }
 
         if($is_vip){
             $data = array(
@@ -3042,7 +3060,7 @@ class PagesController extends BaseController
                 'last_login' => "<img src='/new/images/icon_35.png' />"
                 //此段僅測試用
                 //上正式機前起移除
-                ,
+            ,
                 // 'message_count_7_old' => $message_count_7_old,
                 // 'message_reply_count_7_old' => $message_reply_count_7_old,
                 // 'visit_other_count_7_old' => $visit_other_count_7_old,
@@ -3050,10 +3068,8 @@ class PagesController extends BaseController
                 //end
             );
         }
-            
-       
-        
-     
+
+
         return $data;
     }
 
@@ -3063,56 +3079,55 @@ class PagesController extends BaseController
         if($is_vip) {
             $uid = $request->uid;
             $target_user = User::find($uid);
-            if($target_user->valueAddedServiceStatus('hideOnline') && $target_user->is_hide_online == 1) {
+            if ($target_user->valueAddedServiceStatus('hideOnline') && $target_user->is_hide_online != 0) {
                 $data = hideOnlineData::select('user_id', 'blocked_other_count', 'be_blocked_other_count')->where('user_id', $uid)->first();
                 /*此會員封鎖多少其他會員*/
                 $blocked_other_count = $data->blocked_other_count;
                 /*此會員被多少會員封鎖*/
                 $be_blocked_other_count = $data->be_blocked_other_count;
-            }
-            else {
+            } else {
                 $bannedUsers = \App\Services\UserService::getBannedId();
                 /*此會員封鎖多少其他會員*/
                 $blocked_other_count = Blocked::with(['blocked_user'])
-                ->join('users', 'users.id', '=', 'blocked.blocked_id')
-                ->join('message', function($join){
-                    $join->on('blocked.member_id', '=', 'message.from_id');
-                    $join->on('blocked.blocked_id','=', 'message.to_id');
-                })
-                ->leftJoin('user_meta as um', 'um.user_id', '=', 'blocked.blocked_id')
-                ->leftJoin('warned_users as w2', 'w2.member_id', '=', 'blocked.blocked_id')
-                ->where('um.isWarned',0)
-                ->whereNull('w2.id')
-                ->where('blocked.member_id', $uid)
-                ->whereNotIn('blocked.blocked_id',$bannedUsers)
-                ->whereNotNull('users.id')
-                ->where('users.accountStatus', 1)
-                ->where('users.account_status_admin', 1)
-                ->whereNotNull('message.id')
-                ->distinct()
-				->count('blocked.blocked_id');
-        
-                /*此會員被多少會員封鎖*/
-                $be_blocked_other_count = Blocked::with(['blocked_user'])
-                    ->join('users', 'users.id', '=', 'blocked.member_id')
-                    ->join('message', function($join){
+                    ->join('users', 'users.id', '=', 'blocked.blocked_id')
+                    ->join('message', function ($join) {
                         $join->on('blocked.member_id', '=', 'message.from_id');
-                        $join->on('blocked.blocked_id','=', 'message.to_id');
+                        $join->on('blocked.blocked_id', '=', 'message.to_id');
                     })
-                    ->leftJoin('user_meta as um', 'um.user_id', '=', 'blocked.member_id')
-                    ->leftJoin('warned_users as w2', 'w2.member_id', '=', 'blocked.member_id')
-                    ->where('um.isWarned',0)
+                    ->leftJoin('user_meta as um', 'um.user_id', '=', 'blocked.blocked_id')
+                    ->leftJoin('warned_users as w2', 'w2.member_id', '=', 'blocked.blocked_id')
+                    ->where('um.isWarned', 0)
                     ->whereNull('w2.id')
-                    ->where('blocked.blocked_id', $uid)
-                    ->whereNotIn('blocked.member_id',$bannedUsers)
+                    ->where('blocked.member_id', $uid)
+                    ->whereNotIn('blocked.blocked_id', $bannedUsers)
                     ->whereNotNull('users.id')
                     ->where('users.accountStatus', 1)
                     ->where('users.account_status_admin', 1)
                     ->whereNotNull('message.id')
                     ->distinct()
-				    ->count('blocked.blocked_id');
+                    ->count('blocked.blocked_id');
+
+                /*此會員被多少會員封鎖*/
+                $be_blocked_other_count = Blocked::with(['blocked_user'])
+                    ->join('users', 'users.id', '=', 'blocked.member_id')
+                    ->join('message', function ($join) {
+                        $join->on('blocked.member_id', '=', 'message.from_id');
+                        $join->on('blocked.blocked_id', '=', 'message.to_id');
+                    })
+                    ->leftJoin('user_meta as um', 'um.user_id', '=', 'blocked.member_id')
+                    ->leftJoin('warned_users as w2', 'w2.member_id', '=', 'blocked.member_id')
+                    ->where('um.isWarned', 0)
+                    ->whereNull('w2.id')
+                    ->where('blocked.blocked_id', $uid)
+                    ->whereNotIn('blocked.member_id', $bannedUsers)
+                    ->whereNotNull('users.id')
+                    ->where('users.accountStatus', 1)
+                    ->where('users.account_status_admin', 1)
+                    ->whereNotNull('message.id')
+                    ->distinct(\DB::raw("blocked.member_id, blocked_id"))
+                    ->count('blocked.blocked_id');
             }
-    
+
             $output = array(
                 'blocked_other_count' => $blocked_other_count,
                 'be_blocked_other_count' => $be_blocked_other_count
@@ -3133,35 +3148,34 @@ class PagesController extends BaseController
         if($is_vip){
             $uid = $request->uid;
             $target_user = User::find($uid);
-            if($target_user->valueAddedServiceStatus('hideOnline') && $target_user->is_hide_online == 1) {
+            if ($target_user->valueAddedServiceStatus('hideOnline') && $target_user->is_hide_online != 0) {
                 $data = hideOnlineData::select('user_id', 'fav_count', 'be_fav_count')->where('user_id', $uid)->first();
                 /*收藏會員次數*/
                 $fav_count = $data->fav_count;
                 /*被收藏次數*/
                 $be_fav_count = $data->be_fav_count;
-            }
-            else {
+            } else {
                 $bannedUsers = \App\Services\UserService::getBannedId();
                 /*收藏會員次數*/
                 $fav_count = MemberFav::select('member_fav.*')
-                ->join('users', 'users.id', '=', 'member_fav.member_fav_id')
-                ->leftJoin('user_meta as um', 'um.user_id', '=', 'member_fav.member_fav_id')
-                ->leftJoin('warned_users as w2', 'w2.member_id', '=', 'member_fav.member_fav_id')
-                ->where('um.isWarned',0)
-                ->whereNull('w2.id')
-                ->whereNotNull('users.id')
-                ->where('users.accountStatus', 1)
-                ->where('users.account_status_admin', 1)
-                ->where('member_fav.member_id', $uid)
-                ->whereNotIn('member_fav.member_fav_id',$bannedUsers)
-                ->get()->count();
-        
+                    ->join('users', 'users.id', '=', 'member_fav.member_fav_id')
+                    ->leftJoin('user_meta as um', 'um.user_id', '=', 'member_fav.member_fav_id')
+                    ->leftJoin('warned_users as w2', 'w2.member_id', '=', 'member_fav.member_fav_id')
+                    ->where('um.isWarned', 0)
+                    ->whereNull('w2.id')
+                    ->whereNotNull('users.id')
+                    ->where('users.accountStatus', 1)
+                    ->where('users.account_status_admin', 1)
+                    ->where('member_fav.member_id', $uid)
+                    ->whereNotIn('member_fav.member_fav_id', $bannedUsers)
+                    ->get()->count();
+
                 /*被收藏次數*/
                 $be_fav_count = MemberFav::select('member_fav.*')
                     ->join('users', 'users.id', '=', 'member_fav.member_id')
                     ->leftJoin('user_meta as um', 'um.user_id', '=', 'member_fav.member_id')
                     ->leftJoin('warned_users as w2', 'w2.member_id', '=', 'member_fav.member_id')
-                    ->where('um.isWarned',0)
+                    ->where('um.isWarned', 0)
                     ->whereNull('w2.id')
                     ->whereNotNull('users.id')
                     ->where('users.accountStatus', 1)
@@ -3181,9 +3195,9 @@ class PagesController extends BaseController
             );
         }
 
-        return json_encode($output); 
+        return json_encode($output);
     }
-    
+
     public function getSearchData(Request $request){
         try{
             $searchApi = \App\Models\UserMeta::searchApi(
@@ -3191,13 +3205,13 @@ class PagesController extends BaseController
             );
 
             // $ssrData = '';
-    
+
             $user = Auth::user();
             $userIsVip =($user->isVip()||$user->isVVIP());
             $dataList_vvip = [];
             $dataList_normal = [];
             $rap_service = $this->rap_service;
-            foreach ($searchApi['singlePageData'] as $key=>$visitor){
+            foreach ($searchApi['singlePageData'] as $key => $visitor) {
                 // 隱藏非必要及敏感個人資料
                 $visitor->user_meta = $visitor->user_meta->makeHidden([
                     'id', 'phone', 'marketing', 'updated_at', 'terms_and_cond',
@@ -3206,8 +3220,7 @@ class PagesController extends BaseController
                     'name_change', 'exchange_period_change', 'isConsign',
                     'consign_expiry_date', 'recipients_count'
                 ]);
-                if($visitor->isVVIP())
-                {
+                if ($visitor->isVVIP()) {
                     $temp_array = [];
                     $temp_array['rawData'] = $visitor;
                     $temp_array['visitorCheckRecommendedUser'] = \App\Services\UserService::checkRecommendedUser($visitor);
@@ -3224,13 +3237,11 @@ class PagesController extends BaseController
                     $temp_array['visitorisPersonalTagShow'] = \App\Services\UserService::isPersonalTagShow($visitor, $user);
                     $temp_array['visitorAge'] = $visitor->age();
                     $temp_array['visitorIsOnline'] = $visitor->isOnline();
-                    $temp_array['visitorExchangePeriodName'] = DB::table('exchange_period_name')->where('id',$visitor->exchange_period)->first();
+                    $temp_array['visitorExchangePeriodName'] = DB::table('exchange_period_name')->where('id', $visitor->exchange_period)->first();
                     $temp_array['visitorValueAddedServiceStatusHideOnline'] = $visitor->valueAddedServiceStatus('hideOnline');
                     $temp_array['new_occupation'] = UserOptionsXref::where('user_id', $visitor->id)->where('option_type', 1)->first()->occupation->option_name ?? '';
                     $dataList_vvip[] = $temp_array;
-                }
-                else
-                {
+                } else {
                     $temp_array = [];
                     $temp_array['rawData'] = $visitor;
                     $temp_array['visitorCheckRecommendedUser'] = \App\Services\UserService::checkRecommendedUser($visitor);
@@ -3251,12 +3262,12 @@ class PagesController extends BaseController
                     $temp_array['visitorValueAddedServiceStatusHideOnline'] = $visitor->valueAddedServiceStatus('hideOnline');
                     $temp_array['new_occupation'] = UserOptionsXref::where('user_id', $visitor->id)->where('option_type', 1)->first()->occupation->option_name ?? '';
                     $dataList_normal[] = $temp_array;
-                } 
+                }
             }
             $dataList = array_merge($dataList_vvip,$dataList_normal);
-            
+
             $rap_service->riseByUserEntry($user);
-            
+
             $output = array(
                 'singlePageCount'=> $searchApi['singlePageCount'],
                 'allPageDataCount'=>$searchApi['allPageDataCount'],
@@ -3286,7 +3297,7 @@ class PagesController extends BaseController
         // $visitorIsBlurAvatar = \App\Services\UserService::isBlurAvatar($visitor, $user);
         // $visitorAge = $visitor->age();
         // $visitorIsOnline = $visitor->isOnline();
-        
+
         return $data;
     }
 
@@ -3299,7 +3310,7 @@ class PagesController extends BaseController
             ->leftJoin('users as u', 'u.id', '=', 'evaluation.to_id')
             ->leftJoin('user_meta as um', 'um.user_id', '=', 'evaluation.to_id')
             ->leftJoin('warned_users as w2', 'w2.member_id', '=', 'evaluation.to_id')
-            ->where('um.isWarned',0)
+            ->where('um.isWarned', \DB::raw('0'))
             ->whereNull('w2.id')
             ->whereNull('b1.member_id')
             ->whereNull('b3.target')
@@ -3367,8 +3378,30 @@ class PagesController extends BaseController
 
     public function evaluation_save(Request $request)
     {
+        $evaluation_anonymous = Evaluation::where('to_id',$request->input('eid'))->where('from_id',auth()->id())->whereNotNull('content_violation_processing')->orderByDesc('created_at')->first();
+        $evaluation_self = Evaluation::where('to_id',$request->input('eid'))->where('from_id',auth()->id())->whereNull('content_violation_processing')->orderByDesc('created_at')->first();
+        $too_soon_evaluation = false;
+        if($evaluation_anonymous || $evaluation_self) {
+            $latest_evaluation = $evaluation_anonymous??$evaluation_self;
+            $too_soon_evaluation = Carbon::now()->diffInMinutes(Carbon::parse($latest_evaluation->created_at))<=30;  
+        } 
+
+        if($too_soon_evaluation ) {
+            
+            return back()->withErrors(['錯誤!評價失敗。系統限制30分鐘之內只能給出一個評價，請稍等片刻再進行評價']);
+        }
+        
+        if($request->input('content_processing_method') && $evaluation_anonymous) {
+            return back()->withErrors(['錯誤!評價失敗。您對此會員 已經有過匿名評價，不能重複匿名評價']);
+        }
+        
+        if(!$request->input('content_processing_method') && $evaluation_self) {
+            return back()->withErrors(['錯誤!評價失敗。您對此會員 已經有過評價，不能重複評價']);
+        }        
+        
         $evaluation=Evaluation::create([
-            'from_id' => $request->input('uid'),
+            //'from_id' => $request->input('uid'),
+            'from_id' => auth()->id(),//只能新增自己的評價
             'to_id' => $request->input('eid'),
             'content' => $request->input('content'),
             'rating' => $request->input('rating'),
@@ -3455,12 +3488,29 @@ class PagesController extends BaseController
     public function evaluation_re_content_delete(Request $request)
     {
 
-        DB::table('evaluation')->where('id',$request->id)->update(
+        DB::table('evaluation')->where('id', $request->id)->update(
             ['re_content' => null]
         );
-        EvaluationPic::where('evaluation_id',$request->id)->where('member_id',$request->userid)->delete();
+        EvaluationPic::where('evaluation_id', $request->id)->where('member_id', $request->userid)->delete();
 
         return response()->json(['save' => 'ok']);
+    }
+
+    public function reportNext(Request $request)
+    {
+        if (empty($this->customTrim($request->content))) {
+            $user = $request->user();
+            return view('dashboard.reportUser', ['aid' => $request->aid, 'uid' => $request->uid, 'user' => $user])->withErrors(['檢舉失敗，請填寫理由。']);
+        }
+        Reported::report($request->aid, $request->uid, $request->content);
+        return redirect('/user/view/' . $request->uid)->with('message', '檢舉成功');
+    }
+
+    private function customTrim($str)
+    {
+        $search = array(" ", "　", "\n", "\r", "\t");
+        $replace = array("", "", "", "", "");
+        return str_replace($search, $replace, $str);
     }
 
     public function report(Request $request)
@@ -3468,30 +3518,16 @@ class PagesController extends BaseController
         $payload = $request->all();
         $uid = $payload['to'];
         $aid = auth()->id();
-        if ( ! Reported::findMember( $aid , $uid ) )
-        {
-            if ($aid !== $uid)
-            {
+        if (!Reported::findMember($aid, $uid)) {
+            if ($aid !== $uid) {
                 $user = $request->user();
-                return view('dashboard.reportUser', [ 'aid' => $aid, 'uid' => $uid, 'user' => $user ]);
-            }
-            else{
+                return view('dashboard.reportUser', ['aid' => $aid, 'uid' => $uid, 'user' => $user]);
+            } else {
                 return back()->withErrors(['錯誤，不能檢舉自己。']);
             }
-        }
-        else
-        {
+        } else {
             return back()->withErrors(['檢舉失敗：您已經檢舉過這個人了']);
         }
-    }
-
-    public function reportNext(Request $request){
-        if(empty($this->customTrim($request->content))){
-            $user = $request->user();
-            return view('dashboard.reportUser', [ 'aid' => $request->aid, 'uid' => $request->uid, 'user' =>  $user])->withErrors(['檢舉失敗，請填寫理由。']);
-        }
-        Reported::report($request->aid, $request->uid, $request->content);
-        return redirect('/user/view/'.$request->uid)->with('message', '檢舉成功');
     }
 
     public function reportPost(Request $request){
@@ -3559,34 +3595,27 @@ class PagesController extends BaseController
             $isAvatar = true;
             $pic_id = substr($pic_id, 3, strlen($pic_id));
         }
-        if($isAvatar){
+        if($isAvatar) {
             $report_avatar = AdminCommonText::where('alias', 'report_avatar')->get()->first();
-            if ( ! ReportedAvatar::findMember( $reporter_id , $pic_id ) )
-            {
-                if ($reporter_id !== $pic_id)
-                {
+            if (!ReportedAvatar::findMember($reporter_id, $pic_id)) {
+                if ($reporter_id !== $pic_id) {
                     return view('dashboard.reportAvatar', [
                         'reporter_id' => $reporter_id,
                         'reported_user_id' => $pic_id,
                         'user' => $user,
-                        'report_avatar'=> $report_avatar->content ]);
-                }
-                else{
+                        'report_avatar' => $report_avatar->content]);
+                } else {
                     return back()->withErrors(['錯誤，不能檢舉自己的大頭照。']);
                 }
-            }
-            else
-            {
+            } else {
                 return back()->withErrors(['檢舉失敗：您已經檢舉過這張大頭照了']);
             }
-        }
-        else{
+        } else {
             $report_reason = AdminCommonText::where('alias', 'report_reason')->get()->first();
-            if ( ! ReportedPic::findMember( $reporter_id , $pic_id ) )
-            {
-                if( $reporter_id !== $uid ){
+            if (!ReportedPic::findMember($reporter_id, $pic_id)) {
+                if ($reporter_id !== $uid) {
                     $target = User::findById($uid);
-                    if(!$target){
+                    if (!$target) {
                         return "<h1>很抱歉，您欲檢舉的會員並不存在。</h1>";
                     }
                     return view('dashboard.reportPic', [
@@ -3595,14 +3624,11 @@ class PagesController extends BaseController
                         'user' => $user,
                         'target' => $target,
                         'uid' => $uid,
-                        'report_reason'=>$report_reason->content]);
-                }
-                else{
+                        'report_reason' => $report_reason->content]);
+                } else {
                     return back()->withErrors(['錯誤，不能檢舉自己的照片。']);
                 }
-            }
-            else
-            {
+            } else {
                 return back()->withErrors(['檢舉失敗：您已經檢舉過這張照片了']);
             }
         }
@@ -3647,15 +3673,8 @@ class PagesController extends BaseController
             echo '檢舉成功';
             exit;
         }
-        
-        return back()->with('message', '檢舉成功');
-    }
 
-    private function customTrim($str)
-    {
-        $search = array(" ","　","\n","\r","\t");
-        $replace = array("","","","","");
-        return str_replace($search, $replace, $str);
+        return back()->with('message', '檢舉成功');
     }
 
     public function postBlock(Request $request)
@@ -3665,11 +3684,32 @@ class PagesController extends BaseController
         $aid = auth()->id();
         if ($aid !== $bid) {
             $isBlocked = Blocked::isBlocked($aid, $bid);
-            if(!$isBlocked) {
+            if (!$isBlocked) {
                 Blocked::block($aid, $bid);
             }
         }
         return back()->with('message', '封鎖成功');
+    }
+
+    public function block(Request $request)
+    {
+        $user = $request->user();
+        if ($user) {
+            // blocked by user->id
+            $bannedUsers = \App\Services\UserService::getBannedId();
+            $blocks = \App\Models\Blocked::with(['blocked_user', 'blocked_user.meta'])
+                ->join('users', 'users.id', '=', 'blocked.blocked_id')
+                ->where('member_id', $user->id)
+                ->whereNotIn('blocked_id', $bannedUsers)
+                ->whereNotNull('users.id')
+                ->where('users.accountStatus', 1)
+                ->where('users.account_status_admin', 1)
+                ->orderBy('blocked.created_at', 'desc')->paginate(15);
+
+            return view('new.dashboard.block')
+                ->with('blocks', $blocks)
+                ->with('user', $user);
+        }
     }
 
     public function postBlockAJAX(Request $request)
@@ -3677,14 +3717,13 @@ class PagesController extends BaseController
         $bid = $request->sid;
         $aid = $request->uid;
 
-        if ($aid !== $bid)
-        {
+        if ($aid !== $bid) {
             $isBlocked = Blocked::isBlocked($aid, $bid);
-            if(!$isBlocked) {
+            if (!$isBlocked) {
                 Blocked::block($aid, $bid);
                 // 有收藏名單則刪除
                 $isFav = MemberFav::where('member_id', $aid)->where('member_fav_id', $bid)->count();
-                if($isFav > 0){
+                if ($isFav > 0) {
                     MemberFav::remove($aid, $bid);
                 }
                 // 對方的收藏名單也刪除
@@ -3709,7 +3748,7 @@ class PagesController extends BaseController
         if(isset($checkData)){
             MessageUserNote::where('user_id', $user_id)->where('message_user_id', $target_id)->update(['note'=>$massage_user_note_content]);
             return response()->json(['save' => 'ok']);
-        }else{
+        } else {
             $MessageUserNote = new MessageUserNote();
             $MessageUserNote->user_id = $user_id;
             $MessageUserNote->message_user_id = $target_id;
@@ -3719,31 +3758,30 @@ class PagesController extends BaseController
         }
     }
 
+    public function unblockAJAX(Request $request)
+    {
+        $bid = $request->to;
+        $aid = $request->uid;
+
+        if ($aid !== $bid) {
+            Blocked::unblock($aid, $bid);
+        }
+        return response()->json(['save' => 'ok']);
+    }
+
     public function unblock(Request $request)
     {
         $payload = $request->all();
         $bid = $payload['to'];
         $aid = auth()->id();
 
-        if($aid !== $bid)
-        {
+        if ($aid !== $bid) {
             Blocked::unblock($aid, $bid);
         }
 
         return back()->with('message', '解除封鎖成功');
     }
 
-    public function unblockAJAX(Request $request)
-    {
-        $bid = $request->to;
-        $aid = $request->uid;
-
-        if($aid !== $bid)
-        {
-            Blocked::unblock($aid, $bid);
-        }
-        return response()->json(['save' => 'ok']);
-    }
     public function unblockAll(Request $request)
     {
         Blocked::unblockAll($request->uid);
@@ -3764,29 +3802,39 @@ class PagesController extends BaseController
         $payload = $request->all();
         $uid = $payload['to'];
         $aid = auth()->id();
-        if ($aid !== $uid)
-        {
+        if ($aid !== $uid) {
             MemberFav::fav($aid, $uid);
         }
         return back()->with('message', '收藏成功');
+    }
+
+    public function fav(Request $request)
+    {
+        $user = $request->user();
+        //$visitors = \App\Models\MemberFav::findBySelf($user->id);
+        //dd($visitors);
+        //$favUser = \App\Models\User::findById($visitor->member_fav_id);
+        if ($user) {
+            return view('new.dashboard.fav')
+                ->with('user', $user);
+        }
     }
 
     public function postfavAJAX(Request $request)
     {
         $uid = $request->to;
         $aid = $request->uid;
-        if ($aid !== $uid)
-        {
-            $isFav = MemberFav::where('member_id', $aid)->where('member_fav_id',$uid)->count();
+        if ($aid !== $uid) {
+            $isFav = MemberFav::where('member_id', $aid)->where('member_fav_id', $uid)->count();
             $isBlocked = Blocked::isBlocked($aid, $uid);
 
-            $member_id=User::findById($aid);
-            $member_fav_id=User::findById($uid);
+            $member_id = User::findById($aid);
+            $member_fav_id = User::findById($uid);
             $line_notify_user_list = lineNotifyChatSet::select('line_notify_chat_set.user_id')
                 ->selectRaw('users.line_notify_token')
-                ->leftJoin('line_notify_chat','line_notify_chat.id', 'line_notify_chat_set.line_notify_chat_id')
-                ->leftJoin('users','users.id', 'line_notify_chat_set.user_id')
-                ->where('line_notify_chat.active',1)
+                ->leftJoin('line_notify_chat', 'line_notify_chat.id', 'line_notify_chat_set.line_notify_chat_id')
+                ->leftJoin('users', 'users.id', 'line_notify_chat_set.user_id')
+                ->where('line_notify_chat.active', 1)
                 ->where('line_notify_chat_set.line_notify_chat_id',10)
                 ->where('line_notify_chat_set.user_id',$member_fav_id->id)
                 ->where('line_notify_chat_set.deleted_at',null)
@@ -3817,8 +3865,7 @@ class PagesController extends BaseController
 
     public function removeFav(Request $request)
     {
-        if ($request->userId !== $request->favUserId)
-        {
+        if ($request->userId !== $request->favUserId) {
             MemberFav::remove($request->userId, $request->favUserId);
         }
         return back()->with('message', '移除成功');
@@ -3826,8 +3873,7 @@ class PagesController extends BaseController
 
     public function removeFav_ajax(Request $request)
     {
-        if ($request->userId !== $request->favUserId)
-        {
+        if ($request->userId !== $request->favUserId) {
             MemberFav::remove($request->userId, $request->favUserId);
             return response()->json(array(
                 'status' => true,
@@ -3835,23 +3881,11 @@ class PagesController extends BaseController
             ), 200)
                 ->header("Cache-Control", "no-cache, no-store, must-revalidate")
                 ->header("Pragma", "no-cache")
-                ->header("Last-Modified", gmdate("D, d M Y H:i:s")." GMT")
+                ->header("Last-Modified", gmdate("D, d M Y H:i:s") . " GMT")
                 ->header("Cache-Control", "post-check=0, pre-check=0", false)
                 ->header("Expires", "Fri, 01 Jan 1990 00:00:00 GMT");
         }
         return back()->with('message', '移除成功');
-    }
-
-    public function fav(Request $request)
-    {
-        $user = $request->user();
-        //$visitors = \App\Models\MemberFav::findBySelf($user->id);
-        //dd($visitors);
-        //$favUser = \App\Models\User::findById($visitor->member_fav_id);
-        if ($user) {
-            return view('new.dashboard.fav')
-            ->with('user', $user);
-        }
     }
 
     public function fav_ajax(Request $request)
@@ -3876,13 +3910,12 @@ class PagesController extends BaseController
         }
     }
 
-
     public function fav2(Request $request)
     {
         $user = $request->user();
         if ($user) {
             return view('dashboard.fav')
-            ->with('user', $user);
+                ->with('user', $user);
         }
     }
 
@@ -3900,13 +3933,12 @@ class PagesController extends BaseController
     public function female_newer_manual(Request $request) {
         $user = $request->user();
         if ($user) {
-            if($user-> is_read_female_manual_part1)
-            $version=1;
-            if($user-> is_read_female_manual_part2)
-            $version=2;
-            if($user-> is_read_female_manual_part3)
-            $version=3;
-            
+            if ($user->is_read_female_manual_part1)
+                $version = 1;
+            if ($user->is_read_female_manual_part2)
+                $version = 2;
+            if ($user->is_read_female_manual_part3)
+                $version = 3;
 
 
             return view('new.dashboard.female_newer_manual')
@@ -3973,17 +4005,13 @@ class PagesController extends BaseController
             $this->service->dispatchCheckECPay($this->userIsVip, $this->userIsFreeVip, $user->vip_any->first());
         }
         //valueAddedService
-        if($this->valueAddedServices['hideOnline'] == 1){
-            //如未來service有多個以上則此段需設計並再改寫成ALL in one的方式
-            $service_name = 'hideOnline';
-            $valueAddedServiceData = \App\Models\ValueAddedService::getData($user->id,'hideOnline');
-            if(is_object($valueAddedServiceData)){
-                $this->dispatch(new CheckECpayForValueAddedService($valueAddedServiceData));
-            }
-            else{
-                Log::info('ValueAddedService '.$service_name.' data null, user id: ' . $user->id);
-            }
-
+        $valueAddedServiceData_hideOnline = ValueAddedService::getData($user->id, 'hideOnline');
+        if($valueAddedServiceData_hideOnline){
+            $this->service->dispatchCheckECPayForValueAddedService('hideOnline', $valueAddedServiceData_hideOnline);
+        }
+        $valueAddedServiceData_VVIP = ValueAddedService::getData($user->id, 'VVIP');
+        if($valueAddedServiceData_VVIP){
+            $this->service->dispatchCheckECPayForValueAddedService('VVIP', $valueAddedServiceData_VVIP);
         }
 
         //紀錄返回上一頁的url
@@ -4007,26 +4035,21 @@ class PagesController extends BaseController
         $first_send_messenge = false;
         $first_receive_messenge = false;
         //判斷是否從viewuser的發信按鈕進入
-        if($request->from_viewuser_page??false)
-        {
+        if ($request->from_viewuser_page ?? false) {
             //第一次進入時page為NULL 判斷是否第一次進入
-            if(!($request->page??false))
-            {
+            if (!($request->page ?? false)) {
                 $first_send_messenge = Message::where('from_id', $user->id)->where('to_id', $cid)->orderBy('id')->first();
                 $first_receive_messenge = Message::where('from_id', $cid)->where('to_id', $user->id)->orderBy('id')->first();
-                if($first_send_messenge??false)
-                {
-                    if($first_receive_messenge??false)
-                    {
-                        if($first_receive_messenge->created_at < $first_send_messenge->created_at)
-                        {
+                if ($first_send_messenge ?? false) {
+                    if ($first_receive_messenge ?? false) {
+                        if ($first_receive_messenge->created_at < $first_send_messenge->created_at) {
                             $first_send_messenge = false;
                         }
                     }
                 }
             }
         }
-        
+
         if (isset($user)) {
             $is_banned = User::isBanned($user->id);
             $is_warned = warned_users::where('member_id', $user->id)
@@ -4039,38 +4062,41 @@ class PagesController extends BaseController
             $isVVIP = $user->isVVIP();
             $isVip = ($user->isVip()||$isVVIP);
             $tippopup = AdminCommonText::getCommonText(3);//id3車馬費popup說明
-            $messages = Message::allToFromSender($user->id, $cid,true);
+            $messages = Message::allToFromSender($user->id, $cid,false);
             $c_user_meta = UserMeta::where('user_id', $cid)->get()->first();
             //$messages = Message::allSenders($user->id, 1);
 
-            if(isset($_SERVER['HTTP_REFERER'])) {
+            if (isset($_SERVER['HTTP_REFERER'])) {
                 //forget不是從精華文章->會員頁->發信進入的
-                if(str_contains($_SERVER['HTTP_REFERER'], 'viewuser') == false){
+                if (str_contains($_SERVER['HTTP_REFERER'], 'viewuser') == false) {
                     session()->forget('via_by_essence_article_enter');
                 }
-            }
-            else {
+            } else {
                 logger("HTTP_REFERER not set, user id: " . $user->id);
                 logger("Referer: " . request()->headers->get("referer"));
                 logger("UserAgent: " . request()->headers->get("User-Agent"));
                 logger("IP: " . request()->ip);
                 \Sentry\captureMessage("HTTP_REFERER not set.");
             }
-            
+
             if (isset($cid)) {
                 $cid_user = $this->service->find($cid);
                 if($cid == "1049"){
                     $messages = Message::allToFromSenderChatWithAdmin($user->id, 1049)->orderBy('id', 'desc')->paginate(10);
                     $chatting_with_admin = true;
                 }
+                else if($user->id==$admin->id) {
+                    $chatting_with_admin = true;
+                }
+
                 if(!$cid_user){
                     return '<h1>該會員不存在。</h1>';
                 }
-                
+
                 $cid_recommend_data = [];
                 $forbid_msg_data = UserService::checkNewSugarForbidMsg($cid_user,$user);
 
-            
+
                 if($cid_user->engroup==2) {
                     /*
                     $inbox_refuse_set = InboxRefuseSet::where('user_id', $cid)->first();
@@ -4096,21 +4122,19 @@ class PagesController extends BaseController
                     ->with('toUserIsBanned', $toUserIsBanned)
                     ->with('cmeta', $c_user_meta)
                     ->with('to', $cid_user)
-                    ->with('to_forbid_msg_data',$forbid_msg_data)                    
+                    ->with('to_forbid_msg_data', $forbid_msg_data)
                     ->with('m_time', $m_time)
                     ->with('isVip', $isVip)
-                    ->with('isVVIP',$isVVIP)
+                    ->with('isVVIP', $isVVIP)
                     ->with('tippopup', $tippopup)
                     ->with('messages', $messages)
                     ->with('report_reason', $report_reason->content)
                     ->with('first_send_messenge', $first_send_messenge)
-                    ->with('is_truth_state',in_array(['to_id' =>$cid_user->id,'from_id' =>$user->id],Message::$truthMessages) || in_array(['to_id' =>$user->id,'from_id' =>$cid_user->id],Message::$truthMessages))
-                    ->with('exist_is_truth_quota',Message::existIsTrueQuotaByFromUser($user))
-                    ->with('remain_num_of_is_truth',Message::getRemainQuotaOfIsTruthByFromUser($user))
-                    ->with('chatting_with_admin', $chatting_with_admin ?? false)
-                    ;
-            }
-            else {
+                    ->with('is_truth_state', in_array(['to_id' => $cid_user->id, 'from_id' => $user->id], Message::$truthMessages) || in_array(['to_id' => $user->id, 'from_id' => $cid_user->id], Message::$truthMessages))
+                    ->with('exist_is_truth_quota', Message::existIsTrueQuotaByFromUser($user))
+                    ->with('remain_num_of_is_truth', Message::getRemainQuotaOfIsTruthByFromUser($user))
+                    ->with('chatting_with_admin', $chatting_with_admin ?? false);
+            } else {
                 return view('new.dashboard.chatWithUserLivewire')
                     ->with('user', $user)
                     ->with('admin', $admin)
@@ -4140,7 +4164,7 @@ class PagesController extends BaseController
                     $m_time = Message::select('created_at')->
                     where('from_id', $user->id)->
                     orderBy('created_at', 'desc')->first();
-                    if(isset($m_time)){
+                    if (isset($m_time)) {
                         $m_time = $m_time->created_at;
                     }
                 }
@@ -4149,8 +4173,7 @@ class PagesController extends BaseController
                     ->with('to', $this->service->find($cid))
                     ->with('m_time', $m_time)
                     ->with('isVip', $isVip);
-            }
-            else {
+            } else {
                 return view('dashboard.chat')
                     ->with('user', $user)
                     ->with('m_time', $m_time)
@@ -4164,7 +4187,7 @@ class PagesController extends BaseController
         $user = $request->user();
         if ($user) {
             return view('dashboard.board')
-            ->with('user', $user);
+                ->with('user', $user);
         }
     }
 
@@ -4173,7 +4196,7 @@ class PagesController extends BaseController
         $user = $request->user();
         if ($user) {
             return view('dashboard.history')
-            ->with('user', $user);
+                ->with('user', $user);
         }
     }
 
@@ -4195,6 +4218,7 @@ class PagesController extends BaseController
 
         return view('dashboard.search')->with('user', $user);
     }
+
     public function search2(Request $request)
     {
         $input = $request->input();
@@ -4202,15 +4226,15 @@ class PagesController extends BaseController
         $rap_service = $this->rap_service;
 
         $county_array = ['county', 'county2', 'county3', 'county4', 'county5'];
-        foreach ($input as $key =>$value){
-            if(isset($input['county5']) && $key =='county5'){
-                if(($input['county4'] == $input['county5'] || $input['county3'] == $input['county5'] || $input['county2'] == $input['county5'] || $input['county'] == $input['county5']) && ($input['county4'] ==$input['district5'] || $input['district3'] == $input['district5'] || $input['district2'] == $input['district5'] || $input['district'] == $input['district5'])){
+        foreach ($input as $key => $value) {
+            if (isset($input['county5']) && $key == 'county5') {
+                if (($input['county4'] == $input['county5'] || $input['county3'] == $input['county5'] || $input['county2'] == $input['county5'] || $input['county'] == $input['county5']) && ($input['county4'] == $input['district5'] || $input['district3'] == $input['district5'] || $input['district2'] == $input['district5'] || $input['district'] == $input['district5'])) {
                     request()->county5 = null;
                     $input['county5'] = null;
                 }
             }
-            if(isset($input['county4']) && $key =='county4'){
-                if(($input['county3'] == $input['county4'] || $input['county2'] == $input['county4'] || $input['county'] == $input['county4']) && ($input['district3'] == $input['district4'] || $input['district2'] == $input['district4'] || $input['district'] == $input['district4'])){
+            if (isset($input['county4']) && $key == 'county4') {
+                if (($input['county3'] == $input['county4'] || $input['county2'] == $input['county4'] || $input['county'] == $input['county4']) && ($input['district3'] == $input['district4'] || $input['district2'] == $input['district4'] || $input['district'] == $input['district4'])) {
                     request()->county4 = null;
                     $input['county4'] = null;
                 }
@@ -4229,12 +4253,12 @@ class PagesController extends BaseController
             }
         }
         if(!isset($input['page'])){
-            foreach ($input as $key =>$value){
-                session()->put('search_page_key.'.$key,array_get($input,$key,null));
+            foreach ($input as $key => $value) {
+                session()->put('search_page_key.' . $key, array_get($input, $key, null));
             }
-            foreach ($search_page_key as $key =>$value){
-                if(count($input)){
-                    session()->put('search_page_key.'.$key,array_get($input,$key,null));
+            foreach ($search_page_key as $key => $value) {
+                if (count($input)) {
+                    session()->put('search_page_key.' . $key, array_get($input, $key, null));
                 }
             }
         }
@@ -4245,39 +4269,22 @@ class PagesController extends BaseController
             $this->service->dispatchCheckECPay($this->userIsVip, $this->userIsFreeVip, $user->vip_any->first());
         }
         //valueAddedService
-        if($this->valueAddedServices['hideOnline'] == 1){
-            //如未來service有多個以上則此段需設計並再改寫成ALL in one的方式
-            $service_name = 'hideOnline';
-            $valueAddedServiceData = \App\Models\ValueAddedService::getData($user->id,'hideOnline');
-            if(is_object($valueAddedServiceData)){
-                $this->dispatch(new CheckECpayForValueAddedService($valueAddedServiceData));
-            }
-            else{
-                Log::info('ValueAddedService '.$service_name.' data null, user id: ' . $user->id);
-            }
-
+        $valueAddedServiceData_hideOnline = ValueAddedService::getData($user->id, 'hideOnline');
+        if($valueAddedServiceData_hideOnline){
+            $this->service->dispatchCheckECPayForValueAddedService('hideOnline', $valueAddedServiceData_hideOnline);
         }
+        $valueAddedServiceData_VVIP = ValueAddedService::getData($user->id, 'VVIP');
+        if($valueAddedServiceData_VVIP){
+            $this->service->dispatchCheckECPayForValueAddedService('VVIP', $valueAddedServiceData_VVIP);
+        }
+
         return view('new.dashboard.search')->with('user', $user)->with('rap_service',$rap_service);
-    }
-
-    public function upgrade(Request $request)
-    {
-        $user = $request->user();
-        if ($user)
-        {
-            $log = new \App\Models\LogClickUpgrade();
-            $log->user_id = $user->id;
-            $log->save();
-            return view('dashboard.upgrade')
-            ->with('user', $user);
-        }
     }
 
     public function upgrade_ec(Request $request)
     {
         $user = $request->user();
-        if ($user)
-        {
+        if ($user) {
             $log = new \App\Models\LogClickUpgrade();
             $log->user_id = $user->id;
             $log->save();
@@ -4289,8 +4296,7 @@ class PagesController extends BaseController
     public function upgrade_esafe(Request $request)
     {
         $user = $request->user();
-        if ($user)
-        {
+        if ($user) {
             $log = new \App\Models\LogClickUpgrade();
             $log->user_id = $user->id;
             $log->save();
@@ -4299,38 +4305,15 @@ class PagesController extends BaseController
         }
     }
 
-    public function block(Request $request)
-    {
-        $user = $request->user();
-        if ($user)
-        {
-            // blocked by user->id
-            $bannedUsers = \App\Services\UserService::getBannedId();
-            $blocks = \App\Models\Blocked::with(['blocked_user', 'blocked_user.meta'])
-                ->join('users', 'users.id', '=', 'blocked.blocked_id')
-                ->where('member_id', $user->id)
-                ->whereNotIn('blocked_id',$bannedUsers)
-                ->whereNotNull('users.id')
-                ->where('users.accountStatus', 1)
-                ->where('users.account_status_admin', 1)
-                ->orderBy('blocked.created_at','desc')->paginate(15);
-
-            return view('new.dashboard.block')
-            ->with('blocks', $blocks)
-            ->with('user', $user);
-        }
-    }
-
     public function block2(Request $request)
     {
         $user = $request->user();
-        if ($user)
-        {
+        if ($user) {
             // blocked by user->id
-            $blocks = \App\Models\Blocked::where('member_id', $user->id)->orderBy('created_at','desc')->paginate(15);
+            $blocks = \App\Models\Blocked::where('member_id', $user->id)->orderBy('created_at', 'desc')->paginate(15);
 
             $usersInfo = array();
-            foreach($blocks as $blockUser){
+            foreach ($blocks as $blockUser) {
                 $id = $blockUser->blocked_id;
                 $usersInfo[$id] = User::findById($id);
             }
@@ -4346,15 +4329,14 @@ class PagesController extends BaseController
         $user = $request->user();
         if ($user) {
             return view('dashboard.upgradesuccess')
-            ->with('user', $user);
+                ->with('user', $user);
         }
     }
 
     public function upgradepay(Request $request)
     {
         $user = $request->user();
-        if ($user == null)
-        {
+        if ($user == null) {
             $aid = auth()->id();
             $user = User::findById($aid);
         }
@@ -4370,17 +4352,16 @@ class PagesController extends BaseController
         $infos->user_id = $user->id;
         $infos->content = $pool;
         $infos->save();
-        if (isset($payload['final_result']))
-        {
-            if(Vip::checkByUserAndTxnId($user->id, $payload['P_CheckSum'])){
+        if (isset($payload['final_result'])) {
+            if (Vip::checkByUserAndTxnId($user->id, $payload['P_CheckSum'])) {
                 return view('dashboard.upgradesuccess')
                     ->with('user', $user)->withErrors(['升級成功後請勿在本頁面重新整理！']);
             }
-            if($payload['final_result'] == 1){
+            if ($payload['final_result'] == 1) {
                 $pool = '';
                 $count = 0;
-                foreach ($payload as $key => $value){
-                    $pool .= 'Row '. $count . ' : ' . $key . ', Value : ' . $value . '
+                foreach ($payload as $key => $value) {
+                    $pool .= 'Row ' . $count . ' : ' . $key . ', Value : ' . $value . '
 ';//換行
                     $count++;
                 }
@@ -4394,13 +4375,11 @@ class PagesController extends BaseController
                 Vip::upgrade($user->id, $payload['P_MerchantNumber'], $payload['P_OrderNumber'], $payload['P_Amount'], $payload['P_CheckSum'], 1, 0);
                 return view('dashboard.upgradesuccess')
                     ->with('user', $user)->with('message', 'VIP 升級成功！');
-            }
-            else{
+            } else {
                 return view('dashboard.upgradefailed')
                     ->with('user', $user)->withErrors(['交易系統回傳結果顯示交易未成功，VIP 升級失敗！請檢查信用卡資訊。']);
             }
-        }
-        else{
+        } else {
             return view('dashboard.upgradefailed')
                 ->with('user', $user)->withErrors(['交易系統沒有回傳資料，VIP 升級失敗！請檢查網路是否順暢。']);
         }
@@ -4417,10 +4396,9 @@ class PagesController extends BaseController
     public function receive_esafe(Request $request)
     {
         $user = $request->user();
-        if ($user == null)
-        {
+        if ($user == null) {
             $aid = auth()->id();
-            if(is_null($aid)){
+            if (is_null($aid)) {
                 $aid = $request['UserNo'];
             }
             $user = User::findById($aid);
@@ -4437,17 +4415,16 @@ class PagesController extends BaseController
         $infos->user_id = $user->id;
         $infos->content = $pool;
         $infos->save();
-        if (isset($payload['errcode']))
-        {
-            if(Vip::checkByUserAndTxnId($user->id, $payload['ChkValue'])){
+        if (isset($payload['errcode'])) {
+            if (Vip::checkByUserAndTxnId($user->id, $payload['ChkValue'])) {
                 return view('dashboard.upgradesuccess')
                     ->with('user', $user)->withErrors(['升級成功後請勿在本頁面重新整理！']);
             }
-            if($payload['errcode'] == '00'){
+            if ($payload['errcode'] == '00') {
                 $pool = '';
                 $count = 0;
-                foreach ($payload as $key => $value){
-                    $pool .= 'Row '. $count . ' : ' . $key . ', Value : ' . $value . '
+                foreach ($payload as $key => $value) {
+                    $pool .= 'Row ' . $count . ' : ' . $key . ', Value : ' . $value . '
 ';//換行
                     $count++;
                 }
@@ -4464,23 +4441,21 @@ class PagesController extends BaseController
                     $transactionType = 'CreditCard';
                 }elseif(isset($payload['BarcodeA']) && !is_null($payload['BarcodeA'])){
                     $transactionType = 'Barcode';
-                }elseif(isset($payload['BarcodeA']) && !is_null($payload['BarcodeA'])){
+                } elseif (isset($payload['BarcodeA']) && !is_null($payload['BarcodeA'])) {
                     $transactionType = 'Barcode';
-                }else{
+                } else {
                     $transactionType = 'WebATM';
-                }                                
+                }
 
-                Vip::upgrade($user->id, $payload['web'], $payload['buysafeno'], $payload['MN'], $payload['ChkValue'], 1, 0,$transactionType);
+                Vip::upgrade($user->id, $payload['web'], $payload['buysafeno'], $payload['MN'], $payload['ChkValue'], 1, 0, $transactionType);
 
                 return view('dashboard.upgradesuccess')
                     ->with('user', $user)->with('message', 'VIP 升級成功！');
-            }
-            else{
+            } else {
                 return view('dashboard.upgradefailed')
                     ->with('user', $user)->withErrors(['交易系統回傳結果顯示交易未成功，VIP 升級失敗！請檢查信用卡資訊。']);
             }
-        }
-        else{
+        } else {
             return view('dashboard.upgradefailed')
                 ->with('user', $user)->withErrors(['交易系統沒有回傳資料，VIP 升級失敗！請檢查網路是否順暢。']);
         }
@@ -4504,26 +4479,16 @@ class PagesController extends BaseController
             }
         }
 
-        
+
         if(!$infos->checkByUser($request->UserNo,$request->ChkValue)){
             $infos->save();
         }
 
         $user = User::findById($infos->user_id);
-        
-        
+
+
         return view('dashboard.esafepaystroe')
-                    ->with('user', $user)->with('message', '請儘速至超商繳款');
-    }
-
-
-    public function cancel(Request $request)
-    {
-        $user = $request->user();
-        if ($user) {
-            return view('dashboard.cancel')
-            ->with('user', $user);
-        }
+            ->with('user', $user)->with('message', '請儘速至超商繳款');
     }
 
     public function cancelpay(Request $request)
@@ -4544,19 +4509,18 @@ class PagesController extends BaseController
                 logger('$before_cancelVip: '.$vip->updated_at);
                 if( strpos(\Storage::disk('local')->get($file[0]), $file[1]) !== false) {
                     $array = Vip::cancel($user->id, 0);
-                    if(isset($array["str"])){
+                    if (isset($array["str"])) {
                         $offVIP = $array["str"];
-                    }
-                    else{
+                    } else {
                         $data = Vip::where('member_id', $user->id)->where('expiry', '!=', '0000-00-00 00:00:00')->get()->first();
                         $date = date('Y年m月d日', strtotime($data->expiry));
-                        $offVIP = AdminCommonText::getCommonText(4);                        
+                        $offVIP = AdminCommonText::getCommonText(4);
                         $offVIP = str_replace('DATE', $date, $offVIP);
                         $offVIP = str_replace('LINE_ICON', AdminService::$line_icon_html, $offVIP);
                         $offVIP = str_replace('|$lineIcon|', AdminService::$line_icon_html, $offVIP);
                         $offVIP = str_replace('|$responseTime|', $date, $offVIP);
                         $offVIP = str_replace('|$reportTime|', $date, $offVIP);
-                        $offVIP = str_replace('NOW_TIME', $date, $offVIP); 
+                        $offVIP = str_replace('NOW_TIME', $date, $offVIP);
                         logger('$expiry: ' . $data->expiry);
                         logger('base day: ' . $date);
                         logger('payment: ' . $data->payment);
@@ -4565,35 +4529,35 @@ class PagesController extends BaseController
                     $request->session()->flash('cancel_notice', $offVIP);
                     $request->session()->save();
                     return redirect('/dashboard/new_vip#vipcanceled')->with('user', $user)->with('message', $offVIP);
-                }
-                else{
+                } else {
                     $log = new \App\Models\LogCancelVipFailed();
                     $log->user_id = $user->id;
                     $log->reason = 'File saving failed.';
                     $log->save();
                     return redirect('/dashboard/vip')->with('user', $user)->withErrors(['VIP 取消失敗！'])->with('cancel_notice', '本次VIP取消資訊沒有成功寫入，請再試一次。');
                 }
-            }
-            else{
+            } else {
                 $log = new \App\Models\LogCancelVipFailed();
                 $log->user_id = $user->id;
                 $log->save();
                 return back()->with('message', '帳號密碼輸入錯誤');
             }
-        }
-        else{
+        } else {
             Log::error('User not found while canceling VIP.');
         }
 
         return back()->with('message', 'error');
     }
 
-    public function showCheckAccount(Request $request) {
+    //本月封鎖 + 警示名單
+    //$type 0為封鎖名單 1為警示名單
+
+    public function showCheckAccount(Request $request)
+    {
         $user = $request->user();
-        if(!$user->isVip() && !$user->isVVIP()){
+        if (!$user->isVip() && !$user->isVVIP()) {
             return back()->withErrors(['很抱歉，您目前還不是本站VIP，因此無法執行這個步驟。']);
-        }
-        else if($user->isFreeVip()){
+        } else if ($user->isFreeVip()) {
             return back()->withErrors(['很抱歉，由於您是免費VIP，因此無法執行這個步驟。']);
         }
         if ($user) {
@@ -4601,25 +4565,22 @@ class PagesController extends BaseController
         }
     }
 
-    //本月封鎖 + 警示名單
-    //$type 0為封鎖名單 1為警示名單
     public function banned_warned_list(Request $request)
     {
         $type = 0;
-        if($request->has('type'))
-        {
+        if ($request->has('type')) {
             $type = $request->input('type');
         }
         $user = $request->user();
 
         // $time = \Carbon\Carbon::now();
         //$count = banned_users::select('*')->where('banned_users.created_at','>=',\Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString())->count();
-        
+
         $banned_users = banned_users::select('banned_users.reason','banned_users.created_at','banned_users.expire_date','users.name')
             ->where('banned_users.created_at','>=',\Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString())
             ->join('users','banned_users.member_id','=','users.id')
             ->orderBy('banned_users.created_at','desc');
-         
+
         //隱形封鎖要出現在瀏覽資料/懲處名單中，封鎖原因為"廣告"
         $banned_users_implicitly = BannedUsersImplicitly::selectRaw('banned_users_implicitly.reason AS reason, banned_users_implicitly.created_at AS created_at, ""  AS expire_date ,users.name AS name')
             ->where('banned_users_implicitly.created_at','>=',\Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString())
@@ -4630,7 +4591,7 @@ class PagesController extends BaseController
             ->where('warned_users.created_at','>=',\Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString())
             ->join('users','warned_users.member_id','=','users.id')
             ->orderBy('warned_users.created_at','desc')->get();
-         
+
         //取得資料總筆數
         $banned_count = $banned_users->get()->count() + $banned_users_implicitly->get()->count();
         $getBannedUnionList = $banned_users->union($banned_users_implicitly)->get();
@@ -4674,12 +4635,14 @@ class PagesController extends BaseController
             return $strlen == 2 ? $firstStr . str_repeat('*', mb_strlen($user_name, 'utf-8') - 1) : $firstStr . str_repeat("*", $strlen - 2) . $lastStr;
         }
     }
-    
+
+    // 公告封鎖名單
+
     public function warned(Request $request)
     {
-        if($user = Auth::user()){
+        if ($user = Auth::user()) {
             $warned_users = warned_users::select('*')->where('member_id', \Auth::user()->id)->count();
-            if($warned_users > 0){    
+            if ($warned_users > 0) {
                 Auth::logout();
                 $request->session()->flush();
                 return view('errors.User-banned');
@@ -4689,28 +4652,28 @@ class PagesController extends BaseController
         abort(404);
     }
 
-    // 公告封鎖名單
-    public function showWebAnnouncement(Request $request) {
+    public function showWebAnnouncement(Request $request)
+    {
         $user = $request->user();
         $start = \Carbon\Carbon::now()->subDays(30)->toDateTimeString();
         $end = \Carbon\Carbon::now()->toDateTimeString();
-        $userBanned = banned_users::select('users.name','banned_users.*')
-                    ->whereBetween('banned_users.created_at',[($start),($end)])
-                    ->join('users','banned_users.member_id','=','users.id')
-                    ->orderBy('banned_users.created_at','asc')->get();
-        foreach($userBanned as $userData){
-            if(mb_strlen(trim($userData['name']),"utf-8") <= 3){
-                $userData['name'] = (mb_substr($userData['name'],0 ,1,"utf-8").'***');
-            }else{
-                $userData['name'] = (mb_substr($userData['name'],0 ,3,"utf-8").'***');
+        $userBanned = banned_users::select('users.name', 'banned_users.*')
+            ->whereBetween('banned_users.created_at', [($start), ($end)])
+            ->join('users', 'banned_users.member_id', '=', 'users.id')
+            ->orderBy('banned_users.created_at', 'asc')->get();
+        foreach ($userBanned as $userData) {
+            if (mb_strlen(trim($userData['name']), "utf-8") <= 3) {
+                $userData['name'] = (mb_substr($userData['name'], 0, 1, "utf-8") . '***');
+            } else {
+                $userData['name'] = (mb_substr($userData['name'], 0, 3, "utf-8") . '***');
             }
         }
 
         return view('dashboard.adminannouncement_web')
-                ->with('user',$user)
-                ->with('users', $userBanned);
+            ->with('user', $user)
+            ->with('users', $userBanned);
     }
-    
+
     public function showAnnouncement(Request $request){
 
         $user = $request->user();
@@ -4724,7 +4687,7 @@ class PagesController extends BaseController
 //        return view('new.dashboard.announcement')
 //                ->with('user', $request->user());
     }
-    
+
     public function mem_member(Request $request)
     {
 
@@ -4766,7 +4729,7 @@ class PagesController extends BaseController
         $report_reason = AdminCommonText::where('alias','report_reason')->get()->first();
         $report_member = AdminCommonText::where('alias','report_member')->get()->first();
         $report_avatar = AdminCommonText::where('alias','report_avatar')->get()->first();
-        
+
         /*label*/
         $new_sweet = AdminCommonText::where('category_alias','label_text')->where('alias','new_sweet')->get()->first();
         $well_member = AdminCommonText::where('category_alias','label_text')->where('alias','well_member')->get()->first();
@@ -4795,8 +4758,9 @@ class PagesController extends BaseController
             'alert_account'     => $alert_account->content,
         );
         return view('/new/mem_member', $data)
-                ->with('user', $user);
+            ->with('user', $user);
     }
+
     public function mem_search()
     {
         $users = User::selectraw("*")->join('user_meta', 'user_meta.user_id','=','users.id')->get();
@@ -4807,6 +4771,7 @@ class PagesController extends BaseController
 
         return view('new.mem_search', $data);
     }
+
     public function town_ajax(Request $request)
     {
         $r = $request->post();
@@ -4817,9 +4782,9 @@ class PagesController extends BaseController
         $Town_num = count($Town_rs);
         if ($Town_num > 0) {//縣市編號帶入後如果有資料存在顯示底下區域內容回傳
             echo "<option value=''>選擇鄉鎮</option>";
-                foreach($Town_rs as $Town_rows){
-                    echo "<option value='" . $Town_rows->AutoNo . "'>" . $Town_rows->Name . "</option>";
-                }
+            foreach ($Town_rs as $Town_rows) {
+                echo "<option value='" . $Town_rows->AutoNo . "'>" . $Town_rows->Name . "</option>";
+            }
 
         } else {//縣市編號帶入後如果有資料存在顯示底下內容回傳
             echo "<option value=''>選擇鄉鎮</option>";
@@ -4834,10 +4799,12 @@ class PagesController extends BaseController
         );
         return view('new.mem_updatevip', $data);
     }
+
     public function women_updatevip()
     {
         return view('new.women_updatevip');
     }
+
     public function women_search()
     {
         return view('new.women_search');
@@ -4908,7 +4875,7 @@ class PagesController extends BaseController
         $users->timestamps = false;
         $users->update($data);
 
-       
+
     }
 
     public function cancelVip(Request $request){
@@ -4917,11 +4884,11 @@ class PagesController extends BaseController
         $userId = $request->get('userId');
         $user_count = User::where('id', $userId)->where('email', $acc)->get()->count();
         if($user_count>0){
-            
-            // dd( Auth::user()->remember_token);
-            $u = User::where('email', $acc)->first();  
 
-            
+            // dd( Auth::user()->remember_token);
+            $u = User::where('email', $acc)->first();
+
+
             if (Hash::check($pwd, $u->password)){
                 // 不要輕易使用 DB 方式去修改資料庫，應盡可能使用現有的功能和 model 去處理資料，否則
                 // 如這一部分程式而言，VIP 這個 model 在取消時還會進行 log 記錄，如果直接用 DB，將
@@ -4938,7 +4905,7 @@ class PagesController extends BaseController
                     'msg' =>'修改失敗',
                 );
             }
-            
+
             return json_encode($data);
         }else{
             $data = array(
@@ -4962,10 +4929,10 @@ class PagesController extends BaseController
             'msg' =>'寄發訊息成功',
         );
         return json_encode($data);
-        
-        
+
+
     }
-    
+
     public function addCollection(Request $request)
     {
         $id = $request->get('id');
@@ -4996,7 +4963,6 @@ class PagesController extends BaseController
         event(new \App\Events\CheckWarnedOfReport($id));
         return json_encode($data);
     }
-
 
     public function addBlock(Request $request)
     {
@@ -5082,130 +5048,184 @@ class PagesController extends BaseController
 
         $user = $request->user();
         return view('/auth/member_auth')
-                ->with('user',$user)
-                ->with('cur', $user)
-                ->with('rap_service',$this->rap_service->riseByUserEntry($user))
-                ;
+            ->with('user', $user)
+            ->with('cur', $user)
+            ->with('rap_service', $this->rap_service->riseByUserEntry($user));
     }
 
     public function member_auth_photo(Request $request){
         return view('/auth/member_auth_photo');
     }
-    
-    public function goto_member_auth(Request $request) {
-        
+
+    public function goto_member_auth(Request $request)
+    {
+
         $url_query_str = '';
         $query_arr = [];
-        
-        if(request()->real_auth) {
-            $query_arr  = ['real_auth'=>request()->real_auth];        
-        } 
-        
-        if(request()->return_aa) {
+
+        if (request()->real_auth) {
+            $query_arr = ['real_auth' => request()->real_auth];
+        }
+
+        if (request()->return_aa) {
             $query_arr['return_aa'] = 1;
         }
-            
-        $url_query_str = '?'.http_build_query($query_arr);
-        
-        return redirect('/member_auth'.$url_query_str)->with('show_edu_option', '1');
+
+        $url_query_str = '?' . http_build_query($query_arr);
+
+        return redirect('/member_auth' . $url_query_str)->with('show_edu_option', '1');
     }
 
     public function goto_advance_auth_email(Request $request) {
         return redirect('/advance_auth_email'.($request->getQueryString()?'?'.$request->getQueryString():null))->with('is_edu_mode', '1');
-    }    
-
-    function getAge($birthday_date){
-        $birthday = strtotime($birthday_date);
-        //格式化出生時間年月日
-        $byear=date('Y',$birthday);
-        $bmonth=date('m',$birthday);
-        $bday=date('d',$birthday);
-        //格式化當前時間年月日
-        $tyear=date('Y');
-        $tmonth=date('m');
-        $tday=date('d');
-        //開始計算年齡
-        $age=$tyear-$byear;
-
-        if($bmonth>$tmonth || ($bmonth==$tmonth && $bday>$tday)){
-            $age--;
-        }
-        return $age;
     }
-    
-    public function clear_advance_auth_email_entrance() {
-        session()->forget( 'is_edu_mode');     
-    }
-    
+
     public function advance_auth(Request $request){
 
         $this->clear_advance_auth_email_entrance();
         $user = $request->user();
         $rap_service = $this->rap_service;
-        
+
         $prechase_redirect = $this->advance_auth_prechase_redirect($rap_service->riseByUserEntry($user));
         if($prechase_redirect) return $prechase_redirect;
-        
+
         $init_check_msg = $this->advance_auth_prechase($rap_service);
         $users = collect([]);
         if(!$request->session()->get('message') && $rap_service->isInRealAuthProcess() && $user->isAdvanceAuth()) {
             $rap_service->applyRealAuthByReq($request);
             $users = DB::table('role_user')->leftJoin('users', 'role_user.user_id', '=', 'users.id')->where('users.id', '<>', Auth::id())->get();
-            
-            if(!view()->shared('self_auth_video_allusers')) {
-                \View::share('self_auth_video_allusers',$users);
-            }            
-            
+
+            if (!view()->shared('self_auth_video_allusers')) {
+                \View::share('self_auth_video_allusers', $users);
+            }
+
             $success_msg = $rap_service->getSelfAuthApplyMsgBeforeVideo();
-            $request->session()->flash('message', [$success_msg??null]);                        
-        }        
+            $request->session()->flash('message', [$success_msg ?? null]);
+        }
 
         return view('/auth/advance_auth')
-                ->with('user',$user)
-                ->with('cur', $user)
-                ->with('init_check_msg',$init_check_msg??null)
-                ->with('user_pause_during_msg',$this->advance_auth_get_msg('user_pause2'))
-                ->with('rap_service',$rap_service)
-                ->with('users',$users)
-                ;
+            ->with('user', $user)
+            ->with('cur', $user)
+            ->with('init_check_msg', $init_check_msg ?? null)
+            ->with('user_pause_during_msg', $this->advance_auth_get_msg('user_pause2'))
+            ->with('rap_service', $rap_service)
+            ->with('users', $users);
     }
-    
-    public function advance_auth_email(Request $request){
+
+    public function clear_advance_auth_email_entrance()
+    {
+        session()->forget('is_edu_mode');
+    }
+
+    public function advance_auth_prechase_redirect($rap_service = null)
+    {
+        if ($rap_service) {
+            $notInRaProcessReturn = $rap_service->returnInWrongRealAuthProcess();
+            if ($notInRaProcessReturn) return $notInRaProcessReturn;
+        }
+    }
+
+    public function advance_auth_prechase($rap_service = null)
+    {
+        $user = Auth::user();
+        ShortMessageService::deleteOldNotActShortMessageByUser($user, true);
+        $init_check_msg = null;
+        $is_edu_mode = session()->get('is_edu_mode');
+        if ($user->engroup != 2) {
+            $init_check_msg = '僅供女會員驗證';
+        } else if (!$user->isAdvanceAuth()) {
+            //0922222222是後台自動塞的假手機驗證資料，所以要當做沒手機驗證
+            if (!$is_edu_mode && (!$user->isPhoneAuth() || !$user->getAuthMobile() || $user->getAuthMobile() == '0922222222')) {
+                if ($user->getAuthMobile() == '0922222222') ShortMessageService::deleteShortMessageByUser($user, true);
+                $url_query_str = '?return_aa=1';
+                if (request()->real_auth) {
+                    $url_query_str = '?' . http_build_query(['real_auth' => request()->real_auth]);
+                }
+
+                $real_auth_onclick_attr = '';
+                if ($rap_service && $rap_service->isInRealAuthProcess()) {
+                    $real_auth_onclick_attr = $rap_service->getOnClickAttrForNoUnloadConfirm();
+                }
+                $init_check_msg = '請先通過 <a href="' . url('goto_member_auth') . $url_query_str . '" ' . $real_auth_onclick_attr . '>手機驗證(<span class="obvious">點此前往</span>)</a>';
+                $init_check_msg .= '<div class="i_am_student"><a href="' . url('goto_advance_auth_email') . $url_query_str . '" ' . $real_auth_onclick_attr . ' >我是學生未滿20歲，沒有辦個人門號，<span class="remind-regular">請點我</span></a></div>';
+            } else if ($user->isDuplicateAdvAuth()) {
+                $init_check_msg = $this->advance_auth_get_msg('have_wrong');
+            } else if ($user->isForbidAdvAuth()) {
+                $init_check_msg = $this->advance_auth_get_msg('user_forbid');
+            } else if ($user->isPauseAdvAuth()) {
+                $init_check_msg = $this->advance_auth_get_msg('user_pause');
+            } else if (LogAdvAuthApi::isPauseApi()) {
+                $init_check_msg = $this->advance_auth_get_msg('api_pause');
+            }
+        }
+
+        return $init_check_msg;
+    }
+
+    public function advance_auth_email(Request $request)
+    {
         $user = $request->user();
         $rap_service = $this->rap_service->riseByUserEntry($user);
-        $is_edu_mode = session()->get( 'is_edu_mode' );
-        $init_check_msg = $this->advance_auth_email_prechase($request,$rap_service);
-        
-        if($init_check_msg) $is_edu_mode = 1;
+        $is_edu_mode = session()->get('is_edu_mode');
+        $init_check_msg = $this->advance_auth_email_prechase($request, $rap_service);
+
+        if ($init_check_msg) $is_edu_mode = 1;
 
         $this->clear_advance_auth_email_entrance();
         if(!$is_edu_mode) return redirect('advance_auth'.($request->query()?'?'.$request->getQueryString():null));
-        
+
         $prechase_redirect = $this->advance_auth_prechase_redirect($rap_service->riseByUserEntry($user));
-        if($prechase_redirect) return $prechase_redirect;
-        
+        if ($prechase_redirect) return $prechase_redirect;
+
         $users = collect([]);
-        
-        if($rap_service->isInRealAuthProcess() && $rap_service->isSelfAuthApplyNotVideoYet())
+
+        if ($rap_service->isInRealAuthProcess() && $rap_service->isSelfAuthApplyNotVideoYet())
             $users = DB::table('role_user')->leftJoin('users', 'role_user.user_id', '=', 'users.id')->where('users.id', '<>', Auth::id())->get();
-        
+
         return view('/auth/advance_auth')
-                ->with('user',$user)
-                ->with('cur', $user)
-                ->with('init_check_msg',$init_check_msg??null)
-                ->with('is_edu_mode',$is_edu_mode)
-                ->with('rap_service',$rap_service)
-                ->with('users',$users)
-                ;
-    } 
-    
-    public function advance_auth_back(Request $request){
+            ->with('user', $user)
+            ->with('cur', $user)
+            ->with('init_check_msg', $init_check_msg ?? null)
+            ->with('is_edu_mode', $is_edu_mode)
+            ->with('rap_service', $rap_service)
+            ->with('users', $users);
+    }
+
+    public function advance_auth_email_prechase(Request $request)
+    {
+        $user = Auth::user();
+        $init_check_msg = null;
+        $is_edu_mode = session()->get('is_edu_mode');
+        $rap_service = $this->rap_service;
+
+        if ($user->isAdvanceAuth()) {
+            $init_check_msg = '您已通過進階驗證。';
+
+            if ($rap_service->riseByUserEntry($user)->isInRealAuthProcess()) {
+                $init_check_msg = $rap_service->getSelfAuthApplyMsgBeforeVideo();
+            }
+        } else {
+            if ($user->advance_auth_email ?? null) {
+                $init_check_msg = '請至校內信箱中點選連結，以通過進階驗證。';
+            }
+        }
+
+        if ($user->engroup != 2) {
+            $init_check_msg = '僅供女會員驗證';
+        }
+
+        return $init_check_msg;
+
+    }
+
+    public function advance_auth_back(Request $request)
+    {
         $create = array(
-            'member_id'=>$request->id,
-            'reason'=>'進階驗證封鎖',
-            'message_content'=>'1',
-            'updated_at'=>now(),
-            'created_at'=>now()
+            'member_id' => $request->id,
+            'reason' => '進階驗證封鎖',
+            'message_content' => '1',
+            'updated_at' => now(),
+            'created_at' => now()
         );
         $status = banned_users::create($create);
         $data = array(
@@ -5215,235 +5235,75 @@ class PagesController extends BaseController
         //寫入log
         DB::table('is_banned_log')->insert(['user_id' => $create['member_id'], 'reason' => $create['reason'], 'created_at' => $create['created_at']]);
         //新增Admin操作log
-        $uCtrl = new UserController(app(\App\Services\UserService::class),app(\App\Services\AdminService::class));
-        $uCtrl->insertAdminActionLog($create['member_id'], '封鎖會員');        
+        $uCtrl = new UserController(app(\App\Services\UserService::class), app(\App\Services\AdminService::class));
+        $uCtrl->insertAdminActionLog($create['member_id'], '封鎖會員');
         echo json_encode($data, JSON_UNESCAPED_UNICODE);
-    } 
-
-    public function advance_auth_get_msg($type=null) {
-        $msg = null;
-        $rap_service = $this->rap_service;
-        
-        switch($type) {
-            case 'have_wrong':
-                $msg='您的進階驗證功能有誤，請加站長 line 與站長聯絡<a href="https://lin.ee/rLqcCns" target="_blank"> <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="height: 26px; float: unset;"></a>';
-            break;
-            case 'user_forbid':
-                $msg='您的驗證次數已滿三次，請加站長 line 與站長聯絡<a href="https://lin.ee/rLqcCns" target="_blank"> <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="height: 26px; float: unset;"></a> ';
-            break;
-            case 'user_pause':
-                $chinese_num_arr = ['一','二','三','四','五','六','七','八','九'];
-                $user_pause_during = config('memadvauth.user.pause_during');
-                $msg = '驗證失敗需'.(($user_pause_during%1440 || $user_pause_during/1440>=10)?$user_pause_during.'分鐘':$chinese_num_arr[$user_pause_during/1440-1].'天').'後才能重新申請。';               
-            break;
-            case 'user_pause2':
-                $chinese_num_arr = ['一','二','三','四','五','六','七','八','九'];
-                $user_pause_during = config('memadvauth.user.pause_during');
-                $msg = '失敗後要等'.(($user_pause_during%1440 || $user_pause_during/1440>=10)?$user_pause_during.'分鐘':$chinese_num_arr[$user_pause_during/1440-1].'天').'才能重新申請。';               
-            break;            
-            case 'api_pause':
-                $api_pause_during = config('memadvauth.api.pause_during');            
-                $msg = '本日進階驗證功能維修，請 '.(intval($api_pause_during/60)?intval($api_pause_during/60).'hr':'').(($api_pause_during%60)?($api_pause_during%60).'分鐘':'').' 後再試。';
-            break; 
-            case 'api_fault':
-                $msg=' 驗證主機目前維修中，請八個小時後再驗證，如果還是不行，請點此聯絡站長 <a href="https://lin.ee/rLqcCns" target="_blank"> <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="height: 26px; float: unset;"></a> ';
-            break;
-        }
-        
-        return $msg;
     }
-    
-    public function advance_auth_prechase_redirect($rap_service=null)
+
+    public function advance_auth_process(Request $request)
     {
-        if($rap_service) {
-            $notInRaProcessReturn = $rap_service->returnInWrongRealAuthProcess();
-            if($notInRaProcessReturn) return $notInRaProcessReturn;        
-        }
-    }
-
-    public function advance_auth_prechase($rap_service=null) {
-        $user =Auth::user();
-        ShortMessageService::deleteOldNotActShortMessageByUser($user,true);
-        $init_check_msg = null;
-        $is_edu_mode = session()->get( 'is_edu_mode' );
-        if($user->engroup!=2) {
-            $init_check_msg = '僅供女會員驗證' ;
-        }   
-        else if(!$user->isAdvanceAuth()) {
-            //0922222222是後台自動塞的假手機驗證資料，所以要當做沒手機驗證
-            if(!$is_edu_mode && (!$user->isPhoneAuth() || !$user->getAuthMobile() || $user->getAuthMobile()=='0922222222') ) {
-                if($user->getAuthMobile()=='0922222222') ShortMessageService::deleteShortMessageByUser($user,true);
-                $url_query_str = '?return_aa=1';
-                if(request()->real_auth) {
-                    $url_query_str = '?'.http_build_query(['real_auth'=>request()->real_auth]);
-                }
-
-                $real_auth_onclick_attr = '';
-                if($rap_service && $rap_service->isInRealAuthProcess()) {
-                    $real_auth_onclick_attr = $rap_service->getOnClickAttrForNoUnloadConfirm();
-                }
-                $init_check_msg = '請先通過 <a href="'.url('goto_member_auth').$url_query_str.'" '.$real_auth_onclick_attr.'>手機驗證(<span class="obvious">點此前往</span>)</a>' ;
-                $init_check_msg.= '<div class="i_am_student"><a href="'.url('goto_advance_auth_email').$url_query_str.'" '.$real_auth_onclick_attr.' >我是學生未滿20歲，沒有辦個人門號，<span class="remind-regular">請點我</span></a></div>'; 
-            } 
-            else if($user->isDuplicateAdvAuth()) {
-                $init_check_msg = $this->advance_auth_get_msg('have_wrong');
-            }
-            else if($user->isForbidAdvAuth()) {
-                $init_check_msg = $this->advance_auth_get_msg('user_forbid');
-            }            
-            else if($user->isPauseAdvAuth()) {
-                $init_check_msg = $this->advance_auth_get_msg('user_pause') ;
-            }
-            else if(LogAdvAuthApi::isPauseApi()) {
-                $init_check_msg = $this->advance_auth_get_msg('api_pause') ;
-            }
-        } 
-
-        return $init_check_msg;
-    }
-    
-    public function advance_auth_precheck(Request $request){
-        $user =$request->user();     
-        $check_rs = null;
-        if(!$request->id_serial) $check_rs[] = 'i';
-        if(!$request->phone_number) $check_rs[] = 'p';       
-        if(!($request->year && $request->month && $request->day)) {
-            $check_rs[] = 'b';
-            $birth = null;
-        }
-        else {           
-            $birth = $data['birth'] = date('Ymd', strtotime($request->year.'-'.$request->month.'-'.$request->day));
-        }
-        
-        if($request->id_serial) {
-            if(mb_substr(trim($request->id_serial),1,1)!=$user->engroup) $error_msg[] = '請輸入符合性別的身分證字號';
-            else {
-                $id_serial = strtoupper($request->id_serial);
-                $letterConverter = [
-                        'A'=>1,'I'=>39,'O'=>48,'B'=>10,'C'=>19,'D'=>28,'E'=>37,'F'=>46,'G'=>55,'H'=>64,'J'=>73,'K'=>82,
-                        'L'=>2,'M'=>11,'N'=>20,'P'=>29,'Q'=>38,'R'=>47,'S'=>56,'T'=>65,'U'=>74,'V'=>83,'W'=>21,'X'=>3,'Y'=>12,'Z'=>30
-                    ];                
-                $weightArr = [8,7,6,5,4,3,2,1]; 
-                if (preg_match("/^[a-zA-Z][1-2][0-9]{8}$/",$id_serial)){
-                    $letterSegs = str_split($id_serial);
-                    $total = $letterConverter[array_shift($letterSegs)];
-                    $point = array_pop($letterSegs);
-                    $len = count($letterSegs);
-                    for($j=0; $j<$len; $j++){
-                        $total += $letterSegs[$j]*$weightArr[$j];
-                    }
-                    
-                    $last = (($total%10) == 0 )? 0: (10 - ( $total % 10 ));
-                    if ($last != $point) {
-                        $check_rs[] = 'i';
-                    } 
-                }  else {
-                   $check_rs[] = 'i';
-                }                
-            }
-        }
-        
-        if($request->phone_number) {
-            
-            if($user->getAuthMobile(true)!=$request->phone_number) {
-                $check_rs[] = 'phack';
-            }
-            else {
-                if(preg_match("/^09[0-9]{8}$/",$request->phone_number)) {
-                    if($request->phone_number!=$user->getAuthMobile(true))
-                    {
-                        $check_rs[] = 'p';
-                    }
-                }
-                else {
-                    $check_rs[] = 'p';
-                }
-                
-                if(ShortMessageService::isForbiddenByPhoneNumber($request->phone_number)) {
-                    $check_rs[] = 'pf';
-                } 
-
-            }
-        }        
-        if($birth) {
-            $age = $this->getAge($birth);
-            /* 判斷是否小於18歲 */
-            if($age<18){
-                $check_rs[] = 'b18';
-            }  
-        }  
-
-        if($user->engroup!=2) {
-            $check_rs = ['s'];
-        }
-
-        return implode('_',$check_rs??[]);
-    }
-    
-    public function advance_auth_process(Request $request){
         $LineToken = config('memadvauth.api.line_token');
         $api_check_cfg = config('memadvauth.api.check');
-        $user =Auth::user();
+        $user = Auth::user();
         $rap_service = $this->rap_service;
-        
+
         $prechase_redirect = $this->advance_auth_prechase_redirect($rap_service->riseByUserEntry($user));
-        if($prechase_redirect) return $prechase_redirect;        
-        
+        if ($prechase_redirect) return $prechase_redirect;
+
         $init_check_msg = $this->advance_auth_prechase($rap_service);
 
-        if($init_check_msg) {
-            return back();
-        }           
-        if(!UserService::isAdvAuthUsableByUser($user)) {
+        if ($init_check_msg) {
             return back();
         }
-        
+        if (!UserService::isAdvAuthUsableByUser($user)) {
+            return back();
+        }
+
         $check_rs = $this->advance_auth_precheck($request)??'';
 
-        if(!$check_rs) {
+        if (!$check_rs) {
             $id_serial = $data['MemberNo'] = strtoupper($request->id_serial);
             $old_encode_id_serial = md5(sha1(md5($id_serial)));
             $encode_id_serial = bcrypt($id_serial);
             $phone_number = $data['phone_number'] = $request->phone_number;
-             $birth = $data['birth'] = date('Ymd', strtotime($request->year.'-'.$request->month.'-'.$request->day));
-            $format_birth = $request->year.'-'.$request->month.'-'.$request->day;
-        }
-        else {
-            return back()->with('error_code', explode('_',$check_rs))
-                    ->with('error_code_msg',['s'=>'僅供女會員驗證','i'=>'身分證字號','p'=>'門號','b'=>'生日','b18'=>'年齡未滿18歲，不得進行驗證','pf'=>'無法使用此手機號碼進行驗證','phack'=>'非通過驗證的手機號碼']);
+            $birth = $data['birth'] = date('Ymd', strtotime($request->year . '-' . $request->month . '-' . $request->day));
+            $format_birth = $request->year . '-' . $request->month . '-' . $request->day;
+        } else {
+            return back()->with('error_code', explode('_', $check_rs))
+                ->with('error_code_msg', ['s' => '僅供女會員驗證', 'i' => '身分證字號', 'p' => '門號', 'b' => '生日', 'b18' => '年齡未滿18歲，不得進行驗證', 'pf' => '無法使用此手機號碼進行驗證', 'phack' => '非通過驗證的手機號碼']);
         }
         $precheck_duplicate_user =  User::where('advance_auth_identity_encode',$old_encode_id_serial)->where('advance_auth_status',1)->where('advance_auth_phone',$phone_number)->where('advance_auth_birth',$format_birth)->orderByDesc('advance_auth_time')->first();
         if($precheck_duplicate_user ) {
             $user->log_adv_auth_api()->create([
-                    'birth'=>$data['birth']
-                    ,'phone'=>$data['phone_number']
-                    ,'identity_hash'=>$encode_id_serial
-                    ,'is_duplicate'=>1
-                    ,'duplicate_user_id'=>$precheck_duplicate_user->id
-                ]);
+                'birth' => $data['birth']
+                , 'phone' => $data['phone_number']
+                , 'identity_hash' => $encode_id_serial
+                , 'is_duplicate' => 1
+                , 'duplicate_user_id' => $precheck_duplicate_user->id
+            ]);
             return back()->with('message', [$this->advance_auth_get_msg('have_wrong')]);
-        } 
+        }
 
         $precheck_hash_users = User::where('advance_auth_identity_hash','!=','')->whereNotNull('advance_auth_identity_hash')->where('advance_auth_status',1)->where('advance_auth_phone',$phone_number)->where('advance_auth_birth',$format_birth)->orderByDesc('advance_auth_time')->get();
-        
+
         if($precheck_hash_users->count()) {
             foreach($precheck_hash_users as $ph_user) {
                 if (Hash::check($id_serial, $ph_user->advance_auth_identity_hash)) {
-					$user->log_adv_auth_api()->create([
-	                    'birth'=>$data['birth']
-	                    ,'phone'=>$data['phone_number']
-	                    ,'identity_hash'=>$encode_id_serial
-	                    ,'is_duplicate'=>1
-	                    ,'duplicate_user_id'=>$ph_user->id
-               		 ]);
+                    $user->log_adv_auth_api()->create([
+                        'birth' => $data['birth']
+                        , 'phone' => $data['phone_number']
+                        , 'identity_hash' => $encode_id_serial
+                        , 'is_duplicate' => 1
+                        , 'duplicate_user_id' => $ph_user->id
+                    ]);
                     return back()->with('message', [$this->advance_auth_get_msg('have_wrong')]);
                     break;
-                }                    
+                }
             }
-        }        
+        }
 
-        $data['api_base'] = 'https://'.config('memadvauth.service.host').(config('memadvauth.service.port')?':'.config('memadvauth.service.port'):'').'/';
-        $output = $this->get_mid_clause($data);    
+        $data['api_base'] = 'https://' . config('memadvauth.service.host') . (config('memadvauth.service.port') ? ':' . config('memadvauth.service.port') : '') . '/';
+        $output = $this->get_mid_clause($data);
 
         //API資訊設定
         $data['BusinessNo'] = config('memadvauth.service.business_no');//'54666024';
@@ -5452,110 +5312,108 @@ class PagesController extends BaseController
         $data['HashKey'] =config('memadvauth.service.hash_key');// '4341dcdf-0b14-475e-9b2a-3eb69650a12d';
         $data['VerifyNo'] = time();
         $data['ReturnParams'] = '';
-        
+
         $InputParams_arr = array(
             'MemberNo'=>$id_serial,
             'Action'=>'ValidateMSISDNAdvance',
             'MIDInputParams'=>array(
-                'Msisdn'=>$data['phone_number'],
-                'Birthday'=>$data['birth'],
-                'ClauseVer'=>$output->clausever??'',
-                'ClauseTime'=> $output->lastUpdate??''
+                'Msisdn' => $data['phone_number'],
+                'Birthday' => $data['birth'],
+                'ClauseVer' => $output->clausever ?? '',
+                'ClauseTime' => $output->lastUpdate ?? ''
             )
         );
-        
+
         $data['InputParams'] = json_encode($InputParams_arr, JSON_UNESCAPED_SLASHES);
 
         $data['return'] = $this->get_transaction($data);
-        $output = $this->get_verify_result($data); 
-        $OutputParams = json_decode($output["OutputParams"]??'', JSON_UNESCAPED_UNICODE);        
-     
-        if($OutputParams['MemberNo']??null) {
+        $output = $this->get_verify_result($data);
+        $OutputParams = json_decode($output["OutputParams"] ?? '', JSON_UNESCAPED_UNICODE);
+
+        if ($OutputParams['MemberNo'] ?? null) {
             $OutputParams['MemberNo'] = $encode_id_serial;//md5(sha1(md5($OutputParams['MemberNo'])));
             $output["OutputParams"] = json_encode($OutputParams);
         }
         $logArr = [
-                    'birth'=>$data['birth']
-                    ,'phone'=>$data['phone_number']
-                    ,'identity_hash'=>$encode_id_serial
-                    ,'return_response'=>json_encode($output)
-                ];
-                
-        if(!$output) {
-            $logArr['api_fault']=1;
-            $user->log_adv_auth_api()->create($logArr);   
+            'birth' => $data['birth']
+            , 'phone' => $data['phone_number']
+            , 'identity_hash' => $encode_id_serial
+            , 'return_response' => json_encode($output)
+        ];
+
+        if (!$output) {
+            $logArr['api_fault'] = 1;
+            $user->log_adv_auth_api()->create($logArr);
             return back()//->with('message', ['系統目前無法進行驗證'])
-            ->with('message', [$this->advance_auth_get_msg('api_fault')])
-            ;
-        }                    
-        
-        $MIDOutputParams = json_decode($OutputParams["MIDOutputParams"]["MIDResp"]??'', JSON_UNESCAPED_UNICODE);
-      
-        $logArr['return_code'] = $MIDOutputParams["code"]??'';
-        if($OutputParams["TimeStamp"]??null) $logArr['return_TimeStamp'] = $OutputParams["TimeStamp"];
-        if(array_key_exists('fullcode',$MIDOutputParams??[])) $logArr['return_fullcode'] = $MIDOutputParams["fullcode"];
-        $logAdvAuthApi = $user->log_adv_auth_api()->create($logArr);    
-        
-        $is_reach_s_pause = LogAdvAuthApi::countInInterval('small','pause') > $api_check_cfg['s']['pause_count'] ;
-        $is_reach_l_pause = LogAdvAuthApi::countInInterval('large','pause')> $api_check_cfg['l']['pause_count'];
-        $chinese_num_arr = ['一','二','三','四','五','六','七','八','九'];
-        if(!LogAdvAuthApi::isPauseApi() && ($is_reach_s_pause || $is_reach_l_pause)) {
+            ->with('message', [$this->advance_auth_get_msg('api_fault')]);
+        }
+
+        $MIDOutputParams = json_decode($OutputParams["MIDOutputParams"]["MIDResp"] ?? '', JSON_UNESCAPED_UNICODE);
+
+        $logArr['return_code'] = $MIDOutputParams["code"] ?? '';
+        if ($OutputParams["TimeStamp"] ?? null) $logArr['return_TimeStamp'] = $OutputParams["TimeStamp"];
+        if (array_key_exists('fullcode', $MIDOutputParams ?? [])) $logArr['return_fullcode'] = $MIDOutputParams["fullcode"];
+        $logAdvAuthApi = $user->log_adv_auth_api()->create($logArr);
+
+        $is_reach_s_pause = LogAdvAuthApi::countInInterval('small', 'pause') > $api_check_cfg['s']['pause_count'];
+        $is_reach_l_pause = LogAdvAuthApi::countInInterval('large', 'pause') > $api_check_cfg['l']['pause_count'];
+        $chinese_num_arr = ['一', '二', '三', '四', '五', '六', '七', '八', '九'];
+        if (!LogAdvAuthApi::isPauseApi() && ($is_reach_s_pause || $is_reach_l_pause)) {
             $logAdvAuthApi->pause_api = 1;
             $logAdvAuthApi->save();
             $reason_of_pause = '';
-            if($is_reach_s_pause) {
-                $reason_of_pause = '因 '.$api_check_cfg['s']['interval'].' 分鐘內累計超過 '.$api_check_cfg['s']['pause_count'].' 筆';
+            if ($is_reach_s_pause) {
+                $reason_of_pause = '因 ' . $api_check_cfg['s']['interval'] . ' 分鐘內累計超過 ' . $api_check_cfg['s']['pause_count'] . ' 筆';
             }
-            
+
             if($is_reach_l_pause) {
-                if($is_reach_s_pause) {
-                    $reason_of_pause.='及';
-                }
-                else {
-                    $reason_of_pause.='因';
+                if ($is_reach_s_pause) {
+                    $reason_of_pause .= '及';
+                } else {
+                    $reason_of_pause .= '因';
                 }
 
                 $reason_of_pause.= (($api_check_cfg['l']['interval']%1440 || $api_check_cfg['l']['interval']/1440>=10)?$api_check_cfg['l']['interval'].'分鐘':$chinese_num_arr[$api_check_cfg['l']['interval']/1440-1].'天').'內累計超過 '.$api_check_cfg['l']['pause_count'].' 筆';
-            }            
+            }
             if($reason_of_pause) $reason_of_pause.='，';
             Http::withToken($LineToken)->asForm()->post('https://notify-api.line.me/api/notify', [
-                'message' =>$reason_of_pause.'已暫停進階驗證機制'
-            ]);                
+                'message' => $reason_of_pause . '已暫停進階驗證機制'
+            ]);
         }
 
         if(LogAdvAuthApi::countInInterval('small') > $api_check_cfg['s']['notify_count']  ) {
             $logAdvAuthApi->s_notify = 1;
             $logAdvAuthApi->save();
             Http::withToken($LineToken)->asForm()->post('https://notify-api.line.me/api/notify', [
-                'message' => '進階認證 '.$api_check_cfg['s']['interval'].'  分鐘內累計已超過 '.$api_check_cfg['s']['notify_count'].'  筆'
-            ]);            
-        }  
+                'message' => '進階認證 ' . $api_check_cfg['s']['interval'] . '  分鐘內累計已超過 ' . $api_check_cfg['s']['notify_count'] . '  筆'
+            ]);
+        }
 
-        if(LogAdvAuthApi::countInInterval('large')>$api_check_cfg['l']['notify_count']) {
+        if (LogAdvAuthApi::countInInterval('large') > $api_check_cfg['l']['notify_count']) {
             $logAdvAuthApi->l_notify = 1;
             $logAdvAuthApi->save();
             Http::withToken($LineToken)->asForm()->post('https://notify-api.line.me/api/notify', [
-                'message' => '進階認證'.(($api_check_cfg['l']['interval']%1440 || $api_check_cfg['l']['interval']/1440>=10)?$api_check_cfg['l']['interval'].'分鐘':$chinese_num_arr[$api_check_cfg['l']['interval']/1440-1].'天').'內累計已超過 '.$api_check_cfg['l']['notify_count'].' 筆'
-            ]);              
-        }          
+                'message' => '進階認證' . (($api_check_cfg['l']['interval'] % 1440 || $api_check_cfg['l']['interval'] / 1440 >= 10) ? $api_check_cfg['l']['interval'] . '分鐘' : $chinese_num_arr[$api_check_cfg['l']['interval'] / 1440 - 1] . '天') . '內累計已超過 ' . $api_check_cfg['l']['notify_count'] . ' 筆'
+            ]);
+        }
         //驗證成功
-        $test_auth_fail_mode = false;        
-        if($MIDOutputParams["code"]=="0000" 
-            && strrpos(config('memadvauth.service.host'),'test')!==false 
-            && ($id_serial=='A123456789' || $id_serial=='A234567893')
-            )  $test_auth_fail_mode = true;
-        
-        if($MIDOutputParams["code"]=="0000" && !$test_auth_fail_mode){
-            $check_duplicate_user = User::where('advance_auth_identity_encode',$old_encode_id_serial)->where('advance_auth_identity_encode','!=','')->whereNotNull('advance_auth_identity_encode')->where('advance_auth_status',1)->orderByDesc('advance_auth_time')->first();
-            if($check_duplicate_user) {
-                $logAdvAuthApi->is_duplicate=1;
+        $test_auth_fail_mode = false;
+        if ($MIDOutputParams["code"] == "0000"
+            && strrpos(config('memadvauth.service.host'), 'test') !== false
+            && ($id_serial == 'A123456789' || $id_serial == 'A234567893')
+        ) $test_auth_fail_mode = true;
+
+        if ($MIDOutputParams["code"] == "0000" && !$test_auth_fail_mode) {
+            $check_duplicate_user = User::where('advance_auth_identity_encode', $old_encode_id_serial)->where('advance_auth_identity_encode', '!=', '')->whereNotNull('advance_auth_identity_encode')->where('advance_auth_status', 1)->orderByDesc('advance_auth_time')->first();
+            if ($check_duplicate_user) {
+                $logAdvAuthApi->is_duplicate = 1;
                 $logAdvAuthApi->duplicate_user_id = $check_duplicate_user->id;
                 $logAdvAuthApi->save();
                 return back()->with('message', [$this->advance_auth_get_msg('have_wrong')]);
             }
-            
+
             $hash_users = User::where('advance_auth_identity_hash','!=','')->whereNotNull('advance_auth_identity_hash')->where('advance_auth_status',1)->orderByDesc('advance_auth_time')->get();
-            
+
             if($hash_users->count()) {
                 foreach($hash_users as $h_user) {
                     if (Hash::check($id_serial, $h_user->advance_auth_identity_hash)) {
@@ -5564,10 +5422,10 @@ class PagesController extends BaseController
                         $logAdvAuthApi->save();
                         return back()->with('message', [$this->advance_auth_get_msg('have_wrong')]);
                         break;
-                    }                    
+                    }
                 }
             }
-            
+
             $auth_date = date('Y-m-d H:i:s');
             $user->advance_auth_status = 1;
             $user->advance_auth_time = $auth_date;
@@ -5576,47 +5434,45 @@ class PagesController extends BaseController
             $user->advance_auth_phone = $request->phone_number;
             $user->save();
             $renew_meta = false;
-            if(($user->meta->birthdate??'')!=$format_birth) {
+            if (($user->meta->birthdate ?? '') != $format_birth) {
                 $user->meta->birthdate_old = $user->meta->birthdate;
                 $user->meta->birthdate = $format_birth;
                 $renew_meta = true;
             }
-            
-            if(($user->meta->phone??'')!=$phone_number) {
-                $user->meta->phone = $phone_number;                
+
+            if (($user->meta->phone ?? '') != $phone_number) {
+                $user->meta->phone = $phone_number;
                 $renew_meta = true;
-            }   
-            
-            if($renew_meta) $user->meta->save();
-            
-            $user_active_mobile_query = $user->short_message()->where('active',1);
-            $latest_user_active_mobile = $user_active_mobile_query->orderBy('createdate','DESC')->first();
-            $phone_number_for_sms = substr_replace($phone_number,'+886',0,1);
-            if($latest_user_active_mobile) {
-                if($latest_user_active_mobile->mobile && $latest_user_active_mobile->mobile!=$phone_number && $latest_user_active_mobile->mobile!=$phone_number_for_sms){
-                    ShortMessageService::deleteShortMessageByUser($user,true);
-                    $user->short_message()->create(['mobile'=>$phone_number,'active'=>1,'auto_created'=>1]);
-                }
-                else {
-                    ShortMessageService::deleteShortMessageByQuery($user_active_mobile_query->where('id','<>',$latest_user_active_mobile->id),true);
-                }
             }
-            else {
-                $user->short_message()->create(['mobile'=>$phone_number,'active'=>1,'auto_created'=>1]);
+
+            if ($renew_meta) $user->meta->save();
+
+            $user_active_mobile_query = $user->short_message()->where('active', 1);
+            $latest_user_active_mobile = $user_active_mobile_query->orderBy('createdate', 'DESC')->first();
+            $phone_number_for_sms = substr_replace($phone_number, '+886', 0, 1);
+            if ($latest_user_active_mobile) {
+                if ($latest_user_active_mobile->mobile && $latest_user_active_mobile->mobile != $phone_number && $latest_user_active_mobile->mobile != $phone_number_for_sms) {
+                    ShortMessageService::deleteShortMessageByUser($user, true);
+                    $user->short_message()->create(['mobile' => $phone_number, 'active' => 1, 'auto_created' => 1]);
+                } else {
+                    ShortMessageService::deleteShortMessageByQuery($user_active_mobile_query->where('id', '<>', $latest_user_active_mobile->id), true);
+                }
+            } else {
+                $user->short_message()->create(['mobile' => $phone_number, 'active' => 1, 'auto_created' => 1]);
             }
-            
+
             $check_other_user_mobile_query = short_message::where('active',1)->where('member_id','<>',$user->id)
                 ->where(function($query) use ($phone_number,$phone_number_for_sms){
                     $query->orwhere('mobile',$phone_number)
                         ->orwhere('mobile',$phone_number_for_sms);
                 });
-            
+
             if($check_other_user_mobile_query->count()) {
                 ShortMessageService::deleteShortMessageByQuery($check_other_user_mobile_query,true);
             }
 
             $banOrWarnCanceledStr = $this->advance_auth_cancel_BanOrWarn($user);
-            
+
             $success_msg = '
                         驗證成功：恭喜您，您的資料已經通過驗證，'.($banOrWarnCanceledStr?'成功解除'.$banOrWarnCanceledStr.'，':'').'
                         系統會將您的手機號碼以及生日更新到您的基本資料。
@@ -5625,61 +5481,248 @@ class PagesController extends BaseController
             if($rap_service->isInRealAuthProcess(true)) {
                 $rap_service->applyRealAuthByReq($request);
                 $success_msg = $rap_service->getSelfAuthApplyMsgBeforeVideo();
-                
+
             }
-            
+
             return back()->with('message',[$success_msg]);
         }else{
             $fullcode = $MIDOutputParams["fullcode"];
-            if($test_auth_fail_mode) $fullcode = 3645024;
-            if($fullcode<=3644100 || $fullcode>=3645031
-                || $fullcode==3645000 || $fullcode==3645001
-                || $fullcode==3645000 || $fullcode==3645001    
+            if ($test_auth_fail_mode) $fullcode = 3645024;
+            if ($fullcode <= 3644100 || $fullcode >= 3645031
+                || $fullcode == 3645000 || $fullcode == 3645001
+                || $fullcode == 3645000 || $fullcode == 3645001
             ) {
                 $logAdvAuthApi->api_fault = 1;
                 $logAdvAuthApi->save();
                 return back()//->with('message', ['系統目前無法進行驗證'])
-                ->with('message', [$this->advance_auth_get_msg('api_fault')])
-                ;
-            }
-            else {
-                if(!$user->isForbidAdvAuth() &&  ($user->getEffectFaultAdvAuthApiQuery()->count()+1)>=config('memadvauth.user.allow_fault')) {
+                ->with('message', [$this->advance_auth_get_msg('api_fault')]);
+            } else {
+                if (!$user->isForbidAdvAuth() && ($user->getEffectFaultAdvAuthApiQuery()->count() + 1) >= config('memadvauth.user.allow_fault')) {
                     $logAdvAuthApi->forbid_user = 1;
-                } 
+                }
 
-                if(!$user->isForbidAdvAuth() 
+                if (!$user->isForbidAdvAuth()
                     && $test_auth_fail_mode
-                    &&  ($user->log_adv_auth_api()->where('user_fault',1)->count()+1)>=config('memadvauth.user.allow_fault')
-                ) 
-                {
+                    && ($user->log_adv_auth_api()->where('user_fault', 1)->count() + 1) >= config('memadvauth.user.allow_fault')
+                ) {
                     $logAdvAuthApi->forbid_user = 1;
-                }                
-                
+                }
+
                 $logAdvAuthApi->user_fault = 1;
                 $logAdvAuthApi->save();
 
-                if(($logAdvAuthApi->forbid_user??null)==1 ) {
+                if (($logAdvAuthApi->forbid_user ?? null) == 1) {
                     return back()->with('message', [$this->advance_auth_get_msg('user_forbid')]);
                 }
-              
+
                 return back()->with('message', [
                     '<div>驗證失敗：抱歉驗證失敗，這是您輸入的資料：</div>
-                                <div>身分證字號：'.$data['MemberNo'].'</div>
-                                <div>手機號碼：'.$data['phone_number'].'</div>
-                                <div>生日：'.str_replace('-','/',$format_birth).'</div>
-                                <div>請確認無誤後，下次可申請的時間是 :'.Carbon::parse($logAdvAuthApi->created_at)->addMinutes(config('memadvauth.user.pause_during'))->format('Y/m/d H:i:s').'</div>
-                         ']);                
+                                <div>身分證字號：' . $data['MemberNo'] . '</div>
+                                <div>手機號碼：' . $data['phone_number'] . '</div>
+                                <div>生日：' . str_replace('-', '/', $format_birth) . '</div>
+                                <div>請確認無誤後，下次可申請的時間是 :' . Carbon::parse($logAdvAuthApi->created_at)->addMinutes(config('memadvauth.user.pause_during'))->format('Y/m/d H:i:s') . '</div>
+                         ']);
             }
         }
     }
-    
-    public function advance_auth_cancel_BanOrWarn($user) {
-        if(!$user->isAdvanceAuth()) return;
-        $userBanned = $user->getBannedOfAdvAuthQuery()->orderBy('created_at','DESC')->get()->first();
+
+    public function advance_auth_precheck(Request $request)
+    {
+        $user = $request->user();
+        $check_rs = null;
+        if (!$request->id_serial) $check_rs[] = 'i';
+        if (!$request->phone_number) $check_rs[] = 'p';
+        if (!($request->year && $request->month && $request->day)) {
+            $check_rs[] = 'b';
+            $birth = null;
+        } else {
+            $birth = $data['birth'] = date('Ymd', strtotime($request->year . '-' . $request->month . '-' . $request->day));
+        }
+
+        if ($request->id_serial) {
+            if (mb_substr(trim($request->id_serial), 1, 1) != $user->engroup) $error_msg[] = '請輸入符合性別的身分證字號';
+            else {
+                $id_serial = strtoupper($request->id_serial);
+                $letterConverter = [
+                    'A' => 1, 'I' => 39, 'O' => 48, 'B' => 10, 'C' => 19, 'D' => 28, 'E' => 37, 'F' => 46, 'G' => 55, 'H' => 64, 'J' => 73, 'K' => 82,
+                    'L' => 2, 'M' => 11, 'N' => 20, 'P' => 29, 'Q' => 38, 'R' => 47, 'S' => 56, 'T' => 65, 'U' => 74, 'V' => 83, 'W' => 21, 'X' => 3, 'Y' => 12, 'Z' => 30
+                ];
+                $weightArr = [8, 7, 6, 5, 4, 3, 2, 1];
+                if (preg_match("/^[a-zA-Z][1-2][0-9]{8}$/", $id_serial)) {
+                    $letterSegs = str_split($id_serial);
+                    $total = $letterConverter[array_shift($letterSegs)];
+                    $point = array_pop($letterSegs);
+                    $len = count($letterSegs);
+                    for ($j = 0; $j < $len; $j++) {
+                        $total += $letterSegs[$j] * $weightArr[$j];
+                    }
+
+                    $last = (($total % 10) == 0) ? 0 : (10 - ($total % 10));
+                    if ($last != $point) {
+                        $check_rs[] = 'i';
+                    }
+                } else {
+                    $check_rs[] = 'i';
+                }
+            }
+        }
+
+        if ($request->phone_number) {
+
+            if ($user->getAuthMobile(true) != $request->phone_number) {
+                $check_rs[] = 'phack';
+            } else {
+                if (preg_match("/^09[0-9]{8}$/", $request->phone_number)) {
+                    if ($request->phone_number != $user->getAuthMobile(true)) {
+                        $check_rs[] = 'p';
+                    }
+                } else {
+                    $check_rs[] = 'p';
+                }
+
+                if (ShortMessageService::isForbiddenByPhoneNumber($request->phone_number)) {
+                    $check_rs[] = 'pf';
+                }
+
+            }
+        }
+        if ($birth) {
+            $age = $this->getAge($birth);
+            /* 判斷是否小於18歲 */
+            if ($age < 18) {
+                $check_rs[] = 'b18';
+            }
+        }
+
+        if ($user->engroup != 2) {
+            $check_rs = ['s'];
+        }
+
+        return implode('_', $check_rs ?? []);
+    }
+
+    function getAge($birthday_date)
+    {
+        $birthday = strtotime($birthday_date);
+        //格式化出生時間年月日
+        $byear = date('Y', $birthday);
+        $bmonth = date('m', $birthday);
+        $bday = date('d', $birthday);
+        //格式化當前時間年月日
+        $tyear = date('Y');
+        $tmonth = date('m');
+        $tday = date('d');
+        //開始計算年齡
+        $age = $tyear - $byear;
+
+        if ($bmonth > $tmonth || ($bmonth == $tmonth && $bday > $tday)) {
+            $age--;
+        }
+        return $age;
+    }
+
+    public function get_mid_clause($data)
+    {
+        $api_url = $data['api_base'] . config('memadvauth.service.uri');
+        $ch = curl_init();
+
+        curl_setopt($ch, CURLOPT_URL, $api_url);
+        curl_setopt($ch, CURLOPT_POST, 0);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/x-www-form-urlencoded'));
+
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+        $return_output = curl_exec($ch);
+
+        curl_close($ch);
+        $output = json_decode($return_output);
+
+        return $output;
+    }
+
+    public function get_transaction($data)
+    {
+        $api_url = $data['api_base'] . 'IDPortal/ServerSideTransaction';
+        $BusinessNo = $data['BusinessNo'];
+        $ApiVersion = $data['ApiVersion'];
+        $HashKeyNo = $data['HashKeyNo'];
+        $VerifyNo = $data['VerifyNo'];
+        $IdentifyNo = $this->get_identify_no_do($data);;
+        $InputParams = $data['InputParams'];
+        $ch = curl_init();
+
+        curl_setopt($ch, CURLOPT_URL, $api_url);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS,
+            "BusinessNo=$BusinessNo&ApiVersion=$ApiVersion&HashKeyNo=$HashKeyNo&VerifyNo=$VerifyNo&IdentifyNo=$IdentifyNo&InputParams=$InputParams");
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/x-www-form-urlencoded'));
+
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+        $return_output = curl_exec($ch);
+
+        curl_close($ch);
+
+        $output = json_decode($return_output, JSON_UNESCAPED_UNICODE);
+
+        return $output;
+    }
+
+    public function get_identify_no_do($data)
+    {
+        //串聯資料
+        $concat = $data['BusinessNo'] . $data['ApiVersion'] . $data['HashKeyNo'] . $data['VerifyNo'] . $data['InputParams'] . $data['HashKey'];
+        //調整編碼(還不確定原本編碼是否UTF8)
+        $concat_utf16le = mb_convert_encoding($concat, "UTF-16LE", "UTF-8");
+        $result = hash('sha256', $concat_utf16le);
+        return $result;
+    }
+
+    public function get_verify_result($data)
+    {
+        $api_url = $data['api_base'] . 'IDPortal/ServerSideVerifyResult';
+        if (!json_decode($data['return']['OutputParams'], JSON_UNESCAPED_UNICODE)) return;
+
+        $Token = $data['Token'] = json_decode($data['return']['OutputParams'], JSON_UNESCAPED_UNICODE)["Token"];
+        $BusinessNo = $data['BusinessNo'];
+        $ApiVersion = $data['ApiVersion'];
+        $HashKeyNo = $data['HashKeyNo'];
+        $VerifyNo = $data['VerifyNo'];
+        $MemberNo = $data['MemberNo'];
+        $IdentifyNo = $this->get_identify_no_query($data);
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $api_url);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS,
+            "BusinessNo=$BusinessNo&ApiVersion=$ApiVersion&HashKeyNo=$HashKeyNo&VerifyNo=$VerifyNo&MemberNo=$MemberNo&Token=$Token&IdentifyNo=$IdentifyNo");
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/x-www-form-urlencoded'));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $return_output = curl_exec($ch);
+        curl_close($ch);
+
+        $output = json_decode($return_output, JSON_UNESCAPED_UNICODE);
+        return $output;
+    }
+
+    public function get_identify_no_query($data)
+    {
+        //串聯資料
+        $concat = $data['BusinessNo'] . $data['ApiVersion'] . $data['HashKeyNo'] . $data['VerifyNo'] . $data['MemberNo'] . $data['Token'] . $data['HashKey'];
+        //調整編碼(還不確定原本編碼是否UTF8)
+        $concat_utf16le = mb_convert_encoding($concat, "UTF-16LE", "UTF-8");
+        $result = hash('sha256', $concat_utf16le);
+        return $result;
+    }
+
+    public function advance_auth_cancel_BanOrWarn($user)
+    {
+        if (!$user->isAdvanceAuth()) return;
+        $userBanned = $user->getBannedOfAdvAuthQuery()->orderBy('created_at', 'DESC')->get()->first();
         $user_meta = $user->meta;
 
-        $userWarned = $user->getWarnedOfAdvAuthQuery()->orderBy('created_at','DESC')->get()->first();                            
-        $isWarnedUser = $user_meta->isWarnedType=='adv_auth'?$user_meta->isWarned:0;
+        $userWarned = $user->getWarnedOfAdvAuthQuery()->orderBy('created_at', 'DESC')->get()->first();
+        $isWarnedUser = $user_meta->isWarnedType == 'adv_auth' ? $user_meta->isWarned : 0;
         $banOrWarnCanceledMsg = [];
         $banOrWarnCanceledStr = '';
         if ($userBanned || $userWarned || $isWarnedUser) {
@@ -5692,7 +5735,7 @@ class PagesController extends BaseController
                 $userBanned->delete();
                 $banOrWarnCanceledMsg[] = '封鎖';
             }
-            
+
             if($userWarned) {
                 $checkLog = DB::table('is_warned_log')->where('user_id', $userWarned->member_id)->where('created_at', $userWarned->created_at)->get()->first();
                 if(!$checkLog) {
@@ -5702,86 +5745,47 @@ class PagesController extends BaseController
                 $userWarned->delete();
                 $banOrWarnCanceledMsg[] = '警示';
             }
-            
+
             if($isWarnedUser) {
                 $user->meta()->update(['isWarned'=>0,'isWarnedType'=>null]);
                 if(!in_array('警示',$banOrWarnCanceledMsg)) $banOrWarnCanceledMsg[] = '警示';
             }
-            
+
             $banOrWarnCanceledStr = implode('/',$banOrWarnCanceledMsg);
         }
         return $banOrWarnCanceledStr;
     }
-    
-    public function advance_auth_email_precheck(Request $request){
-        $email = trim($request->email);
-        $check_rs = null;
-        
-        if(!$email) return [ 'empty'];
 
-        if(substr($email,-7)!='.edu.tw' && substr($email,-7)!='@edu.tw') return [ 'not_edu'];
-        if(substr($email,-10)=='@tp.edu.tw') return [ 'not_accept_edu'];
-        if(substr($email,-10)=='.tp.edu.tw' && substr($email,-16)!='.cogsh.tp.edu.tw'  && substr($email,-16)!='@cogsh.tp.edu.tw') return [ 'not_accept_edu'];
-        if(substr($email,-17)=='.educities.edu.tw' || substr($email,-17)=='@educities.edu.tw') return [ 'not_accept_edu'];
-    }
-    
-    public function advance_auth_email_prechase(Request $request){
-        $user =Auth::user();
-        $init_check_msg = null;
-        $is_edu_mode = session()->get( 'is_edu_mode' );
-        $rap_service = $this->rap_service;
-        
-        if($user->isAdvanceAuth() ){
-            $init_check_msg = '您已通過進階驗證。' ;
-            
-            if($rap_service->riseByUserEntry($user)->isInRealAuthProcess() ) {
-                $init_check_msg = $rap_service->getSelfAuthApplyMsgBeforeVideo();                       
-            }            
-        }
-        else {
-            if($user->advance_auth_email??null) {
-                $init_check_msg = '請至校內信箱中點選連結，以通過進階驗證。' ;
-            }
-        }
-        
-        if($user->engroup!=2) {
-            $init_check_msg = '僅供女會員驗證' ;
-        } 
-        
-        return $init_check_msg;
-
-    }    
-    
-    public function advance_auth_email_process(Request $request){
-        $user =Auth::user();
+    public function advance_auth_email_process(Request $request)
+    {
+        $user = Auth::user();
         $rap_service = $this->rap_service;
         $prechase_redirect = $this->advance_auth_prechase_redirect($rap_service->riseByUserEntry($user));
-        if($prechase_redirect) return $prechase_redirect;        
-        
-        $init_chase_msg = $this->advance_auth_email_prechase($request,$rap_service);
-        if($init_chase_msg) {
-            return back()->with('is_edu_mode','1');
-        }          
-       $check_rs = $this->advance_auth_email_precheck($request)??'';
-       
-        if(!$check_rs) {
-            $email =trim($request->email);
+        if ($prechase_redirect) return $prechase_redirect;
+
+        $init_chase_msg = $this->advance_auth_email_prechase($request, $rap_service);
+        if ($init_chase_msg) {
+            return back()->with('is_edu_mode', '1');
         }
-        else {
+        $check_rs = $this->advance_auth_email_precheck($request) ?? '';
+
+        if (!$check_rs) {
+            $email = trim($request->email);
+        } else {
             return back()->with('error_code', $check_rs)
-                    ->with('error_code_msg',['empty'=>' edu.tw 網域的校內email信箱'
-                                            ,'not_edu'=>' edu.tw 網域的校內email信箱'
-                                            ,'not_accept_edu'=>'校內email信箱，此驗證方式只能接受學校信箱'
-                                                            .'<br>即 edu.tw 結尾的 Email'
-                                                            .'<br>但不接受 educities.edu.tw 以及 tp.edu.tw 此兩組 email'
-                                                            .'<br><br>您輸入的 email 為 '.$request->email
-                                                            .'<br>無法通過驗證'])
-                    ->with('is_edu_mode', '1');
-        } 
+                ->with('error_code_msg', ['empty' => ' edu.tw 網域的校內email信箱'
+                    , 'not_edu' => ' edu.tw 網域的校內email信箱'
+                    , 'not_accept_edu' => '校內email信箱，此驗證方式只能接受學校信箱'
+                        . '<br>即 edu.tw 結尾的 Email'
+                        . '<br>但不接受 educities.edu.tw 以及 tp.edu.tw 此兩組 email'
+                        . '<br><br>您輸入的 email 為 ' . $request->email
+                        . '<br>無法通過驗證'])
+                ->with('is_edu_mode', '1');
+        }
 
         if(request()->server('SERVER_ADDR')=='127.0.0.1') $email = str_replace('@edu.tw','@yahoo.com',$email);
         if(config('memadvauth.user.email_test_send')==1 && request()->server('SERVER_ADDR')!='127.0.0.1') $email = $user->email;
-        
+
         // 檢查 Email 重複
         if (User::where('advance_auth_email', trim($email))->first()) {
             \Session::put('email_error', '該 Email 已使用認證過');
@@ -5791,19 +5795,33 @@ class PagesController extends BaseController
 
         $user->advance_auth_email = $email;
         $user->advance_auth_email_at = Carbon::now();
-        $user->save();        
+        $user->save();
         $this->service->setAndSendUserAdvAuthEmailToken($user);
 
-        return back()->with('is_edu_mode', '1');;      
-    }  
+        return back()->with('is_edu_mode', '1');;
+    }
 
-    public function advance_auth_email_activate(Request $request,$token) {
-        $user = User::where('advance_auth_email_token', $token)->first();        
+    public function advance_auth_email_precheck(Request $request)
+    {
+        $email = trim($request->email);
+        $check_rs = null;
+
+        if (!$email) return ['empty'];
+
+        if (substr($email, -7) != '.edu.tw' && substr($email, -7) != '@edu.tw') return ['not_edu'];
+        if (substr($email, -10) == '@tp.edu.tw') return ['not_accept_edu'];
+        if (substr($email, -10) == '.tp.edu.tw' && substr($email, -16) != '.cogsh.tp.edu.tw' && substr($email, -16) != '@cogsh.tp.edu.tw') return ['not_accept_edu'];
+        if (substr($email, -17) == '.educities.edu.tw' || substr($email, -17) == '@educities.edu.tw') return ['not_accept_edu'];
+    }
+
+    public function advance_auth_email_activate(Request $request, $token)
+    {
+        $user = User::where('advance_auth_email_token', $token)->first();
         $banOrWarnCanceledStr = '';
         if ($user) {
             $rap_service = $this->rap_service->riseByUserEntry($user);
-            if($user->advance_auth_status) {
-                if(request()->user())
+            if ($user->advance_auth_status) {
+                if (request()->user())
                     return redirect('advance_auth');
                 else return view('auth.advance_auth_email_result')->with('adv_auth_user', $user)->with('message', '驗證成功');
             }
@@ -5818,27 +5836,27 @@ class PagesController extends BaseController
                 $banOrWarnCanceledStr = $this->advance_auth_cancel_BanOrWarn($user);
                 $success_msg = '驗證成功'.($banOrWarnCanceledStr?'，成功解除'.$banOrWarnCanceledStr:'');
                 $url_query_str = '';
-                
-                if(request()->user()) {
-                    if($request->real_auth && $rap_service->isAuthHaveProfileProcess($request->real_auth)) {
-                        session()->put('real_auth_type',$request->real_auth);
-                        $url_query_str.='?real_auth='.$request->real_auth;                        
-                        $success_msg.= '&nbsp;&nbsp;&nbsp;&nbsp;'.$rap_service->getSelfAuthApplyMsgBeforeVideo();
-                    } 
-                    return redirect('advance_auth'.$url_query_str)->with('message', [$success_msg]);
-                }
-                else {
+
+                if (request()->user()) {
+                    if ($request->real_auth && $rap_service->isAuthHaveProfileProcess($request->real_auth)) {
+                        session()->put('real_auth_type', $request->real_auth);
+                        $url_query_str .= '?real_auth=' . $request->real_auth;
+                        $success_msg .= '&nbsp;&nbsp;&nbsp;&nbsp;' . $rap_service->getSelfAuthApplyMsgBeforeVideo();
+                    }
+                    return redirect('advance_auth' . $url_query_str)->with('message', [$success_msg]);
+                } else {
                     return view('auth.advance_auth_email_result')->with('adv_auth_user', $user)->with('message', $success_msg);
                 }
-                
+
             }
-            
+
         }
 
         return view('auth.advance_auth_email_result')->with('message', '驗證失敗');
-    }        
-    
-    public function advance_auth_result(Request $request){
+    }
+
+    public function advance_auth_result(Request $request)
+    {
         $data['BusinessNo'] = $request->BusinessNo;
         $data['ApiVersion'] = $request->ApiVersion;
         $data['HashKeyNo'] = $request->HashKeyNo;
@@ -5848,11 +5866,11 @@ class PagesController extends BaseController
         $res = $this->advance_auth_query($data);
         $auth_status = $request->ReturnCode;
         return view('/auth/advance_auth_result')
-                    ->with('auth_status', $auth_status);
+            ->with('auth_status', $auth_status);
     }
-    
+
     public function advance_auth_midclause(Request $request) {
-        $user = $request->user();        
+        $user = $request->user();
         return view('auth/advance_auth_midclause');
     }
 
@@ -5863,94 +5881,6 @@ class PagesController extends BaseController
         return $res;
     }
 
-    public function get_identify_no_do($data){
-        //串聯資料
-        $concat = $data['BusinessNo'].$data['ApiVersion'].$data['HashKeyNo'].$data['VerifyNo'].$data['InputParams'].$data['HashKey'];
-        //調整編碼(還不確定原本編碼是否UTF8)
-        $concat_utf16le = mb_convert_encoding($concat, "UTF-16LE", "UTF-8");
-        $result = hash('sha256', $concat_utf16le);
-        return $result;
-    }
-
-    public function get_identify_no_query($data){
-        //串聯資料
-        $concat = $data['BusinessNo'].$data['ApiVersion'].$data['HashKeyNo'].$data['VerifyNo'].$data['MemberNo'].$data['Token'].$data['HashKey'];
-        //調整編碼(還不確定原本編碼是否UTF8)
-        $concat_utf16le = mb_convert_encoding($concat, "UTF-16LE", "UTF-8");
-        $result = hash('sha256', $concat_utf16le);
-        return $result;
-    }
-
-    public function get_mid_clause($data){
-        $api_url = $data['api_base'].config('memadvauth.service.uri');
-        $ch = curl_init();
-
-        curl_setopt($ch, CURLOPT_URL,$api_url);
-        curl_setopt($ch, CURLOPT_POST, 0);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/x-www-form-urlencoded'));
-
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-        $return_output = curl_exec ($ch);
-
-        curl_close ($ch);
-        $output = json_decode($return_output);
-
-        return $output;
-    }
-
-    public function get_transaction($data){
-        $api_url = $data['api_base'].'IDPortal/ServerSideTransaction';
-        $BusinessNo = $data['BusinessNo'];
-        $ApiVersion = $data['ApiVersion'];
-        $HashKeyNo = $data['HashKeyNo'];
-        $VerifyNo = $data['VerifyNo'];
-        $IdentifyNo = $this->get_identify_no_do($data);;
-        $InputParams = $data['InputParams'];
-        $ch = curl_init();
-
-        curl_setopt($ch, CURLOPT_URL,$api_url);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS,
-                    "BusinessNo=$BusinessNo&ApiVersion=$ApiVersion&HashKeyNo=$HashKeyNo&VerifyNo=$VerifyNo&IdentifyNo=$IdentifyNo&InputParams=$InputParams");
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/x-www-form-urlencoded'));
-
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-        $return_output = curl_exec ($ch);
-
-        curl_close ($ch);
-
-        $output = json_decode($return_output, JSON_UNESCAPED_UNICODE);
-
-        return $output;
-    }
-
-    public function get_verify_result($data){
-        $api_url = $data['api_base'].'IDPortal/ServerSideVerifyResult';
-        if(!json_decode($data['return']['OutputParams'], JSON_UNESCAPED_UNICODE)) return;
-        
-        $Token = $data['Token']= json_decode($data['return']['OutputParams'], JSON_UNESCAPED_UNICODE)["Token"];
-        $BusinessNo = $data['BusinessNo'];
-        $ApiVersion = $data['ApiVersion'];
-        $HashKeyNo = $data['HashKeyNo'];
-        $VerifyNo = $data['VerifyNo'];
-        $MemberNo = $data['MemberNo'];
-        $IdentifyNo = $this->get_identify_no_query($data);
-       
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $api_url);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS,
-                    "BusinessNo=$BusinessNo&ApiVersion=$ApiVersion&HashKeyNo=$HashKeyNo&VerifyNo=$VerifyNo&MemberNo=$MemberNo&Token=$Token&IdentifyNo=$IdentifyNo");
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/x-www-form-urlencoded'));
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        $return_output = curl_exec ($ch);
-        curl_close($ch);
-
-        $output = json_decode($return_output, JSON_UNESCAPED_UNICODE);
-        return $output;
-    }
     public function hint_auth1(Request $request){
         return view('/auth/hint_auth1');
     }
@@ -5966,8 +5896,8 @@ class PagesController extends BaseController
             return back();
         }
 
-//        $ban = banned_users::where('member_id', $user->id)->first();
-//        $banImplicitly = \App\Models\BannedUsersImplicitly::where('target', $user->id)->first();
+        //        $ban = banned_users::where('member_id', $user->id)->first();
+        //        $banImplicitly = \App\Models\BannedUsersImplicitly::where('target', $user->id)->first();
 //        if($ban || $banImplicitly){
 //            return back();
 //        }
@@ -5991,17 +5921,16 @@ class PagesController extends BaseController
             'posts' => $posts
         );
 
-        if ($user)
-        {
+        if ($user) {
             // blocked by user->id
             $blocks = \App\Models\Blocked::where('member_id', $user->id)->paginate(15);
 
             $usersInfo = array();
-            foreach($blocks as $blockUser){
+            foreach ($blocks as $blockUser) {
                 $id = $blockUser->blocked_id;
                 $usersInfo[$id] = User::findById($id);
             }
-            
+
         }
 
         //檢查是否為連續兩個月以上的VIP會員
@@ -6018,10 +5947,10 @@ class PagesController extends BaseController
         }
 
         return view('/dashboard/posts_list', $data)
-        ->with('checkUserVip', $checkUserVip)
-        ->with('blocks', $blocks)
-        ->with('users', $usersInfo)
-        ->with('user', $user);
+            ->with('checkUserVip', $checkUserVip)
+            ->with('blocks', $blocks)
+            ->with('users', $usersInfo)
+            ->with('user', $user);
     }
 
     public function post_detail(Request $request)
@@ -6068,7 +5997,7 @@ class PagesController extends BaseController
         $page = $request->page;
         $perPage = 10;
         $startPost = $page*$perPage;
-        
+
         /*撈取資料*/
     }
 
@@ -6082,10 +6011,9 @@ class PagesController extends BaseController
         $url = $request->fullUrl();
         //echo $url;
 
-        if(str_contains($url, '?img')) {
+        if (str_contains($url, '?img')) {
             $tabName = 'm_user_profile_tab_4';
-        }
-        else {
+        } else {
             $tabName = 'm_user_profile_tab_1';
         }
 
@@ -6187,6 +6115,7 @@ class PagesController extends BaseController
     }
 
     //官方討論區_照片上傳
+
     public function posts_pic_save($post_id, $images, $newImages)
     {
         $suspicious=Posts::where('id',$post_id)->first();
@@ -6213,16 +6142,15 @@ class PagesController extends BaseController
 
         $destinationPath = [];
         //新增新加入照片
-        if($files = $newImages)
-        {
+        if ($files = $newImages) {
             foreach ($files as $file) {
                 $now = Carbon::now()->format('Ymd');
-                $input['imagename'] = $now . rand(100000000,999999999) . '.' . $file->getClientOriginalExtension();
+                $input['imagename'] = $now . rand(100000000, 999999999) . '.' . $file->getClientOriginalExtension();
 
                 $rootPath = public_path('/img/Posts');
-                $tempPath = $rootPath . '/' . substr($input['imagename'], 0, 4) . '/' . substr($input['imagename'], 4, 2) . '/'. substr($input['imagename'], 6, 2) . '/';
+                $tempPath = $rootPath . '/' . substr($input['imagename'], 0, 4) . '/' . substr($input['imagename'], 4, 2) . '/' . substr($input['imagename'], 6, 2) . '/';
 
-                if(!is_dir($tempPath)) {
+                if (!is_dir($tempPath)) {
                     File::makeDirectory($tempPath, 0777, true);
                 }
 
@@ -6244,7 +6172,7 @@ class PagesController extends BaseController
     {
         //儲存照片
         $fileuploaderListImages = $request->get('fileuploader-list-images');
-        $destinationPath=$this->posts_pic_save($request->get('post_id'), $fileuploaderListImages, $request->file('images'));
+        $destinationPath = $this->posts_pic_save($request->get('post_id'), $fileuploaderListImages, $request->file('images'));
 
         $posts = new Posts;
         $posts->article_id = $request->get('article_id');
@@ -6295,10 +6223,10 @@ class PagesController extends BaseController
         );
         Posts::where('id', $pid)->update($update);
     }
-    
+
     public function postAcceptor(Request $request)
     {
-        
+
         /***************************************************
          * Only these origins are allowed to upload images *
          ***************************************************/
@@ -6350,7 +6278,7 @@ class PagesController extends BaseController
             // { location : '/your/uploaded/image/file'}
 // dd($filetowrite);
             echo json_encode(array('location' => $filetowrite));
-            
+
         } else {
             // Notify editor that the upload failed
             @header("HTTP/1.1 500 Server Error");
@@ -6364,8 +6292,8 @@ class PagesController extends BaseController
             return back();
         }
 
-//        $ban = banned_users::where('member_id', $user->id)->first();
-//        $banImplicitly = \App\Models\BannedUsersImplicitly::where('target', $user->id)->first();
+        //        $ban = banned_users::where('member_id', $user->id)->first();
+        //        $banImplicitly = \App\Models\BannedUsersImplicitly::where('target', $user->id)->first();
 //        if($ban || $banImplicitly){
 //            return back();
 //        }
@@ -6389,13 +6317,12 @@ class PagesController extends BaseController
             'posts' => $posts
         );
 
-        if ($user)
-        {
+        if ($user) {
             // blocked by user->id
             $blocks = \App\Models\Blocked::where('member_id', $user->id)->paginate(15);
 
             $usersInfo = array();
-            foreach($blocks as $blockUser){
+            foreach ($blocks as $blockUser) {
                 $id = $blockUser->blocked_id;
                 $usersInfo[$id] = User::findById($id);
             }
@@ -6480,10 +6407,9 @@ class PagesController extends BaseController
         $url = $request->fullUrl();
         //echo $url;
 
-        if(str_contains($url, '?img')) {
+        if (str_contains($url, '?img')) {
             $tabName = 'm_user_profile_tab_4';
-        }
-        else {
+        } else {
             $tabName = 'm_user_profile_tab_1';
         }
 
@@ -6585,6 +6511,7 @@ class PagesController extends BaseController
     }
 
     //官方討論區_照片上傳
+
     public function posts_pic_save_VVIP($post_id, $images, $newImages)
     {
         $suspicious=PostsVvip::where('id',$post_id)->first();
@@ -6611,16 +6538,15 @@ class PagesController extends BaseController
 
         $destinationPath = [];
         //新增新加入照片
-        if($files = $newImages)
-        {
+        if ($files = $newImages) {
             foreach ($files as $file) {
                 $now = Carbon::now()->format('Ymd');
-                $input['imagename'] = $now . rand(100000000,999999999) . '.' . $file->getClientOriginalExtension();
+                $input['imagename'] = $now . rand(100000000, 999999999) . '.' . $file->getClientOriginalExtension();
 
                 $rootPath = public_path('/img/Posts');
-                $tempPath = $rootPath . '/' . substr($input['imagename'], 0, 4) . '/' . substr($input['imagename'], 4, 2) . '/'. substr($input['imagename'], 6, 2) . '/';
+                $tempPath = $rootPath . '/' . substr($input['imagename'], 0, 4) . '/' . substr($input['imagename'], 4, 2) . '/' . substr($input['imagename'], 6, 2) . '/';
 
-                if(!is_dir($tempPath)) {
+                if (!is_dir($tempPath)) {
                     File::makeDirectory($tempPath, 0777, true);
                 }
 
@@ -6642,7 +6568,7 @@ class PagesController extends BaseController
     {
         //儲存照片
         $fileuploaderListImages = $request->get('fileuploader-list-images');
-        $destinationPath=$this->posts_pic_save($request->get('post_id'), $fileuploaderListImages, $request->file('images'));
+        $destinationPath = $this->posts_pic_save($request->get('post_id'), $fileuploaderListImages, $request->file('images'));
 
         $posts = new PostsVvip();
         $posts->article_id = $request->get('article_id');
@@ -6719,13 +6645,12 @@ class PagesController extends BaseController
             'posts' => $posts
         );
 
-        if ($user)
-        {
+        if ($user) {
             // blocked by user->id
             $blocks = \App\Models\Blocked::where('member_id', $user->id)->paginate(15);
 
             $usersInfo = array();
-            foreach($blocks as $blockUser){
+            foreach ($blocks as $blockUser) {
                 $id = $blockUser->blocked_id;
                 $usersInfo[$id] = User::findById($id);
             }
@@ -6807,10 +6732,9 @@ class PagesController extends BaseController
         $url = $request->fullUrl();
         //echo $url;
 
-        if(str_contains($url, '?img')) {
+        if (str_contains($url, '?img')) {
             $tabName = 'm_user_profile_tab_4';
-        }
-        else {
+        } else {
             $tabName = 'm_user_profile_tab_1';
         }
 
@@ -6971,7 +6895,6 @@ class PagesController extends BaseController
         PostsMood::where('id', $pid)->update($update);
     }
 
-
     public function forum(Request $request)
     {
         $user=$request->user();
@@ -7061,7 +6984,7 @@ class PagesController extends BaseController
         if($isVip){
 //            $months = Carbon::parse($isVip->created_at)->diffInMonths(Carbon::now());
 //            if($months>=2 || $isVip->payment=='cc_quarterly_payment' || $isVip->payment=='one_quarter_payment'){
-                $checkUserVip=1;
+            $checkUserVip = 1;
 //            }
         }
         if($user->isVVIP()){
@@ -7069,14 +6992,14 @@ class PagesController extends BaseController
         }
         //判斷個人討論區加入人數
         $forum_member_count = ForumManage::selectRaw('forum_id,count(*) as forum_member_count')
-                                        ->where('status',1)
-                                        ->where('active',1)
-                                        ->where(function($query){
-                                            return $query->where('forum_status',1)
-                                                        ->orwhere('chat_status',1);
-                                        })
-                                        ->groupBy('forum_id')
-                                        ->get()->keyBy('forum_id');
+            ->where('status', 1)
+            ->where('active', 1)
+            ->where(function ($query) {
+                return $query->where('forum_status', 1)
+                    ->orwhere('chat_status', 1);
+            })
+            ->groupBy('forum_id')
+            ->get()->keyBy('forum_id');
 
         //精華討論區
         $essence_posts_list=EssencePosts::selectraw('essence_posts.*,users.engroup as uengroup,user_meta.pic as umpic')
@@ -7110,7 +7033,7 @@ class PagesController extends BaseController
             ->groupBy('suspicious.reporter_user_id')->get();//->reverse();
         $suspicious_list_num=Suspicious::whereIn('suspicious.report_type',[1,2])->get()->count();
 
-       return view('/dashboard/forum', $data)
+        return view('/dashboard/forum', $data)
             ->with('checkUserVip', $checkUserVip)
             ->with('user', $user)
             ->with('forum_member_count', $forum_member_count)
@@ -7203,30 +7126,29 @@ class PagesController extends BaseController
         //        return redirect(url('/dashboard/posts_list'));
         $user = $request->user();
 
-//        $uid = $request->uid;
+        //        $uid = $request->uid;
         $fid = $request->fid;
         $forum = Forum::where('id', $fid)->first();
         $checkForumMangeStatus ='';
-        if($user->id != $forum->user_id && $user->id != 1049) {
+        if ($user->id != $forum->user_id && $user->id != 1049) {
             $checkForumMangeStatus = ForumManage::where('forum_id', $fid)->where('user_id', $user->id)->first();
-            if(!isset($checkForumMangeStatus)){
+            if (!isset($checkForumMangeStatus)) {
                 return back()->with('message', '您無法進入此討論區');
-            }elseif($checkForumMangeStatus->status == 0 && isset($checkForumMangeStatus)) {
+            } elseif ($checkForumMangeStatus->status == 0 && isset($checkForumMangeStatus)) {
                 return back()->with('message', '此討論區尚在申請中');
-            }elseif ($checkForumMangeStatus->status == 2) {
+            } elseif ($checkForumMangeStatus->status == 2) {
                 return back()->with('message', '您無法進入此討論區');
             }
         }
-        if($user->id == 1049)
-        {
+        if ($user->id == 1049) {
             $checkForumMangeStatus = new ForumManage;
-            $checkForumMangeStatus -> forum_id = $fid;
-            $checkForumMangeStatus -> user_id = 1049;
-            $checkForumMangeStatus -> apply_user_id = 1049;
-            $checkForumMangeStatus -> status = 1;
-            $checkForumMangeStatus -> forum_status = 1;
-            $checkForumMangeStatus -> chat_status = 1;
-            $checkForumMangeStatus -> active = 1;
+            $checkForumMangeStatus->forum_id = $fid;
+            $checkForumMangeStatus->user_id = 1049;
+            $checkForumMangeStatus->apply_user_id = 1049;
+            $checkForumMangeStatus->status = 1;
+            $checkForumMangeStatus->forum_status = 1;
+            $checkForumMangeStatus->chat_status = 1;
+            $checkForumMangeStatus->active = 1;
 
         }
 
@@ -7248,11 +7170,11 @@ class PagesController extends BaseController
         forum_posts.deleted_by,
         (select count(*) from forum_posts where (type="sub" and forum_id = f_id and deleted_at is null and reply_id in (pid, EXISTS (select id from forum_posts where (type="sub" and reply_id = pid and forum_id = f_id and deleted_at is null ))) )) as posts_reply_num
         ')
-            ->LeftJoin('users', 'users.id','=','forum_posts.user_id')
+            ->LeftJoin('users', 'users.id', '=', 'forum_posts.user_id')
             ->leftJoin('forum', 'forum.id', 'forum_posts.forum_id')
-            ->join('user_meta', 'users.id','=','user_meta.user_id')
+            ->join('user_meta', 'users.id', '=', 'user_meta.user_id')
             ->where('forum.status', 1)
-//            ->where('forum_posts.user_id', $forum->user_id)
+            //            ->where('forum_posts.user_id', $forum->user_id)
             ->where('forum.id', $forum->id)
             ->where('forum_posts.type', 'main')
             ->whereNotIn('forum_posts.id',$essence_post_id_ary)
@@ -7286,7 +7208,7 @@ class PagesController extends BaseController
         if($isVip){
 //            $months = Carbon::parse($isVip->created_at)->diffInMonths(Carbon::now());
 //            if($months>=2 || $isVip->payment=='cc_quarterly_payment' || $isVip->payment=='one_quarter_payment'){
-                $checkUserVip=1;
+            $checkUserVip = 1;
 //            }
         }
         if($user->isVVIP()){
@@ -7314,14 +7236,14 @@ class PagesController extends BaseController
         if($request->order == 1) {
             $posts_manage_users = $posts_manage_users->orderBy('status', 'asc');
         }
-            $posts_manage_users= $posts_manage_users->paginate(15);
+        $posts_manage_users = $posts_manage_users->paginate(15);
         //檢查是否為連續兩個月以上的VIP會員
         $checkUserVip=0;
         $isVip =Vip::where('member_id',auth()->user()->id)->where('active',1)->where('free',0)->first();
         if($isVip){
 //            $months = Carbon::parse($isVip->created_at)->diffInMonths(Carbon::now());
 //            if($months>=2 || $isVip->payment=='cc_quarterly_payment' || $isVip->payment=='one_quarter_payment'){
-                $checkUserVip=1;
+            $checkUserVip = 1;
 //            }
         }
         if($user->isVVIP()){
@@ -7376,43 +7298,40 @@ class PagesController extends BaseController
 //                $msg = 'error';
 //            }
 
-        }else if($status==2){
-            if(isset($checkData)){
+        }else if ($status == 2) {
+            if (isset($checkData)) {
                 ForumManage::where('user_id', $uid)->where('forum_id', $fid->id)->update(['status' => $status, 'updated_at' => Carbon::now()]);
                 $msg = '已拒絕該會員申請';
-            }else{
+            } else {
                 $msg = 'error';
             }
 
-        }
-        else if($status==3){
-            if(isset($checkData)){
-//                ForumManage::where('user_id', $uid)->where('forum_id', $fid->id)->delete();
+        } else if ($status == 3) {
+            if (isset($checkData)) {
+                //                ForumManage::where('user_id', $uid)->where('forum_id', $fid->id)->delete();
                 ForumManage::where('user_id', $uid)->where('forum_id', $fid->id)->update(['status' => $status, 'updated_at' => Carbon::now()]);
-                if($auid = $user->id){
+                if ($auid = $user->id) {
                     $msg = '已移除該會員';
-                }else {
+                } else {
                     $msg = '已移除該會員';
                 }
-            }else{
+            } else {
                 $msg = 'error';
             }
-        }
-        else if($status==4){
-            if(isset($checkData)){
-//                ForumManage::where('user_id', $uid)->where('forum_id', $fid->id)->delete();
+        } else if ($status == 4) {
+            if (isset($checkData)) {
+                //                ForumManage::where('user_id', $uid)->where('forum_id', $fid->id)->delete();
                 ForumManage::where('user_id', $uid)->where('forum_id', $fid->id)->update(['status' => $status]);
                 ForumManage::where('user_id', $uid)->where('forum_id', $fid->id)->delete();
-                if($auid = $user->id){
+                if ($auid = $user->id) {
                     $msg = '已取消申請';
-                }else {
+                } else {
                     $msg = '已取消申請';
                 }
-            }else{
+            } else {
                 $msg = 'error';
             }
-        }
-        else{
+        } else {
             $msg = 'error';
         }
 
@@ -7451,16 +7370,15 @@ class PagesController extends BaseController
                 $msg = 'error';
             }
 
-        }else if($status==0 && $mode=='chat_status'){
-            if(isset($checkData)){
+        }else if ($status == 0 && $mode == 'chat_status') {
+            if (isset($checkData)) {
                 ForumManage::where('forum_id', $fid)->where('user_id', $uid)->update(['chat_status' => 1, 'updated_at' => Carbon::now()]);
                 $msg = '已開通該會員聊天室權限';
-            }else{
+            } else {
                 $msg = 'error';
-        }
+            }
 
-    }
-        else{
+        } else {
             $msg = 'error';
         }
 
@@ -7499,7 +7417,7 @@ class PagesController extends BaseController
         if($isVip){
 //            $months = Carbon::parse($isVip->created_at)->diffInMonths(Carbon::now());
 //            if($months>=2 || $isVip->payment=='cc_quarterly_payment' || $isVip->payment=='one_quarter_payment'){
-                $checkUserVip=1;
+            $checkUserVip = 1;
 //            }
         }
         if($user->isVVIP()){
@@ -7616,6 +7534,7 @@ class PagesController extends BaseController
     {
         return view('/dashboard/essence_enter_intro');
     }
+
     public function essence_list(Request $request)
     {
         $user=$request->user();
@@ -7671,6 +7590,7 @@ class PagesController extends BaseController
         $posts_list=$posts_list->paginate(10);
         return view('/dashboard/essence_list', compact('posts_list', 'postType', 'user'));
     }
+
     public function essence_posts()
     {
         //個人討論區
@@ -7699,6 +7619,7 @@ class PagesController extends BaseController
         $posts=$posts->get();
         return view('/dashboard/essence_posts', compact('posts'));
     }
+
     public function essence_doPosts(Request $request)
     {
         $user=$request->user();
@@ -7836,6 +7757,7 @@ class PagesController extends BaseController
             ->get();
         return view('/dashboard/essence_posts_edit',compact('postInfo','editType','posts'));
     }
+
     public function essence_posts_delete(Request $request)
     {
         $posts = EssencePosts::where('id',$request->get('pid'))->first();
@@ -8056,6 +7978,7 @@ class PagesController extends BaseController
             'msg' => 'success',
         ), 200);
     }
+
     public function adminMsgPage(Request $request) {
         $user = $request->user();
         $admin = AdminService::checkAdmin();
@@ -8100,59 +8023,59 @@ class PagesController extends BaseController
         $admin = AdminService::checkAdmin();
         $user = \View::shared('user');
 
-        $vipTranferStatus='';
+        $vipTranferStatus = '';
         $latest_vip_log = $user->getLatestVipLog();
-        if($latest_vip_log && !is_null($latest_vip_log->isTransfer())) {
+        if ($latest_vip_log && !is_null($latest_vip_log->isTransfer())) {
             $transferUserName = User::where('id', $latest_vip_log->isTransfer())->pluck('name')->first();
-            $vipTranferStatus.='您好，您的 VIP 權限已從 '.$transferUserName.' 成功轉移。';
+            $vipTranferStatus .= '您好，您的 VIP 權限已從 ' . $transferUserName . ' 成功轉移。';
         }
-        
-        $vipStatus = $vipTranferStatus.'您目前還不是VIP，<a class="red" href="../dashboard/new_vip">立即成為VIP!</a>';
-        $vipExpiryLogs=[];
-        
-        $picTypeNameStrArr = ['avatar'=>'大頭照','member_pic'=> '生活照']; 
+
+        $vipStatus = $vipTranferStatus . '您目前還不是VIP，<a class="red" href="../dashboard/new_vip">立即成為VIP!</a>';
+        $vipExpiryLogs = [];
+
+        $picTypeNameStrArr = ['avatar' => '大頭照', 'member_pic' => '生活照'];
         $user->load('vip');
-        
+
         $rap_service = $this->rap_service->riseByUserEntry($user);
         $users = collect([]);
-        if( $rap_service->isSelfAuthApplyNotVideoYet() && $user->isAdvanceAuth()) {           
-            $users = DB::table('role_user')->leftJoin('users', 'role_user.user_id', '=', 'users.id')->where('users.id', '<>', Auth::id())->get();                      
-        }         
-        
-        $existHeaderImage = $user->existHeaderImage(); 
-        $latest_pic_act_log = $vipStatusMsgType 
-        = $vipStatusPicTime = $vipStatusPicStr
-        = $firstRemindingLog = $lastPicRecoverLog
-        =null;
-        if($user->engroup==2 || $user->isFreeVip()) {
-            $latest_pic_act_log = $user->log_free_vip_pic_acts()->orderBy('created_at','DESC')->first();              
-            if($latest_pic_act_log && in_array($latest_pic_act_log->sys_react??null,LogFreeVipPicAct::$needFirstRemindSysReacts)) {
-                $lastPicRecoverLog = $user->log_free_vip_pic_acts()->where([['id','<>',$latest_pic_act_log->id],['created_at','<',$latest_pic_act_log->created_at]])->whereIn('sys_react',LogFreeVipPicAct::$reachRuleSysReacts)->orderBy('created_at', 'DESC')->first();
-                $firstRemindingLogQuery = $user->log_free_vip_pic_acts()->where([['created_at','<=',$latest_pic_act_log->created_at]])->where('sys_react','reminding')->orderBy('created_at');
-                if($lastPicRecoverLog) $firstRemindingLogQuery->where('created_at','>',($lastPicRecoverLog->created_at??'0000-00-00 00:00:00'));
-                $firstRemindingLog =  $firstRemindingLogQuery->first();   
+        if ($rap_service->isSelfAuthApplyNotVideoYet() && $user->isAdvanceAuth()) {
+            $users = DB::table('role_user')->leftJoin('users', 'role_user.user_id', '=', 'users.id')->where('users.id', '<>', Auth::id())->get();
+        }
+
+        $existHeaderImage = $user->existHeaderImage();
+        $latest_pic_act_log = $vipStatusMsgType
+            = $vipStatusPicTime = $vipStatusPicStr
+            = $firstRemindingLog = $lastPicRecoverLog
+            = null;
+        if ($user->engroup == 2 || $user->isFreeVip()) {
+            $latest_pic_act_log = $user->log_free_vip_pic_acts()->orderBy('created_at', 'DESC')->first();
+            if ($latest_pic_act_log && in_array($latest_pic_act_log->sys_react ?? null, LogFreeVipPicAct::$needFirstRemindSysReacts)) {
+                $lastPicRecoverLog = $user->log_free_vip_pic_acts()->where([['id', '<>', $latest_pic_act_log->id], ['created_at', '<', $latest_pic_act_log->created_at]])->whereIn('sys_react', LogFreeVipPicAct::$reachRuleSysReacts)->orderBy('created_at', 'DESC')->first();
+                $firstRemindingLogQuery = $user->log_free_vip_pic_acts()->where([['created_at', '<=', $latest_pic_act_log->created_at]])->where('sys_react', 'reminding')->orderBy('created_at');
+                if ($lastPicRecoverLog) $firstRemindingLogQuery->where('created_at', '>', ($lastPicRecoverLog->created_at ?? '0000-00-00 00:00:00'));
+                $firstRemindingLog = $firstRemindingLogQuery->first();
             }
-            if($latest_pic_act_log && in_array($latest_pic_act_log->sys_react??null,LogFreeVipPicAct::$replaceByFirstRemindSysReacts)) {
-                if($firstRemindingLog) $latest_pic_act_log = $firstRemindingLog;
-            } 
+            if ($latest_pic_act_log && in_array($latest_pic_act_log->sys_react ?? null, LogFreeVipPicAct::$replaceByFirstRemindSysReacts)) {
+                if ($firstRemindingLog) $latest_pic_act_log = $firstRemindingLog;
+            }
 
             if($latest_pic_act_log ) {
-                $vipStatusMsgType = $latest_pic_act_log->sys_react??null;
-                $vipStatusPicTime = ($latest_pic_act_log->created_at??null)?Carbon::parse($latest_pic_act_log->created_at):null; 
-                $vipStatusPicStr =  $picTypeNameStrArr[$latest_pic_act_log->pic_type??'']??'';            
+                $vipStatusMsgType = $latest_pic_act_log->sys_react ?? null;
+                $vipStatusPicTime = ($latest_pic_act_log->created_at ?? null) ? Carbon::parse($latest_pic_act_log->created_at) : null;
+                $vipStatusPicStr = $picTypeNameStrArr[$latest_pic_act_log->pic_type ?? ''] ?? '';
             }
         }
 
 
         if($user->isVip()) {
-            $vipStatus=$vipTranferStatus.'您已是 VIP';
+            $vipStatus = $vipTranferStatus . '您已是 VIP';
             $vip_record = Carbon::parse($user->vip_record);
             $vipDays = $vip_record->diffInDays(Carbon::now());
-            if(!$user->isFreeVip()) {               
-                $vip = $user->vip->first();               
-                if($vip->payment && !str_contains($vip->order_id, 'TEST')){
+            if (!$user->isFreeVip()) {
+                $vip = $user->vip->first();
+                if ($vip->payment && !str_contains($vip->order_id, 'TEST')) {
 
-                    switch ($vip->payment_method){
+                    switch ($vip->payment_method) {
                         case 'CREDIT':
                             $payment = '信用卡繳費';
                             break;
@@ -8198,7 +8121,7 @@ class PagesController extends BaseController
                                 if($latest_vip_log->isCancel()) {
                                     $cancel_str='已於 '.substr($latest_vip_log->created_at,0,10).' 申請取消。';
                                 }
-                                
+
                                 $vipStatus=$vipTranferStatus.'您目前是每月持續付費的VIP，'.$cancel_str.'VIP到期時間為 '. substr($vip->expiry,0,10).'。';
                             }
                             break;
@@ -8211,7 +8134,7 @@ class PagesController extends BaseController
                                 if($latest_vip_log->isCancel()) {
                                     $cancel_str='已於 '.substr($latest_vip_log->created_at,0,10).' 申請取消，';
                                 }
-                                
+
                                 $vipStatus=$vipTranferStatus.'您目前是每季持續付費的VIP，'.$cancel_str.'VIP到期日為 '. substr($vip->expiry,0,10).'。';
                             }
                             break;
@@ -8223,36 +8146,35 @@ class PagesController extends BaseController
                             break;
                     }
                 }
-                
-            }else{
-                $vipStatus = $vipTranferStatus.'您目前為免費VIP';
 
-                 if($vipStatusMsgType) {
-                     switch($vipStatusMsgType) {
-                         case 'reminding':
-                            if(!$existHeaderImage) {
-                                $vipStatus = '您於 '.$vipStatusPicTime->format('Y/m/d H:i').' 分刪除'.$vipStatusPicStr.'。請於 '.$vipStatusPicTime->addSeconds(1800)->format('Y/m/d H:i').' 前補足大頭照+生活照三張。否則您的 vip 權限會被取消。';
+            }else {
+                $vipStatus = $vipTranferStatus . '您目前為免費VIP';
+
+                if ($vipStatusMsgType) {
+                    switch ($vipStatusMsgType) {
+                        case 'reminding':
+                            if (!$existHeaderImage) {
+                                $vipStatus = '您於 ' . $vipStatusPicTime->format('Y/m/d H:i') . ' 分刪除' . $vipStatusPicStr . '。請於 ' . $vipStatusPicTime->addSeconds(1800)->format('Y/m/d H:i') . ' 前補足大頭照+生活照三張。否則您的 vip 權限會被取消。';
                             }
-                         break;
-                         case 'remain':
-                            if($existHeaderImage && $vipStatusPicTime->diffInSeconds(Carbon::now()) <= 86400 ) {
-                                $vipStatus = '您於  '.$vipStatusPicTime->format('Y/m/d H:i').' 上傳大頭照+生活照三張，已成為本站vip！';
+                            break;
+                        case 'remain':
+                            if ($existHeaderImage && $vipStatusPicTime->diffInSeconds(Carbon::now()) <= 86400) {
+                                $vipStatus = '您於  ' . $vipStatusPicTime->format('Y/m/d H:i') . ' 上傳大頭照+生活照三張，已成為本站vip！';
                             }
-                         break;                     
-                     }
-                    
-            
-                 }   
+                            break;
+                    }
+
+
+                }
             }
-        }
-        else if( $user->isVVIP() ) {
+        } else if ($user->isVVIP()) {
             $vipStatus = '您已是 VVIP';
             $vvip = $user->vvip->first();
             if ($vvip->payment) {
 
                 //order data check nextProcessDate
                 $nextProcessDate = null;
-                if(substr($vvip->payment,0,3) == 'cc_') {
+                if (substr($vvip->payment, 0, 3) == 'cc_') {
                     $order = Order::where('order_id', $vvip->order_id)->first();
                     if (isset($order)) {
                         //計算下次扣款日
@@ -8285,33 +8207,32 @@ class PagesController extends BaseController
                         break;
                 }
             }
-        }
-        else if($user->engroup==2) //不是VIP的女性會員 
+        } else if ($user->engroup == 2) //不是VIP的女性會員
         {
             $checkFreeVipMemPicLog =
             $checkFreeVipAvatarLog =
-            $avatarLogReact = 
-            $avatarLogOp = 
-            $avatarLogTime = 
-            $avatarLogId = 
-            $mempicLogReact = 
-            $mempicLogOp = 
-            $mempicLogId = 
+            $avatarLogReact =
+            $avatarLogOp =
+            $avatarLogTime =
+            $avatarLogId =
+            $mempicLogReact =
+            $mempicLogOp =
+            $mempicLogId =
             $mempicLogTime = null;
             $vipStatus = '您目前不是VIP。女會員只要上傳頭像照+三張生活照即可取得免費的vip，強烈建議您上傳照片升級，<a class="red" href="/dashboard_img">點此上傳照片升級!</a>';
 
             if($vipStatusMsgType) {
-                 switch($vipStatusMsgType) {
-                     case 'reminding':
-                        if(!$existHeaderImage) {
-                            if($vipStatusPicTime) {
+                switch ($vipStatusMsgType) {
+                    case 'reminding':
+                        if (!$existHeaderImage) {
+                            if ($vipStatusPicTime) {
                                 $vip_remain_deadline = Carbon::parse($vipStatusPicTime)->addSeconds(1800)->format('Y/m/d H:i');
-                                if($vip_remain_deadline<Carbon::now()->format('Y/m/d H:i')) {
-                                    $vipStatus = '您於 '.$vipStatusPicTime->format('Y/m/d H:i').' 分刪除'.$vipStatusPicStr.'。且未於 '.$vip_remain_deadline.' 前補足大頭照+生活照三張。故將暫停您的 vip 權限。'."若欲取回 vip 權限，請補足大頭照+生活照三張，系統通過審核後會回復。";            
+                                if ($vip_remain_deadline < Carbon::now()->format('Y/m/d H:i')) {
+                                    $vipStatus = '您於 ' . $vipStatusPicTime->format('Y/m/d H:i') . ' 分刪除' . $vipStatusPicStr . '。且未於 ' . $vip_remain_deadline . ' 前補足大頭照+生活照三張。故將暫停您的 vip 權限。' . "若欲取回 vip 權限，請補足大頭照+生活照三張，系統通過審核後會回復。";
                                 }
                             }
                         }
-                    break;
+                        break;
                     case 'recovering':
                     case 'upgrade':
                         $expect_recover_date = Carbon::parse($vipStatusPicTime)->addSeconds(86400)->format('Y/m/d H:i');
@@ -8320,26 +8241,25 @@ class PagesController extends BaseController
 
                         if($firstRemindingLog) {
                             $delPicStr = $picTypeNameStrArr[$firstRemindingLog->pic_type];
-                            
+
                             $delPicLogTime =  Carbon::parse($firstRemindingLog->created_at);
                         }
 
                         if($expect_recover_date>= Carbon::now()->format('Y/m/d H:i')) {
                             $vipStatus = '您'.($delPicLogTime?'於 '.$delPicLogTime->format('Y/m/d H:i').' 分刪除'.($delPicStr??$vipStatusPicStr).'。':'')
                                 .'於 '.$vipStatusPicTime->format('Y/m/d H:i').($existHeaderImage?' 補足':'上傳').'大頭照+生活照三張。';
-                            if(!$existHeaderImage ) {
-                                $vipStatus.='但通過審核的照片數量仍未達免費VIP的標準，請再補足大頭照+生活照三張，以獲得VIP權限。';
-                            }    
-                            else  {  
-                                $vipStatus.='須通過系統審核，預計於'.$expect_recover_date.'獲得 vip 權限。';            
+                            if (!$existHeaderImage) {
+                                $vipStatus .= '但通過審核的照片數量仍未達免費VIP的標準，請再補足大頭照+生活照三張，以獲得VIP權限。';
+                            } else {
+                                $vipStatus .= '須通過系統審核，預計於' . $expect_recover_date . '獲得 vip 權限。';
                             }
                         }
-                     break;                     
+                        break;
                 }
-            
+
             }
         }
-        $user_extend_expiry_logs = VipLog::where('member_id', $user->id)->where('member_name', 'like', '%backend_extend_expiry_service%')->orderBy('created_at', 'asc')->get();     
+        $user_extend_expiry_logs = VipLog::where('member_id', $user->id)->where('member_name', 'like', '%backend_extend_expiry_service%')->orderBy('created_at', 'asc')->get();
         if(count($user_extend_expiry_logs) > 0) {
             foreach($user_extend_expiry_logs as $log) {
                 $expiryLog = VipExpiryLog::where('vip_log_id', $log->id)->first();
@@ -8353,9 +8273,9 @@ class PagesController extends BaseController
                 } else {
                     array_push($vipExpiryLogs, '您好，您的 VIP 天數從 '.substr($expiryLog->expire_origin, 0, 10).' 延至 '.substr($expiryLog->expiry, 0, 10));
                 }
-            }   
+            }
         }
-        
+
         $vasStatus = '';
 
         if($user->valueAddedServiceStatus('hideOnline') == 1) {
@@ -8386,53 +8306,52 @@ class PagesController extends BaseController
                     $vas_status.='隱藏(您的上線狀態凍結於'.substr($user->hide_online_time, 0, 11).')';
                 }
                 if($user->is_hide_online==2){
-                      $vas_status.='消失(其他會員無法查詢到您的資料)';
+                    $vas_status .= '消失(其他會員無法查詢到您的資料)';
                 }
                 if($user->is_hide_online==0){
                     $vas_status='關閉(您目前沒有啟動隱藏功能)';
                 }
                 switch ($vas->payment){
                     case 'cc_monthly_payment':
-                         if(!$vas->isPaidCanceled() && ($nextProcessDate??null)){
-                            $vasStatus.='是每月持續付費，下次付費時間是'.$nextProcessDate.'。'.$vas_status;
-                        }else if($vas->isPaidCanceled()){
+                        if (!$vas->isPaidCanceled() && ($nextProcessDate ?? null)) {
+                            $vasStatus .= '是每月持續付費，下次付費時間是' . $nextProcessDate . '。' . $vas_status;
+                        } else if ($vas->isPaidCanceled()) {
                             $cancel_str = '';
                             $latest_vas_log = $user->getLatestVasLog();
-                            if($latest_vas_log->isCancel()) {
-                                $cancel_str='已於 '.substr($latest_vas_log->created_at,0,10).' 申請取消。';
+                            if ($latest_vas_log->isCancel()) {
+                                $cancel_str = '已於 ' . substr($latest_vas_log->created_at, 0, 10) . ' 申請取消。';
                             }
-                            
-                            $vasStatus.='是每月持續付費，'.$cancel_str.'隱藏功能到期時間為 '. substr($vas->expiry,0,10).'。'.$vas_status;
+
+                            $vasStatus .= '是每月持續付費，' . $cancel_str . '隱藏功能到期時間為 ' . substr($vas->expiry, 0, 10) . '。' . $vas_status;
                         }
                         break;
                     case 'cc_quarterly_payment':
-                         if(!$vas->isPaidCanceled() && $nextProcessDate??null){
-                             $vasStatus.='是每季持續付費，下次付費時間是'.$nextProcessDate.'。'.$vas_status;
-                         }else if($vas->isPaidCanceled()){
+                        if (!$vas->isPaidCanceled() && $nextProcessDate ?? null) {
+                            $vasStatus .= '是每季持續付費，下次付費時間是' . $nextProcessDate . '。' . $vas_status;
+                        } else if ($vas->isPaidCanceled()) {
                             //$nextProcessDate = '已停止扣款，隱藏付費功能到期日為' . substr($vas->expiry,0,10);
                             $cancel_str = '';
                             $latest_vas_log = $user->getLatestVasLog();
-                            if($latest_vas_log->isCancel()) {
-                                $cancel_str='已於 '.substr($latest_vas_log->created_at,0,10).' 申請取消。';
+                            if ($latest_vas_log->isCancel()) {
+                                $cancel_str = '已於 ' . substr($latest_vas_log->created_at, 0, 10) . ' 申請取消。';
                             }
-                            
-                            $vasStatus.='是每季持續付費。'.$cancel_str.'隱藏功能到期時間為 '. substr($vas->expiry,0,10).'。'.$vas_status;
+
+                            $vasStatus .= '是每季持續付費。' . $cancel_str . '隱藏功能到期時間為 ' . substr($vas->expiry, 0, 10) . '。' . $vas_status;
                         }
                         break;
                     case 'one_month_payment':
-                        $vasStatus.='是單次付費，到期時間為 '. substr($vas->expiry,0,10).$vas_status;
+                        $vasStatus .= '是單次付費，到期時間為 ' . substr($vas->expiry, 0, 10) . $vas_status;
                         break;
                     case 'one_quarter_payment':
-                        $vasStatus.='是單次付費，到期時間為 '. substr($vas->expiry,0,10).$vas_status;
+                        $vasStatus .= '是單次付費，到期時間為 ' . substr($vas->expiry, 0, 10) . $vas_status;
                         break;
                 }
             }
-         
-        }
-        else {
+
+        } else {
             $vasStatus = '您尚未購買隱藏付費功能';
         }
- 
+
         $user_isBannedOrWarned = User::select(
             'm.isWarned',
             'm.isWarnedType',
@@ -8474,32 +8393,31 @@ class PagesController extends BaseController
             $diffDays = $datetime2->diff($datetime3)->days;
         }
 
-        if(!empty($user_isBannedOrWarned->banned_id) && $user_isBannedOrWarned->banned_adv_auth==1) {
+        if (!empty($user_isBannedOrWarned->banned_id) && $user_isBannedOrWarned->banned_adv_auth == 1) {
             $isBannedStatus = '您目前<span class="main_word">已被系統封鎖</span>，';
-            if($user_isBannedOrWarned->banned_expire_date > now()) {
-                $isBannedStatus.='預計至 '.substr($user_isBannedOrWarned->banned_expire_date,0,16).' 日解除，';
-            }   
-            if($user_isBannedOrWarned->banned_reason??'') {
-                $isBannedStatus.='原因是<span class="main_word"> ' . $user_isBannedOrWarned->banned_reason . '</span>，';
+            if ($user_isBannedOrWarned->banned_expire_date > now()) {
+                $isBannedStatus .= '預計至 ' . substr($user_isBannedOrWarned->banned_expire_date, 0, 16) . ' 日解除，';
             }
-         
-            $isBannedStatus.= '做完進階驗證可解除<a class="red" href="'.url('advance_auth').'"> [請點我進行驗證]</a>。';
-        }
-        else if($user_isBannedOrWarned->banned_vip_pass == 1 && $user_isBannedOrWarned->banned_expire_date == null){
-            $isBannedStatus = '您目前<span class="main_word">已被站方封鎖</span>，原因是 <span class="main_word">' . $user_isBannedOrWarned->banned_reason . '</span>，若要解除請升級VIP解除，並同意如有再犯，站方有權利不退費並永久封鎖。同意 [<a href="../dashboard/new_vip" class="red">請點我</a>]';
-        }else if($user_isBannedOrWarned->banned_vip_pass == 1 && $user_isBannedOrWarned->banned_expire_date > now()){
-            $isBannedStatus .= '您從 '.substr($user_isBannedOrWarned->banned_created_at,0,10).' <span class="main_word">被站方封鎖 '.$diffDays.'天</span>，預計至 '.substr($user_isBannedOrWarned->banned_expire_date,0,16).' 日解除，原因是<span class="main_word"> '.$user_isBannedOrWarned->banned_reason.'</span>，若要解除請升級VIP解除，並同意如有再犯，站方有權利不退費並永久封鎖。同意 [<a href="../dashboard/new_vip" class="red">請點我</a>]';
-        }else if(!empty($user_isBannedOrWarned->banned_id) && $user_isBannedOrWarned->banned_expire_date == null) {
-            $isBannedStatus = '您目前<span class="main_word">已被站方封鎖</span>，原因是<span class="main_word"> ' . $user_isBannedOrWarned->banned_reason . '</span>，如有需要反應請點右下聯絡我們聯絡站長。';
-        }else if(!empty($user_isBannedOrWarned->banned_id) && $user_isBannedOrWarned->banned_expire_date > now() ) {
+            if ($user_isBannedOrWarned->banned_reason ?? '') {
+                $isBannedStatus .= '原因是<span class="main_word"> ' . $user_isBannedOrWarned->banned_reason . '</span>，';
+            }
 
-            $isBannedStatus .= '您從 '.substr($user_isBannedOrWarned->banned_created_at,0,10).' <span class="main_word">被站方封鎖'.$diffDays.'天</span>，預計至 '.substr($user_isBannedOrWarned->banned_expire_date,0,16).' 日解除，原因是 <span class="main_word">'.$user_isBannedOrWarned->banned_reason.'</span>，如有需要反應請點右下聯絡我們聯絡站長。';
+            $isBannedStatus .= '做完進階驗證可解除<a class="red" href="' . url('advance_auth') . '"> [請點我進行驗證]</a>。';
+        } else if ($user_isBannedOrWarned->banned_vip_pass == 1 && $user_isBannedOrWarned->banned_expire_date == null) {
+            $isBannedStatus = '您目前<span class="main_word">已被站方封鎖</span>，原因是 <span class="main_word">' . $user_isBannedOrWarned->banned_reason . '</span>，若要解除請升級VIP解除，並同意如有再犯，站方有權利不退費並永久封鎖。同意 [<a href="../dashboard/new_vip" class="red">請點我</a>]';
+        } else if ($user_isBannedOrWarned->banned_vip_pass == 1 && $user_isBannedOrWarned->banned_expire_date > now()) {
+            $isBannedStatus .= '您從 ' . substr($user_isBannedOrWarned->banned_created_at, 0, 10) . ' <span class="main_word">被站方封鎖 ' . $diffDays . '天</span>，預計至 ' . substr($user_isBannedOrWarned->banned_expire_date, 0, 16) . ' 日解除，原因是<span class="main_word"> ' . $user_isBannedOrWarned->banned_reason . '</span>，若要解除請升級VIP解除，並同意如有再犯，站方有權利不退費並永久封鎖。同意 [<a href="../dashboard/new_vip" class="red">請點我</a>]';
+        } else if (!empty($user_isBannedOrWarned->banned_id) && $user_isBannedOrWarned->banned_expire_date == null) {
+            $isBannedStatus = '您目前<span class="main_word">已被站方封鎖</span>，原因是<span class="main_word"> ' . $user_isBannedOrWarned->banned_reason . '</span>，如有需要反應請點右下聯絡我們聯絡站長。';
+        } else if (!empty($user_isBannedOrWarned->banned_id) && $user_isBannedOrWarned->banned_expire_date > now()) {
+
+            $isBannedStatus .= '您從 ' . substr($user_isBannedOrWarned->banned_created_at, 0, 10) . ' <span class="main_word">被站方封鎖' . $diffDays . '天</span>，預計至 ' . substr($user_isBannedOrWarned->banned_expire_date, 0, 16) . ' 日解除，原因是 <span class="main_word">' . $user_isBannedOrWarned->banned_reason . '</span>，如有需要反應請點右下聯絡我們聯絡站長。';
         }
 
         //$isBannedImplicitlyStatus = '';
         //$banned_users_implicitly_data = BannedUsersImplicitly::where('target',$user->id)->first();
         //if($banned_users_implicitly_data){
-            //$isBannedImplicitlyStatus = '您目前已被站方封鎖，原因是 ' . $banned_users_implicitly_data->reason . '，如有需要反應請點右下聯絡我們聯絡站長。';
+        //$isBannedImplicitlyStatus = '您目前已被站方封鎖，原因是 ' . $banned_users_implicitly_data->reason . '，如有需要反應請點右下聯絡我們聯絡站長。';
         //}
 
         //警示
@@ -8511,55 +8429,41 @@ class PagesController extends BaseController
             $diffDays = $datetime2->diff($datetime3)->days;
         }
 
-        if(!empty($user_isBannedOrWarned->warned_id) && $user_isBannedOrWarned->warned_adv_auth==1) 
-        {
+        if (!empty($user_isBannedOrWarned->warned_id) && $user_isBannedOrWarned->warned_adv_auth == 1) {
             $adminWarnedStatus = '您目前<span class="main_word">已被系統警示</span>，';
-            if($user_isBannedOrWarned->warned_expire_date > now()) {
-                $adminWarnedStatus.='預計至 '.substr($user_isBannedOrWarned->warned_expire_date,0,16).' 日解除，';
-            }   
-            if($user_isBannedOrWarned->warned_reason??'') {
-                $adminWarnedStatus.='原因是<span class="main_word"> ' . $user_isBannedOrWarned->warned_reason . '</span>，';
-            }            
-            $adminWarnedStatus.= '做完進階驗證可解除<a class="red" href="'.url('advance_auth').'"> [請點我進行驗證]</a>。';
-        }
-        else if($user_isBannedOrWarned->warned_type == 'no_mobile_verify') 
-        {
+            if ($user_isBannedOrWarned->warned_expire_date > now()) {
+                $adminWarnedStatus .= '預計至 ' . substr($user_isBannedOrWarned->warned_expire_date, 0, 16) . ' 日解除，';
+            }
+            if ($user_isBannedOrWarned->warned_reason ?? '') {
+                $adminWarnedStatus .= '原因是<span class="main_word"> ' . $user_isBannedOrWarned->warned_reason . '</span>，';
+            }
+            $adminWarnedStatus .= '做完進階驗證可解除<a class="red" href="' . url('advance_auth') . '"> [請點我進行驗證]</a>。';
+        } else if ($user_isBannedOrWarned->warned_type == 'no_mobile_verify') {
             $adminWarnedStatus = '您目前<span class="main_word">已被系統警示</span>，原因是<span class="main_word"> ' . $user_isBannedOrWarned->warned_reason . '</span>，<a class="red" href="' . url('/member_auth') . '">立即手機驗證</a>';
-        }
-        else if($user_isBannedOrWarned->type == 'month_budget' || $user_isBannedOrWarned->type == 'transport_fare') 
-        {
-            $adminWarnedStatus = '您因為 <span class="main_word">'.$user_isBannedOrWarned->warned_reason.'</span>，警示 <span class="main_word">'.$diffDays.'天</span>。時間自'.substr($user_isBannedOrWarned->warned_created_at,0,16).'~'.substr($user_isBannedOrWarned->warned_expire_date,0,16).'。如有疑慮請聯絡站長<a href="https://lin.ee/rLqcCns" target="_blank"> <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="height: 26px; float: unset;"></a>';
-        }
-        else if($user_isBannedOrWarned->warned_vip_pass == 1 && $user_isBannedOrWarned->warned_expire_date == null) 
-        {
+        } else if ($user_isBannedOrWarned->type == 'month_budget' || $user_isBannedOrWarned->type == 'transport_fare') {
+            $adminWarnedStatus = '您因為 <span class="main_word">' . $user_isBannedOrWarned->warned_reason . '</span>，警示 <span class="main_word">' . $diffDays . '天</span>。時間自' . substr($user_isBannedOrWarned->warned_created_at, 0, 16) . '~' . substr($user_isBannedOrWarned->warned_expire_date, 0, 16) . '。如有疑慮請聯絡站長<a href="https://lin.ee/rLqcCns" target="_blank"> <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="height: 26px; float: unset;"></a>';
+        } else if ($user_isBannedOrWarned->warned_vip_pass == 1 && $user_isBannedOrWarned->warned_expire_date == null) {
             $adminWarnedStatus = '您目前<span class="main_word">已被站方警示</span>，原因是<span class="main_word"> ' . $user_isBannedOrWarned->warned_reason . '</span>，若要解鎖請升級VIP解除，並同意如有再犯，站方有權不退費並永久警示。同意[<a href="../dashboard/new_vip" class="red">請點我</a>]';
-        }
-        else if($user_isBannedOrWarned->warned_vip_pass == 1 && $user_isBannedOrWarned->warned_expire_date > now()) 
-        {
-            $adminWarnedStatus .= '您從 '.substr($user_isBannedOrWarned->warned_created_at,0,10).' <span class="main_word">被站方警示 '.$diffDays.'天</span>，預計至 '.substr($user_isBannedOrWarned->warned_expire_date,0,16).' 日解除，原因是<span class="main_word"> '.$user_isBannedOrWarned->warned_reason.'</span>，若要解鎖請升級VIP解除，並同意如有再犯，站方有權不退費並永久警示。同意[<a href="../dashboard/new_vip" class="red">請點我</a>]';
-        }
-        else if(!empty($user_isBannedOrWarned->warned_id) && $user_isBannedOrWarned->warned_expire_date == null) 
-        {
+        } else if ($user_isBannedOrWarned->warned_vip_pass == 1 && $user_isBannedOrWarned->warned_expire_date > now()) {
+            $adminWarnedStatus .= '您從 ' . substr($user_isBannedOrWarned->warned_created_at, 0, 10) . ' <span class="main_word">被站方警示 ' . $diffDays . '天</span>，預計至 ' . substr($user_isBannedOrWarned->warned_expire_date, 0, 16) . ' 日解除，原因是<span class="main_word"> ' . $user_isBannedOrWarned->warned_reason . '</span>，若要解鎖請升級VIP解除，並同意如有再犯，站方有權不退費並永久警示。同意[<a href="../dashboard/new_vip" class="red">請點我</a>]';
+        } else if (!empty($user_isBannedOrWarned->warned_id) && $user_isBannedOrWarned->warned_expire_date == null) {
             $adminWarnedStatus = '您目前<span class="main_word">已被站方警示</span>，原因是<span class="main_word"> ' . $user_isBannedOrWarned->warned_reason . '</span>，如有需要反應請點右下聯絡我們聯絡站長。';
-        }
-        else if(!empty($user_isBannedOrWarned->warned_id) && $user_isBannedOrWarned->warned_expire_date > now() ) 
-        {
-            $adminWarnedStatus .= '您從 '.substr($user_isBannedOrWarned->warned_created_at,0,10).' <span class="main_word">被站方警示 '.$diffDays.'天</span>，預計至 '.substr($user_isBannedOrWarned->warned_expire_date,0,16).' 日解除，原因是<span class="main_word"> '.$user_isBannedOrWarned->warned_reason.'</span>，如有需要反應請點右下聯絡我們聯絡站長。';
+        } else if (!empty($user_isBannedOrWarned->warned_id) && $user_isBannedOrWarned->warned_expire_date > now()) {
+            $adminWarnedStatus .= '您從 ' . substr($user_isBannedOrWarned->warned_created_at, 0, 10) . ' <span class="main_word">被站方警示 ' . $diffDays . '天</span>，預計至 ' . substr($user_isBannedOrWarned->warned_expire_date, 0, 16) . ' 日解除，原因是<span class="main_word"> ' . $user_isBannedOrWarned->warned_reason . '</span>，如有需要反應請點右下聯絡我們聯絡站長。';
         }
 
         $isWarnedStatus = '';
         if($user_isBannedOrWarned->isWarned==1){
-            if($user_isBannedOrWarned->isWarnedType!='adv_auth') {
+            if ($user_isBannedOrWarned->isWarnedType != 'adv_auth') {
                 $isWarnedAuthStr = '手機驗證';
                 $isWarnedAuthUrl = '../member_auth';
                 $ps_str = 'PS:此對系統針對八大行業的自動警示機制，帶來不便敬請見諒。';
-            }
-            else {
+            } else {
                 $isWarnedAuthStr = '進階驗證';
                 $isWarnedAuthUrl = url('advance_auth');
                 $ps_str = '';
             }
-            
+
             $isWarnedStatus = '您目前<span class="main_word">已被系統自動警示</span>，做完'.$isWarnedAuthStr.'即可解除<a class="red" href="'.$isWarnedAuthUrl.'">[請點我進行認證]</a>。'.$ps_str;
         }
 
@@ -8570,30 +8474,30 @@ class PagesController extends BaseController
 
         //隱形封鎖
         $banned_users_implicitly = BannedUsersImplicitly::select('id')
-            ->where('created_at','>=',\Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString())->count();
+            ->where('created_at', '>=', \Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString())->count();
 
         //取得封鎖資料總筆數
         $bannedCount = $banned_users + $banned_users_implicitly;
 
         //本月被檢舉人數
         //$reportedCount = User::select(['a.id'])->from('users as a')
-            //->leftJoin('reported as b','a.id','b.reported_id')->where('b.created_at','>=',\Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString())
-            //->leftJoin('member_pic as c','a.id','c.member_id')
-            //->join('reported_pic as d','c.id','d.reported_pic_id')->where('d.created_at','>=',\Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString())
-            //->leftJoin('reported_avatar as e','a.id','e.reported_user_id')->where('e.created_at','>=',\Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString())
-            //->leftJoin('message as m','a.id','m.to_id')->where('m.isReported',1)->where('m.updated_at','>=',\Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString())
-            //->distinct()
-            //->count('a.id');
+        //->leftJoin('reported as b','a.id','b.reported_id')->where('b.created_at','>=',\Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString())
+        //->leftJoin('member_pic as c','a.id','c.member_id')
+        //->join('reported_pic as d','c.id','d.reported_pic_id')->where('d.created_at','>=',\Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString())
+        //->leftJoin('reported_avatar as e','a.id','e.reported_user_id')->where('e.created_at','>=',\Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString())
+        //->leftJoin('message as m','a.id','m.to_id')->where('m.isReported',1)->where('m.updated_at','>=',\Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString())
+        //->distinct()
+        //->count('a.id');
 
         //本月警示人數
-        $warnedCount = warned_users::select('id','member_id')->where('created_at','>=',\Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString())->distinct()->count('member_id');
+        $warnedCount = warned_users::select('id', 'member_id')->where('created_at', '>=', \Carbon\Carbon::parse(date("Y-m-01"))->toDateTimeString())->distinct()->count('member_id');
 
         //個人檢舉紀錄
-        $reported = Reported::select('reported.id','reported.reported_id as rid','reported.content as reason', 'reported.created_at as reporter_time','u.name','m.isWarned','b.id as banned_id','b.expire_date as banned_expire_date','w.id as warned_id','w.expire_date as warned_expire_date')
+        $reported = Reported::select('reported.id', 'reported.reported_id as rid', 'reported.content as reason', 'reported.created_at as reporter_time', 'u.name', 'm.isWarned', 'b.id as banned_id', 'b.expire_date as banned_expire_date', 'w.id as warned_id', 'w.expire_date as warned_expire_date')
             ->selectRaw('"reported" as reported_type')
-            ->leftJoin('users as u', 'u.id','reported.reported_id')->where('u.id','!=',null)
-            ->leftJoin('user_meta as m','u.id','m.user_id')
-            ->leftJoin('banned_users as b','u.id','b.member_id')
+            ->leftJoin('users as u', 'u.id', 'reported.reported_id')->where('u.id', '!=', null)
+            ->leftJoin('user_meta as m', 'u.id', 'm.user_id')
+            ->leftJoin('banned_users as b', 'u.id', 'b.member_id')
             ->leftJoin('warned_users as w','u.id','w.member_id');
         //$reported = $reported->addSelect(DB::raw("'reported' as table_name"));
         $reported = $reported->where('reported.member_id',$user->id)->where('reported.hide_reported_log',0)->get();
@@ -8620,70 +8524,70 @@ class PagesController extends BaseController
         $reported_message = Message::select('message.id','message.from_id as rid', 'message.reportContent as reason', 'message.updated_at as reporter_time','u.name','m.isWarned','b.id as banned_id','b.expire_date as banned_expire_date','w.id as warned_id','w.expire_date as warned_expire_date')
             ->selectRaw('"reportedMessage" as reported_type')
             ->leftJoin('users as u', 'u.id','message.from_id')->where('u.id','!=',null)
-            ->leftJoin('user_meta as m','u.id','m.user_id')
-            ->leftJoin('banned_users as b','u.id','b.member_id')
-            ->leftJoin('warned_users as w','u.id','w.member_id');
+            ->leftJoin('user_meta as m', 'u.id', 'm.user_id')
+            ->leftJoin('banned_users as b', 'u.id', 'b.member_id')
+            ->leftJoin('warned_users as w', 'u.id', 'w.member_id');
         //$reported_message = $reported_message->addSelect(DB::raw("'message' as table_name"));
-        $reported_message = $reported_message->where('message.to_id',$user->id)->where('message.isReported',1)->where('message.hide_reported_log',0)->get();
+        $reported_message = $reported_message->where('message.to_id', $user->id)->where('message.isReported', 1)->where('message.hide_reported_log', 0)->get();
 
         $collection = collect([$reported, $reported_pic, $reported_avatar, $reported_message]);
         $report_all = $collection->collapse()->unique('rid')->sortByDesc('reporter_time');
 
         $reportedStatus = array();
-            foreach ($report_all as $row) {
-                if (isset($row->rid) && !empty($row->rid)) {
-                    $content_1 = '您於 ' . substr($row->reporter_time, 0, 10) . ' 檢舉了 <a href=../dashboard/viewuser/' . $row->rid . '>' . $row->name . '</a>，檢舉緣由是 ' . $row->reason;
-                    $content_2 = '';
+        foreach ($report_all as $row) {
+            if (isset($row->rid) && !empty($row->rid)) {
+                $content_1 = '您於 ' . substr($row->reporter_time, 0, 10) . ' 檢舉了 <a href=../dashboard/viewuser/' . $row->rid . '>' . $row->name . '</a>，檢舉緣由是 ' . $row->reason;
+                $content_2 = '';
 
-                    //封鎖
-                    $reporter_isBannedStatus = 0;
-                    $reporter_isBannedStatus_expire = '';
-                    if (!empty($row->banned_id) && $row->banned_expire_date == null) {
-                        $reporter_isBannedStatus = 1;
-                    } else if (!empty($row->banned_id) && $row->banned_expire_date > now()) {
-                        $reporter_isBannedStatus = 1;
-                        $datetime1 = new \DateTime(now());
-                        $datetime2 = new \DateTime($row->banned_expire_date);
-                        $diffDays = $datetime1->diff($datetime2)->days;
-                        $reporter_isBannedStatus_expire = $diffDays;
-                    }
+                //封鎖
+                $reporter_isBannedStatus = 0;
+                $reporter_isBannedStatus_expire = '';
+                if (!empty($row->banned_id) && $row->banned_expire_date == null) {
+                    $reporter_isBannedStatus = 1;
+                } else if (!empty($row->banned_id) && $row->banned_expire_date > now()) {
+                    $reporter_isBannedStatus = 1;
+                    $datetime1 = new \DateTime(now());
+                    $datetime2 = new \DateTime($row->banned_expire_date);
+                    $diffDays = $datetime1->diff($datetime2)->days;
+                    $reporter_isBannedStatus_expire = $diffDays;
+                }
 
-                    //警示
-                    $reporter_isAdminWarnedStatus = 0;
-                    $reporter_isAdminWarnedStatus_expire = '';
-                    if (!empty($row->warned_id) && $row->warned_expire_date == null) {
-                        $reporter_isAdminWarnedStatus = 1;
-                    } else if (!empty($row->warned_id) && $row->warned_expire_date > now()) {
-                        $reporter_isAdminWarnedStatus = 1;
-                        $datetime1 = new \DateTime(now());
-                        $datetime2 = new \DateTime($row->warned_expire_date);
-                        $diffDays = $datetime1->diff($datetime2)->days;
-                        $reporter_isAdminWarnedStatus_expire = $diffDays;
-                    }
+                //警示
+                $reporter_isAdminWarnedStatus = 0;
+                $reporter_isAdminWarnedStatus_expire = '';
+                if (!empty($row->warned_id) && $row->warned_expire_date == null) {
+                    $reporter_isAdminWarnedStatus = 1;
+                } else if (!empty($row->warned_id) && $row->warned_expire_date > now()) {
+                    $reporter_isAdminWarnedStatus = 1;
+                    $datetime1 = new \DateTime(now());
+                    $datetime2 = new \DateTime($row->warned_expire_date);
+                    $diffDays = $datetime1->diff($datetime2)->days;
+                    $reporter_isAdminWarnedStatus_expire = $diffDays;
+                }
 
-                    $reporter_isWarnedStatus = 0;
-                    if ($row->isWarned == 1) {
-                        $reporter_isWarnedStatus = 1;
-                    }
+                $reporter_isWarnedStatus = 0;
+                if ($row->isWarned == 1) {
+                    $reporter_isWarnedStatus = 1;
+                }
 
-                    if ($reporter_isBannedStatus == 1 /*|| $reporter_isBannedImplicitlyStatus == 1*/) {
-                        $content_2 .= '目前該會員被處分為 封鎖 ';
-                        if (!empty($reporter_isBannedStatus_expire)) {
-                            $content_2 .= $reporter_isBannedStatus_expire . ' 日。';
-                        }
-                    }
-
-                    if ($reporter_isAdminWarnedStatus == 1 || $reporter_isWarnedStatus == 1) {
-                        $content_2 .= '目前該會員被處分為 警示 ';
-                        if (!empty($reporter_isAdminWarnedStatus_expire)) {
-                            $content_2 .= $reporter_isAdminWarnedStatus_expire . ' 日。';
-                        }
-                    }
-                    if ($reporter_isBannedStatus == 1 || $reporter_isAdminWarnedStatus == 1 || $reporter_isWarnedStatus == 1) {
-                        array_push($reportedStatus, array(/*'table' => $row->table_name, */'id' => $row->id, 'rid' => $row->rid, 'content' => $content_1, 'status' => $content_2, 'name' => $row->name, 'reported_type' => $row->reported_type));
+                if ($reporter_isBannedStatus == 1 /*|| $reporter_isBannedImplicitlyStatus == 1*/) {
+                    $content_2 .= '目前該會員被處分為 封鎖 ';
+                    if (!empty($reporter_isBannedStatus_expire)) {
+                        $content_2 .= $reporter_isBannedStatus_expire . ' 日。';
                     }
                 }
+
+                if ($reporter_isAdminWarnedStatus == 1 || $reporter_isWarnedStatus == 1) {
+                    $content_2 .= '目前該會員被處分為 警示 ';
+                    if (!empty($reporter_isAdminWarnedStatus_expire)) {
+                        $content_2 .= $reporter_isAdminWarnedStatus_expire . ' 日。';
+                    }
+                }
+                if ($reporter_isBannedStatus == 1 || $reporter_isAdminWarnedStatus == 1 || $reporter_isWarnedStatus == 1) {
+                    array_push($reportedStatus, array(/*'table' => $row->table_name, */ 'id' => $row->id, 'rid' => $row->rid, 'content' => $content_1, 'status' => $content_2, 'name' => $row->name, 'reported_type' => $row->reported_type));
+                }
             }
+        }
 
         //你收藏的會員上線
         $uid = $user->id;
@@ -8705,6 +8609,7 @@ class PagesController extends BaseController
             ->where('b.accountStatus', 1)
             ->where('b.account_status_admin', 1)
             ->where('last_login', '>=', Carbon::now()->subDays(7))
+            ->orderBy('last_login', 'desc')
             ->where('a.hide_member_id_log',0)
             ->groupBy('a.member_fav_id')
             ->get();
@@ -8725,6 +8630,7 @@ class PagesController extends BaseController
             ->where('b.accountStatus', 1)
             ->where('b.account_status_admin', 1)
             ->where('last_login', '>=', Carbon::now()->subDays(7))
+            ->orderBy('last_login', 'desc')
             ->where('a.hide_member_fav_id_log',0)
             ->get();
 
@@ -8732,36 +8638,36 @@ class PagesController extends BaseController
         $msgMemberCount = Message_new::allSenders($user->id, $user->isVipOrIsVvip(), 'all');
 
         $queryBE = \App\Models\Evaluation::select('evaluation.*')->from('evaluation as evaluation')->with('user')
-                ->leftJoin('blocked as b1', 'b1.blocked_id', '=', 'evaluation.from_id')
-                //->leftJoin('user_meta as um', function($join) {
-                    //$join->on('um.user_id', '=', 'e.from_id')
-                    //->where('isWarned', 1); })
-                //->leftJoin('warned_users as wu', function($join) {
-                    //$join->on('wu.member_id', '=', 'e.from_id')
-                    //->where(function($query){
-                        //$query->where('wu.expire_date', '>=', Carbon::now())
-                        //->orWhere('wu.expire_date', null); }); })
-                //->whereNull('um.user_id')
-                //->whereNull('wu.member_id')
-                ->orderBy('evaluation.created_at','desc')
-                ->where('b1.member_id', $uid)
-                ->where('evaluation.to_id', $uid)
-                ->where('evaluation.read', 1)
-                ->get();
+            ->leftJoin('blocked as b1', 'b1.blocked_id', '=', 'evaluation.from_id')
+            //->leftJoin('user_meta as um', function($join) {
+            //$join->on('um.user_id', '=', 'e.from_id')
+            //->where('isWarned', 1); })
+            //->leftJoin('warned_users as wu', function($join) {
+            //$join->on('wu.member_id', '=', 'e.from_id')
+            //->where(function($query){
+            //$query->where('wu.expire_date', '>=', Carbon::now())
+            //->orWhere('wu.expire_date', null); }); })
+            //->whereNull('um.user_id')
+            //->whereNull('wu.member_id')
+            ->orderBy('evaluation.created_at', 'desc')
+            ->where('b1.member_id', $uid)
+            ->where('evaluation.to_id', $uid)
+            ->where('evaluation.read', 1)
+            ->get();
 
-        $isBannedEvaluation = sizeof($queryBE) > 0? true : false;
+        $isBannedEvaluation = sizeof($queryBE) > 0 ? true : false;
 
         $queryHE = \App\Models\Evaluation::select('evaluation.*')->from('evaluation as evaluation')
-                ->orderBy('evaluation.created_at','desc')
-                ->where('evaluation.to_id', $uid)
-                ->where('evaluation.read', 1)
-                ->get();
-        
+            ->orderBy('evaluation.created_at', 'desc')
+            ->where('evaluation.to_id', $uid)
+            ->where('evaluation.read', 1)
+            ->get();
+
         $arrayHE = [];
         foreach ($queryHE as $k1 => $v1) {
             $tmp = false;
             foreach ($queryBE as $k2 => $v2) {
-                if($v1->from_id == $v2->from_id) {
+                if ($v1->from_id == $v2->from_id) {
                     $tmp = true;
                     break;
                 }
@@ -8772,12 +8678,12 @@ class PagesController extends BaseController
         $isHasEvaluation = sizeof($arrayHE) > 0? true : false;
 
         $query = Message::whereNotNull('id');
-        $query = $query->where(function ($query) use ($uid,$admin) {
-            $whereArr1 = [['to_id', $uid],['from_id', $admin->id]];
-            array_push($whereArr1,['is_single_delete_1','<>',$uid],['is_row_delete_1','<>',$uid]);
+        $query = $query->where(function ($query) use ($uid, $admin) {
+            $whereArr1 = [['to_id', $uid], ['from_id', $admin->id]];
+            array_push($whereArr1, ['is_single_delete_1', '<>', $uid], ['is_row_delete_1', '<>', $uid]);
             $query->where($whereArr1);
-        });        
-        $admin_msg_entrys =  $query->orderBy('created_at', 'desc')->get();
+        });
+        $admin_msg_entrys = $query->orderBy('created_at', 'desc')->get();
         $admin_msgs = [];
         $admin_msgs_sys = [];
 
@@ -8785,10 +8691,10 @@ class PagesController extends BaseController
             $admin_msg_entry->content = str_replace('NAME', $user->name, $admin_msg_entry->content);
             $admin_msg_entry->content = str_replace('|$report|', $user->name, $admin_msg_entry->content);
             $admin_msg_entry->content = str_replace('LINE_ICON', AdminService::$line_icon_html, $admin_msg_entry->content);
-            $admin_msg_entry->content = str_replace('|$lineIcon|', AdminService::$line_icon_html, $admin_msg_entry->content);         
+            $admin_msg_entry->content = str_replace('|$lineIcon|', AdminService::$line_icon_html, $admin_msg_entry->content);
             $admin_msg_entry->content = str_replace('|$responseTime|', date("Y-m-d H:i:s"), $admin_msg_entry->content);
             $admin_msg_entry->content = str_replace('|$reportTime|', date("Y-m-d H:i:s"), $admin_msg_entry->content);
-            $admin_msg_entry->content = str_replace('NOW_TIME', date("Y-m-d H:i:s"), $admin_msg_entry->content);  
+            $admin_msg_entry->content = str_replace('NOW_TIME', date("Y-m-d H:i:s"), $admin_msg_entry->content);
             $admin_msgs[] = $admin_msg_entry;
         }
         $i=0;
@@ -8796,7 +8702,7 @@ class PagesController extends BaseController
             $admin_msgs_sys[] = $admin_msg_entry;
             $i++;
             if($i>=3) break;
-        }        
+        }
 
 
         //僅顯示30天內的評價
@@ -8855,7 +8761,39 @@ class PagesController extends BaseController
         $faqCountDownSeconds = $faqUserService->getCountDownSeconds();
         $isFaqDuringCountDown = $faqUserService->isDuringCountDown();
         $isForceShowFaqPopup = $faqUserService->isForceShowFaqPopup();
-        
+        //vvip_selection_reward
+        $vvip_selection_reward_ignore = VvipSelectionRewardIgnore::select('vvip_selection_reward_id')->where('user_id', $user->id)->get();
+        $vvip_selection_reward_apply = VvipSelectionRewardApply::select('vvip_selection_reward_id')->where('user_id', $user->id)->get();
+        $vvip_selection_reward = VvipSelectionReward::where('status', 1)
+            ->whereNotIn('id', $vvip_selection_reward_ignore)
+            ->whereNotIn('id', $vvip_selection_reward_apply)
+            ->where(function ($query) {
+                return $query->where('expire_date', '>',  Carbon::now())
+                    ->orWhere('expire_date', null);
+            });
+        if( count( session()->get('skip.id',[])) > 0){
+            $vvip_selection_reward = $vvip_selection_reward->whereNotIn('id', session()->get('skip.id',[]));
+        }
+        $vvip_selection_reward = $vvip_selection_reward->get();
+
+        //vvip_selection_reward notice
+        $vvip_selection_reward_notice = VvipSelectionReward::where('user_id', $user->id)
+            ->where('status', 0)
+            ->where('notice_status', 1)->first();
+
+        $vvip_selection_reward_apply_self = VvipSelectionRewardApply::select('users.name as name',
+            'vvip_selection_reward.title as title',
+            'vvip_selection_reward_apply.status as status')
+            ->leftJoin('vvip_selection_reward', 'vvip_selection_reward.id', 'vvip_selection_reward_apply.vvip_selection_reward_id')
+            ->leftJoin('users', 'users.id', 'vvip_selection_reward.user_id')
+            ->where('vvip_selection_reward_apply.user_id', $user->id)
+            ->where('vvip_selection_reward.status', 1)
+            ->where(function ($query) {
+                return $query->where('vvip_selection_reward.expire_date', '>',  Carbon::now())
+                    ->orWhere('vvip_selection_reward.expire_date', null);
+            })
+            ->get();
+
         if (isset($user)) {
             $data = array(
                 'vipStatus' => $vipStatus,
@@ -8884,21 +8822,23 @@ class PagesController extends BaseController
                 'isFaqDuringCountDown'=>$isFaqDuringCountDown,
                 'isForceShowFaqPopup'=>$isForceShowFaqPopup,
                 'faqCountDownTime'=>$faqCountDownTime,
-                'faqCountDownSeconds'=>$faqCountDownSeconds
+                'faqCountDownSeconds'=>$faqCountDownSeconds,
+                'vvip_selection_reward' => $vvip_selection_reward,
+                'vvip_selection_reward_notice' => $vvip_selection_reward_notice,
+                'vvip_selection_reward_apply_self' => $vvip_selection_reward_apply_self
             );
             $allMessage = \App\Models\Message::allMessage($user->id);
             $forum = Forum::withTrashed()->where('user_id',$user->id)->orderby('id','desc')->first();
             return view('new.dashboard.personalPage', $data)
                 ->with('myFav', $myFav)
-                ->with('otherFav',$otherFav)
-                ->with('admin_msgs',$admin_msgs)
-                ->with('admin_msgs_sys',$admin_msgs_sys)
-                ->with('admin',$admin)
+                ->with('otherFav', $otherFav)
+                ->with('admin_msgs', $admin_msgs)
+                ->with('admin_msgs_sys', $admin_msgs_sys)
+                ->with('admin', $admin)
                 ->with('allMessage', $allMessage)
-                ->with('forum',$forum)
-                ->with('rap_service',$rap_service)
-                ->with('users',$users)
-                ;
+                ->with('forum', $forum)
+                ->with('rap_service', $rap_service)
+                ->with('users', $users);
         }
     }
 
@@ -8947,9 +8887,9 @@ class PagesController extends BaseController
         }
         \DB::table('multiple_logins')
             ->insert(['original_id' => $request->original_id,
-                      'new_id' => $request->new_id,
-                      'created_at' => Carbon::now(),
-                      'updated_at' => Carbon::now(),]);
+                'new_id' => $request->new_id,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),]);
 
         return response()->json(array(
             'status' => 1,
@@ -8984,8 +8924,8 @@ class PagesController extends BaseController
 
     public function search_key_reset(){
         $search_page_key=session()->get('search_page_key',[]);
-        foreach ($search_page_key as $key =>$value){
-            session()->put('search_page_key.'.$key,null);
+        foreach ($search_page_key as $key => $value) {
+            session()->put('search_page_key.' . $key, null);
         }
         //logger(session()->get('search_page_key',[]));
     }
@@ -9048,132 +8988,136 @@ class PagesController extends BaseController
             case 'admin_msgs':
                 $admin_id = AdminService::checkAdmin()->id;
                 $messages = Message::where([['to_id',$user_id],['from_id',$admin_id]])->whereIn('id', $items)->get();
-                foreach($messages  as $message) {
+                foreach ($messages as $message) {
                     Message::deleteSingleMessage($message, $user_id, $admin_id, $message->created_at, $message->content, 0);
                 }
                 $sys_notice = $sys_remind ? 1 : 0;
                 $admin_msg_entrys = Message::allToFromSender($user_id,$admin_id, false, $sys_notice);
                 $admin_msgs = [];
-                $i=0;
-                foreach($admin_msg_entrys as $admin_msg_entry) {
+                $i = 0;
+                foreach ($admin_msg_entrys as $admin_msg_entry) {
                     $admin_msgs[] = $admin_msg_entry;
                     $i++;
-                    if($i >= 3) { break; }
-                }   
+                    if ($i >= 3) {
+                        break;
+                    }
+                }
                 return json_encode($admin_msgs);
-            break;
+                break;
         }
     }
-	
-	public function switchOtherEngroup() {
-		$user = \View::shared('user');
-		if(!$user->isVip() && !$user->isVVIP()) return redirect()->back();
-		$toEngroup = $user->id;
-		switch($user->engroup) {
-			case 2:
-				$toEngroup =1;
-			break;
-			case 1:
-				$toEngroup =2;
-			break;			
-		}
-        
-        if(!User::find($toEngroup)) {
+
+    public function switchOtherEngroup()
+    {
+        $user = \View::shared('user');
+        if (!$user->isVip() && !$user->isVVIP()) return redirect()->back();
+        $toEngroup = $user->id;
+        switch ($user->engroup) {
+            case 2:
+                $toEngroup = 1;
+                break;
+            case 1:
+                $toEngroup = 2;
+                break;
+        }
+
+        if (!User::find($toEngroup)) {
             DB::table('users')->insert([
-                'email' => ($toEngroup==1?'boy':'girl').'.email@email.email',
-                'id'=>$toEngroup,
-                'name'=>'甜心'.($toEngroup==1?'爹地':'寶貝'),
-                'title'=>'甜心'.($toEngroup==1?'爹地':'寶貝'),
-                'engroup'=>$toEngroup,
-                'created_at'=>date('Y-m-d H:i:s'),
-                'updated_at'=>date('Y-m-d H:i:s'), 
-                'noticeRead'=>1,
-                'isReadManual'=>1,
-                'isReadIntro'=>1,
-                'notice_has_new_evaluation'=>0,
+                'email' => ($toEngroup == 1 ? 'boy' : 'girl') . '.email@email.email',
+                'id' => $toEngroup,
+                'name' => '甜心' . ($toEngroup == 1 ? '爹地' : '寶貝'),
+                'title' => '甜心' . ($toEngroup == 1 ? '爹地' : '寶貝'),
+                'engroup' => $toEngroup,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+                'noticeRead' => 1,
+                'isReadManual' => 1,
+                'isReadIntro' => 1,
+                'notice_has_new_evaluation' => 0,
             ]);
             DB::table('user_meta')->insert([
-                'user_id'=>$toEngroup,
-                'is_active'=>'1',
-                'created_at'=>date('Y-m-d H:i:s'),
-                'updated_at'=>date('Y-m-d H:i:s'),                 
-                'city'=>'臺北市',
-                'area'=>'中正',
-                'budget'=>'基礎',
-                'birthdate'=>'1990-09-01',
-                'height'=>'165',
-                'weight'=>'60',
-                'cup'=>($toEngroup==2?'B':''),
-                'about'=>'這是模擬用的系統會員帳號',
-                'style'=>'期待的約會模式',
-                'situation'=>($toEngroup==2?'學生':''),
-                'occupation'=>($toEngroup==2?'學生':''),
-                'education'=>'大學',
-                'marriage'=>'單身',
-                'drinking'=>'不喝',
-                 'smoking'=>'不抽',
-                'pic'=>'/new/images/'.($toEngroup==2?'fe':'').'male.png',
-                'assets'=>($toEngroup==1?'100':''),
-                'income'=>($toEngroup==1?'50萬以下':''),                
+                'user_id' => $toEngroup,
+                'is_active' => '1',
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+                'city' => '臺北市',
+                'area' => '中正',
+                'budget' => '基礎',
+                'birthdate' => '1990-09-01',
+                'height' => '165',
+                'weight' => '60',
+                'cup' => ($toEngroup == 2 ? 'B' : ''),
+                'about' => '這是模擬用的系統會員帳號',
+                'style' => '期待的約會模式',
+                'situation' => ($toEngroup == 2 ? '學生' : ''),
+                'occupation' => ($toEngroup == 2 ? '學生' : ''),
+                'education' => '大學',
+                'marriage' => '單身',
+                'drinking' => '不喝',
+                'smoking' => '不抽',
+                'pic' => '/new/images/' . ($toEngroup == 2 ? 'fe' : '') . 'male.png',
+                'assets' => ($toEngroup == 1 ? '100' : ''),
+                'income' => ($toEngroup == 1 ? '50萬以下' : ''),
             ]);
             DB::table('short_message')->insert([
-                'member_id'=>$toEngroup,
-                'auto_created'=>1,
-                'created_from'=>request()->path(),
-                'created_by'=>auth()->id(),
-                'active'=>1,
-                'createdate'=>date('Y-m-d H:i:s'),               
-            ]);  
+                'member_id' => $toEngroup,
+                'auto_created' => 1,
+                'created_from' => request()->path(),
+                'created_by' => auth()->id(),
+                'active' => 1,
+                'createdate' => date('Y-m-d H:i:s'),
+            ]);
             event(new \App\Events\CheckWarnedOfReport($toEngroup));
             DB::table('banned_users')->insert([
-                'member_id'=>$toEngroup,
-                'created_at'=>date('Y-m-d H:i:s'),
-                'updated_at'=>date('Y-m-d H:i:s'),                 
-            ]);             
+                'member_id' => $toEngroup,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ]);
             if($toEngroup==2) {
-                for($i=0;$i<3;$i++) {
+                for ($i = 0; $i < 3; $i++) {
                     DB::table('member_pic')->insert([
-                        'member_id'=>$toEngroup,
-                        'isHidden'=>1,
-                        'created_at'=>date('Y-m-d H:i:s'),
-                        'updated_at'=>date('Y-m-d H:i:s'),                
-                    ]);                
+                        'member_id' => $toEngroup,
+                        'isHidden' => 1,
+                        'created_at' => date('Y-m-d H:i:s'),
+                        'updated_at' => date('Y-m-d H:i:s'),
+                    ]);
                 }
-                
+
                 DB::table('member_vip')->insert([
-                    'member_id'=>$toEngroup,
-                    'business_id'=>111,
-                    'amount'=>0,
-                    'expiry'=>'0000-00-00 00:00:00',  
-                    'active'=>1,
-                    'free'=>1,
-                    'created_at'=>date('Y-m-d H:i:s'),
-                    'updated_at'=>date('Y-m-d H:i:s'), 
-                ]); 
+                    'member_id' => $toEngroup,
+                    'business_id' => 111,
+                    'amount' => 0,
+                    'expiry' => '0000-00-00 00:00:00',
+                    'active' => 1,
+                    'free' => 1,
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ]);
 
                 DB::table('exchange_period_temp')->insert([
-                    'user_id'=>$toEngroup,
-                    'created_at'=>date('Y-m-d H:i:s'),               
-                ]);                 
+                    'user_id' => $toEngroup,
+                    'created_at' => date('Y-m-d H:i:s'),
+                ]);
             }
         }
 
-        if($this->service->switchToUser($toEngroup))
-			return redirect()->back()->with('message', '成功切換使用者');
-		else 
-			return redirect()->back()->with('message', '無法切換使用者');
-		
-	}
-	
-	public function switchEngroupBack() {
-		$user = \View::shared('user');
-		if( !$user->isVip() && !$user->isVVIP()) return redirect()->back();
+        if ($this->service->switchToUser($toEngroup))
+            return redirect()->back()->with('message', '成功切換使用者');
+        else
+            return redirect()->back()->with('message', '無法切換使用者');
+
+    }
+
+    public function switchEngroupBack()
+    {
+        $user = \View::shared('user');
+        if (!$user->isVip() && !$user->isVVIP()) return redirect()->back();
 
         $this->service->switchUserBack();
 
-        return redirect()->back();  
-        
-    }   
+        return redirect()->back();
+
+    }
 
     public function messageBoard_showList(Request $request)
     {
@@ -9295,11 +9239,11 @@ class PagesController extends BaseController
 
         if(count($data)>0){
             foreach($data as $list){
-            
+
                 $userMeta=\App\Models\UserMeta::findByMemberId($list->uid);
                 $msgUser=\App\Models\User::findById($list->uid);
                 $isBlurAvatar = \App\Services\UserService::isBlurAvatar($msgUser, $user);
-    
+
                 $cityList=explode(',',$list->city);
                 $areaList=explode(',',$list->area);
                 $cityAndArea='';
@@ -9307,11 +9251,11 @@ class PagesController extends BaseController
                     $cityAndArea.= $cityList[$key]. ($userMeta->isHideArea? '': $areaList[$key]) . ((count($cityList)-1)==$key ? '':', ');
                 }
                 if($isBlurAvatar){
-                    $is_blur = 'blur_img';  
+                    $is_blur = 'blur_img';
                 }else{
                     $is_blur = '';
                 }
-    
+
                 if(file_exists( public_path().$list->umpic ) && $list->umpic != ""){
                     $umpic = $list->umpic;
                 }else if($list->uengroup==2){
@@ -9323,20 +9267,18 @@ class PagesController extends BaseController
                 $ssrData .='<div class="liuyan_nlist">';
                 $ssrData .='<ul>';
                 $ssrData .='<li>';
-                if($msgUser->isVVIP()){
-                    $ssrData .='<a href="/dashboard/viewuser_vvip/'.$list->uid.'">';
-                }
-                else{
-                    $ssrData .='<a href="/dashboard/viewuser/'.$list->uid.'">';
+                if ($msgUser->isVVIP()) {
+                    $ssrData .= '<a href="/dashboard/viewuser_vvip/' . $list->uid . '">';
+                } else {
+                    $ssrData .= '<a href="/dashboard/viewuser/' . $list->uid . '">';
                 }
                 $ssrData .='<div class="liuyan_img"><img class="hycov '.$is_blur.'" src="'.$umpic.'"></div>';
                 $ssrData .='</a>';
                 $ssrData .='<a href="/MessageBoard/post_detail/'. $list->mid.'">';
-                if($msgUser->isVVIP()){
-                    $ssrData .='<div class="liuyan_prilist liuy_vvip">';
-                }
-                else{
-                    $ssrData .='<div class="liuyan_prilist">';
+                if ($msgUser->isVVIP()) {
+                    $ssrData .= '<div class="liuyan_prilist liuy_vvip">';
+                } else {
+                    $ssrData .= '<div class="liuyan_prilist">';
                 }
                 $ssrData .='<div class="liuyfont">';
                 $ssrData .='<div class="liu_name">'.$list->uname.' , '. $age .'<span>'. substr($list->mcreated_at,0,10) .'</span></div>';
@@ -9355,7 +9297,7 @@ class PagesController extends BaseController
         }else{
             $ssrData .= '<div class="ddt_list matop5"><div class="zap_ullist matop5" ><div class="n_dtwu_nr"><img src="/new/images/liuyan_no.png"><p>目前無紀錄</p></div></div></div>';
         }
-        
+
         $output = array(
             'ssrData'=>$ssrData,
             'count'=>$count,
@@ -9370,7 +9312,7 @@ class PagesController extends BaseController
         $per_page_count = $request->per_page_count ?? 10;
         $other_now_page = $request->other_now_page;
         $myself_now_page = $request->myself_now_page;
-        
+
 
         $user = $this->user;
         $entrance=true;
@@ -9428,11 +9370,11 @@ class PagesController extends BaseController
         $ssrData = '';
         if(count($data)>0){
             foreach($data as $list){
-            
+
                 $userMeta=\App\Models\UserMeta::findByMemberId($list->uid);
                 $msgUser=\App\Models\User::findById($list->uid);
                 $isBlurAvatar = \App\Services\UserService::isBlurAvatar($msgUser, $user);
-    
+
                 $cityList=explode(',',$list->city);
                 $areaList=explode(',',$list->area);
                 $cityAndArea='';
@@ -9440,11 +9382,11 @@ class PagesController extends BaseController
                     $cityAndArea.= $cityList[$key].$areaList[$key] . ((count($cityList)-1)==$key ? '':', ');
                 }
                 if($isBlurAvatar){
-                    $is_blur = 'blur_img';  
+                    $is_blur = 'blur_img';
                 }else{
                     $is_blur = '';
                 }
-    
+
                 if(file_exists( public_path().$list->umpic ) && $list->umpic != ""){
                     $umpic = $list->umpic;
                 }else if($list->uengroup==2){
@@ -9456,20 +9398,18 @@ class PagesController extends BaseController
                 $ssrData .='<div class="liuyan_nlist">';
                 $ssrData .='<ul>';
                 $ssrData .='<li>';
-                if($msgUser->isVVIP()){
-                    $ssrData .='<a href="/dashboard/viewuser_vvip/'.$list->uid.'">';
-                }
-                else{
-                    $ssrData .='<a href="/dashboard/viewuser/'.$list->uid.'">';
+                if ($msgUser->isVVIP()) {
+                    $ssrData .= '<a href="/dashboard/viewuser_vvip/' . $list->uid . '">';
+                } else {
+                    $ssrData .= '<a href="/dashboard/viewuser/' . $list->uid . '">';
                 }
                 $ssrData .='<div class="liuyan_img"><img class="hycov '.$is_blur.'" src="'.$umpic.'"></div>';
                 $ssrData .='</a>';
                 $ssrData .='<a href="/MessageBoard/post_detail/'. $list->mid.'">';
-                if($msgUser->isVVIP()){
-                    $ssrData .='<div class="liuyan_prilist liuy_vvip">';
-                }
-                else{
-                    $ssrData .='<div class="liuyan_prilist">';
+                if ($msgUser->isVVIP()) {
+                    $ssrData .= '<div class="liuyan_prilist liuy_vvip">';
+                } else {
+                    $ssrData .= '<div class="liuyan_prilist">';
                 }
                 $ssrData .='<div class="liuyfont">';
                 $ssrData .='<div class="liu_name">'.$list->uname.' , '.$age .'<span>'. substr($list->mcreated_at,0,10) .'</span></div>';
@@ -9488,7 +9428,7 @@ class PagesController extends BaseController
         }else{
             $ssrData .= '<div class="ddt_list matop5"><div class="zap_ullist matop5" ><div class="n_dtwu_nr"><img src="/new/images/liuyan_no.png"><p>目前無紀錄</p></div></div></div>';
         }
-        
+
         $output = array(
             'ssrData'=>$ssrData,
             'count'=>$count,
@@ -9503,6 +9443,7 @@ class PagesController extends BaseController
 
         $user = $request->user();
         $pid = $request->pid;
+        $page_referer=$request->page_referer;
 
         $postDetail =MessageBoard::selectRaw('users.id as uid, users.name as uname, users.engroup as uengroup, user_meta.pic as umpic, user_meta.city, user_meta.area')
             ->selectRaw('message_board.id as mid, message_board.title as mtitle, message_board.contents as mcontents, message_board.updated_at as mupdated_at, message_board.created_at as mcreated_at')
@@ -9518,8 +9459,6 @@ class PagesController extends BaseController
             return  redirect('/MessageBoard/showList');
         }
 
-       
-
 
         $userMeta=\App\Models\UserMeta::findByMemberId($postDetail->uid);
         $msgUser=\App\Models\User::findById($postDetail->uid);
@@ -9531,9 +9470,9 @@ class PagesController extends BaseController
         foreach ($cityList as $key => $city){
             $cityAndArea.= $cityList[$key]. ($userMeta->isHideArea? '': $areaList[$key]) . ((count($cityList)-1)==$key ? '':', ');
         }
-            
+
         if($isBlurAvatar){
-            $is_blur = 'blur_img';  
+            $is_blur = 'blur_img';
         }else{
             $is_blur = '';
         }
@@ -9541,31 +9480,35 @@ class PagesController extends BaseController
         if(file_exists( public_path().$postDetail->umpic ) && $postDetail->umpic != ""){
             $umpic = $postDetail->umpic;
         }elseif($postDetail->uengroup==2){
-            $umpic = '/new/images/female.png'; 
+            $umpic = '/new/images/female.png';
         }else{
-            $umpic = '/new/images/male.png'; 
+            $umpic = '/new/images/male.png';
         }
         $age = $userMeta ? $userMeta->age() : '';
 
-        
+
         $ssrData = '';
-        $ssrData .='<div class="liuyan_xqlist">';
-            
-        $ssrData .='<a href="/dashboard/viewuser/'.$postDetail->uid.'">';
-        $ssrData .='<div class="liuyan_img01">';
-        $ssrData .='<img class="hycov '.$is_blur.'" src="'.$umpic.'">';
-        $ssrData .='</div>';
-        $ssrData .='</a>';
-        $ssrData .='<div class="liuyan_text"><a href="/dashboard/viewuser/'.$postDetail->uid.'">'. $postDetail->uname .'</a> , '.$age .'<span class="liu_dq">'. $cityAndArea .'</span></div>';
-                    
-                // $ssrData .= $postDetail->uid. $postDetail->uname .  $userMeta->age(). $cityAndArea ;
-        if($postDetail->uid!==$user->id){
-            $ssrData .='<a href="/dashboard/chat2/chatShow/'.$postDetail->uid.'?from_message_board='.$pid.'" class="liuyicon"></a>';
+        $ssrData .= '<div class="liuyan_xqlist">';
+
+        $ssrData .= '<a href="/dashboard/viewuser/' . $postDetail->uid . '">';
+        $ssrData .= '<div class="liuyan_img01">';
+        $ssrData .= '<img class="hycov ' . $is_blur . '" src="' . $umpic . '">';
+        $ssrData .= '</div>';
+        $ssrData .= '</a>';
+        $ssrData .= '<div class="liuyan_text"><a href="/dashboard/viewuser/' . $postDetail->uid . '">' . $postDetail->uname . '</a> , ' . $age . '<span class="liu_dq">' . $cityAndArea . '</span></div>';
+
+        // $ssrData .= $postDetail->uid. $postDetail->uname .  $userMeta->age(). $cityAndArea ;
+        if ($postDetail->uid !== $user->id) {
+            $back_root='';
+            if(str_contains($page_referer, 'MessageBoard/showList')){
+                $back_root='&back_message_board_list=1';
+            }
+            $ssrData .= '<a href="/dashboard/chat2/chatShow/' . $postDetail->uid . '?from_message_board=' . $pid .$back_root. '" class="liuyicon"></a>';
         }
-        $ssrData .='</div>';
+        $ssrData .= '</div>';
 
         $output = array(
-            'ssrData'=>$ssrData
+            'ssrData' => $ssrData
         );
 
         return json_encode($output);
@@ -9586,30 +9529,30 @@ class PagesController extends BaseController
         if(!$postDetail) {
             $request->session()->flash('message', '找不到該留言：' . $pid);
             $request->session()->reflash();
-            return  redirect('/MessageBoard/showList');
+            return redirect('/MessageBoard/showList');
         }
 
         $ssrData = '';
         // $ssrData .= '<div class="liuy_nr">';
         $ssrData .= '<div class="liuy_font">';
         $ssrData .= '<div class="liuy_font_1">';
-        $ssrData .= '<div class="liu_yf">'. $postDetail->mtitle .'<h2>'. substr($postDetail->mcreated_at,0,10) .'</h2></div>';
-                    if($postDetail->uid== auth()->user()->id){
-                        $ssrData.='<div class="right">';
-                        $ssrData.='<form action="/MessageBoard/delete/'. $postDetail->mid .'?return_page='.$request->return_page.'" id="delete_form" method="POST" enctype="multipart/form-data">';
-                        $ssrData.='<input type="hidden" name="_token" value="'. csrf_token() .'">';
-                        $ssrData.='</form>';
-                        $ssrData.='<a class="sc_cc" onclick="send_delete_submit()"><img src="/new/images/del_03n.png">刪除</a>';
-                        $ssrData.='<a href="/MessageBoard/edit/'. $postDetail->mid .'" class="sc_cc"  style="margin-right: 5px;"><img src="/new/images/xiugai.png">修改</a>';
-                        $ssrData.='</div>';
-                    }else{
-                        $ssrData.='<div class="right">';
-                        $ssrData.='<a onclick="block_user();"class="sc_cc"><img src="/new/images/ncion_09.png">封鎖</a>';
-                        $ssrData.='<a onclick="messageBoard_reported('. $postDetail->mid .');" class="sc_cc" style="margin-right: 5px;"><img src="/new/images/jianju_aa.png">檢舉</a>';
-                        $ssrData.='</div>';
-                    }
+        $ssrData .= '<div class="liu_yf">' . $postDetail->mtitle . '<h2>' . substr($postDetail->mcreated_at, 0, 10) . '</h2></div>';
+        if ($postDetail->uid == auth()->user()->id) {
+            $ssrData .= '<div class="right">';
+            $ssrData .= '<form action="/MessageBoard/delete/' . $postDetail->mid . '?return_page=' . $request->return_page . '" id="delete_form" method="POST" enctype="multipart/form-data">';
+            $ssrData .= '<input type="hidden" name="_token" value="' . csrf_token() . '">';
+            $ssrData .= '</form>';
+            $ssrData .= '<a class="sc_cc" onclick="send_delete_submit()"><img src="/new/images/del_03n.png">刪除</a>';
+            $ssrData .= '<a href="/MessageBoard/edit/' . $postDetail->mid . '" class="sc_cc"  style="margin-right: 5px;"><img src="/new/images/xiugai.png">修改</a>';
+            $ssrData .= '</div>';
+        } else {
+            $ssrData .= '<div class="right">';
+            $ssrData .= '<a onclick="block_user();"class="sc_cc"><img src="/new/images/ncion_09.png">封鎖</a>';
+            $ssrData .= '<a onclick="messageBoard_reported(' . $postDetail->mid . ');" class="sc_cc" style="margin-right: 5px;"><img src="/new/images/jianju_aa.png">檢舉</a>';
+            $ssrData .= '</div>';
+        }
         $ssrData .= '</div>';
-        $ssrData .= '<p>'.\App\Models\Posts::showContent($postDetail->mcontents) .'</p>';
+        $ssrData .= '<p>' . \App\Models\Posts::showContent($postDetail->mcontents) . '</p>';
         $ssrData .= '<div class="liu_iy"><img src="/new/images/photo_1.png"></div>';
         // $ssrData .= '</div>';
         // $ssrData .= '<ul class="liuyan_photo">';
@@ -9714,15 +9657,13 @@ class PagesController extends BaseController
         }
 
         $return_page='';
-        if($request->from_viewuser_vvip_page){
-            $return_page='viewuser_vvip';
-        }
-        else if($request->from_viewuser_page){
-            $return_page='viewuser';
+        if ($request->from_viewuser_vvip_page) {
+            $return_page = 'viewuser_vvip';
+        } else if ($request->from_viewuser_page) {
+            $return_page = 'viewuser';
         }
         return view('/dashboard/messageBoard_detail', compact('postDetail', 'images','pid','return_page'))->with('user', $user);
     }
-
 
     public function messageBoard_posts(Request $request)
     {
@@ -9784,8 +9725,8 @@ class PagesController extends BaseController
             if($request->ajax()) {
                 return response()->json([
                     'message' => '修改成功',
-                    'return_url' => '/MessageBoard/post_detail/'.$request->get('mid').($request->from_viewuser_vvip_page ? '?from_viewuser_vvip_page=1':'').($request->from_viewuser_page ? '?from_viewuser_page=1':'')
-                ]);                
+                    'return_url' => '/MessageBoard/post_detail/' . $request->get('mid') . ($request->from_viewuser_vvip_page ? '?from_viewuser_vvip_page=1' : '') . ($request->from_viewuser_page ? '?from_viewuser_page=1' : '')
+                ]);
             }
             return redirect('/MessageBoard/post_detail/'.$request->get('mid'))->with('message','修改成功');
         }else{
@@ -9812,39 +9753,10 @@ class PagesController extends BaseController
                     'message' => '新增成功',
                     'return_url' => '/MessageBoard/post_detail/'.$posts->id
                 ]);
-            }            
+            }
             return redirect('/MessageBoard/post_detail/'.$posts->id)->with('message','新增成功');
         }
     }
-
-    public function messageBoard_delete(Request $request,$mid)
-    {
-        $posts = MessageBoard::where('id',$mid)->first();
-        if($posts->user_id!== auth()->user()->id){
-            return response()->json(['msg'=>'刪除失敗,不可刪除別人的留言!']);
-        }
-        if($posts){
-            $return_page='';
-            if($request->return_page=='viewuser_vvip'){
-                $return_page='/dashboard/viewuser_vvip/'.$posts->user_id;
-            } else if($request->return_page=='viewuser'){
-                $return_page='/dashboard/viewuser/'.$posts->user_id;
-            }
-            $messageBoardImages=MessageBoardPic::selectRaw('id,pic')->where('msg_board_id',$posts->id)->get();
-            foreach ($messageBoardImages as $key => $dbImage) {
-                if (file_exists(public_path().$dbImage->pic)) {
-                    unlink(public_path().$dbImage->pic);
-                }
-                $dbImage->delete();
-            }
-            $posts->delete();
-        }
-        if($return_page)
-            return redirect($return_page)->with('message','留言刪除成功');
-        else
-            return redirect('/MessageBoard/showList')->with('message','留言刪除成功');
-    }
-
 
     public function msg_board_pic_save($msg_board_id, $uid, $images, $newImages)
     {
@@ -9870,16 +9782,15 @@ class PagesController extends BaseController
         }
 
         //新增新加入照片
-        if($files = $newImages)
-        {
+        if ($files = $newImages) {
             foreach ($files as $file) {
                 $now = Carbon::now()->format('Ymd');
-                $input['imagename'] = $now . rand(100000000,999999999) . '.' . $file->getClientOriginalExtension();
+                $input['imagename'] = $now . rand(100000000, 999999999) . '.' . $file->getClientOriginalExtension();
 
                 $rootPath = public_path('/img/MessageBoard');
-                $tempPath = $rootPath . '/' . substr($input['imagename'], 0, 4) . '/' . substr($input['imagename'], 4, 2) . '/'. substr($input['imagename'], 6, 2) . '/';
+                $tempPath = $rootPath . '/' . substr($input['imagename'], 0, 4) . '/' . substr($input['imagename'], 4, 2) . '/' . substr($input['imagename'], 6, 2) . '/';
 
-                if(!is_dir($tempPath)) {
+                if (!is_dir($tempPath)) {
                     File::makeDirectory($tempPath, 0777, true);
                 }
 
@@ -9901,52 +9812,79 @@ class PagesController extends BaseController
         }
     }
 
-    public function reportMessageBoardAJAX(Request $request){
-        $msg_id=$request->msg_id;
-        $isReported = ReportedMessageBoard::where('user_id', auth()->user()->id)->where('message_board_id',$msg_id)->first();
-        if(!$isReported) {
-            ReportedMessageBoard::create(['user_id'=>auth()->user()->id, 'message_board_id'=>$msg_id]);
+    public function messageBoard_delete(Request $request, $mid)
+    {
+        $posts = MessageBoard::where('id', $mid)->first();
+        if (!$posts) {
+            return response()->json(['msg' => '刪除失敗，找不到該留言!']);
+        }
+        if ($posts->user_id !== auth()->user()->id) {
+            return response()->json(['msg' => '刪除失敗，不可刪除別人的留言!']);
+        }
+        if ($posts) {
+            $return_page = '';
+            if ($request->return_page == 'viewuser_vvip') {
+                $return_page = '/dashboard/viewuser_vvip/' . $posts->user_id;
+            } else if ($request->return_page == 'viewuser') {
+                $return_page = '/dashboard/viewuser/' . $posts->user_id;
+            }
+            $messageBoardImages = MessageBoardPic::selectRaw('id,pic')->where('msg_board_id', $posts->id)->get();
+            foreach ($messageBoardImages as $key => $dbImage) {
+                if (file_exists(public_path() . $dbImage->pic)) {
+                    unlink(public_path() . $dbImage->pic);
+                }
+                $dbImage->delete();
+            }
+            $posts->delete();
+        }
+        if ($return_page)
+            return redirect($return_page)->with('message', '留言刪除成功');
+        else
+            return redirect('/MessageBoard/showList')->with('message', '留言刪除成功');
+    }
+
+    public function reportMessageBoardAJAX(Request $request)
+    {
+        $msg_id = $request->msg_id;
+        $isReported = ReportedMessageBoard::where('user_id', auth()->user()->id)->where('message_board_id', $msg_id)->first();
+        if (!$isReported) {
+            ReportedMessageBoard::create(['user_id' => auth()->user()->id, 'message_board_id' => $msg_id]);
             return response()->json(['msg' => '檢舉留言成功']);
-        }else{
+        } else {
             return response()->json(['msg' => '該留言已經檢舉過了']);
         }
     }
-    
+
     public function setTinySetting(Request $request) {
         $user=$request->user();
         $cat = $request->catalog;
         $value = $request->value;
         $is_ajax = $request->ajax();
-        
-        if(!$user || !$cat) {
-            if($is_ajax) {
+
+        if (!$user || !$cat) {
+            if ($is_ajax) {
                 return response()->json(['msg' => '儲存失敗']);
+            } else {
+                return redirect()->back()->with('message', '儲存失敗');
             }
-            else {
-                return redirect()->back()->with('message','儲存失敗');
-            }             
         }
-        
-        if(UserTinySetting::updateOrInsert(['user_id'=>$user->id,'cat'=>$cat],['value'=>$value,'created_at'=>date('Y-m-d H:i:s'),'updated_at'=>date('Y-m-d H:i:s')]))
-        {
-            if($is_ajax) {
+
+        if (UserTinySetting::updateOrInsert(['user_id' => $user->id, 'cat' => $cat], ['value' => $value, 'created_at' => date('Y-m-d H:i:s'), 'updated_at' => date('Y-m-d H:i:s')])) {
+            if ($is_ajax) {
                 return response()->json(['msg' => '儲存成功']);
+            } else {
+                return redirect()->back()->with('message', '儲存成功');
             }
-            else {
-                return redirect()->back()->with('message','儲存成功');
-            }
-        }
-        else {
-            if($is_ajax) {
+        } else {
+            if ($is_ajax) {
                 return response()->json(['msg' => '儲存失敗']);
+            } else {
+                return redirect()->back()->with('message', '儲存失敗');
             }
-            else {
-                return redirect()->back()->with('message','儲存失敗');
-            }            
         }
-        
+
     }
-    
+
     public function getTinySetting(Request $request) {
         $user=$request->user();
         $cat = $request->catalog;
@@ -9955,21 +9893,21 @@ class PagesController extends BaseController
         $setting = UserTinySetting::where([['user_id',$user->id],['cat',$cat]])->orderByDesc('id')->first();
         if($setting) return $setting->value;
     }
-    
+
     public function listSearchIgnore(Request $request,SearchIgnoreService $service) {
         $user = auth()->user();
         $data['service'] = $service->fillPagingEntrys();
         return view('/new/dashboard/search_ignore_list',$data)->with('user', $user);
     }
-    
+
     public function addSearchIgnore(Request $request,SearchIgnoreService $service)  {
         if(!$request->target??null) return;
-            
+
         $ignore_data['ignore_id'] = $request->target;
-        
+
         return $service->create($ignore_data)?1:0;
     }
-    
+
     public function delSearchIgnore(Request $request,SearchIgnoreService $service) {
         if(!$request->target??null) return $service->delMemberAll()?1:0;
         return $service->delByIgnoreId($request->target)?1:0;
@@ -9995,12 +9933,7 @@ class PagesController extends BaseController
             return redirect('/dashboard/personalPage')->with('message', '目前僅提供給完成手機驗證的VIP會員使用');
         }
 
-        $checkReport = AnonymousChatReport::select('user_id', 'created_at')->where('reported_user_id', $user->id)->groupBy('user_id')->orderBy('created_at', 'desc')->get();
-        $times = 3;
-        if($user->isVVIP()){
-            $times = 5;
-        }
-        if(count($checkReport) >= $times && Carbon::parse($checkReport[0]->created_at)->diffInDays(Carbon::now())<3){
+        if(User::isAnonymousChatReportedSilence($user->id)){
             return redirect('/dashboard/personalPage')->with('message', '因被檢舉次數過多，目前已限制使用匿名聊天室');
         }
 
@@ -10032,7 +9965,7 @@ class PagesController extends BaseController
         if(count($checkReport) >= $times){
             AnonymousChat::where('user_id', $reported_user_id->user_id)->delete();
         }
-//        return back()->with('message', $msg);
+
         return response()->json(['msg' => 'OK']);
     }
 
@@ -10075,46 +10008,45 @@ class PagesController extends BaseController
 
 
         $content = $request->content;
-        if($content==''){
-            $content=null;
+        if ($content == '') {
+            $content = null;
         }
 
-//        return response()->json(['msg' => $request->reply_id]);
-        if( !$request->file('files') && !isset($content) ){
+        //        return response()->json(['msg' => $request->reply_id]);
+        if (!$request->file('files') && !isset($content)) {
             return response()->json(['msg' => '請輸入內容']);
         }
 
-            $rootPath = public_path('/img/anonymous_chat');
-            $tempPath = $rootPath . '/' . Carbon::now()->format('Ymd') . '/';
+        $rootPath = public_path('/img/anonymous_chat');
+        $tempPath = $rootPath . '/' . Carbon::now()->format('Ymd') . '/';
 
-            if (!is_dir($tempPath)) {
-                File::makeDirectory($tempPath, 0777, true);
+        if (!is_dir($tempPath)) {
+            File::makeDirectory($tempPath, 0777, true);
+        }
+
+        $fileUploader = new FileUploader('files', array(
+            'extensions' => null,
+            'required' => false,
+            'uploadDir' => $tempPath,
+            'title' => '{random}',
+            'replace' => false,
+            'editor' => true,
+            'listInput' => true
+        ));
+        $upload = $fileUploader->upload();
+        $pic_content = null;
+        if ($upload) {
+            $pic_array = array();
+
+            foreach ($fileUploader->getUploadedFiles() as $key => $pic) {
+                $path = substr($pic['file'], strlen($rootPath));
+                $pic_array[$key]['origin_name'] = $pic['old_name'];
+                $pic_array[$key]['file_path'] = '/img/anonymous_chat' . $path;
             }
-
-            $fileUploader = new FileUploader('files', array(
-                'extensions' => null,
-                'required' => false,
-                'uploadDir' => $tempPath,
-                'title' => '{random}',
-                'replace' => false,
-                'editor' => true,
-                'listInput' => true
-            ));
-            $upload = $fileUploader->upload();
-            $pic_content = null;
-            if($upload){
-                $pic_array = array();
-
-                foreach($fileUploader->getUploadedFiles() as  $key => $pic)
-                {
-                    $path = substr($pic['file'], strlen($rootPath));
-                    $pic_array[$key]['origin_name'] = $pic['old_name'];
-                    $pic_array[$key]['file_path'] = '/img/anonymous_chat'.$path;
-                }
-                if(count($pic_array)>0) {
-                    $pic_content = json_encode($pic_array);
-                }
+            if (count($pic_array) > 0) {
+                $pic_content = json_encode($pic_array);
             }
+        }
 
         //anonymous
         $check_anonymous = AnonymousChat::select('anonymous')->where('user_id',auth()->user()->id)->orderBy('created_at', 'desc')->first();
@@ -10140,7 +10072,7 @@ class PagesController extends BaseController
                 'pic' => $pic_content,
                 'anonymous' => $anonymous
             ]);
-        return response()->json(['msg' => 'OK']);
+            return response()->json(['msg' => 'OK']);
 
         }
 
@@ -10162,7 +10094,7 @@ class PagesController extends BaseController
         $forbid_count = $forbid_users->get()->count();
         $forbid_users = $forbid_users->paginate(15);
 
-        foreach ($forbid_users as &$b){
+        foreach ($forbid_users as &$b) {
             $b->name = $this->substr_cut($b->name);
         }
 
@@ -10171,74 +10103,75 @@ class PagesController extends BaseController
             ->with('forbid_users', $forbid_users)
             ->with('forbid_count', $forbid_count);
     }
-    
-    public function checkIsForceShowFaq(Request $request,FaqUserService $fuService) 
+
+    public function checkIsForceShowFaq(Request $request, FaqUserService $fuService)
     {
         return intval($fuService->riseByUserEntry($request->user())->isForceShowFaqPopup());
     }
-    
-    public function checkFaqAnswer(Request $request,FaqUserService $fuService) 
-    {        
 
-        $fuService->riseByUserEntry( auth()->user());
+    public function checkFaqAnswer(Request $request, FaqUserService $fuService)
+    {
+
+        $fuService->riseByUserEntry(auth()->user());
         return response()->json($fuService->checkAnswer($request));
 
     }
-    
-    public function saveFaqReplyErrorState(Request $request,FaqUserService $fuService) 
-    {        
 
-        $fuService->riseByUserEntry( auth()->user())->setReplyErrorState();
-    }  
+    public function saveFaqReplyErrorState(Request $request, FaqUserService $fuService)
+    {
 
-    public function readFaqReplyErrorState(Request $request,FaqUserService $fuService) 
-    {        
+        $fuService->riseByUserEntry(auth()->user())->setReplyErrorState();
+    }
 
-        return $fuService->riseByUserEntry( auth()->user())->getReplyErrorState();
-    }     
+    public function readFaqReplyErrorState(Request $request, FaqUserService $fuService)
+    {
+
+        return $fuService->riseByUserEntry(auth()->user())->getReplyErrorState();
+    }
 
     public function advertise_record(Request $request)
     {
         $user = \Auth::user();
-        Log::Info($user??'false');
+        Log::Info($user ?? 'false');
         $advertise_record = new ComeFromAdvertise;
-        if($user??false)
-        {
+        if ($user ?? false) {
             $advertise_record->user_id = $user->id;
             $advertise_record->action = 'login';
         }
         $advertise_record->save();
         $advertise_id = $advertise_record->id;
         return response()->json(['advertise_id' => $advertise_id]);
-    }  
+    }
 
     public function advertise_record_change(Request $request)
     {
         $user = \Auth::user();
+        if (!$request->advertise_id) {
+            return response()->json(['msg' => 'advertise_id is required']);
+        }
         $advertise_record = ComeFromAdvertise::where('id', $request->advertise_id)->first();
-        if($user??false)
-        {
+        if (!$advertise_record) {
+            return response()->json(['msg' => 'advertise record not found']);
+        }
+        if ($user ?? false) {
             $advertise_record->user_id = $user->id;
         }
-        if($advertise_record->action == 'explore')
-        {
+        if ($advertise_record->action == 'explore') {
             $advertise_record->action = $request->type;
         }
         $advertise_record->save();
         return response()->json([]);
-    }   
-    
+    }
+
     public function regist_time(Request $request)
     {
         $user = \Auth::user();
-        $record = UserRecord::where('user_id',$user->id)->first();
-        if(!($record??false))
-        {
+        $record = UserRecord::where('user_id', $user->id)->first();
+        if (!($record ?? false)) {
             $record = new UserRecord();
             $record->user_id = $user->id;
         }
-        if(!($record->cost_time_of_first_dataprofile??false))
-        {
+        if (!($record->cost_time_of_first_dataprofile ?? false)) {
             $record->cost_time_of_first_dataprofile = $request->cost_time_of_first_dataprofile;
         }
         $record->save();
@@ -10255,179 +10188,171 @@ class PagesController extends BaseController
             return false;
         }
         $visited_record->visited_time = ($visited_record->visited_time ?? 0) + $second;
-        if( $user->is_hide_online != 1 ) {
+        if ($user->is_hide_online != 1 && $user->is_hide_online != 2) {
             $visited_record->save();
-        }else{
+        } else {
             return false;
         }
 
     }
 
-    
-    public function showRealAuth(Request $request,RealAuthPageService $service) 
+    public function showRealAuth(Request $request, RealAuthPageService $service)
     {
         $user = $request->user();
-        
-        if($user->engroup!=2) {
+
+        if ($user->engroup != 2) {
             return redirect('/dashboard/personalPage');
         }
-        
+
         $data = [];
-        $data['user']=$data['cur']=$user;
+        $data['user'] = $data['cur'] = $user;
         $data['service'] = $service->riseByUserEntry($user);
         return view('auth.real_auth', $data);
     }
-    
-    public function forwardRealAuth(Request $request,RealAuthPageService $service) 
+
+    public function forwardRealAuth(Request $request, RealAuthPageService $service)
     {
-        if($request->user()->engroup!=2) {
+        if ($request->user()->engroup != 2) {
             return redirect('/dashboard/personalPage');
         }
-        
+
         $real_auth_type = $request->input('real_auth');
-        if($real_auth_type && $service->isAllowRealAuthType($real_auth_type)) {
-            session()->put('real_auth_type',$real_auth_type);
-            return redirect()->route('dashboard_img',['real_auth'=>$real_auth_type]);
+        if ($real_auth_type && $service->isAllowRealAuthType($real_auth_type)) {
+            session()->put('real_auth_type', $real_auth_type);
+            return redirect()->route('dashboard_img', ['real_auth' => $real_auth_type]);
         }
 
         return back();
-    }  
-    
-    public function forgetRealAuthType() 
+    }
+
+    public function forgetRealAuthType()
     {
         $this->rap_service->forgetRealAuthProcess();
     }
-    
-    public function checkIsInRealAuthProcess(Request $request) 
+
+    public function checkIsInRealAuthProcess(Request $request)
     {
-        if($this->rap_service->isInRealAuthProcess())
+        if ($this->rap_service->isInRealAuthProcess())
             return 1;
         else return 0;
-    }    
-    
-    public function showFamousAuth(Request $request,RealAuthPageService $service) 
+    }
+
+    public function showFamousAuth(Request $request, RealAuthPageService $service)
     {
         $user = $request->user();
-        if($user->engroup!=2) {
+        if ($user->engroup != 2) {
             return redirect('/dashboard/personalPage');
-        }        
+        }
         $data = [];
-        $data['user']=$data['cur']=$user;
+        $data['user'] = $data['cur'] = $user;
         $data['service'] = $service->riseByUserEntry($user);
-        $data['entry_list'] =$data['service']->getFamousAuthQuestionList();
+        $data['entry_list'] = $data['service']->getFamousAuthQuestionList();
         return view('auth.famous_auth', $data);
-    } 
-    
-    public function saveFamousAuth(Request $request,RealAuthPageService $service) 
+    }
+
+    public function saveFamousAuth(Request $request, RealAuthPageService $service)
     {
         $user = $request->user();
         $data = [];
-        $data['user']=$data['cur']=$user;
+        $data['user'] = $data['cur'] = $user;
         $data['service'] = $service->riseByUserEntry($user);
-        $req_entry = (object) $request->all();
+        $req_entry = (object)$request->all();
         $req_entry->real_auth = 3;
         $response_msg = '';
-        
-        if($data['service']->saveFamousAuthForm($req_entry)) {
 
-            if($data['service']->isPassedByAuthTypeId(3)) {
+        if ($data['service']->saveFamousAuthForm($req_entry)) {
+
+            if ($data['service']->isPassedByAuthTypeId(3)) {
                 $response_msg = '認證通過後的異動須經過審核，審核通過前仍將維持原始資料，待審核通過後資料直接更新';
-            }
-            else {
+            } else {
                 $response_msg = '成功送出名人認證申請，敬請等待認證審核結果';
             }
-            
-            return response()->json(['return_url'=>route('real_auth'),'message'=>$response_msg], 200);
+
+            return response()->json(['return_url' => route('real_auth'), 'message' => $response_msg], 200);
+        } else {
+            if ($data['service']->error_msg()) {
+                return response()->json(['message' => $data['service']->error_msg()]);
+            } else return response()->json(['message' => '資料儲存過程中發生錯誤，請檢查資料後重新送出，若問題仍持續發生，請聯絡站長。']);
         }
-        else {
-            if($data['service']->error_msg()) {
-                return response()->json(['message'=>$data['service']->error_msg()]);
-            }
-            else return response()->json(['message'=>'資料儲存過程中發生錯誤，請檢查資料後重新送出，若問題仍持續發生，請聯絡站長。']);
-        }
-    } 
-    
-    public function savePassedRealAuthModify(Request $request,RealAuthPageService $service) 
+    }
+
+    public function savePassedRealAuthModify(Request $request, RealAuthPageService $service)
     {
         return intval(!!($service->riseByUserEntry($request->user())->saveProfileModifyByReq($request)));
     }
 
-    public function deleteFamousAuthPic(Request $request,RealAuthPageService $service)
+    public function deleteFamousAuthPic(Request $request, RealAuthPageService $service)
     {
-        
-       $rs = $service->riseByUserEntry($request->user())->deleteFamousAuthPic($request);
 
-        if($rs) $msg = '刪除成功';
-        else $msg='刪除過程中有錯誤發生，部分檔案可能刪除失敗';
-        
+        $rs = $service->riseByUserEntry($request->user())->deleteFamousAuthPic($request);
+
+        if ($rs) $msg = '刪除成功';
+        else $msg = '刪除過程中有錯誤發生，部分檔案可能刪除失敗';
+
         return response($msg);
-    } 
+    }
 
-    public function deleteBeautyAuthPic(Request $request,RealAuthPageService $service)
+    public function deleteBeautyAuthPic(Request $request, RealAuthPageService $service)
     {
-        
-       $rs = $service->riseByUserEntry($request->user())->deleteBeautyAuthPic($request);
-        if($rs) $msg = '刪除成功';
-        else $msg='刪除過程中有錯誤發生，部分檔案可能刪除失敗';
-        
-        return response($msg);
-    }       
 
-    public function showBeautyAuth(Request $request,RealAuthPageService $service) 
+        $rs = $service->riseByUserEntry($request->user())->deleteBeautyAuthPic($request);
+        if ($rs) $msg = '刪除成功';
+        else $msg = '刪除過程中有錯誤發生，部分檔案可能刪除失敗';
+
+        return response($msg);
+    }
+
+    public function showBeautyAuth(Request $request, RealAuthPageService $service)
     {
         $user = $request->user();
-        if($user->engroup!=2) {
+        if ($user->engroup != 2) {
             return redirect('/dashboard/personalPage');
         }
         $data = [];
-        
-        $data['user']=$data['cur']=$user;
-        $data['service'] = $service->riseByUserEntry($user);
-        
-        $precheck_return = $data['service']->getBeautyAuthProcessPrecheckReturn();  
-        if($precheck_return) return $precheck_return;
 
-        $data['entry_list'] =$data['service']->getBeautyAuthQuestionList();
-        
+        $data['user'] = $data['cur'] = $user;
+        $data['service'] = $service->riseByUserEntry($user);
+
+        $precheck_return = $data['service']->getBeautyAuthProcessPrecheckReturn();
+        if ($precheck_return) return $precheck_return;
+
+        $data['entry_list'] = $data['service']->getBeautyAuthQuestionList();
+
         return view('auth.beauty_auth', $data);
     }
 
-    public function saveBeautyAuth(Request $request,RealAuthPageService $service) 
+    public function saveBeautyAuth(Request $request, RealAuthPageService $service)
     {
         $user = $request->user();
         $data = [];
-        $data['user']=$data['cur']=$user;
+        $data['user'] = $data['cur'] = $user;
         $data['service'] = $service->riseByUserEntry($user);
-        $req_entry = (object) $request->all();
-        $req_entry->real_auth = 2;        
+        $req_entry = (object)$request->all();
+        $req_entry->real_auth = 2;
         $response_msg = '';
-        
-        if($data['service']->saveBeautyAuthForm($req_entry)) {
-            if($data['service']->isPassedByAuthTypeId(2)) {
+
+        if ($data['service']->saveBeautyAuthForm($req_entry)) {
+            if ($data['service']->isPassedByAuthTypeId(2)) {
                 $response_msg = '認證通過後的異動須經過審核，審核通過前仍將維持原始資料，待審核通過後資料直接更新';
-            }
-            else {
+            } else {
                 $response_msg = '成功送出美顏推薦申請，敬請等待認證審核結果';
             }
-            return response()->json(['return_url'=>route('real_auth'),'message'=>$response_msg], 200);
+            return response()->json(['return_url' => route('real_auth'), 'message' => $response_msg], 200);
+        } else {
+            if ($data['service']->error_msg()) {
+                return response()->json(['message' => $data['service']->error_msg()]);
+            } else   return response()->json(['message' => '資料儲存過程中發生錯誤，請檢查資料後重新送出，若問題仍持續發生，請聯絡站長。']);
         }
-        else {
-            if($data['service']->error_msg()) {
-                return response()->json(['message'=>$data['service']->error_msg()]);
-            }
-            else   return response()->json(['message'=>'資料儲存過程中發生錯誤，請檢查資料後重新送出，若問題仍持續發生，請聯絡站長。']);        
-        }
-    }     
-    
+    }
 
-    public function showTagDisplaySettings(Request $request,RealAuthPageService $service)
+    public function showTagDisplaySettings(Request $request, RealAuthPageService $service)
     {
 
         $user = auth()->user();
-        if($user->engroup!=2) {
+        if ($user->engroup != 2) {
             return redirect('/dashboard/personalPage');
         }
-        if($user->self_auth_status!=1 && $user->beauty_auth_status!=1) {
+        if ($user->self_auth_status != 1 && $user->beauty_auth_status != 1) {
             return redirect('/dashboard/personalPage');
         }
 
@@ -10437,36 +10362,35 @@ class PagesController extends BaseController
         return view('new.dashboard.tag_display_settings', compact('data'));
     }
 
-    public function tagDisplaySet(Request $request,RealAuthPageService $service)
+    public function tagDisplaySet(Request $request, RealAuthPageService $service)
     {
         $user = auth()->user();
 
         // if($request->self_auth_vip_show || $request->self_auth_pr_show){
-            $data['vip_show']=$request->self_auth_vip_show=='VIP' ? 1 :0;
-            $data['more_than_pr_show']=$request->self_auth_pr_show=='PR' ? $request->self_auth_pr_value : null;
-            RealAuthUserTagsDisplay::updateOrInsert(['user_id'=> $user->id, 'auth_type_id'=> 1], $data);
+        $data['vip_show'] = $request->self_auth_vip_show == 'VIP' ? 1 : 0;
+        $data['more_than_pr_show'] = $request->self_auth_pr_show == 'PR' ? $request->self_auth_pr_value : null;
+        RealAuthUserTagsDisplay::updateOrInsert(['user_id' => $user->id, 'auth_type_id' => 1], $data);
         // }
 
         // if($request->beauty_auth_vip_show || $request->beauty_auth_pr_show){
-            $data['vip_show']=$request->beauty_auth_vip_show=='VIP' ? 1 :0;
-            $data['more_than_pr_show']=$request->beauty_auth_pr_show=='PR' ? $request->beauty_auth_pr_value : null;
-            RealAuthUserTagsDisplay::updateOrInsert(['user_id'=> $user->id, 'auth_type_id'=> 2], $data);
+        $data['vip_show'] = $request->beauty_auth_vip_show == 'VIP' ? 1 : 0;
+        $data['more_than_pr_show'] = $request->beauty_auth_pr_show == 'PR' ? $request->beauty_auth_pr_value : null;
+        RealAuthUserTagsDisplay::updateOrInsert(['user_id' => $user->id, 'auth_type_id' => 2], $data);
         // }
 
         // if($request->famous_auth_vip_show || $request->famous_auth_pr_show){
-            $data['vip_show']=$request->famous_auth_vip_show=='VIP' ? 1 :0;
-            $data['more_than_pr_show']=$request->famous_auth_pr_show=='PR' ? $request->famous_auth_pr_value : null;
-            RealAuthUserTagsDisplay::updateOrInsert(['user_id'=> $user->id, 'auth_type_id'=> 3], $data);
+        $data['vip_show'] = $request->famous_auth_vip_show == 'VIP' ? 1 : 0;
+        $data['more_than_pr_show'] = $request->famous_auth_pr_show == 'PR' ? $request->famous_auth_pr_value : null;
+        RealAuthUserTagsDisplay::updateOrInsert(['user_id' => $user->id, 'auth_type_id' => 3], $data);
         // }
 
         return redirect()->back()->with('message', '更新完成');
     }
 
-
     public function stay_online_time(Request $request)
     {
         $second = $request->stay_second;
-        $stay_online_record_id = $request->stay_online_record_id??0;
+        $stay_online_record_id = $request->stay_online_record_id ?? 0;
         $page_id = $request->page_id;
         $page_uid = $request->page_uid;
         $page_url = $request->page_url;
@@ -10474,39 +10398,37 @@ class PagesController extends BaseController
         $user = auth()->user();
         $is_need_create = false;
         $no_storage_record_id = false;
-        
-        if($user??false)
-        {
+
+        if ($user ?? false) {
             $stay_online_record = null;
-            if($stay_online_record_id) {
+            if ($stay_online_record_id) {
                 $stay_online_record = StayOnlineRecord::where('id', $stay_online_record_id)->where('user_id', $user->id)->first();
-                if(!$stay_online_record)
-                {
+                if (!$stay_online_record) {
                     $is_need_create = true;
                     $no_storage_record_id = true;
-                } 
+                }
             }
-            if(!$is_need_create) {                 
-                $stay_online_record = StayOnlineRecord::where('page_uid',$page_uid)->where('url',$page_url)->where('user_id', $user->id)->orderByDesc('id')->first();
-            
-                if(!$stay_online_record) {
+            if (!$is_need_create) {
+                $stay_online_record = StayOnlineRecord::where('page_uid', $page_uid)->where('url', $page_url)->where('user_id', $user->id)->orderByDesc('id')->first();
+
+                if (!$stay_online_record) {
                     $is_need_create = true;
                 }
             }
-            
+
             if($is_need_create) {
                 $stay_online_record = new StayOnlineRecord();
                 $stay_online_record->user_id = $user->id;
                 $stay_online_record->url = $page_url;
                 $stay_online_record->title = $page_title;
                 $stay_online_record->ip = $request->ip();
-                $stay_online_record->userAgent = $request->server('HTTP_USER_AGENT');                
+                $stay_online_record->userAgent = $request->server('HTTP_USER_AGENT');
             }
-            
+
             $stay_online_record->page_uid = $page_uid;
             if(!$no_storage_record_id) $stay_online_record->client_storage_record_id = $stay_online_record_id;
             if(!$stay_online_record->title) $stay_online_record->title = $page_title;
-                
+
             $stay_online_record->stay_online_time = ($stay_online_record->stay_online_time ?? 0) + $second;
             if ($page_id) {
                 $stay_online_record->{$page_id} = ($stay_online_record->{$page_id} ?? 0) + $second;
@@ -10516,24 +10438,21 @@ class PagesController extends BaseController
             $stay_online_record->save();
             $stay_online_record_id = $stay_online_record->client_storage_record_id?$stay_online_record->client_storage_record_id:$stay_online_record->id;
         }
-        
+
         return response()->json(['stay_online_record_id' => $stay_online_record_id]);
     }
 
     public function first_exchange_period_modify(Request $request)
     {
         $user = $request->user();
-        if( Hash::check($request->input('password'),$user->password)) 
-        {
+        if (Hash::check($request->input('password'), $user->password)) {
             $period = $request->input('exchange_period');
             $reason = $request->input('reason');
-            UserProvisionalVariables::where('user_id',$user->id)->update(['has_adjusted_period_first_time' => 1]);
+            UserProvisionalVariables::where('user_id', $user->id)->update(['has_adjusted_period_first_time' => 1]);
             User::where('id', $user->id)->update(['exchange_period' => $period]);
             DB::table('exchange_period_temp')->insert(['user_id' => $user->id, 'created_at' => \Carbon\Carbon::now()]);
             return back()->with('message', '已完成設定，無需審核');
-        }
-        else
-        {
+        } else {
             return back()->with('message', '密碼有誤，請重新操作');
         }
 
@@ -10545,20 +10464,20 @@ class PagesController extends BaseController
     }
 
     //vvip
+
     public function view_vvipSelect(Request $request)
     {
-        
+
         $user = auth()->user();
         $warn_ban_reason = null;
-        if($user->isEverWarnedAndBanned())
-        {
+        if ($user->isEverWarnedAndBanned()) {
             $temp = IsWarnedLog::where('user_id', $user->id)->orderBy('created_at', 'desc')->first();
-            if($temp && $temp->created_at > $warn_ban_reason?->created_at){
+            if ($temp && $temp->created_at > $warn_ban_reason?->created_at) {
                 $warn_ban_reason = $temp;
             }
 
             $temp = IsBannedLog::where('user_id', $user->id)->orderBy('created_at', 'desc')->first();
-            if($temp && $temp->created_at > $warn_ban_reason?->created_at){
+            if ($temp && $temp->created_at > $warn_ban_reason?->created_at) {
                 $warn_ban_reason = $temp;
             }
 
@@ -10568,23 +10487,22 @@ class PagesController extends BaseController
             }
 
             $temp = warned_users::where('member_id', $user->id)->orderBy('created_at', 'desc')->first();
-            if($temp && $temp->created_at > $warn_ban_reason?->created_at){
+            if ($temp && $temp->created_at > $warn_ban_reason?->created_at) {
                 $warn_ban_reason = $temp;
             }
         }
         return view('new.dashboard.vvipSelect')
             ->with('user', $user)
-            ->with('warn_ban_reason', $warn_ban_reason)
-            ;
+            ->with('warn_ban_reason', $warn_ban_reason);
     }
 
     public function view_vvipSelect_a(Request $request)
     {
         $user = auth()->user();
-        $refund='';
-        $vip_text='';
+        $refund = '';
+        $vip_text = '';
 
-        if($user->isVip() && !$user->isFreeVip()) {
+        if ($user->isVip() && !$user->isFreeVip()) {
             [, $vip_text] = PaymentService::calculatesRefund($user, 'vip_refund');
         }
 
@@ -10696,7 +10614,6 @@ class PagesController extends BaseController
 
         return view('new.dashboard.vvipInfo')
             ->with('user', $user)
-
             ->with('point_information', $point_information)
             ->with('date_trend', $date_trend)
             ->with('background_and_assets', $background_and_assets)
@@ -10704,7 +10621,6 @@ class PagesController extends BaseController
             ->with('assets_image', $assets_image)
             ->with('quality_life_image', $quality_life_image)
             ->with('expect_date', $expect_date)
-
             ->with('high_assets', $high_assets)
             ->with('ceo_title', $ceo_title)
             ->with('professional', $professional)
@@ -10713,10 +10629,8 @@ class PagesController extends BaseController
             ->with('professional_network', $professional_network)
             ->with('life_care', $life_care)
             ->with('special_problem_handling', $special_problem_handling)
-
             ->with('system_assets_image', $system_assets_image)
-            ->with('system_quality_life_image', $system_quality_life_image)
-            ;
+            ->with('system_quality_life_image', $system_quality_life_image);
     }
 
     public function edit_vvipInfo(Request $request)
@@ -10725,27 +10639,37 @@ class PagesController extends BaseController
 
         $user = auth()->user();
 
-        if($request->point_information ?? false)
-        {$option_array['point_information'] = json_decode($request->point_information);}
-        if($request->date_trend ?? false)
-        {$option_array['date_trend'] = json_decode($request->date_trend);}
-        if($request->background_and_assets ?? false)
-        {$option_array['background_and_assets'] = json_decode($request->background_and_assets);}
-        if($request->extra_care ?? false)
-        {$option_array['extra_care'] = json_decode($request->extra_care);}
-        if($request->expect_date ?? false)
-        {$option_array['expect_date'] = json_decode($request->expect_date);}
+        if ($request->point_information ?? false) {
+            $option_array['point_information'] = json_decode($request->point_information);
+        }
+        if ($request->date_trend ?? false) {
+            $option_array['date_trend'] = json_decode($request->date_trend);
+        }
+        if ($request->background_and_assets ?? false) {
+            $option_array['background_and_assets'] = json_decode($request->background_and_assets);
+        }
+        if ($request->extra_care ?? false) {
+            $option_array['extra_care'] = json_decode($request->extra_care);
+        }
+        if ($request->expect_date ?? false) {
+            $option_array['expect_date'] = json_decode($request->expect_date);
+        }
 
-        if($request->point_information_other ?? false)
-        {$option_array_other['point_information_other'] = json_decode($request->point_information_other);}
-        if($request->date_trend_other ?? false)
-        {$option_array_other['date_trend_other'] = json_decode($request->date_trend_other);}
-        if($request->background_and_assets_other ?? false)
-        {$option_array_other['background_and_assets_other'] = json_decode($request->background_and_assets_other);}
-        if($request->extra_care_other ?? false)
-        {$option_array_other['extra_care_other'] = json_decode($request->extra_care_other);}
-        if($request->expect_date_other ?? false)
-        {$option_array_other['expect_date_other'] = json_decode($request->expect_date_other);}
+        if ($request->point_information_other ?? false) {
+            $option_array_other['point_information_other'] = json_decode($request->point_information_other);
+        }
+        if ($request->date_trend_other ?? false) {
+            $option_array_other['date_trend_other'] = json_decode($request->date_trend_other);
+        }
+        if ($request->background_and_assets_other ?? false) {
+            $option_array_other['background_and_assets_other'] = json_decode($request->background_and_assets_other);
+        }
+        if ($request->extra_care_other ?? false) {
+            $option_array_other['extra_care_other'] = json_decode($request->extra_care_other);
+        }
+        if ($request->expect_date_other ?? false) {
+            $option_array_other['expect_date_other'] = json_decode($request->expect_date_other);
+        }
 
         //重置選項
         VvipOptionXref::reset($user->id);
@@ -10759,10 +10683,12 @@ class PagesController extends BaseController
         VvipOptionXref::updateMultipleOptionAndRemark($user->id, 'quality_life_image', $system_image_life, $system_image_life_title);
 
         //圖片上傳處理
-        if($request->assets_image_content ?? false)
-        {VvipOptionXref::uploadImage($user->id, 'assets_image', $request->assets_image, $request->assets_image_detail, $request->assets_image_content);}
-        if($request->life_image_content ?? false)
-        {VvipOptionXref::uploadImage($user->id, 'quality_life_image', $request->quality_life_image, $request->quality_life_image_detail, $request->life_image_content, $request->life_image_content_title);}
+        if ($request->assets_image_content ?? false) {
+            VvipOptionXref::uploadImage($user->id, 'assets_image', $request->assets_image, $request->assets_image_detail, $request->assets_image_content);
+        }
+        if ($request->life_image_content ?? false) {
+            VvipOptionXref::uploadImage($user->id, 'quality_life_image', $request->quality_life_image, $request->quality_life_image_detail, $request->life_image_content, $request->life_image_content_title);
+        }
 
         //重置選項
         VvipSubOptionXref::reset($user->id);
@@ -10781,7 +10707,7 @@ class PagesController extends BaseController
         VvipSubOptionXref::updateMultipleOption($user->id, $life_care, 'life_care');
         $special_problem_handling = json_decode($request->special_problem_handling);
         VvipSubOptionXref::updateMultipleOption($user->id, $special_problem_handling, 'special_problem_handling');
-        
+
         $vvipInfo = VvipInfo::where('user_id', $user->id)->first();
         if(!$vvipInfo) {
             $vvipInfo = new VvipInfo();
@@ -10793,7 +10719,6 @@ class PagesController extends BaseController
 
         //更新關於我
         UserMeta::where('user_id',$user->id)->update(['about' => $request->about]);
-
 
 
         return back()->with('message', '資料已更新');
@@ -10857,7 +10782,7 @@ class PagesController extends BaseController
             $visited_id = 0;
             if ($user->id != $uid) {
                 if(isset($canViewUsers)){
-                    if( $user->is_hide_online != 1 ) {
+                    if( $user->is_hide_online != 1 && $user->is_hide_online != 2) {
                         $visited_id = Visited::visit($user->id, $targetUser);
                     }
                 }
@@ -10870,7 +10795,7 @@ class PagesController extends BaseController
 //                    return redirect()->route('listSeatch2');
 //                }
                 else{
-                    if( $user->is_hide_online != 1 ) {
+                    if( $user->is_hide_online != 1 && $user->is_hide_online != 2) {
                         $visited_id = Visited::visit($user->id, $targetUser);
                     }
                 }
@@ -10950,7 +10875,6 @@ class PagesController extends BaseController
             /*編輯文案-label_vip-END*/
 
 
-
             /**
              * 效能調整：使用左結合以大幅降低處理時間，並且減少 query 次數，進一步降低時間及程式碼複雜度
              *
@@ -10975,7 +10899,7 @@ class PagesController extends BaseController
                 //->orWhere('wu.expire_date', null); }); })
                 ->whereNull('b1.member_id')
                 ->whereNull('b3.target')
-                ->where('um.isWarned',0)
+                ->where('um.isWarned', \DB::raw('0'))
                 ->whereNull('w2.id')
                 ->whereNotNull('u1.id')
                 //->whereNotNull('u2.id')
@@ -11079,9 +11003,9 @@ class PagesController extends BaseController
                 ->with('vipDays',$vipDays)
                 ->with('isReadIntro',$isReadIntro)
                 ->with('auth_check',$auth_check)
-                ->with('is_banned',User::isBanned($user->id))
+                ->with('is_banned', User::isBanned($user->id))
                 ->with('pr', $pr)
-                ->with('isBlocked',$isBlocked)
+                ->with('isBlocked', $isBlocked)
                 ->with('visited_id', $visited_id)
                 ->with('transport_fare_reported', $transport_fare_reported)
                 ->with('month_budget_reported', $month_budget_reported)
@@ -11089,31 +11013,203 @@ class PagesController extends BaseController
                 ->with('assets_image', $assets_image)
                 ->with('quality_life_image', $quality_life_image)
                 ->with('mood_article_lists', $mood_article_lists)
-                ->with('message_board_list', $message_board_list)
-                ;
+                ->with('message_board_list', $message_board_list);
         }
 
     }
 
-//    public function VVIPisInvitedUpdateStatus(Request $request)
-//    {
-//        $user_id = $request->uid;
-//        $status = $request->status;
-//        $exist = VvipInvite::where('invite_user_id', $user_id)->where('status', 0)->first();
-//        if(isset($exist)){
-//            VvipInvite::where('invite_user_id', $user_id)->where('status', 0)->update(['status' => $status]);
-//            return response()->json(array(
-//                'status' => 1,
-//                'msg' => 'ok',
-//            ), 200);
-//        }
-//    }
+    //    public function VVIPisInvitedUpdateStatus(Request $request)
+    //    {
+    //        $user_id = $request->uid;
+    //        $status = $request->status;
+    //        $exist = VvipInvite::where('invite_user_id', $user_id)->where('status', 0)->first();
+    //        if(isset($exist)){
+    //            VvipInvite::where('invite_user_id', $user_id)->where('status', 0)->update(['status' => $status]);
+    //            return response()->json(array(
+    //                'status' => 1,
+    //                'msg' => 'ok',
+    //            ), 200);
+    //        }
+    //    }
+
+    public function view_vvipSelectionReward(Request $request)
+    {
+        $user = auth()->user();
+        if (!$user->isVVIP()) {
+            return back()->with('message', '此活動僅限 VVIP 參加');
+        }
+        //check application
+        $checkVvipSelectionReward = VvipSelectionReward::where('user_id', $user->id)
+            ->whereIn('status', [0, 1])
+            ->orderBy('created_at', 'desc')
+            ->first();
+        if($checkVvipSelectionReward &&
+            (($checkVvipSelectionReward->expire_date && Carbon::parse($checkVvipSelectionReward->expire_date) > Carbon::now()) || ($checkVvipSelectionReward->expire_date == ''))
+        ){
+            return back()->with('message', '您已申請過或活動尚未結束');
+        }
+
+        $adminCommonTexts = AdminCommonText::whereIn('alias', ['vvip_selection_reward_area1_title', 'vvip_selection_reward_area1', 'vvip_selection_reward_area2', 'vvip_selection_reward_area3', 'vvip_selection_reward_area4'])->get();
+        $adminCommonTextArray = array();
+        foreach($adminCommonTexts as $adminCommonText){
+            $adminCommonTextArray[$adminCommonText->alias] = $adminCommonText;
+        }
+        $area1_title = $adminCommonTextArray['vvip_selection_reward_area1_title'];
+        $area1 = $adminCommonTextArray['vvip_selection_reward_area1'];
+        $area2 = $adminCommonTextArray['vvip_selection_reward_area2'];
+        $area3 = $adminCommonTextArray['vvip_selection_reward_area3'];
+        $area4 = $adminCommonTextArray['vvip_selection_reward_area4'];
+
+        return view('new.dashboard.vvipSelectionReward')
+            ->with('area1_title', $area1_title)
+            ->with('area1', $area1)
+            ->with('area2', $area2)
+            ->with('area3', $area3)
+            ->with('area4', $area4)
+            ->with('user', $user);
+    }
+
+    public function view_vvipSelectionRewardApply(Request $request)
+    {
+        $user = auth()->user();
+        $option_selection_reward = DB::table('vvip_option_selection_reward')->get();
+        return view('new.dashboard.vvipSelectionRewardApply')
+            ->with('user', $user)
+            ->with('option_selection_reward', $option_selection_reward);
+    }
+
+    public function vvipSelectionRewardApply(Request $request)
+    {
+        $user = auth()->user();
+
+        $new_array = array();
+        $array1 = array();
+        if(is_array(json_decode($request->option_selection_reward))) {
+            $array1 = json_decode($request->option_selection_reward);
+        }
+
+        $array2 = array_filter($request->condition);
+        $result = array_merge($array1, $array2);
+
+        foreach ($result as $key => $row) {
+            $new_array[$key+1] = $row;
+        }
+
+        //default value
+        $identify_method = array();
+        $identify_method[1] = '本人驗證';
+        $identify_method[2] = '其他方式';
+
+        $bonus_distribution = array();
+        $bonus_distribution[1] = '通過初步驗證立即發放 5000';
+        $bonus_distribution[2] = '約見成功後，再發放車馬費 5000';
+
+        $vvipSelectionReward = new VvipSelectionReward();
+        $vvipSelectionReward->user_id = $user->id;
+        $vvipSelectionReward->title = $request->title;
+        $vvipSelectionReward->condition = json_encode($new_array, JSON_UNESCAPED_UNICODE);
+        $vvipSelectionReward->identify_method = json_encode($identify_method, JSON_UNESCAPED_UNICODE);
+        $vvipSelectionReward->bonus_distribution = json_encode($bonus_distribution, JSON_UNESCAPED_UNICODE);
+        $vvipSelectionReward->limit = $request->limit;
+        $vvipSelectionReward->status = 0;
+        $vvipSelectionReward->save();
+        return redirect('/dashboard/vvipPassSelect')->with('message', '已送出申請');
+    }
+
+    public function vvipSelectionRewardIgnore(Request $request)
+    {
+        if ($request->ajax()) {
+            if($request->mode=='skip'){
+                session()->push('skip.id', $request->id);
+            }else {
+                $data = VvipSelectionRewardIgnore::where('user_id', $request->user_id)->where('vvip_selection_reward_id', $request->id)->first();
+
+                if ($request->ignore == 1 && !$data) {
+                    $newData = new VvipSelectionRewardIgnore();
+                    $newData->user_id = $request->user_id;
+                    $newData->vvip_selection_reward_id = $request->id;
+                    $newData->save();
+                } elseif ($request->ignore == 0 && $data) {
+                    VvipSelectionRewardIgnore::where('user_id', $request->user_id)->where('vvip_selection_reward_id', $request->id)->delete();
+                }
+            }
+            return response()->json(['success' => true]);
+        }
+    }
+
+    public function vvipSelectionRewardGirlApply(Request $request)
+    {
+        if ($request->ajax()) {
+
+            //限女
+            $checkEngroup = User::find($request->user_id);
+            $checkBanned = User::isBanned_v2($checkEngroup->id);
+            if($checkEngroup->engroup==1){
+                $msg = '活動限女性參加';
+                return response()->json(['success' => true, 'message' => $msg]);
+            }
+            if($checkBanned){
+                $msg = '您不符合報名資格';
+                return response()->json(['success' => true, 'message' => $msg]);
+            }
+
+            $data = VvipSelectionRewardApply::where('user_id', $request->user_id)->where('vvip_selection_reward_id', $request->id)->first();
+
+            if(!$data){
+                $newData = new VvipSelectionRewardApply();
+                $newData->user_id = $request->user_id;
+                $newData->vvip_selection_reward_id = $request->id;
+                $newData->save();
+                $msg = '您已應徵完成';
+            }elseif($data){
+                $msg = '您已經應徵過此選拔';
+            }
+
+            return response()->json(['success' => true, 'message' => $msg]);
+        }
+    }
+
+    public function vvipSelectionRewardUserNoteEdit(Request $request)
+    {
+        $user = auth()->user();
+        $new_user_note = $request->input('user_note');
+
+        $old_user_note = VvipSelectionReward::where('id', $request->input('id'))->first()->user_note;
+        $br = '';
+        if($old_user_note != ''){
+            $br = '; ';
+        }
+        $user_note  = $old_user_note.$br.$new_user_note .' ('. Carbon::now() .')';
+        $action = VvipSelectionReward::where('id', $request->input('id'))->update(['user_note' => nl2br($user_note)]);
+        if ($action) {
+            return back()->with('message', '資料已送出');
+        }
+        return back()->with('message', '發送失敗');
+
+    }
 
     //vvip end
+
     public function getChatIsTruthRemainQuota(Request $request)
     {
         return intval(Message::getRemainQuotaOfIsTruthByFromUser($request->user()));
-    }  
+    }
+
+    public function logChatWithError(Request $request)
+    {
+        $payload = $request->all();
+        $error_log_arr = [
+            'from_id' => $payload['from']
+            , 'to_id' => $payload['to']
+            , 'content' => $payload['msg']
+            , 'pic' => json_encode($request->file('images') ?? [])
+            , 'error_from' => 'client'
+            , 'error' => $payload['error']
+            , 'error_return_data' => $payload['error_return_data']
+        ];
+
+        MessageErrorLog::create($error_log_arr);
+    }
 }
 
 
