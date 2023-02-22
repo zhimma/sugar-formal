@@ -102,6 +102,18 @@ class UserService
         if(($to->engroup == $user->engroup)) {
             return false;
         }
+        
+        $tiny_setting_to_blurry = $to->tiny_setting_to_blurry()->where('to_id',$user->id)->first();
+        
+        if($tiny_setting_to_blurry) {
+            if($tiny_setting_to_blurry->value==1) {
+                return true;
+            }
+            else if($tiny_setting_to_blurry->value==-1) {
+                return false;
+            }
+        }
+        
         $blurryAvatar = isset($to->meta->blurryAvatar)? $to->meta->blurryAvatar : "";
         $blurryAvatar = explode(',', $blurryAvatar);
         if($user->meta->isWarned == 1 || $user->aw_relation){
@@ -134,6 +146,18 @@ class UserService
         if(($to->id == $user->id)) {
             return false;
         }
+        
+       $tiny_setting_to_blurry = $to->tiny_setting_to_blurry()->where('to_id',$user->id)->first();
+        
+        if($tiny_setting_to_blurry) {
+            if($tiny_setting_to_blurry->value==1) {
+                return true;
+            }
+            else if($tiny_setting_to_blurry->value==-1) {
+                return false;
+            }
+        }        
+        
         $blurryLifePhoto = isset($to->meta->blurryLifePhoto)? $to->meta->blurryLifePhoto : "";
         $blurryLifePhoto = explode(',', $blurryLifePhoto);
         if($user->meta->isWarned == 1 || $user->aw_relation ){

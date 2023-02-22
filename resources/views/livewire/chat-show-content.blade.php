@@ -99,6 +99,7 @@
                                             @endif
                                         @endif
                                             @php
+                                                $isBlurAvatar = \App\Services\UserService::isBlurAvatar($to, $user);
                                                 $pic = ($isBlurAvatar)?$msgUser->meta->pic_blur:$msgUser->meta->pic;
                                             @endphp
                                             <img class="@if($isBlurAvatar) blur_img @endif"

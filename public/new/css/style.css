@@ -6478,6 +6478,12 @@ color: #666; padding: 0 10px; cursor: pointer;}
     cursor: pointer;background-position: right;
 }
 
+.z_mohu{position: absolute; right: 0px; top:-50px; cursor: pointer; background: #ffe8f1;border-radius:100px; padding: 3px; height:28px; display: table; 
+box-shadow:0 8px 8px rgba(255,76,112,0.35);    }
+.z_mohu_a{background:linear-gradient(to top, #f9738f, #ffbad7);border-radius:100px; height:28px; line-height: 28px;color: #fff; padding: 0 10px; display: table;  }
+.z_mohu_a img{ height:18px; margin-top: -2px; margin-right:2px;}
+.z_mohu_a:active{color:#fff;background: linear-gradient(to left,#f9738f,#ffbad7);box-shadow:4px 4px 6px 0 rgba(255,255,255,.5),-4px -4px 6px 0 rgba(116,125,136,.5),inset -4px -4px 6px 0 rgba(255,255,255,.2),inset 4px 4px 6px 0 rgba(0,0,0,.4)!important;}
+
 
 .hypbgul{width: 93%; margin: 0 auto; display: table; margin-top:0px;}
 

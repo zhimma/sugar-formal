@@ -571,6 +571,14 @@ class User extends Authenticatable implements JWTSubject
     public function backend_user_details(){
         return $this->hasMany(BackendUserDetails::class, 'user_id', 'id');
     }
+    
+    public function tiny_setting_to() {
+        return $this->hasMany(UserTinySettingTo::class, 'user_id', 'id');
+    }    
+    
+    public function tiny_setting_to_blurry() {
+        return $this->tiny_setting_to()->where('cat','blurry_to_user');
+    }
 
     public function operator_commit(){
         return $this->hasMany(UserRemarksLog::class, 'target_user_id', 'id')->orderByDesc('created_at');
