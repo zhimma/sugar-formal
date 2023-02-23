@@ -60,7 +60,7 @@ class Chat extends BaseController
         }
 
         if(!isset($m['error'])){
-            \App\Events\NewMessage::dispatch($m->id, $m->content, $m->from_id, $m->to_id);
+            \App\Events\NewMessage::dispatch($m->id, $m->content, $m->from_id, $m->to_id,$m->pic?1:0);
         }
         return event(new \App\Events\Chat($m, $request->from, $request->to));
     }
