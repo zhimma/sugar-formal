@@ -798,7 +798,7 @@
                 @endif            
             <div class="message pad_bot xxi" id="message_content_show" style="position: relative;">
                 
-                <div style="margin-top: 60px;"></div>
+{{--                <div style="margin-top: 60px;"></div>--}}
                 @php
                     $isBlurAvatar = \App\Services\UserService::isBlurAvatar($to, $user);
                 @endphp
