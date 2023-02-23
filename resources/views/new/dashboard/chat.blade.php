@@ -460,6 +460,8 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
         top: -9px;
         right: -9px;        
     }
+    
+    .ellipsis {width:80% !important;}
 </style>
 <!--引导弹出层-->
 <script type="text/javascript" src="/new/intro/intro.js"></script>
@@ -1383,7 +1385,8 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                            isCan = false,
                            cityAndArea,
                            message_user_note,
-                           isVVIP){
+                           isVVIP,
+                           msg_pic){
             showMsg = show;
             var li='';
             var ss =((i+1)>Page.row)?'display:none;':'display:none;';
@@ -1458,8 +1461,15 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
             }
 
             if(show==1) {
+                let show_content = '';
+                if(content=='') {
+                    show_content='圖片已傳送';
+                }
+                else {
+                    show_content = content;
+                }
                 li += `<span class="box">
-                        <font class="ellipsis ${user_id}">${content}</font>
+                        <font class="ellipsis ${user_id}">${show_content}</font>
                        </span>
                        </div></a>
                    `;
