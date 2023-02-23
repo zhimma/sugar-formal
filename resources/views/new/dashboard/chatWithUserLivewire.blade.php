@@ -476,17 +476,17 @@
      <style>
      
         .n_left{ float:right;width:120px;height: 40px;background: #8a9ff0;border-radius: 200px;color: #ffffff;text-align: center;line-height: 40px;font-size: 16px; margin-right:11px;}
-        .btn_left:hover{color:#ffffff;box-shadow:inset 0px 15px 10px -10px #4c6ded,inset 0px -10px 10px -20px #4c6ded;}
-        .btn_right{ float:left;width:120px;height: 40px;background: #ffffff; border: #8a9ff0 1px solid;border-radius: 200px;color: #8a9ff0;text-align: center;line-height: 40px;font-size: 16px; margin-left:11px;}
-        .btn_right:hover{color:#ffffff;box-shadow:inset 0px 15px 10px -10px #516cd4,inset 0px -10px 10px -20px #516cd4; background:#8a9ff0}
+        .btn_right:hover{color:#ffffff;box-shadow:inset 0px 15px 10px -10px #4c6ded,inset 0px -10px 10px -20px #4c6ded;}
+        .btn_left:hover{color:#ffffff;box-shadow:inset 0px 15px 10px -10px #516cd4,inset 0px -10px 10px -20px #516cd4; background:#8a9ff0}
      
         .btn_left {
             float: right;
             width: 120px;
             height: 40px;
-            background: #8a9ff0;
+            background: #ffffff;
+            border: #8a9ff0 1px solid;
             border-radius: 200px;
-            color: #ffffff;
+            color: #8a9ff0;
             text-align: center;
             line-height: 40px;
             font-size: 16px;
@@ -497,10 +497,10 @@
             float: left;
             width: 120px;
             height: 40px;
-            background: #ffffff;
+            background: #8a9ff0;
             border: #8a9ff0 1px solid;
             border-radius: 200px;
-            color: #8a9ff0;
+            color: #ffffff;
             text-align: center;
             line-height: 40px;
             font-size: 16px;
@@ -2217,7 +2217,7 @@
                         var postmsg_error_show_msg = '傳送失敗 ';
                         if(logout_all_finded) postmsg_error_show_msg+='。您已登出或基於帳號安全由系統自動登出，請重新登入。'
                         else postmsg_error_show_msg+= e.name+'-'+e.message;
-                        if(postmsg_error_show_msg.toLowerCase().indexOf('pusher') && postmsg_error_show_msg.toLowerCase().indexOf('error')) {
+                        if(postmsg_error_show_msg.toLowerCase().indexOf('pusher error')>=0) {
                             postmsg_error_show_msg = '(hidden)'+postmsg_error_show_msg;
                         }
                         else {
