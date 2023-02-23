@@ -797,8 +797,6 @@
                 </script>
                 @endif            
             <div class="message pad_bot xxi" id="message_content_show" style="position: relative;">
-                
-                <div style="margin-top: 60px;"></div>
                 @php
                     $isBlurAvatar = \App\Services\UserService::isBlurAvatar($to, $user);
                 @endphp
@@ -2217,7 +2215,7 @@
                         var postmsg_error_show_msg = '傳送失敗 ';
                         if(logout_all_finded) postmsg_error_show_msg+='。您已登出或基於帳號安全由系統自動登出，請重新登入。'
                         else postmsg_error_show_msg+= e.name+'-'+e.message;
-                        if(postmsg_error_show_msg.toLowerCase().indexOf('pusher error')>=0) {
+                        if(response.indexOf('錯誤類型：Pusher error')>=0) {
                             postmsg_error_show_msg = '(hidden)'+postmsg_error_show_msg;
                         }
                         else {
