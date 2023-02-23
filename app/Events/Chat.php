@@ -9,6 +9,7 @@ use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use App\Models\MessageErrorLog;
 
 class Chat implements ShouldBroadcastNow
 {
@@ -41,6 +42,14 @@ class Chat implements ShouldBroadcastNow
         }
         catch (\Throwable $e){
             logger($e);
+            
+            MessageErrorLog::create([
+                'from_id'=>$this->from_id
+                ,'to_id'=>$this->to_id
+                ,'error_from'=>'App\Events\Chat@broadcastOn'
+                ,'error_return_data'=>json_encode($this->message).var_export($e,true)
+            ]);
+            
             return [];
         }
     }

@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Request;
 use Throwable;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Log;
+use App\Models\MessageErrorLog;
 
 class Handler extends ExceptionHandler
 {
@@ -84,6 +85,16 @@ class Handler extends ExceptionHandler
 
         if ($exception instanceof AuthenticationException && Request::is('api/*')) {
             return response()->json(['status' => 1, 'message' => 'Token is Invalid'], 401);
+        }
+
+        if(str_contains(url()->current(),'postMsg')) {
+            MessageErrorLog::create(['from_id'=>$request->user()?$request->user()->id:0
+                                    ,'to_id'=>  $request->to
+                                    ,'content'=>$request->msg
+                                    ,'pic'=>json_encode($request->file('images')??[])                                                            
+                                    ,'error'=>var_export($exception,true)
+                                    ,'error_return_data'=>json_encode($exception)
+                                ]);
         }
 
         return parent::render($request, $exception);

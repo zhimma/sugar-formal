@@ -48,7 +48,7 @@
 									$uID=\App\Models\User::findById($postDetail->uid);
                                     $isBlurAvatar = \App\Services\UserService::isBlurAvatar($uID, $user);
 								@endphp
-								<a href="/dashboard/viewuser/{{$postDetail->uid}}?via_by_essence_article_enter={{ $postDetail->pid }}">
+								<a href="/dashboard/viewuser{{$uID->isVVIP()?'_vvip':null}}/{{$postDetail->uid}}?via_by_essence_article_enter={{ $postDetail->pid }}">
 									<div class="tou_img_1">
 										<div class="tou_tx_img @if($isBlurAvatar) blur_img @endif"><img src="@if(file_exists( public_path().$postDetail->umpic ) && $postDetail->umpic != ""){{$postDetail->umpic}} @elseif($postDetail->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="hycov"></div>
 										<span>{{ $postDetail->uname }}<i class="tou_fi">{{ date('Y-m-d H:i',strtotime($postDetail->pupdated_at)) }}</i></span>
