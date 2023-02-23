@@ -31,8 +31,8 @@ class ChatShowContent extends Component
 
     public function render()
     {
-        $to = $this->to;
-        $user = $this->user;
+        $to = $this->to->refresh();
+        $user = $this->user->refresh();
         $toUserIsBanned = $this->toUserIsBanned;
         $isBlurAvatar = $this->isBlurAvatar;
         $isVip = $this->isVip;

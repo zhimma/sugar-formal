@@ -445,6 +445,13 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
     Route::get('/dashboard/vvipInfo', 'PagesController@view_vvipInfo')->name('vvipInfo')->withoutMiddleware('VvipCheck'); //new route
     Route::post('/dashboard/vvipInfoEdit', 'PagesController@edit_vvipInfo')->name('vvipInfoEdit')->withoutMiddleware('VvipCheck'); //new route
 //    Route::post('/dashboard/VVIPisInvitedUpdateStatus', 'PagesController@VVIPisInvitedUpdateStatus')->name('VVIPisInvitedUpdateStatus');
+    Route::get('/dashboard/vvipSelectionReward', 'PagesController@view_vvipSelectionReward');
+    Route::get('/dashboard/vvipSelectionRewardApply', 'PagesController@view_vvipSelectionRewardApply');
+    Route::post('/dashboard/vvipSelectionRewardApply', 'PagesController@vvipSelectionRewardApply')->name('vvipSelectionRewardApply');
+    Route::post('/dashboard/vvipSelectionRewardIgnore', 'PagesController@vvipSelectionRewardIgnore')->name('vvipSelectionRewardIgnore');
+    Route::post('/dashboard/vvipSelectionRewardGirlApply', 'PagesController@vvipSelectionRewardGirlApply')->name('vvipSelectionRewardGirlApply');
+    Route::post('/dashboard/vvipSelectionRewardUserNoteEdit', 'PagesController@vvipSelectionRewardUserNoteEdit');
+
     //--vvip end--//
 
     Route::get('/dashboard2', 'PagesController@dashboard2');
@@ -531,6 +538,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('/dashboard/manual', 'PagesController@manual');
         Route::get('/dashboard/chat2/is_truth/get_remain', 'PagesController@getChatIsTruthRemainQuota')->name('getChatIsTruthRemainQuota');
         Route::post('/dashboard/toggleShowCanMessage', 'Message_newController@ToggleShowCanMessage')->name('toggleShowCanMessage');
+        Route::post('/dashboard/logChatWithError', 'PagesController@logChatWithError')->name('logChatWithError');
 
         Route::post('/dashboard/letTourRead', 'PagesController@letTourRead')->name('letTourRead');
 
@@ -650,6 +658,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
 
         Route::get('/dashboard/setTinySetting','PagesController@setTinySetting')->name('setTinySetting');
         Route::get('/dashboard/getTinySetting','PagesController@getTinySetting')->name('getTinySetting');
+        Route::post('/dashboard/setBlurryToUser','PagesController@setBlurryToUser')->name('setBlurryToUser');
     });
 
     /*
@@ -760,6 +769,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('users/banUserWithDayAndMessage/{user_id}/{msg_id}/{isReported?}', 'UserController@showBanUserDialog')->name('banUserWithDayAndMessage');
         Route::get('users/warnedUserWithDayAndMessage/{user_id}/{msg_id}', 'UserController@showWarnedUserDialog')->name('warnedUserWithDayAndMessage');
         Route::get('users/getMessageFromRoomId', 'UserController@getMessageFromRoomId')->name('users/getMessageFromRoomId');
+        Route::get('users/getAdminMessageRecordDetailFromRoomId', 'UserController@getAdminMessageRecordDetailFromRoomId')->name('users/getAdminMessageRecordDetailFromRoomId');
 
         Route::post('users/banUserWithDayAndMessage', 'UserController@banUserWithDayAndMessage');
         Route::get('users/pictures', 'UserController@showUserPictures')->name('users/pictures');
@@ -817,7 +827,8 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('users/logUserLoginHide', 'UserController@logUserLoginHide')->name('logUserLoginHide');
 
         Route::group(['prefix'=>'users/message'], function(){
-            Route::get('record/{id}', 'UserController@showAdminMessageRecord')->name('AdminMessageRecord');
+            Route::get('record/all', 'UserController@showAdminMessageAllRecord')->name('AdminMessageAllRecord');
+            Route::get('record/{id}', 'UserController@showAdminMessageRecord')->name('AdminMessageRecord');            
             Route::get('showBetween/{id1}/{id2}', 'UserController@showMessagesBetween')->name('admin/showMessagesBetween');
             Route::get('to/{id}', 'UserController@showAdminMessenger')->name('AdminMessage');
             Route::get('to/{id}/{mid}', 'UserController@showAdminMessengerWithMessageId')->name('AdminMessengerWithMessageId');
@@ -938,6 +949,15 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('users/VVIP_cancellation_list', 'VvipController@viewVvipCancellationList')->name('users/VVIP_cancellation_list');
         Route::post('users/VVIP_cancellation/save', 'VvipController@updateVvipCancellation')->name('users/VVIP_cancellation/save');
         //Route::get('users/VVIP_invite', 'UserController@viewVvipInvite')->name('users/VVIP_invite');
+        Route::get('users/VvipSelectionReward', 'UserController@viewVvipSelectionRewardApply');
+        Route::post('users/VvipSelectionRewardUpdate', 'UserController@vvipSelectionRewardApplyUpdate')->name('vvipSelectionRewardApplyUpdate');
+        Route::post('users/vvipSelectionRewardDeleteKey', 'UserController@vvipSelectionRewardApplyDeleteKey')->name('vvipSelectionRewardApplyDeleteKey');
+        Route::get('users/vvipSelectionRewardList', 'UserController@getVvipSelectionRewardData')->name('vvipSelectionReward/list');
+        Route::post('users/vvipSelectionRewardApplyKeyUpdate', 'UserController@vvipSelectionRewardApplyKeyUpdate')->name('vvipSelectionRewardApplyKeyUpdate');
+        Route::post('users/vvipSelectionRewardApplyAddData', 'UserController@vvipSelectionRewardApplyAddData')->name('vvipSelectionRewardApplyAddData');
+        Route::get('users/vvipSelectionRewardApplyList/{id}', 'UserController@viewVvipSelectionRewardApplyList');
+        Route::post('users/vvipSelectionRewardApplyListUpdate', 'UserController@vvipSelectionRewardApplyListUpdate')->name('vvipSelectionRewardApplyListUpdate');
+
 
         Route::get('users/vip/search', 'UserController@vipIndex')->name('users/vip');
         Route::post('users/vip/search', 'UserController@vipSearch')->name('users/vip/search');
@@ -1019,6 +1039,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('checkAnonymousContent', 'UserController@showAdminCheckAnonymousContent')->name('admin/checkAnonymousContent');
         Route::post('checkAnonymousContent', 'UserController@AdminCheckAnonymousContentSave');
         Route::get('anonymous/showChatMessage/{chat_id}', 'UserController@showAnonymousChatMessage')->name('admin/showAnonymousChatMessage');
+        Route::get('anonymous/showChatMessageBetweeInAdminCheck/{evaluate_from}/{evaluate_to}', 'UserController@showAdminCheckAnonymousBetweenMessages')->name('admin/showAdminCheckAnonymousBetweenMessages');
         Route::get('roleManage', 'UserController@adminRole')->name('admin/role');
         Route::post('roleEdit', 'UserController@adminRoleEdit')->name('admin/role/edit');
         Route::get('users/picturesSimple', 'UserController@showUserPicturesSimple')->name('users/picturesSimple');

@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Requests\ProfileUpdateRequest;
-use App\Jobs\CheckECpayForValueAddedService;
 use App\Models\AccountStatusLog;
 use App\Models\AdminAnnounce;
 use App\Models\AdminCommonText;
@@ -41,6 +40,7 @@ use App\Models\Message;
 use App\Models\Message_new;
 use App\Models\MessageBoard;
 use App\Models\MessageBoardPic;
+use App\Models\MessageErrorLog;
 use App\Models\MessageUserNote;
 use App\Models\Order;
 use App\Models\Posts;
@@ -63,6 +63,7 @@ use App\Models\UserOptionsXref;
 use App\Models\UserProvisionalVariables;
 use App\Models\UserRecord;
 use App\Models\UserTinySetting;
+use App\Models\UserTinySettingTo;
 use App\Models\ValueAddedService;
 use App\Models\Vip;
 use App\Models\VipExpiryLog;
@@ -73,6 +74,9 @@ use App\Models\VvipAssetsImage;
 use App\Models\VvipInfo;
 use App\Models\VvipOptionXref;
 use App\Models\VvipQualityLifeImage;
+use App\Models\VvipSelectionReward;
+use App\Models\VvipSelectionRewardApply;
+use App\Models\VvipSelectionRewardIgnore;
 use App\Models\VvipSubOptionXref;
 use App\Repositories\SuspiciousRepository;
 use App\Services\AdminService;
@@ -1436,8 +1440,9 @@ class PagesController extends BaseController
         $user = $request->user();
         $input = $request->input();
 
-        if($user->email == $input['email']){
-            if(Auth::attempt(array('email' => $input['email'], 'password' => $input['password'])) ){
+        if(strtolower(trim($user->email)) == strtolower(trim($input['email']))){
+            $input['email'] = $user->email;
+            if(Auth::attempt(array('email' => strtolower( $input['email']), 'password' => $input['password'])) ){
                 //驗證成功
                 $reasonType = $request->get('reasonType');
                 if ($reasonType == '3') {
@@ -1538,8 +1543,9 @@ class PagesController extends BaseController
             }
 
             if((auth()->user()->isVip() || auth()->user()->isVVIP()) || $waitDay <=0){
-                if($user->email == $input['email']){
-                    if(Auth::attempt(array('email' => $input['email'], 'password' => $input['password'])) ){
+                if(strtolower(trim($user->email)) == strtolower(trim($input['email']))){
+                    $input['email'] = $user->email;
+                    if(Auth::attempt(array('email' => strtolower( $input['email']), 'password' => $input['password'])) ){
                         //驗證成功
                         $user->accountStatus = 1;
                         $user->accountStatus_updateTime = Carbon::now();
@@ -1816,7 +1822,7 @@ class PagesController extends BaseController
                 //未動過者首次直接通過
                 User::where('id', $user->id)->update(['exchange_period' => $period]);
                 $rs = DB::table('exchange_period_temp')->insert(['user_id' => $user->id, 'created_at' => \Carbon\Carbon::now()]);
-                if($rs) {
+                if($rs && $rap_service->getApplyByAuthTypeId(1)) {
                     $rap_service->riseByUserEntry($user)->saveProfileModifyByReq($request);
                 }
                 return back()->with('message', '已完成首次設定，無需審核');
@@ -2022,8 +2028,9 @@ class PagesController extends BaseController
         $isHideOnline = $request->input('isHideOnline');
         $insertData = false;
         $status_msg = 'error';
+        $user = User::where('id', $user_id)->get()->first();
 
-        if($isHideOnline == 0){
+        if($isHideOnline == 0 || $user->valueAddedServiceStatus('hideOnline') == 0){
 
             User::where('id', $user_id)->update(['is_hide_online' => 0]);
             $status_msg = '搜索排序設定已變更。';
@@ -2031,7 +2038,6 @@ class PagesController extends BaseController
         }else if($isHideOnline == 1){
             //check current is_hide_online
             $checkHideOnlineData = hideOnlineData::where('user_id',$user_id)->where('deleted_at', null)->get()->first();
-            $user = User::where('id', $user_id)->get()->first();
             $insertData = true;
 
             if($user->is_hide_online==2 && isset($checkHideOnlineData)){
@@ -2045,7 +2051,6 @@ class PagesController extends BaseController
         }else if($isHideOnline == 2){
             //check current is_hide_online
             $checkHideOnlineData = hideOnlineData::where('user_id',$user_id)->where('deleted_at', null)->get()->first();
-            $user = User::where('id', $user_id)->get()->first();
             $insertData = true;
 
             if($user->is_hide_online==1 && isset($checkHideOnlineData)){
@@ -2484,7 +2489,7 @@ class PagesController extends BaseController
                 ->whereNull('evaluation.content_violation_processing')
                 ->whereNull('b1.member_id')
                 ->whereNull('b3.target')
-                ->where('um.isWarned',0)
+                ->where('um.isWarned', \DB::raw('0'))
                 ->whereNull('w2.id')
                 ->whereNotNull('u1.id')
                 //->whereNotNull('u2.id')
@@ -2499,7 +2504,7 @@ class PagesController extends BaseController
                 ->where('evaluation.anonymous_content_status', 1)
                 ->whereNull('b1.member_id')
                 ->whereNull('b3.target')
-                ->where('um.isWarned',0)
+                ->where('um.isWarned', \DB::raw('0'))
                 ->whereNull('w2.id')
                 ->whereNotNull('u1.id')
                 ->where('u1.accountStatus', 1)
@@ -2511,11 +2516,10 @@ class PagesController extends BaseController
             $evaluation_anonymous = Evaluation::where('to_id',$uid)->where('from_id',$user->id)->whereNotNull('content_violation_processing')->orderByDesc('created_at')->first();
             $evaluation_self = Evaluation::where('to_id',$uid)->where('from_id',$user->id)->whereNull('content_violation_processing')->orderByDesc('created_at')->first();
             $too_soon_evaluation = false;
-            if($evaluation_anonymous || $evaluation_self) {
-                $latest_evaluation = $evaluation_anonymous??$evaluation_self;
+
+            $latest_evaluation = Evaluation::where('from_id',$user->id)->orderByDesc('created_at')->first();
+            if($latest_evaluation) {
                 $too_soon_evaluation = Carbon::now()->diffInMinutes(Carbon::parse($latest_evaluation->created_at))<=30;
-                
-                
             }
             /*編輯文案-被封鎖者看不到封鎖者的提示-START*/
             //$user_closed = AdminCommonText::where('alias','user_closed')->get()->first();
@@ -2706,6 +2710,15 @@ class PagesController extends BaseController
             if(!str_contains($_SERVER['HTTP_REFERER'],'MessageBoard/post_detail')) {
                 session()->forget('viewuser_page_position');
             }
+            
+            $user_tiny_setting_to_blurry = null;
+            $user_not_show_not_blurry_popup = $user_not_show_to_blurry_popup = null;
+            if($user->engroup==2) {
+                $user_tiny_setting_to_blurry = $user->tiny_setting_to_blurry()->where('to_id',$to->id)->firstOrNew();
+                $user_not_show_not_blurry_popup = $user->tiny_setting()->where('cat','not_blurry_not_show_popup')->firstOrNew();
+                $user_not_show_to_blurry_popup = $user->tiny_setting()->where('cat','to_blurry_not_show_popup')->firstOrNew();
+            }
+            
             return view('new.dashboard.viewuser', $data ?? [])
                 ->with('user', $user)
                 ->with('blockadepopup', $blockadepopup)
@@ -2753,7 +2766,11 @@ class PagesController extends BaseController
                 ->with('life_style', $life_style)
                 ->with('advance_auth_status', $advance_auth_status)
                 ->with('bool_value', $bool_value)
-                ->with('message_board_list', $message_board_list);
+                ->with('message_board_list', $message_board_list)
+                ->with('user_tiny_setting_to_blurry',$user_tiny_setting_to_blurry)
+                ->with('user_not_show_not_blurry_popup',$user_not_show_not_blurry_popup)
+                ->with('user_not_show_to_blurry_popup',$user_not_show_to_blurry_popup)
+                ;
         }
 
     }
@@ -2762,9 +2779,15 @@ class PagesController extends BaseController
     {
 
         $user = $request->user();
+        if (!$user) {
+            return false;
+        }
         $is_vip = ($user->isVip() || $user->isVVIP());
         $uid = $request->uid;
         $targetUser = User::where('id', $uid)->where('accountStatus', 1)->where('account_status_admin', 1)->get()->first();
+        if (!$targetUser) {
+            return false;
+        }
         /*七天前*/
         $date = date('Y-m-d H:m:s', strtotime('-7 days'));
         /*車馬費邀請次數*/
@@ -3070,7 +3093,7 @@ class PagesController extends BaseController
         if($is_vip) {
             $uid = $request->uid;
             $target_user = User::find($uid);
-            if ($target_user->valueAddedServiceStatus('hideOnline') && $target_user->is_hide_online == 1) {
+            if ($target_user->valueAddedServiceStatus('hideOnline') && $target_user->is_hide_online != 0) {
                 $data = hideOnlineData::select('user_id', 'blocked_other_count', 'be_blocked_other_count')->where('user_id', $uid)->first();
                 /*此會員封鎖多少其他會員*/
                 $blocked_other_count = $data->blocked_other_count;
@@ -3115,7 +3138,7 @@ class PagesController extends BaseController
                     ->where('users.accountStatus', 1)
                     ->where('users.account_status_admin', 1)
                     ->whereNotNull('message.id')
-                    ->distinct()
+                    ->distinct(\DB::raw("blocked.member_id, blocked_id"))
                     ->count('blocked.blocked_id');
             }
 
@@ -3139,7 +3162,7 @@ class PagesController extends BaseController
         if($is_vip){
             $uid = $request->uid;
             $target_user = User::find($uid);
-            if ($target_user->valueAddedServiceStatus('hideOnline') && $target_user->is_hide_online == 1) {
+            if ($target_user->valueAddedServiceStatus('hideOnline') && $target_user->is_hide_online != 0) {
                 $data = hideOnlineData::select('user_id', 'fav_count', 'be_fav_count')->where('user_id', $uid)->first();
                 /*收藏會員次數*/
                 $fav_count = $data->fav_count;
@@ -3301,7 +3324,7 @@ class PagesController extends BaseController
             ->leftJoin('users as u', 'u.id', '=', 'evaluation.to_id')
             ->leftJoin('user_meta as um', 'um.user_id', '=', 'evaluation.to_id')
             ->leftJoin('warned_users as w2', 'w2.member_id', '=', 'evaluation.to_id')
-            ->where('um.isWarned',0)
+            ->where('um.isWarned', \DB::raw('0'))
             ->whereNull('w2.id')
             ->whereNull('b1.member_id')
             ->whereNull('b3.target')
@@ -4076,13 +4099,18 @@ class PagesController extends BaseController
                     $messages = Message::allToFromSenderChatWithAdmin($user->id, 1049)->orderBy('id', 'desc')->paginate(10);
                     $chatting_with_admin = true;
                 }
+                else if($user->id==$admin->id) {
+                    $chatting_with_admin = true;
+                }
+
                 if(!$cid_user){
                     return '<h1>該會員不存在。</h1>';
                 }
 
                 $cid_recommend_data = [];
                 $forbid_msg_data = UserService::checkNewSugarForbidMsg($cid_user,$user);
-
+                $user_tiny_setting_to_blurry = null;
+                $user_not_show_not_blurry_popup = $user_not_show_to_blurry_popup  = null;
 
                 if($cid_user->engroup==2) {
                     /*
@@ -4091,6 +4119,12 @@ class PagesController extends BaseController
                         $cid_user->refuse_canned_message = true;
                     }
                     */
+                }
+                
+                if($user->engroup==2) {
+                    $user_tiny_setting_to_blurry = $user->tiny_setting_to_blurry()->where('to_id',$cid_user->id)->firstOrNew();
+                    $user_not_show_not_blurry_popup = $user->tiny_setting()->where('cat','not_blurry_not_show_popup')->firstOrNew();
+                    $user_not_show_to_blurry_popup =  $user->tiny_setting()->where('cat','to_blurry_not_show_popup')->firstOrNew();
                 }
 
                 if((!$user->isVip() && !$user->isVVIP() )&& $user->engroup == 1){
@@ -4120,7 +4154,11 @@ class PagesController extends BaseController
                     ->with('is_truth_state', in_array(['to_id' => $cid_user->id, 'from_id' => $user->id], Message::$truthMessages) || in_array(['to_id' => $user->id, 'from_id' => $cid_user->id], Message::$truthMessages))
                     ->with('exist_is_truth_quota', Message::existIsTrueQuotaByFromUser($user))
                     ->with('remain_num_of_is_truth', Message::getRemainQuotaOfIsTruthByFromUser($user))
-                    ->with('chatting_with_admin', $chatting_with_admin ?? false);
+                    ->with('chatting_with_admin', $chatting_with_admin ?? false)
+                    ->with('user_tiny_setting_to_blurry',$user_tiny_setting_to_blurry)
+                    ->with('user_not_show_not_blurry_popup',$user_not_show_not_blurry_popup)
+                    ->with('user_not_show_to_blurry_popup',$user_not_show_to_blurry_popup)
+                    ;
             } else {
                 return view('new.dashboard.chatWithUserLivewire')
                     ->with('user', $user)
@@ -4639,7 +4677,8 @@ class PagesController extends BaseController
         abort(404);
     }
 
-    public function showWebAnnouncement(Request $request) {
+    public function showWebAnnouncement(Request $request)
+    {
         $user = $request->user();
         $start = \Carbon\Carbon::now()->subDays(30)->toDateTimeString();
         $end = \Carbon\Carbon::now()->toDateTimeString();
@@ -4647,11 +4686,11 @@ class PagesController extends BaseController
             ->whereBetween('banned_users.created_at', [($start), ($end)])
             ->join('users', 'banned_users.member_id', '=', 'users.id')
             ->orderBy('banned_users.created_at', 'asc')->get();
-        foreach($userBanned as $userData){
-            if(mb_strlen(trim($userData['name']),"utf-8") <= 3){
-                $userData['name'] = (mb_substr($userData['name'],0 ,1,"utf-8").'***');
-            }else{
-                $userData['name'] = (mb_substr($userData['name'],0 ,3,"utf-8").'***');
+        foreach ($userBanned as $userData) {
+            if (mb_strlen(trim($userData['name']), "utf-8") <= 3) {
+                $userData['name'] = (mb_substr($userData['name'], 0, 1, "utf-8") . '***');
+            } else {
+                $userData['name'] = (mb_substr($userData['name'], 0, 3, "utf-8") . '***');
             }
         }
 
@@ -6101,6 +6140,7 @@ class PagesController extends BaseController
     }
 
     //官方討論區_照片上傳
+
     public function posts_pic_save($post_id, $images, $newImages)
     {
         $suspicious=Posts::where('id',$post_id)->first();
@@ -6157,7 +6197,7 @@ class PagesController extends BaseController
     {
         //儲存照片
         $fileuploaderListImages = $request->get('fileuploader-list-images');
-        $destinationPath=$this->posts_pic_save($request->get('post_id'), $fileuploaderListImages, $request->file('images'));
+        $destinationPath = $this->posts_pic_save($request->get('post_id'), $fileuploaderListImages, $request->file('images'));
 
         $posts = new Posts;
         $posts->article_id = $request->get('article_id');
@@ -6496,6 +6536,7 @@ class PagesController extends BaseController
     }
 
     //官方討論區_照片上傳
+
     public function posts_pic_save_VVIP($post_id, $images, $newImages)
     {
         $suspicious=PostsVvip::where('id',$post_id)->first();
@@ -6552,7 +6593,7 @@ class PagesController extends BaseController
     {
         //儲存照片
         $fileuploaderListImages = $request->get('fileuploader-list-images');
-        $destinationPath=$this->posts_pic_save($request->get('post_id'), $fileuploaderListImages, $request->file('images'));
+        $destinationPath = $this->posts_pic_save($request->get('post_id'), $fileuploaderListImages, $request->file('images'));
 
         $posts = new PostsVvip();
         $posts->article_id = $request->get('article_id');
@@ -6878,7 +6919,6 @@ class PagesController extends BaseController
         );
         PostsMood::where('id', $pid)->update($update);
     }
-
 
     public function forum(Request $request)
     {
@@ -8594,6 +8634,7 @@ class PagesController extends BaseController
             ->where('b.accountStatus', 1)
             ->where('b.account_status_admin', 1)
             ->where('last_login', '>=', Carbon::now()->subDays(7))
+            ->orderBy('last_login', 'desc')
             ->where('a.hide_member_id_log',0)
             ->groupBy('a.member_fav_id')
             ->get();
@@ -8614,6 +8655,7 @@ class PagesController extends BaseController
             ->where('b.accountStatus', 1)
             ->where('b.account_status_admin', 1)
             ->where('last_login', '>=', Carbon::now()->subDays(7))
+            ->orderBy('last_login', 'desc')
             ->where('a.hide_member_fav_id_log',0)
             ->get();
 
@@ -8744,6 +8786,38 @@ class PagesController extends BaseController
         $faqCountDownSeconds = $faqUserService->getCountDownSeconds();
         $isFaqDuringCountDown = $faqUserService->isDuringCountDown();
         $isForceShowFaqPopup = $faqUserService->isForceShowFaqPopup();
+        //vvip_selection_reward
+        $vvip_selection_reward_ignore = VvipSelectionRewardIgnore::select('vvip_selection_reward_id')->where('user_id', $user->id)->get();
+        $vvip_selection_reward_apply = VvipSelectionRewardApply::select('vvip_selection_reward_id')->where('user_id', $user->id)->get();
+        $vvip_selection_reward = VvipSelectionReward::where('status', 1)
+            ->whereNotIn('id', $vvip_selection_reward_ignore)
+            ->whereNotIn('id', $vvip_selection_reward_apply)
+            ->where(function ($query) {
+                return $query->where('expire_date', '>',  Carbon::now())
+                    ->orWhere('expire_date', null);
+            });
+        if( count( session()->get('skip.id',[])) > 0){
+            $vvip_selection_reward = $vvip_selection_reward->whereNotIn('id', session()->get('skip.id',[]));
+        }
+        $vvip_selection_reward = $vvip_selection_reward->get();
+
+        //vvip_selection_reward notice
+        $vvip_selection_reward_notice = VvipSelectionReward::where('user_id', $user->id)
+            ->where('status', 0)
+            ->where('notice_status', 1)->first();
+
+        $vvip_selection_reward_apply_self = VvipSelectionRewardApply::select('users.name as name',
+            'vvip_selection_reward.title as title',
+            'vvip_selection_reward_apply.status as status')
+            ->leftJoin('vvip_selection_reward', 'vvip_selection_reward.id', 'vvip_selection_reward_apply.vvip_selection_reward_id')
+            ->leftJoin('users', 'users.id', 'vvip_selection_reward.user_id')
+            ->where('vvip_selection_reward_apply.user_id', $user->id)
+            ->where('vvip_selection_reward.status', 1)
+            ->where(function ($query) {
+                return $query->where('vvip_selection_reward.expire_date', '>',  Carbon::now())
+                    ->orWhere('vvip_selection_reward.expire_date', null);
+            })
+            ->get();
 
         if (isset($user)) {
             $data = array(
@@ -8773,7 +8847,10 @@ class PagesController extends BaseController
                 'isFaqDuringCountDown'=>$isFaqDuringCountDown,
                 'isForceShowFaqPopup'=>$isForceShowFaqPopup,
                 'faqCountDownTime'=>$faqCountDownTime,
-                'faqCountDownSeconds'=>$faqCountDownSeconds
+                'faqCountDownSeconds'=>$faqCountDownSeconds,
+                'vvip_selection_reward' => $vvip_selection_reward,
+                'vvip_selection_reward_notice' => $vvip_selection_reward_notice,
+                'vvip_selection_reward_apply_self' => $vvip_selection_reward_apply_self
             );
             $allMessage = \App\Models\Message::allMessage($user->id);
             $forum = Forum::withTrashed()->where('user_id',$user->id)->orderby('id','desc')->first();
@@ -9391,6 +9468,7 @@ class PagesController extends BaseController
 
         $user = $request->user();
         $pid = $request->pid;
+        $page_referer=$request->page_referer;
 
         $postDetail =MessageBoard::selectRaw('users.id as uid, users.name as uname, users.engroup as uengroup, user_meta.pic as umpic, user_meta.city, user_meta.area')
             ->selectRaw('message_board.id as mid, message_board.title as mtitle, message_board.contents as mcontents, message_board.updated_at as mupdated_at, message_board.created_at as mcreated_at')
@@ -9446,7 +9524,11 @@ class PagesController extends BaseController
 
         // $ssrData .= $postDetail->uid. $postDetail->uname .  $userMeta->age(). $cityAndArea ;
         if ($postDetail->uid !== $user->id) {
-            $ssrData .= '<a href="/dashboard/chat2/chatShow/' . $postDetail->uid . '?from_message_board=' . $pid . '" class="liuyicon"></a>';
+            $back_root='';
+            if(str_contains($page_referer, 'MessageBoard/showList')){
+                $back_root='&back_message_board_list=1';
+            }
+            $ssrData .= '<a href="/dashboard/chat2/chatShow/' . $postDetail->uid . '?from_message_board=' . $pid .$back_root. '" class="liuyicon"></a>';
         }
         $ssrData .= '</div>';
 
@@ -9608,7 +9690,6 @@ class PagesController extends BaseController
         return view('/dashboard/messageBoard_detail', compact('postDetail', 'images','pid','return_page'))->with('user', $user);
     }
 
-
     public function messageBoard_posts(Request $request)
     {
         $user = $this->user;
@@ -9759,8 +9840,11 @@ class PagesController extends BaseController
     public function messageBoard_delete(Request $request, $mid)
     {
         $posts = MessageBoard::where('id', $mid)->first();
+        if (!$posts) {
+            return response()->json(['msg' => '刪除失敗，找不到該留言!']);
+        }
         if ($posts->user_id !== auth()->user()->id) {
-            return response()->json(['msg' => '刪除失敗,不可刪除別人的留言!']);
+            return response()->json(['msg' => '刪除失敗，不可刪除別人的留言!']);
         }
         if ($posts) {
             $return_page = '';
@@ -10087,7 +10171,13 @@ class PagesController extends BaseController
     public function advertise_record_change(Request $request)
     {
         $user = \Auth::user();
+        if (!$request->advertise_id) {
+            return response()->json(['msg' => 'advertise_id is required']);
+        }
         $advertise_record = ComeFromAdvertise::where('id', $request->advertise_id)->first();
+        if (!$advertise_record) {
+            return response()->json(['msg' => 'advertise record not found']);
+        }
         if ($user ?? false) {
             $advertise_record->user_id = $user->id;
         }
@@ -10130,7 +10220,6 @@ class PagesController extends BaseController
         }
 
     }
-
 
     public function showRealAuth(Request $request, RealAuthPageService $service)
     {
@@ -10281,7 +10370,6 @@ class PagesController extends BaseController
         }
     }
 
-
     public function showTagDisplaySettings(Request $request, RealAuthPageService $service)
     {
 
@@ -10323,7 +10411,6 @@ class PagesController extends BaseController
 
         return redirect()->back()->with('message', '更新完成');
     }
-
 
     public function stay_online_time(Request $request)
     {
@@ -10402,6 +10489,7 @@ class PagesController extends BaseController
     }
 
     //vvip
+
     public function view_vvipSelect(Request $request)
     {
 
@@ -10424,7 +10512,7 @@ class PagesController extends BaseController
             }
 
             $temp = warned_users::where('member_id', $user->id)->orderBy('created_at', 'desc')->first();
-            if($temp && $temp->created_at > $warn_ban_reason?->created_at){
+            if ($temp && $temp->created_at > $warn_ban_reason?->created_at) {
                 $warn_ban_reason = $temp;
             }
         }
@@ -10436,10 +10524,10 @@ class PagesController extends BaseController
     public function view_vvipSelect_a(Request $request)
     {
         $user = auth()->user();
-        $refund='';
-        $vip_text='';
+        $refund = '';
+        $vip_text = '';
 
-        if($user->isVip() && !$user->isFreeVip()) {
+        if ($user->isVip() && !$user->isFreeVip()) {
             [, $vip_text] = PaymentService::calculatesRefund($user, 'vip_refund');
         }
 
@@ -10836,7 +10924,7 @@ class PagesController extends BaseController
                 //->orWhere('wu.expire_date', null); }); })
                 ->whereNull('b1.member_id')
                 ->whereNull('b3.target')
-                ->where('um.isWarned',0)
+                ->where('um.isWarned', \DB::raw('0'))
                 ->whereNull('w2.id')
                 ->whereNotNull('u1.id')
                 //->whereNotNull('u2.id')
@@ -10957,23 +11045,232 @@ class PagesController extends BaseController
 
     //    public function VVIPisInvitedUpdateStatus(Request $request)
     //    {
-//        $user_id = $request->uid;
-//        $status = $request->status;
-//        $exist = VvipInvite::where('invite_user_id', $user_id)->where('status', 0)->first();
-//        if(isset($exist)){
-//            VvipInvite::where('invite_user_id', $user_id)->where('status', 0)->update(['status' => $status]);
-//            return response()->json(array(
-//                'status' => 1,
-//                'msg' => 'ok',
-//            ), 200);
-//        }
-//    }
+    //        $user_id = $request->uid;
+    //        $status = $request->status;
+    //        $exist = VvipInvite::where('invite_user_id', $user_id)->where('status', 0)->first();
+    //        if(isset($exist)){
+    //            VvipInvite::where('invite_user_id', $user_id)->where('status', 0)->update(['status' => $status]);
+    //            return response()->json(array(
+    //                'status' => 1,
+    //                'msg' => 'ok',
+    //            ), 200);
+    //        }
+    //    }
+
+    public function view_vvipSelectionReward(Request $request)
+    {
+        $user = auth()->user();
+        if (!$user->isVVIP()) {
+            return back()->with('message', '此活動僅限 VVIP 參加');
+        }
+        //check application
+        $checkVvipSelectionReward = VvipSelectionReward::where('user_id', $user->id)
+            ->whereIn('status', [0, 1])
+            ->orderBy('created_at', 'desc')
+            ->first();
+        if($checkVvipSelectionReward &&
+            (($checkVvipSelectionReward->expire_date && Carbon::parse($checkVvipSelectionReward->expire_date) > Carbon::now()) || ($checkVvipSelectionReward->expire_date == ''))
+        ){
+            return back()->with('message', '您已申請過或活動尚未結束');
+        }
+
+        $adminCommonTexts = AdminCommonText::whereIn('alias', ['vvip_selection_reward_area1_title', 'vvip_selection_reward_area1', 'vvip_selection_reward_area2', 'vvip_selection_reward_area3', 'vvip_selection_reward_area4'])->get();
+        $adminCommonTextArray = array();
+        foreach($adminCommonTexts as $adminCommonText){
+            $adminCommonTextArray[$adminCommonText->alias] = $adminCommonText;
+        }
+        $area1_title = $adminCommonTextArray['vvip_selection_reward_area1_title'];
+        $area1 = $adminCommonTextArray['vvip_selection_reward_area1'];
+        $area2 = $adminCommonTextArray['vvip_selection_reward_area2'];
+        $area3 = $adminCommonTextArray['vvip_selection_reward_area3'];
+        $area4 = $adminCommonTextArray['vvip_selection_reward_area4'];
+
+        return view('new.dashboard.vvipSelectionReward')
+            ->with('area1_title', $area1_title)
+            ->with('area1', $area1)
+            ->with('area2', $area2)
+            ->with('area3', $area3)
+            ->with('area4', $area4)
+            ->with('user', $user);
+    }
+
+    public function view_vvipSelectionRewardApply(Request $request)
+    {
+        $user = auth()->user();
+        $option_selection_reward = DB::table('vvip_option_selection_reward')->get();
+        return view('new.dashboard.vvipSelectionRewardApply')
+            ->with('user', $user)
+            ->with('option_selection_reward', $option_selection_reward);
+    }
+
+    public function vvipSelectionRewardApply(Request $request)
+    {
+        $user = auth()->user();
+
+        $new_array = array();
+        $array1 = array();
+        if(is_array(json_decode($request->option_selection_reward))) {
+            $array1 = json_decode($request->option_selection_reward);
+        }
+
+        $array2 = array_filter($request->condition);
+        $result = array_merge($array1, $array2);
+
+        foreach ($result as $key => $row) {
+            $new_array[$key+1] = $row;
+        }
+
+        //default value
+        $identify_method = array();
+        $identify_method[1] = '本人驗證';
+        $identify_method[2] = '其他方式';
+
+        $bonus_distribution = array();
+        $bonus_distribution[1] = '通過初步驗證立即發放 5000';
+        $bonus_distribution[2] = '約見成功後，再發放車馬費 5000';
+
+        $vvipSelectionReward = new VvipSelectionReward();
+        $vvipSelectionReward->user_id = $user->id;
+        $vvipSelectionReward->title = $request->title;
+        $vvipSelectionReward->condition = json_encode($new_array, JSON_UNESCAPED_UNICODE);
+        $vvipSelectionReward->identify_method = json_encode($identify_method, JSON_UNESCAPED_UNICODE);
+        $vvipSelectionReward->bonus_distribution = json_encode($bonus_distribution, JSON_UNESCAPED_UNICODE);
+        $vvipSelectionReward->limit = $request->limit;
+        $vvipSelectionReward->status = 0;
+        $vvipSelectionReward->save();
+        return redirect('/dashboard/vvipPassSelect')->with('message', '已送出申請');
+    }
+
+    public function vvipSelectionRewardIgnore(Request $request)
+    {
+        if ($request->ajax()) {
+            if($request->mode=='skip'){
+                session()->push('skip.id', $request->id);
+            }else {
+                $data = VvipSelectionRewardIgnore::where('user_id', $request->user_id)->where('vvip_selection_reward_id', $request->id)->first();
+
+                if ($request->ignore == 1 && !$data) {
+                    $newData = new VvipSelectionRewardIgnore();
+                    $newData->user_id = $request->user_id;
+                    $newData->vvip_selection_reward_id = $request->id;
+                    $newData->save();
+                } elseif ($request->ignore == 0 && $data) {
+                    VvipSelectionRewardIgnore::where('user_id', $request->user_id)->where('vvip_selection_reward_id', $request->id)->delete();
+                }
+            }
+            return response()->json(['success' => true]);
+        }
+    }
+
+    public function vvipSelectionRewardGirlApply(Request $request)
+    {
+        if ($request->ajax()) {
+
+            //限女
+            $checkEngroup = User::find($request->user_id);
+            $checkBanned = User::isBanned_v2($checkEngroup->id);
+            if($checkEngroup->engroup==1){
+                $msg = '活動限女性參加';
+                return response()->json(['success' => true, 'message' => $msg]);
+            }
+            if($checkBanned){
+                $msg = '您不符合報名資格';
+                return response()->json(['success' => true, 'message' => $msg]);
+            }
+
+            $data = VvipSelectionRewardApply::where('user_id', $request->user_id)->where('vvip_selection_reward_id', $request->id)->first();
+
+            if(!$data){
+                $newData = new VvipSelectionRewardApply();
+                $newData->user_id = $request->user_id;
+                $newData->vvip_selection_reward_id = $request->id;
+                $newData->save();
+                $msg = '您已應徵完成';
+            }elseif($data){
+                $msg = '您已經應徵過此選拔';
+            }
+
+            return response()->json(['success' => true, 'message' => $msg]);
+        }
+    }
+
+    public function vvipSelectionRewardUserNoteEdit(Request $request)
+    {
+        $user = auth()->user();
+        $new_user_note = $request->input('user_note');
+
+        $old_user_note = VvipSelectionReward::where('id', $request->input('id'))->first()->user_note;
+        $br = '';
+        if($old_user_note != ''){
+            $br = '; ';
+        }
+        $user_note  = $old_user_note.$br.$new_user_note .' ('. Carbon::now() .')';
+        $action = VvipSelectionReward::where('id', $request->input('id'))->update(['user_note' => nl2br($user_note)]);
+        if ($action) {
+            return back()->with('message', '資料已送出');
+        }
+        return back()->with('message', '發送失敗');
+
+    }
 
     //vvip end
+
     public function getChatIsTruthRemainQuota(Request $request)
     {
         return intval(Message::getRemainQuotaOfIsTruthByFromUser($request->user()));
-    }  
+    }
+
+    public function logChatWithError(Request $request)
+    {
+        $payload = $request->all();
+        $error_log_arr = [
+            'from_id' => $payload['from']
+            , 'to_id' => $payload['to']
+            , 'content' => $payload['msg']
+            , 'pic' => json_encode($request->file('images') ?? [])
+            , 'error_from' => 'client'
+            , 'error' => $payload['error']
+            , 'error_return_data' => $payload['error_return_data']
+        ];
+
+        MessageErrorLog::create($error_log_arr);
+    }    
+    
+    public function setBlurryToUser(Request $request)
+    {
+        $target = $request->target;
+        $act = $request->act;
+        $user = $request->user();
+        
+        if(!$user) return;
+        if(!$target) return;
+        if(!$act) return;
+        if(!in_array($act,[1,-1])) return;
+        
+        $setting = $user->tiny_setting_to()->where([['to_id',$target],['cat','blurry_to_user']])->firstOrNew();
+        
+        if($setting->id){
+            if($setting->value==$act) {
+                return 1;
+            }
+            else {
+                $setting->value = $act;
+            
+                if($setting->save()) {
+                    return 1;
+                }            
+            }
+        }
+        else {
+            $setting->to_id = $target;
+            $setting->cat = 'blurry_to_user';
+            $setting->value =$act;
+
+            if($setting->save()) {
+                return 1;
+            }
+        }     
+    }
 }
 
 

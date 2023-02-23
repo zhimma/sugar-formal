@@ -456,6 +456,7 @@ class ImagesCompareService {
 
     public static function comparePairImageEncodeEntry($encode_entry_src,$encode_entry_target)
     {
+        if(!$encode_entry_src || !$encode_entry_target) return false;
         static $srcEncodeId = null;
         static $srcEncode = [];
         
@@ -465,6 +466,7 @@ class ImagesCompareService {
         }
         
         $target = $encode_entry_target;
+        if(!$target) return false;
         $targetEncode =  json_decode($target->encode,true);
         if(!$targetEncode || count($targetEncode)==0) return false;
         

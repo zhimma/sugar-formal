@@ -460,6 +460,8 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
         top: -9px;
         right: -9px;        
     }
+    
+    .ellipsis {width:80% !important;}
 </style>
 <!--引导弹出层-->
 <script type="text/javascript" src="/new/intro/intro.js"></script>
@@ -571,6 +573,22 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
             <div class="sjlist_li">
                 <div class="leftsidebar_box">
                     <dl class="system_log">
+
+                        <!-- vvip selection reward-->
+                        <div class="vvipSelectionRewardMode" style="display: none;">
+                            <dt class="leboxVvipSelectionRewardActive" style="background-color: blanchedalmond;">
+                                <span class="le_span">徵選活動</span>
+                            </dt>
+                            <dd>
+                                <div class="loading warning" id="sjlist_vvipSelectionRewardActive_warning"><span
+                                            class="loading_text">loading</span></div>
+                                <ul class="sjlist sjlist_vvipSelectionRewardActive">
+                                </ul>
+                                <div class="page page_vvipSelectionRewardActive fenye" style="text-align: center;"></div>
+                            </dd>
+                        </div>
+                        <!-- vvip selection reward end-->
+
                         @if($user->is_admin_chat_channel_open)
                             @if($user->id != 1049)
                             <dt class="lebox0" data-step="4" data-position="top" data-highlightClass="yd4a"
@@ -810,12 +828,75 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
 
 <script>
     let showMsg = false;
-        let isLoading = 1;
-        var total = 0;//總筆數
-        var no_row_li='';
-        no_row_li = '<li class="li_no_data"><div class="listicon02 nodata"><img src="/new/images/xj.png" class="list_img"><span>您目前尚無訊息</span></div></li>';
-        var userIsVip = '{{ $isVip }}';
-        var userGender = '{{ $user->engroup }}';
+    let isLoading = 1;
+    var total = 0;//總筆數
+    var no_row_li='';
+    no_row_li = '<li class="li_no_data"><div class="listicon02 nodata"><img src="/new/images/xj.png" class="list_img"><span>您目前尚無訊息</span></div></li>';
+    var userIsVip = '{{ $isVip }}';
+    var userGender = '{{ $user->engroup }}';
+
+    //vvipSelectionRewardActive
+    var Page_vvipSelectionRewardActive = {
+        page : 1,
+        row  : 10,
+        DrawPage:function(total){
+            var total_page  = Math.ceil(total/Page_vvipSelectionRewardActive.row) == 0 ? 1 : Math.ceil(total/Page_vvipSelectionRewardActive.row);
+            var span_u      = 0;
+            var str         = '';
+            var i,active,prev_active,last_active;
+
+            if(total_page==1){
+                str   = '';
+            }else if(Page_vvipSelectionRewardActive.page==1){
+                str =`<a href="javascript:" class="" data-p="next">上一頁</a>
+                    <span class="new_page">${Page_vvipSelectionRewardActive.page}/${total_page}</span>
+                    <a href="javascript:" class="page-link" data-p="last">下一頁</a>`;
+            }else if(Page_vvipSelectionRewardActive.page==total_page){
+                str =`<a href="javascript:" class="page-link" data-p="next">上一頁</a>
+                    <span class="new_page">${Page_vvipSelectionRewardActive.page}/${total_page}</span>
+                    <a href="javascript:" class="" data-p="last">下一頁</a>`;
+            }else{
+                str = `
+                    <a href="javascript:" class="page-link" data-p="next">上一頁</a>
+                    <span class="new_page">${Page_vvipSelectionRewardActive.page}/${total_page}</span>
+                    <a href="javascript:" class="page-link" data-p="last">下一頁</a>
+                `;
+            }
+
+            $('.Page_vvipSelectionRewardActive').html(str);
+            $('.warning').hide();
+
+            $('.Page_vvipSelectionRewardActive a.page-link').click(function(){
+                $('.warning').show();
+                $('.sjlist_vvipSelectionRewardActive').children().css('display', 'none');
+
+                switch($(this).data('p')) {
+                    case 'next': Page_vvipSelectionRewardActive.page = parseInt(Page_vvipSelectionRewardActive.page) - 1; break;
+                    case 'last': Page_vvipSelectionRewardActive.page = parseInt(Page_vvipSelectionRewardActive.page) + 1; break;
+                    default: Page_vvipSelectionRewardActive.page = parseInt($(this).data('p'));
+                }
+                Page_vvipSelectionRewardActive.DrawPage(total);
+
+                // date= $('input[name=RadioGroup1]:checked').val();
+                date= $("#daysSelect option:selected").val();
+
+                if(date==7){
+                    $('.sjlist_vvipSelectionRewardActive>.date7.vvipSelectionRewardActiveMember').slice((Page_vvipSelectionRewardActive.page-1)*Page_vvipSelectionRewardActive.row, Page_vvipSelectionRewardActive.page*Page_vvipSelectionRewardActive.row).css('display', '');
+                }else if(date==30){
+                    $('.sjlist_vvipSelectionRewardActive>.common30.vvipSelectionRewardActiveMember').slice((Page_vvipSelectionRewardActive.page-1)*Page_vvipSelectionRewardActive.row, Page_vvipSelectionRewardActive.page*Page_vvipSelectionRewardActive.row).css('display', '');
+                }else{
+                    $('.sjlist_vvipSelectionRewardActive>.vvipSelectionRewardActiveMember').slice((Page_vvipSelectionRewardActive.page-1)*Page_vvipSelectionRewardActive.row, Page_vvipSelectionRewardActive.page*Page_vvipSelectionRewardActive.row).css('display', '');
+                }
+
+                $('.sjlist_vvipSelectionRewardActive>.li_no_data').remove();
+
+                if($('.sjlist_vvipSelectionRewardActive>li:visible').length == 0 && isLoading == 0){
+                    $('#sjlist_vvipSelectionRewardActive_warning').hide();
+                    $('.sjlist_vvipSelectionRewardActive').append(no_row_li);
+                }
+            });
+        }
+    };
 
     //vvip
     var Page_vvip = {
@@ -880,191 +961,191 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
         }
     };
 
-        // admin
-        var Page_admin = {
-            page : 1,
-            row  : 10,
-            DrawPage:function(total){
-                var total_page  = Math.ceil(total/Page_admin.row) == 0 ? 1 : Math.ceil(total/Page_admin.row);
-                var span_u      = 0;
-                var str         = '';
-                var i,active,prev_active,last_active;
+    // admin
+    var Page_admin = {
+        page : 1,
+        row  : 10,
+        DrawPage:function(total){
+            var total_page  = Math.ceil(total/Page_admin.row) == 0 ? 1 : Math.ceil(total/Page_admin.row);
+            var span_u      = 0;
+            var str         = '';
+            var i,active,prev_active,last_active;
 
-                if(total_page==1){
-                    str   = '';
-                }else if(Page_admin.page==1){
-                    str =`<a href="javascript:" class="" data-p="next">上一頁</a>
-                    <span class="new_page">${Page_admin.page}/${total_page}</span>
-                    <a href="javascript:" class="page-link" data-p="last">下一頁</a>`;
-                }else if(Page_admin.page==total_page){
-                    str =`<a href="javascript:" class="page-link" data-p="next">上一頁</a>
-                    <span class="new_page">${Page_admin.page}/${total_page}</span>
-                    <a href="javascript:" class="" data-p="last">下一頁</a>`;
+            if(total_page==1){
+                str   = '';
+            }else if(Page_admin.page==1){
+                str =`<a href="javascript:" class="" data-p="next">上一頁</a>
+                <span class="new_page">${Page_admin.page}/${total_page}</span>
+                <a href="javascript:" class="page-link" data-p="last">下一頁</a>`;
+            }else if(Page_admin.page==total_page){
+                str =`<a href="javascript:" class="page-link" data-p="next">上一頁</a>
+                <span class="new_page">${Page_admin.page}/${total_page}</span>
+                <a href="javascript:" class="" data-p="last">下一頁</a>`;
+            }else{
+                str = `
+                <a href="javascript:" class="page-link" data-p="next">上一頁</a>
+                <span class="new_page">${Page_admin.page}/${total_page}</span>
+                <a href="javascript:" class="page-link" data-p="last">下一頁</a>
+            `;
+            }
+
+            $('.page_admin').html(str);
+            $('.warning').hide();
+
+            $('.page_admin a.page-link').click(function(){
+                $('.warning').show();
+                $('.sjlist_admin').children().css('display', 'none');
+
+                switch($(this).data('p')) {
+                    case 'next': Page_admin.page = parseInt(Page_admin.page) - 1; break;
+                    case 'last': Page_admin.page = parseInt(Page_admin.page) + 1; break;
+                    default: Page_admin.page = parseInt($(this).data('p'));
+                }
+                Page_admin.DrawPage(total);
+
+                // date= $('input[name=RadioGroup1]:checked').val();
+                date= $("#daysSelect option:selected").val();
+
+                if(date==7){
+                    $('.sjlist_admin>.date7.adminMember').slice((Page_admin.page-1)*Page_admin.row, Page_admin.page*Page_admin.row).css('display', '');
+                }else if(date==30){
+                    $('.sjlist_admin>.common30.adminMember').slice((Page_admin.page-1)*Page_admin.row, Page_admin.page*Page_admin.row).css('display', '');
                 }else{
-                    str = `
-                    <a href="javascript:" class="page-link" data-p="next">上一頁</a>
-                    <span class="new_page">${Page_admin.page}/${total_page}</span>
-                    <a href="javascript:" class="page-link" data-p="last">下一頁</a>
-                `;
+                    $('.sjlist_admin>.adminMember').slice((Page_admin.page-1)*Page_admin.row, Page_admin.page*Page_admin.row).css('display', '');
                 }
 
-                $('.page_admin').html(str);
-                $('.warning').hide();
+                $('.sjlist_admin>.li_no_data').remove();
 
-                $('.page_admin a.page-link').click(function(){
-                    $('.warning').show();
-                    $('.sjlist_admin').children().css('display', 'none');
+                if($('.sjlist_admin>li:visible').length == 0 && isLoading == 0){
+                    $('#sjlist_admin_warning').hide();
+                    $('.sjlist_admin').append(no_row_li);
+                }
+            });
+        }
+    };
+    //vip
+    var Page = {
+        page : 1,
+        row  : 10,
+        DrawPage:function(total){
+            var total_page  = Math.ceil(total/Page.row) == 0 ? 1 : Math.ceil(total/Page.row);
+            var span_u      = 0;
+            var str         = '';
+            var i,active,prev_active,last_active;
 
-                    switch($(this).data('p')) {
-                        case 'next': Page_admin.page = parseInt(Page_admin.page) - 1; break;
-                        case 'last': Page_admin.page = parseInt(Page_admin.page) + 1; break;
-                        default: Page_admin.page = parseInt($(this).data('p'));
-                    }
-                    Page_admin.DrawPage(total);
-
-                    // date= $('input[name=RadioGroup1]:checked').val();
-                    date= $("#daysSelect option:selected").val();
-
-                    if(date==7){
-                        $('.sjlist_admin>.date7.adminMember').slice((Page_admin.page-1)*Page_admin.row, Page_admin.page*Page_admin.row).css('display', '');
-                    }else if(date==30){
-                        $('.sjlist_admin>.common30.adminMember').slice((Page_admin.page-1)*Page_admin.row, Page_admin.page*Page_admin.row).css('display', '');
-                    }else{
-                        $('.sjlist_admin>.adminMember').slice((Page_admin.page-1)*Page_admin.row, Page_admin.page*Page_admin.row).css('display', '');
-                    }
-
-                    $('.sjlist_admin>.li_no_data').remove();
-
-                    if($('.sjlist_admin>li:visible').length == 0 && isLoading == 0){
-                        $('#sjlist_admin_warning').hide();
-                        $('.sjlist_admin').append(no_row_li);
-                    }
-                });
+            if(total_page==1){
+                str   = '';
+            }else if(Page.page==1){
+                str =`<a href="javascript:" class="" data-p="next">上一頁</a>
+                <span class="new_page">${Page.page}/${total_page}</span>
+                <a href="javascript:" class="page-link" data-p="last">下一頁</a>`;
+            }else if(Page.page==total_page){
+                str =`<a href="javascript:" class="page-link" data-p="next">上一頁</a>
+                <span class="new_page">${Page.page}/${total_page}</span>
+                <a href="javascript:" class="" data-p="last">下一頁</a>`;
+            }else{
+                str = `
+                <a href="javascript:" class="page-link" data-p="next">上一頁</a>
+                <span class="new_page">${Page.page}/${total_page}</span>
+                <a href="javascript:" class="page-link" data-p="last">下一頁</a>
+            `;
             }
-        };
-        //vip
-        var Page = {
-            page : 1,
-            row  : 10,
-            DrawPage:function(total){
-                var total_page  = Math.ceil(total/Page.row) == 0 ? 1 : Math.ceil(total/Page.row);
-                var span_u      = 0;
-                var str         = '';
-                var i,active,prev_active,last_active;
 
-                if(total_page==1){
-                    str   = '';
-                }else if(Page.page==1){
-                    str =`<a href="javascript:" class="" data-p="next">上一頁</a>
-                    <span class="new_page">${Page.page}/${total_page}</span>
-                    <a href="javascript:" class="page-link" data-p="last">下一頁</a>`;
-                }else if(Page.page==total_page){
-                    str =`<a href="javascript:" class="page-link" data-p="next">上一頁</a>
-                    <span class="new_page">${Page.page}/${total_page}</span>
-                    <a href="javascript:" class="" data-p="last">下一頁</a>`;
+            $('.page_vip').html(str);
+            $('.warning').hide();
+
+            $('.page_vip a.page-link').click(function(){
+                $('.warning').show();
+                $('.sjlist_vip').children().css('display', 'none');
+
+                switch($(this).data('p')) {
+                    case 'next': Page.page = parseInt(Page.page) - 1; break;
+                    case 'last': Page.page = parseInt(Page.page) + 1; break;
+                    default: Page.page = parseInt($(this).data('p'));
+                }
+                Page.DrawPage(total);
+
+                // date= $('input[name=RadioGroup1]:checked').val();
+                date= $("#daysSelect option:selected").val();
+
+                if(date==7){
+                    $('.sjlist_vip>.date7.vipMember').slice((Page.page-1)*Page.row, Page.page*Page.row).css('display', '');
+                }else if(date==30){
+                    $('.sjlist_vip>.common30.vipMember').slice((Page.page-1)*Page.row, Page.page*Page.row).css('display', '');
                 }else{
-                    str = `
-                    <a href="javascript:" class="page-link" data-p="next">上一頁</a>
-                    <span class="new_page">${Page.page}/${total_page}</span>
-                    <a href="javascript:" class="page-link" data-p="last">下一頁</a>
-                `;
+                    $('.sjlist_vip>.vipMember').slice((Page.page-1)*Page.row, Page.page*Page.row).css('display', '');
                 }
 
-                $('.page_vip').html(str);
-                $('.warning').hide();
+                $('.sjlist_vip>.li_no_data').remove();
 
-                $('.page_vip a.page-link').click(function(){
-                    $('.warning').show();
-                    $('.sjlist_vip').children().css('display', 'none');
+                if($('.sjlist_vip>li:visible').length == 0 && isLoading == 0){
+                    $('#sjlist_vip_warning').hide();
+                    $('.sjlist_vip').append(no_row_li);
+                }
+            });
+        }
+    };
 
-                    switch($(this).data('p')) {
-                        case 'next': Page.page = parseInt(Page.page) - 1; break;
-                        case 'last': Page.page = parseInt(Page.page) + 1; break;
-                        default: Page.page = parseInt($(this).data('p'));
-                    }
-                    Page.DrawPage(total);
+    var Page_noVip = {
+        page : 1,
+        row  : 10,
+        DrawPage:function(total){
+            var total_page  = Math.ceil(total/Page_noVip.row) == 0 ? 1 : Math.ceil(total/Page_noVip.row);
+            var span_u      = 0;
+            var str         = '';
+            var i,active,prev_active,last_active;
 
-                    // date= $('input[name=RadioGroup1]:checked').val();
-                    date= $("#daysSelect option:selected").val();
-
-                    if(date==7){
-                        $('.sjlist_vip>.date7.vipMember').slice((Page.page-1)*Page.row, Page.page*Page.row).css('display', '');
-                    }else if(date==30){
-                        $('.sjlist_vip>.common30.vipMember').slice((Page.page-1)*Page.row, Page.page*Page.row).css('display', '');
-                    }else{
-                        $('.sjlist_vip>.vipMember').slice((Page.page-1)*Page.row, Page.page*Page.row).css('display', '');
-                    }
-
-                    $('.sjlist_vip>.li_no_data').remove();
-
-                    if($('.sjlist_vip>li:visible').length == 0 && isLoading == 0){
-                        $('#sjlist_vip_warning').hide();
-                        $('.sjlist_vip').append(no_row_li);
-                    }
-                });
+            if(total_page==1){
+                str   = '';
+            }else if(Page_noVip.page==1){
+                str =`<a href="javascript:" class="" data-p="next">上一頁</a>
+                <span class="new_page">${Page_noVip.page}/${total_page}</span>
+                <a href="javascript:" class="page-link" data-p="last">下一頁</a>`;
+            }else if(Page_noVip.page==total_page){
+                str =`<a href="javascript:" class="page-link" data-p="next">上一頁</a>
+                <span class="new_page">${Page_noVip.page}/${total_page}</span>
+                <a href="javascript:" class="" data-p="last">下一頁</a>`;
+            }else{
+                str = `
+                <a href="javascript:" class="page-link" data-p="next">上一頁</a>
+                <span class="new_page">${Page_noVip.page}/${total_page}</span>
+                <a href="javascript:" class="page-link" data-p="last">下一頁</a>
+            `;
             }
-        };
 
-        var Page_noVip = {
-            page : 1,
-            row  : 10,
-            DrawPage:function(total){
-                var total_page  = Math.ceil(total/Page_noVip.row) == 0 ? 1 : Math.ceil(total/Page_noVip.row);
-                var span_u      = 0;
-                var str         = '';
-                var i,active,prev_active,last_active;
+            $('.page_novip').html(str);
+            $('.warning').hide();
 
-                if(total_page==1){
-                    str   = '';
-                }else if(Page_noVip.page==1){
-                    str =`<a href="javascript:" class="" data-p="next">上一頁</a>
-                    <span class="new_page">${Page_noVip.page}/${total_page}</span>
-                    <a href="javascript:" class="page-link" data-p="last">下一頁</a>`;
-                }else if(Page_noVip.page==total_page){
-                    str =`<a href="javascript:" class="page-link" data-p="next">上一頁</a>
-                    <span class="new_page">${Page_noVip.page}/${total_page}</span>
-                    <a href="javascript:" class="" data-p="last">下一頁</a>`;
+            $('.page_novip a.page-link').click(function(){
+                $('.warning').show();
+                $('.sjlist_novip').children().css('display', 'none');
+
+                switch($(this).data('p')) {
+                    case 'next': Page_noVip.page = parseInt(Page_noVip.page) - 1; break;
+                    case 'last': Page_noVip.page = parseInt(Page_noVip.page) + 1; break;
+                    default: Page_noVip.page = parseInt($(this).data('p'));
+                }
+                Page_noVip.DrawPage(total);
+                // date= $('input[name=RadioGroup1]:checked').val();
+                date= $("#daysSelect option:selected").val();
+
+                if(date==7) {
+                    $('.sjlist_novip>.date7.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
+                }else if(date==30){
+                    $('.sjlist_novip>.common30.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
                 }else{
-                    str = `
-                    <a href="javascript:" class="page-link" data-p="next">上一頁</a>
-                    <span class="new_page">${Page_noVip.page}/${total_page}</span>
-                    <a href="javascript:" class="page-link" data-p="last">下一頁</a>
-                `;
+                    $('.sjlist_novip>.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
                 }
 
-                $('.page_novip').html(str);
-                $('.warning').hide();
+                $('.sjlist_novip>.li_no_data').remove();
 
-                $('.page_novip a.page-link').click(function(){
-                    $('.warning').show();
-                    $('.sjlist_novip').children().css('display', 'none');
-
-                    switch($(this).data('p')) {
-                        case 'next': Page_noVip.page = parseInt(Page_noVip.page) - 1; break;
-                        case 'last': Page_noVip.page = parseInt(Page_noVip.page) + 1; break;
-                        default: Page_noVip.page = parseInt($(this).data('p'));
-                    }
-                    Page_noVip.DrawPage(total);
-                    // date= $('input[name=RadioGroup1]:checked').val();
-                    date= $("#daysSelect option:selected").val();
-
-                    if(date==7) {
-                        $('.sjlist_novip>.date7.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
-                    }else if(date==30){
-                        $('.sjlist_novip>.common30.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
-                    }else{
-                        $('.sjlist_novip>.novipMember').slice((Page_noVip.page - 1) * Page_noVip.row, Page_noVip.page * Page_noVip.row).css('display', '');
-                    }
-
-                    $('.sjlist_novip>.li_no_data').remove();
-
-                    if($('.sjlist_novip>li:visible').length == 0 && isLoading == 0){
-                        $('#sjlist_novip_warning').hide();
-                        $('.sjlist_novip').append(no_row_li);
-                    }
-                });
-            }
-        };
+                if($('.sjlist_novip>li:visible').length == 0 && isLoading == 0){
+                    $('#sjlist_novip_warning').hide();
+                    $('.sjlist_novip').append(no_row_li);
+                }
+            });
+        }
+    };
 
         @foreach($exchange_period_name as $row)
             var  Page_exchange_period_{{$row->id}}= {
@@ -1287,7 +1368,25 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
         {
             return new Date(dt.getFullYear(), dt.getMonth(), 1);
         }
-        function liContent(pic,user_name,content,created_at,read_n,i,user_id,isVip,show,isWarned,isBanned,exchange_period,isBlur=false,is_truth=false, isCan = false, cityAndArea, message_user_note,isVVIP){
+        function liContent(pic,
+                           user_name,
+                           content,
+                           created_at,
+                           read_n,
+                           i,
+                           user_id,
+                           isVip,
+                           show,
+                           isWarned,
+                           isBanned,
+                           exchange_period,
+                           isBlur = false,
+                           is_truth = false,
+                           isCan = false,
+                           cityAndArea,
+                           message_user_note,
+                           isVVIP,
+                           msg_pic){
             showMsg = show;
             var li='';
             var ss =((i+1)>Page.row)?'display:none;':'display:none;';
@@ -1362,8 +1461,15 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
             }
 
             if(show==1) {
+                let show_content = '';
+                if(content=='') {
+                    show_content='圖片已傳送';
+                }
+                else {
+                    show_content = content;
+                }
                 li += `<span class="box">
-                        <font class="ellipsis ${user_id}">${content}</font>
+                        <font class="ellipsis ${user_id}">${show_content}</font>
                        </span>
                        </div></a>
                    `;
@@ -1456,27 +1562,27 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                 },
                 beforeSend:function(){//表單發送前做的事
                     isLoading = 1;
+
+
                     @if($user->engroup==2)
                         $('.sjlist_vvip').html('');
                         $('.sjlist_vip').html('');
                         $('.sjlist_novip').html('');
+
                         $('.page_vvip').hide();
                         $('.page_vip').hide();
                         $('.page_novip').hide();
-                        
-                        $('.sjlist_alert').html('');
-                        $('.sjlist_banned').html('');
-                        $('.page_banned').hide();
                     @elseif($user->engroup==1)
                         @foreach($exchange_period_name as $row)
                         $('.sjlist_exchange_period_{{$row->id}}').html('');
                         $('.page_exchange_period_{{$row->id}}').hide();
                         @endforeach
                     @endif
-
+                    $('.sjlist_vvipSelectionRewardActive').html('');
                     $('.sjlist_admin').html('');
                     $('.sjlist_alert').html('');
                     $('.sjlist_banned').html('');
+                    $('.page_vvipSelectionRewardActive').hide();
                     $('.page_admin').hide();
                     $('.page_warning').hide();
                     $('.page_warned').hide();
@@ -1545,13 +1651,13 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                         if (userIsVip != 1 && i < hide_vip_counts && hide_vip_counts > 0 ) {
                             if(e.user_id == 1049 || e.isBanned==1){
                                 //hide_vip_counts = hide_vip_counts-1;
-                                if (e && e.user_id) li = liContent(pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1,e.isWarned,e.isBanned,e.exchange_period,e.isblur,e.is_truth, e.isCan, e.cityAndArea, e.message_user_note,e.isVVIP);
+                                if (e && e.user_id) li = liContent(pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1,e.isWarned,e.isBanned,e.exchange_period,e.isblur,e.is_truth, e.isCan, e.cityAndArea, e.message_user_note,e.isVVIP, e.isVvipSelectionRewardActive);
                             }else {							
-                                if (e && e.user_id) li = liContent(pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 0,e.isWarned,e.isBanned,e.exchange_period,e.isblur,e.is_truth, e.isCan, e.cityAndArea, e.message_user_note,e.isVVIP);
+                                if (e && e.user_id) li = liContent(pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 0,e.isWarned,e.isBanned,e.exchange_period,e.isblur,e.is_truth, e.isCan, e.cityAndArea, e.message_user_note,e.isVVIP, e.isVvipSelectionRewardActive);
                             }
                         }else {
 							//if(e.isBanned==1) hide_vip_counts = hide_vip_counts+1;
-                            if (e && e.user_id) li = liContent(pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1,e.isWarned,e.isBanned,e.exchange_period,e.isblur,e.is_truth, e.isCan, e.cityAndArea, e.message_user_note,e.isVVIP);
+                            if (e && e.user_id) li = liContent(pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1,e.isWarned,e.isBanned,e.exchange_period,e.isblur,e.is_truth, e.isCan, e.cityAndArea, e.message_user_note,e.isVVIP, e.isVvipSelectionRewardActive);
                         }
 
                         var has_vvip_msg_count=0;
@@ -1562,20 +1668,28 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                                 }
                                 else if (e.isWarned==1) {
                                     $('.sjlist_alert').append(li).find('.row_data').addClass('date7 alertMember common30');
-                                }else if (e.isVVIP == 1 && userGender==2) {
+                                }
+                                else if (e.isVvipSelectionRewardActive) {
+                                    $('.vvipSelectionRewardMode').show();
+                                    $('.sjlist_vvipSelectionRewardActive').append(li).find('.row_data').addClass('date7 vvipSelectionRewardActiveMember common30');
+                                }
+                                else if (e.isVVIP == 1 && userGender==2) {
                                     has_vvip_msg_count+=1;
                                     $('.sjlist_vvip').append(li).find('.row_data').addClass('date7 vvipMember common30');
-                                }else if (e.from_id==1049 || e.to_id==1049) {
+                                }
+                                else if (e.from_id==1049 || e.to_id==1049) {
                                     $('.sjlist_admin').append(li).find('.row_data').addClass('date7 adminMember common30');
-                                }else if (e.isVip == 1 && userGender==2) {
+                                }
+                                else if (e.isVip == 1 && userGender==2) {
                                     $('.sjlist_vip').append(li).find('.row_data').addClass('date7 vipMember common30');
-                                }else if (e.isVip == 0 && userGender==2) {
+                                }
+                                else if (e.isVip == 0 && userGender==2) {
                                     $('.sjlist_novip').append(li).find('.row_data').addClass('date7 novipMember common30');
                                 }
 
                                 @if($user->engroup==1)
                                     @foreach($exchange_period_name as $row)
-                                        if (userGender==1 && e.exchange_period=='{{$row->id}}' && e.user_id != 1049 && e.isWarned == 0 && e.isBanned==0){
+                                        if (userGender==1 && e.exchange_period=='{{$row->id}}' && e.user_id != 1049 && e.isWarned == 0 && e.isBanned==0 && !e.isVvipSelectionRewardActive){
                                             $('.sjlist_exchange_period_{{$row->id}}').append(li).find('.row_data').addClass('date7 exchange_period_member_{{$row->id}} common30');
                                         }
                                     @endforeach
@@ -1587,20 +1701,28 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                                 }
                                 else if (e.isWarned==1){
                                     $('.sjlist_alert').append(li).find('.row_data').addClass('date30 alertMember common30');
-                                }else if (e.isVVIP == 1 && userGender==2) {
+                                }
+                                else if (e.isVvipSelectionRewardActive) {
+                                    $('.vvipSelectionRewardMode').show();
+                                    $('.sjlist_vvipSelectionRewardActive').append(li).find('.row_data').addClass('date30 vvipSelectionRewardActiveMember common30');
+                                }
+                                else if (e.isVVIP == 1 && userGender==2) {
                                     has_vvip_msg_count+=1;
                                     $('.sjlist_vvip').append(li).find('.row_data').addClass('date30 vvipMember common30');
-                                }else if (e.from_id==1049 || e.to_id==1049) {
+                                }
+                                else if (e.from_id==1049 || e.to_id==1049) {
                                     $('.sjlist_admin').append(li).find('.row_data').addClass('date30 adminMember common30');
-                                }else if (e.isVip == 1 && userGender==2) {
+                                }
+                                else if (e.isVip == 1 && userGender==2) {
                                     $('.sjlist_vip').append(li).find('.row_data').addClass('date30 vipMember common30');
-                                }else if (e.isVip == 0 && userGender==2)  {
+                                }
+                                else if (e.isVip == 0 && userGender==2)  {
                                     $('.sjlist_novip').append(li).find('.row_data').addClass('date30 novipMember common30');
                                 }
 
                                 @if($user->engroup==1)
                                     @foreach($exchange_period_name as $row)
-                                        if (userGender==1 && e.exchange_period=='{{$row->id}}' && e.user_id != 1049 && e.isWarned == 0 && e.isBanned==0){
+                                        if (userGender==1 && e.exchange_period=='{{$row->id}}' && e.user_id != 1049 && e.isWarned == 0 && e.isBanned==0 && !e.isVvipSelectionRewardActive){
                                             $('.sjlist_exchange_period_{{$row->id}}').append(li).find('.row_data').addClass('date30 exchange_period_member_{{$row->id}} common30');
                                         }
                                     @endforeach
@@ -1612,14 +1734,22 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                                 }
                                 else if (e.isWarned==1) {
                                     $('.sjlist_alert').append(li).find('.row_data').addClass('dateAll alertMember');
-                                }else if (e.isVVIP == 1 && userGender==2) {
+                                }
+                                else if (e.isVvipSelectionRewardActive) {
+                                    $('.vvipSelectionRewardMode').show();
+                                    $('.sjlist_vvipSelectionRewardActive').append(li).find('.row_data').addClass('dateAll vvipSelectionRewardActiveMember');
+                                }
+                                else if (e.isVVIP == 1 && userGender==2) {
                                     has_vvip_msg_count+=1;
                                     $('.sjlist_vvip').append(li).find('.row_data').addClass('dateAll vvipMember');
-                                }else if (e.from_id==1049 || e.to_id==1049) {
+                                }
+                                else if (e.from_id==1049 || e.to_id==1049) {
                                     $('.sjlist_admin').append(li).find('.row_data').addClass('dateAll adminMember');
-                                }else if (e.isVip == 1 && userGender==2) {
+                                }
+                                else if (e.isVip == 1 && userGender==2) {
                                     $('.sjlist_vip').append(li).find('.row_data').addClass('dateAll vipMember');
-                                }else if (e.isVip == 0 && userGender==2)  {
+                                }
+                                else if (e.isVip == 0 && userGender==2)  {
                                     $('.sjlist_novip').append(li).find('.row_data').addClass('dateAll novipMember');
                                 }
 
@@ -1628,7 +1758,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                                         $('.sjlist_exchange_period_1').append(li).find('.row_data').addClass('dateAll exchange_period_member_1');
                                     }
                                     @foreach($exchange_period_name as $row)
-                                        if (userGender==1 && e.exchange_period=='{{$row->id}}' && e.user_id != 1049 && e.isWarned == 0 && e.isBanned==0){
+                                        if (userGender==1 && e.exchange_period=='{{$row->id}}' && e.user_id != 1049 && e.isWarned == 0 && e.isBanned==0 && !e.isVvipSelectionRewardActive){
                                             $('.sjlist_exchange_period_{{$row->id}}').append(li).find('.row_data').addClass('dateAll exchange_period_member_{{$row->id}}');
                                         }
                                     @endforeach
@@ -1674,8 +1804,8 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                                     if (vvip_counts > 10) {
                                         $('.page_vvip').show();
                                     }
-                                    Page.DrawPage(vvip_counts);
-                                    $('.sjlist_vvip>.date7.vvipMember').slice((Page.page - 1) * Page.row, Page.page * Page.row).css('display', '');
+                                    Page_vvip.DrawPage(vvip_counts);
+                                    $('.sjlist_vvip>.date7.vvipMember').slice((Page_vvip.page - 1) * Page_vvip.row, Page_vvip.page * Page_vvip.row).css('display', '');
 
                                     let vip_counts = $('.date7.vipMember').length;
                                     if (vip_counts > 10) {
@@ -1703,6 +1833,13 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
 
                                     @endforeach
                                 @endif
+
+                                let vvipSelectionRewardActive_counts = $('.date7.vvipSelectionRewardActiveMember').length;
+                                if (vvipSelectionRewardActive_counts > 10) {
+                                    $('.page_vvipSelectionRewardActive').show();
+                                }
+                                Page_vvipSelectionRewardActive.DrawPage(vvipSelectionRewardActive_counts);
+                                $('.sjlist_vvipSelectionRewardActive>.date7.vvipSelectionRewardActiveMember').slice((Page_vvipSelectionRewardActive.page - 1) * Page_vvipSelectionRewardActive.row, Page_vvipSelectionRewardActive.page * Page_vvipSelectionRewardActive.row).css('display', '');
 
                                 let admin_counts = $('.date7.adminMember').length;
                                 if (admin_counts > 10) {
@@ -1732,8 +1869,8 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                                     if (vvip_counts > 10) {
                                         $('.page_vvip').show();
                                     }
-                                    Page.DrawPage(vvip_counts);
-                                    $('.sjlist_vvip>.common30.vvipMember').slice((Page.page - 1) * Page.row, Page.page * Page.row).css('display', '');
+                                    Page_vvip.DrawPage(vvip_counts);
+                                    $('.sjlist_vvip>.common30.vvipMember').slice((Page_vvip.page - 1) * Page_vvip.row, Page_vvip.page * Page_vvip.row).css('display', '');
 
                                     let vip_counts = $('.common30.vipMember').length;
                                     if (vip_counts > 10) {
@@ -1789,8 +1926,8 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                                     if (vvip_counts > 10) {
                                         $('.page_vvip').show();
                                     }
-                                    Page.DrawPage(vvip_counts);
-                                    $('.sjlist_vvip>.vvipMember').slice((Page.page - 1) * Page.row, Page.page * Page.row).css('display', '');
+                                    Page_vvip.DrawPage(vvip_counts);
+                                    $('.sjlist_vvip>.vvipMember').slice((Page_vvip.page - 1) * Page_vvip.row, Page_vvip.page * Page_vvip.row).css('display', '');
 
                                     let vip_counts = $('.vipMember').length;
                                     if (vip_counts > 10) {
@@ -1818,7 +1955,14 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
 
                                         @endforeach
                                 @endif
-                                
+
+                                let vvipSelectionRewardActive_counts = $('.vvipSelectionRewardActiveMember').length;
+                                if (vvipSelectionRewardActive_counts > 10) {
+                                    $('.page_vvipSelectionRewardActive').show();
+                                }
+                                Page_vvipSelectionRewardActive.DrawPage(vvipSelectionRewardActive_counts);
+                                $('.sjlist_vvipSelectionRewardActive>.vvipSelectionRewardActiveMember').slice((Page_vvipSelectionRewardActive.page - 1) * Page_vvipSelectionRewardActive.row, Page_vvipSelectionRewardActive.page * Page_vvipSelectionRewardActive.row).css('display', '');
+
                                 let admin_counts = $('.adminMember').length;
                                 if (admin_counts > 10) {
                                     $('.page_admin').show();
@@ -1850,8 +1994,8 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                                     if (vvip_counts > 10) {
                                         $('.page_vvip').show();
                                     }
-                                    Page.DrawPage(vvip_counts);
-                                    $('.sjlist_vvip>.date7.vvipMember').slice((Page.page - 1) * Page.row, Page.page * Page.row).css('display', '');
+                                    Page_vvip.DrawPage(vvip_counts);
+                                    $('.sjlist_vvip>.date7.vvipMember').slice((Page_vvip.page - 1) * Page_vvip.row, Page_vvip.page * Page_vvip.row).css('display', '');
 
                                     let vip_counts = $('.date7.vipMember').length;
                                     if (vip_counts > 10) {
@@ -1879,7 +2023,14 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
 
                                     @endforeach
                                 @endif
-                                
+
+                                let vvipSelectionRewardActive_counts = $('.date7.adminMember').length;
+                                if (vvipSelectionRewardActive_counts > 10) {
+                                    $('.page_vvipSelectionRewardActive').show();
+                                }
+                                Page_vvipSelectionRewardActive.DrawPage(vvipSelectionRewardActive_counts);
+                                $('.sjlist_vvipSelectionRewardActive>.date7.vvipSelectionRewardActiveMember').slice((Page_vvipSelectionRewardActive.page - 1) * Page_vvipSelectionRewardActive.row, Page_vvipSelectionRewardActive.page * Page_vvipSelectionRewardActive.row).css('display', '');
+
                                 let admin_counts = $('.date7.adminMember').length;
                                 if (admin_counts > 10) {
                                     $('.page_admin').show();
@@ -1909,8 +2060,8 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                                     if (vvip_counts > 10) {
                                         $('.page_vvip').show();
                                     }
-                                    Page.DrawPage(vvip_counts);
-                                    $('.sjlist_vvip>.common30.vvipMember').slice((Page.page - 1) * Page.row, Page.page * Page.row).css('display', '');
+                                    Page_vvip.DrawPage(vvip_counts);
+                                    $('.sjlist_vvip>.common30.vvipMember').slice((Page_vvip.page - 1) * Page_vvip.row, Page_vvip.page * Page_vvip.row).css('display', '');
 
                                     let vip_counts = $('.common30.vipMember').length;
                                     if (vip_counts > 10) {
@@ -1938,7 +2089,14 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
 
                                     @endforeach
                                 @endif
-                                
+
+                                let vvipSelectionRewardActive_counts = $('.common30.vvipSelectionRewardActiveMember').length;
+                                if (vvipSelectionRewardActive_counts > 10) {
+                                    $('.page_vvipSelectionRewardActive').show();
+                                }
+                                Page_vvipSelectionRewardActive.DrawPage(vvipSelectionRewardActive_counts);
+                                $('.sjlist_vvipSelectionRewardActive>.common30.vvipSelectionRewardActiveMember').slice((Page_vvipSelectionRewardActive.page - 1) * Page_vvipSelectionRewardActive.row, Page_vvipSelectionRewardActive.page * Page_vvipSelectionRewardActive.row).css('display', '');
+
                                 let admin_counts = $('.common30.adminMember').length;
                                 if (admin_counts > 10) {
                                     $('.page_admin').show();
@@ -1967,8 +2125,8 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                                     if (vvip_counts > 10) {
                                         $('.page_vvip').show();
                                     }
-                                    Page.DrawPage(vvip_counts);
-                                    $('.sjlist_vvip>.vvipMember').slice((Page.page - 1) * Page.row, Page.page * Page.row).css('display', '');
+                                    Page_vvip.DrawPage(vvip_counts);
+                                    $('.sjlist_vvip>.vvipMember').slice((Page_vvip.page - 1) * Page_vvip.row, Page_vvip.page * Page_vvip.row).css('display', '');
 
                                     let vip_counts = $('.vipMember').length;
                                     if (vip_counts > 10) {
@@ -1996,7 +2154,14 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
 
                                     @endforeach
                                 @endif
-                                
+
+                                let vvipSelectionRewardActive_counts = $('.vvipSelectionRewardActiveMember').length;
+                                if (vvipSelectionRewardActive_counts > 10) {
+                                    $('.page_vvipSelectionRewardActive').show();
+                                }
+                                Page_vvipSelectionRewardActive.DrawPage(vvipSelectionRewardActive_counts);
+                                $('.sjlist_vvipSelectionRewardActive>.vvipSelectionRewardActiveMember').slice((Page_vvipSelectionRewardActive.page - 1) * Page_vvipSelectionRewardActive.row, Page_vvipSelectionRewardActive.page * Page_vvipSelectionRewardActive.row).css('display', '');
+
                                 let admin_counts = $('.adminMember').length;
                                 if (admin_counts > 10) {
                                     $('.page_admin').show();
@@ -2024,12 +2189,34 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
 
                         $('.warning').hide();
 
+                        $('.sjlist_vvipSelectionRewardActive>.li_no_data').remove();
+                        $('.sjlist_admin>.li_no_data').remove();
+                        $('.sjlist_alert>.li_no_data').remove();
+                        $('.sjlist_banned>.li_no_data').remove();
+
+                        if ($('.sjlist_vvipSelectionRewardActive>li:visible').length == 0) {
+                            $('#sjlist_vvipSelectionRewardActive_warning_warning').hide();
+                            $('.sjlist_vvipSelectionRewardActive').append(no_row_li);
+                        }
+                        if ($('.sjlist_admin>li:visible').length == 0) {
+                            $('#sjlist_admin_warning').hide();
+                            $('.sjlist_admin').append(no_row_li);
+                        }
+                        if ($('.sjlist_alert>li:visible').length == 0) {
+                            $('#sjlist_alert_warning').hide();
+                            $('.sjlist_alert').append(no_row_li);
+                        }
+                        if ($('.sjlist_banned>li:visible').length == 0) {
+                            $('#sjlist_banned_warning').hide();
+                            $('.sjlist_banned').append(no_row_li);
+                        }
+
                         @if($user->engroup==2)
+
                             $('.sjlist_vvip>.li_no_data').remove();
-                            $('.sjlist_admin>.li_no_data').remove();
                             $('.sjlist_vip>.li_no_data').remove();
                             $('.sjlist_novip>.li_no_data').remove();
-                            $('.sjlist_alert>.li_no_data').remove();
+
                             if ($('.sjlist_vvip>li:visible').length == 0) {
                                 $('#sjlist_vvip_warning').hide();
                                 $('.sjlist_vvip').append(no_row_li);
@@ -2045,10 +2232,6 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                                 }
                             }
 
-                            if ($('.sjlist_admin>li:visible').length == 0) {
-                                $('#sjlist_admin_warning').hide();
-                                $('.sjlist_admin').append(no_row_li);
-                            }
                             if ($('.sjlist_vip>li:visible').length == 0) {
                                 $('#sjlist_vip_warning').hide();
                                 $('.sjlist_vip').append(no_row_li);
@@ -2057,20 +2240,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                                 $('#sjlist_novip_warning').hide();
                                 $('.sjlist_novip').append(no_row_li);
                             }
-                            if ($('.sjlist_alert>li:visible').length == 0) {
-                                $('#sjlist_alert_warning').hide();
-                                $('.sjlist_alert').append(no_row_li);
-                            }
-                            if ($('.sjlist_banned>li:visible').length == 0) {
-                                $('#sjlist_banned_warning').hide();
-                                $('.sjlist_banned').append(no_row_li);
-                            }                            
                         @elseif($user->engroup==1)
-                            $('.sjlist_admin>.li_no_data').remove();
-                            if ($('.sjlist_admin>li:visible').length == 0) {
-                                $('#sjlist_admin_warning').hide();
-                                $('.sjlist_admin').append(no_row_li);
-                            }
                             @foreach($exchange_period_name as $row)
                             $('.sjlist_exchange_period_{{$row->id}}>.li_no_data').remove();
                             if ($('.sjlist_exchange_period_{{$row->id}}>li:visible').length == 0) {
@@ -2078,15 +2248,6 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                                 $('.sjlist_exchange_period_{{$row->id}}').append(no_row_li);
                             }
                             @endforeach
-                            if ($('.sjlist_alert>li:visible').length == 0) {
-                                $('#sjlist_alert_warning').hide();
-                                $('.sjlist_alert').append(no_row_li);
-                            }
-                            
-                            if ($('.sjlist_banned>li:visible').length == 0) {
-                                $('#sjlist_banned_warning').hide();
-                                $('.sjlist_banned').append(no_row_li);
-                            }                            
                         @endif
                         
                         $('#show_isCan_num').html($('.row_data.can').length);
@@ -2141,10 +2302,10 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
             date= $("#daysSelect option:selected").val();
             window.location.hash = '#'+ date;
             @if($user->engroup==1)
-                    @foreach($exchange_period_name as $row)
-                        Page_exchange_period_{{$row->id}}.page=1;
-                        $('.page_exchange_period_{{$row->id}}').hide();
-                    @endforeach
+                @foreach($exchange_period_name as $row)
+                    Page_exchange_period_{{$row->id}}.page=1;
+                    $('.page_exchange_period_{{$row->id}}').hide();
+                @endforeach
             @elseif($user->engroup==2)
                 Page.page=1;
                 Page_noVip.page=1;
@@ -2168,8 +2329,8 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                      if (vvip_counts > 10) {
                          $('.page_vvip').show();
                      }
-                     Page.DrawPage(vvip_counts);
-                     $('.sjlist_vvip>.date7.vvipMember').slice((Page.page - 1) * Page.row, Page.page * Page.row).css('display', '');
+                     Page_vvip.DrawPage(vvip_counts);
+                     $('.sjlist_vvip>.date7.vvipMember').slice((Page_vvip.page - 1) * Page_vvip.row, Page_vvip.page * Page_vvip.row).css('display', '');
 
                      let vip_counts = $('.date7.vipMember').length;
                      if (vip_counts > 10) {
@@ -2226,8 +2387,8 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                          if (vvip_counts > 10) {
                              $('.page_vvip').show();
                          }
-                         Page.DrawPage(vvip_counts);
-                         $('.sjlist_vvip>.common30.vvipMember').slice((Page.page - 1) * Page.row, Page.page * Page.row).css('display', '');
+                         Page_vvip.DrawPage(vvip_counts);
+                         $('.sjlist_vvip>.common30.vvipMember').slice((Page_vvip.page - 1) * Page_vvip.row, Page_vvip.page * Page_vvip.row).css('display', '');
 
                          let vip_counts = $('.common30.vipMember').length;
                          if (vip_counts > 10) {
@@ -2279,8 +2440,8 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                          if (vvip_counts > 10) {
                              $('.page_vvip').show();
                          }
-                         Page.DrawPage(vvip_counts);
-                         $('.sjlist_vvip>.vvipMember').slice((Page.page - 1) * Page.row, Page.page * Page.row).css('display', '');
+                         Page_vvip.DrawPage(vvip_counts);
+                         $('.sjlist_vvip>.vvipMember').slice((Page_vvip.page - 1) * Page_vvip.row, Page_vvip.page * Page_vvip.row).css('display', '');
 
                          let vip_counts = $('.vipMember').length;
                          if (vip_counts > 10) {
@@ -2330,9 +2491,19 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                  }
                     $('.warning').hide();
 
+
+                    $('.sjlist_vvipSelectionRewardActive>.li_no_data').remove();
+                    if ($('.sjlist_vvipSelectionRewardActive>li:visible').length == 0 && isLoading == 0) {
+                        $('#sjlist_vvipSelectionRewardActive_warning').hide();
+                        $('.sjlist_vvipSelectionRewardActive').append(no_row_li);
+                    }
+                    $('.sjlist_admin>.li_no_data').remove();
+                    if ($('.sjlist_admin>li:visible').length == 0 && isLoading == 0) {
+                        $('#sjlist_admin_warning').hide();
+                        $('.sjlist_admin').append(no_row_li);
+                    }
                     @if($user->engroup==2)
                         $('.sjlist_vvip>.li_no_data').remove();
-                        $('.sjlist_admin>.li_no_data').remove();
                         $('.sjlist_vip>.li_no_data').remove();
                         $('.sjlist_novip>.li_no_data').remove();
                         $('.sjlist_anonymous>.li_no_data').remove();
@@ -2340,10 +2511,6 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                         if ($('.sjlist_vvip>li:visible').length == 0 && isLoading == 0) {
                             $('#sjlist_vvip_warning').hide();
                             $('.sjlist_vvip').append(no_row_li);
-                        }
-                        if ($('.sjlist_admin>li:visible').length == 0 && isLoading == 0) {
-                            $('#sjlist_admin_warning').hide();
-                            $('.sjlist_admin').append(no_row_li);
                         }
                         if ($('.sjlist_vip>li:visible').length == 0 && isLoading == 0) {
                             $('#sjlist_vip_warning').hide();
@@ -2364,11 +2531,6 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                             }
                         }
                     @elseif($user->engroup==1)
-                        $('.sjlist_admin>.li_no_data').remove();
-                        if ($('.sjlist_admin>li:visible').length == 0 && isLoading == 0) {
-                            $('#sjlist_admin_warning').hide();
-                            $('.sjlist_admin').append(no_row_li);
-                        }
                         @foreach($exchange_period_name as $row)
                             $('.sjlist_exchange_period_{{$row->id}}>.li_no_data').remove();
                             if ($('.sjlist_exchange_period_{{$row->id}}>li:visible').length == 0 && isLoading == 0) {
@@ -2431,7 +2593,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
             return false;
         }
 
-    function massage_user_note(sid){
+        function massage_user_note(sid){
         let massage_user_note_content = $('#massage_user_note_' + sid).val();
         $.post('{{ route('messageUserNoteAJAX') }}', {
             user_id: '{{ $user->id }}',
@@ -2764,30 +2926,10 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
             });
         });
 
-        // $('.lebox1,.lebox2,.lebox3').toggleClass('on');
+        $('.leboxVvipSelectionRewardActive,.leboxVVIP,.lebox0,.lebox1,.lebox2,.lebox3,.lebox6,.lebox_alert,.lebox5').toggleClass('off');
+        $('.leboxVvipSelectionRewardActive,.leboxVVIP,.lebox1,.lebox2,.lebox3,.lebox6,.lebox_alert,.lebox5').next('dd').slideToggle("slow");
 
-        // $('.lebox1').removeClass('off');
-        // $('.lebox1').removeClass('on');
-
-        // $('.lebox1,.lebox2,.lebox3,.lebox_alert').removeClass('off');
-        // $('.lebox1,.lebox2,.lebox3,.lebox_alert').removeClass('on');
-
-{{--        @if($user->engroup==2)--}}
-{{--        $('.lebox1').toggleClass('on');--}}
-{{--        $('.lebox2,.lebox3,.lebox_alert').toggleClass('off');--}}
-{{--        $('.lebox2,.lebox3,.lebox_alert').next('dd').slideToggle("slow");--}}
-{{--        @elseif($user->engroup==1)--}}
-{{--        $('.lebox1,.lebox2,.lebox3,.lebox_alert').toggleClass('off');--}}
-{{--        $('.lebox1,.lebox2,.lebox3,.lebox_alert').next('dd').slideToggle("slow");--}}
-{{--        @endif--}}
-        // $('.lebox1,.lebox2,.lebox3,.lebox_alert').toggleClass('off');
-        // $(".leftsidebar_box dd").show();
-        // $('.lebox2,.lebox3,.lebox_alert').next('dd').slideToggle("slow");
-
-                $('.leboxVVIP,.lebox0,.lebox1,.lebox2,.lebox3,.lebox6,.lebox_alert,.lebox5').toggleClass('off');
-                $('.leboxVVIP,.lebox0,.lebox1,.lebox2,.lebox3,.lebox6,.lebox_alert,.lebox5').next('dd').slideToggle("slow");
-
-        $('.leboxVVIP,.lebox0,.lebox1,.lebox2,.lebox3,.lebox6,.lebox_alert,.lebox5').click(function(e) {
+        $('.leboxVvipSelectionRewardActive,.leboxVVIP,.lebox0,.lebox1,.lebox2,.lebox3,.lebox6,.lebox_alert,.lebox5').click(function(e) {
             if ($(this).hasClass('off')) {
                 $(this).removeClass('off');
                 $(this).toggleClass('on');
@@ -2825,6 +2967,12 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                 }
                 @endforeach
             @endif
+
+            $('.sjlist_vvipSelectionRewardActive>.li_no_data').remove();
+            if ($('.sjlist_vvipSelectionRewardActive>li:visible').length == 0 && isLoading == 0) {
+                $('#sjlist_vvipSelectionRewardActive_warning').hide();
+                $('.sjlist_vvipSelectionRewardActive').append(no_row_li);
+            }
 
             $('.sjlist_admin>.li_no_data').remove();
             if ($('.sjlist_admin>li:visible').length == 0 && isLoading == 0) {

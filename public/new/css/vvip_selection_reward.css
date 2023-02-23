@@ -1,0 +1,74 @@
+/* vvip_selection_reward*/
+#vvip_selection_reward{
+    width: 52%;
+    left: 24%;
+    top:2%;
+    max-width: 816px;
+    max-height:95%;
+    overflow: auto;
+}
+#vvip_selection_reward::-webkit-scrollbar {
+    width: 5px;
+    height: 8px;
+    background-color: #ffe9ee; /* or add it to the track */
+}
+#vvip_selection_reward::-webkit-scrollbar-thumb {
+    background: #fe92a8;
+}
+
+@media (max-width:1200px){
+    .v_fb_k{
+        margin-top: -70px;
+    }
+}
+@media (max-width:1000px){
+    .v_fb_k{
+        margin-top: -60px;
+    }
+}
+@media (max-width:850px){
+    .v_fb_k{
+        margin-top: -50px;
+    }
+}
+@media (max-width:700px){
+    .v_fb_k{
+        margin-top: -40px;
+    }
+}
+@media (max-width:600px){
+    .v_fb_k{
+        margin-top: -30px;
+    }
+    #vvip_selection_reward{
+        width: 62%;
+        left: 19%;
+    }
+}
+@media (max-width:500px){
+    #vvip_selection_reward{
+        width: 82%;
+        left: 9%;
+    }
+}
+@media (max-width:450px){
+    .v_fb_k{
+        margin-top: -90px;
+    }
+}
+@media (max-width:415px){
+    .v_fb_k{
+        margin-top: -70px;
+    }
+}
+
+/* nav */
+.n_txbut{
+    display: flex;
+}
+.se_but1{
+    /*margin-right: 5px;*/
+}
+.se_but2{
+    margin-left: 5px;
+}

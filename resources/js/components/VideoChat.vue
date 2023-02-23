@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="container">  
-        <table class="display table cell-border" id="data-table">
+        <table id="data-table" class="display table cell-border">
             <thead>
                 <tr>
                     <th class="width2word">會員上線狀態</th>
@@ -39,49 +39,49 @@
                     <td class="nowrap">{{ user.self_auth_apply.created_at.substring(0,10)}}</td>                   
                     <td class="nowrap">{{getSelfAuthStatusContent(user.self_auth_apply.status,user.self_auth_apply.latest_video_modify,user.self_auth_apply.from_auto)}}</td> 
                     <td>
-                        <div class="video_record_list_item_block" v-for="record in user.video_verify_record">
+                        <div v-for="record in user.video_verify_record" class="video_record_list_item_block">
                             {{getVideoRecordContent(record)}}
                         </div>
                     </td>                       
                     <td>
-                        <div class="video_admin_list_item_block" v-for="record in user.video_verify_record">
+                        <div v-for="record in user.video_verify_record" class="video_admin_list_item_block">
                             {{record.admin_user==null?'未記錄':record.admin_user.email.substr(0,record.admin_user.email.indexOf('@'))}}
                         </div>
                     </td>
                     <td>
                         <div 
-                        :class="generateVideoUserQuestionColorClass(user.video_verify_memo?user.video_verify_memo.user_question_at:'',user.video_verify_memo?user.video_verify_memo.user_question_into_chat_at:'',user.video_verify_memo?user.video_verify_memo.user_question:'',user.self_auth_apply.status)" 
                         ref="userQuestionShowBlock"
+                        :class="generateVideoUserQuestionColorClass(user.video_verify_memo?user.video_verify_memo.user_question_at:'',user.video_verify_memo?user.video_verify_memo.user_question_into_chat_at:'',user.video_verify_memo?user.video_verify_memo.user_question:'',user.self_auth_apply.status)"
                         >{{user.video_verify_memo!=null?user.video_verify_memo.user_question:''}}
                         </div>
-                        <div class="video_user_question_edit_block" ref="userQuestionEditBlock">
+                        <div ref="userQuestionEditBlock" class="video_user_question_edit_block">
                             <textarea 
-                                :value="user.video_verify_memo!=null?user.video_verify_memo.user_question:''"   
-                                ref="userQuestionTextarea"></textarea>
-                            <button type="button" class="text-white btn btn-success" :key="user.id"  @click="saveUserQuestion(user.id,row_index)" >送出</button>
-                            <button type="button" class="text-white btn btn-danger" onclick="$(this).closest('td').children().hide();$(this).closest('td').find('.video_user_question_edit_btn_block,.video_user_question_show_block').show();">取消</button>
+                                ref="userQuestionTextarea"
+                                :value="user.video_verify_memo!=null?user.video_verify_memo.user_question:''"></textarea>
+                            <button :key="user.id" class="text-white btn btn-success" type="button"  @click="saveUserQuestion(user.id,row_index)" >送出</button>
+                            <button class="text-white btn btn-danger" onclick="$(this).closest('td').children().hide();$(this).closest('td').find('.video_user_question_edit_btn_block,.video_user_question_show_block').show();" type="button">取消</button>
                         </div>
-                        <div class="video_user_question_edit_btn_block" ref="userQuestionEditBtnBlock">
-                            <button v-if="user.self_auth_apply.status==0" type="button" class="text-white btn btn-primary" onclick="$(this).closest('td').find('textarea').css('height',Math.max($(this).closest('td').find('.video_user_question_show_block').height(),100));$(this).closest('td').children().hide();$(this).closest('td').find('.video_user_question_edit_block').show();">修改</button>
+                        <div ref="userQuestionEditBtnBlock" class="video_user_question_edit_btn_block">
+                            <button v-if="user.self_auth_apply.status==0" class="text-white btn btn-primary" onclick="$(this).closest('td').find('textarea').css('height',Math.max($(this).closest('td').find('.video_user_question_show_block').height(),100));$(this).closest('td').children().hide();$(this).closest('td').find('.video_user_question_edit_block').show();" type="button">修改</button>
                         </div>
                     </td>
                     <td class="nowrap">
-                        <div class="video_user_blurry_avatar_show_block" ref="blurryAvatarShowBlock">
+                        <div ref="blurryAvatarShowBlock" class="video_user_blurry_avatar_show_block">
                         {{user.video_verify_memo==null?'':getClearContent(user.video_verify_memo.blurryAvatar)}}
                         </div>
                     </td>
                     <td class="nowrap">
-                        <div class="video_user_blurry_life_photo_show_block" ref="blurryLifePhotoShowBlock">
+                        <div ref="blurryLifePhotoShowBlock" class="video_user_blurry_life_photo_show_block">
                         {{user.video_verify_memo==null?'':getClearContent(user.video_verify_memo.blurryLifePhoto)}}
                         </div>                   
                     </td>
                     <td class="operator-col">
                         <button
-                          type="button"
-                          class="btn mr-2"
                           :key="user.id"
                           :class="generateBtnClass(getUserOnlineStatus(user.id))"
                           :style="generateBtnStyle(getUserOnlineStatus(user.id))"
+                          class="btn mr-2"
+                          type="button"
                           @click="getUserOnlineStatus(user.id) ? placeVideoCall(user) : null"
                         >視訊</button> 
                         <button 
@@ -110,16 +110,16 @@
             </tfoot>
         </table>
       <!--Placing Video Call-->
-      <div class="row mt-5" id="video-row"  v-if="callPlaced">       
-        <div class="col-12 video-container" v-if="callPlaced">
+      <div v-if="callPlaced" id="video-row"  class="row mt-5">
+        <div v-if="callPlaced" class="col-12 video-container">
           <video
             id="user_video_screen"
             ref="userVideo"
-            muted
-            playsinline
+            :class="isFocusMyself === true ? 'user-video' : 'partner-video'"
             autoplay
             class="cursor-pointer"
-            :class="isFocusMyself === true ? 'user-video' : 'partner-video'"
+            muted
+            playsinline
             @click=""
           />
 
@@ -130,17 +130,17 @@
           />
 
           <video
+            v-if="videoCallParams.callAccepted"
             id="partner_video_screen"
             ref="partnerVideo"
-            playsinline
+            :class="isFocusMyself === true ? 'partner-video' : 'user-video'"
             autoplay
             class="cursor-pointer"
-            :class="isFocusMyself === true ? 'partner-video' : 'user-video'"
+            playsinline
             @click=""
-            v-if="videoCallParams.callAccepted"
           />
 
-          <div class="partner-video" v-else>
+          <div v-else class="partner-video">
             <div v-if="callPartner" class="column items-center q-pt-xl">
               <div class="col q-gutter-y-md text-center">
                 <p class="q-pt-md">
@@ -155,8 +155,8 @@
                 <div class="video_memo_edit_title_block">user提出問題</div>
                 <div>
                     <textarea
+                    ref="videoChatUserQuestionTextarea"
                     v-model="videoChatUserQuestion"
-                    ref="videoChatUserQuestionTextarea"                
                     ></textarea>
                 </div>
             </div> 
@@ -174,7 +174,7 @@
                 </div>
                 <div>
                     <label>
-                        <input v-model="videoChatPicClearAvatar" name="picBlurryAvatar" type="checkbox" value="PR" >pr <input v-model="videoChatAvatarPrValue" type="number" name="avatar_pr_value" min="0" max="100" style="height: 22px;">
+                        <input v-model="videoChatPicClearAvatar" name="picBlurryAvatar" type="checkbox" value="PR" >pr <input v-model="videoChatAvatarPrValue" max="100" min="0" name="avatar_pr_value" style="height: 22px;" type="number">
                     </label>
                 </div>           
             </div>
@@ -192,24 +192,24 @@
                 </div>
                 <div>
                     <label>
-                        <input v-model="videoChatPicClearLifePhoto" name="picBlurryLifePhoto" type="checkbox" value="PR" >pr <input v-model="videoChatLifePhotoPrValue"  type="number" name="life_photo_pr_value" min="0" max="100" style="height: 22px;">
+                        <input v-model="videoChatPicClearLifePhoto" name="picBlurryLifePhoto" type="checkbox" value="PR" >pr <input v-model="videoChatLifePhotoPrValue"  max="100" min="0" name="life_photo_pr_value" style="height: 22px;" type="number">
                     </label>
                 </div>           
             </div>            
           </div>
           <div class="action-btns">
-            <button v-if="this.user_permission == 'admin'" type="button" class="btn btn-info" @click="toggleMuteAudio">
+            <button v-if="this.user_permission == 'admin'" class="btn btn-info" type="button" @click="toggleMuteAudio">
               {{ mutedAudio ? "關閉靜音" : "開啟靜音" }}
             </button>
             <button
               v-if="this.user_permission == 'admin'"
-              type="button"
               class="btn btn-primary mx-4"
+              type="button"
               @click="toggleMuteVideo"
             >
               {{ mutedVideo ? "顯示畫面" : "隱藏畫面" }}
             </button>
-            <button type="button" class="btn btn-danger" @click="endCall">
+            <button class="btn btn-danger" type="button" @click="endCall">
               結束視訊通話
             </button>
           </div>
@@ -221,23 +221,23 @@
       <!-- End of Placing Video Call  -->
 
       <!-- Incoming Call  -->
-      <div class="row" id="video_income_call_dialog" v-if="incomingCallDialog">
+      <div v-if="incomingCallDialog" id="video_income_call_dialog" class="row">
         <div class="col">
           <p>
             來自 <strong>{{ callerDetails.id }} {{ callerDetails.name }} 的通話要求</strong>
           </p>
           <div class="btn-group" role="group">
             <button
-              type="button"
               class="btn btn-danger"
               data-dismiss="modal"
+              type="button"
               @click="declineCall"
             >
               拒絕
             </button>
             <button
-              type="button"
               class="btn btn-success ml-5"
+              type="button"
               @click="acceptCall"
             >
               接受
@@ -248,29 +248,29 @@
       <!-- End of Incoming Call  -->
     </div>
    
-    <div class="video_chat_call_placed_mask_bg mask_bg" v-if=" callPlaced">
+    <div v-if=" callPlaced" class="video_chat_call_placed_mask_bg mask_bg">
     </div>
-    <div class="video_chat_incomingCallDialog_mask_bg mask_bg" v-if="incomingCallDialog">
+    <div v-if="incomingCallDialog" class="video_chat_incomingCallDialog_mask_bg mask_bg">
     </div>
     <div class="video_chat_mask_bg mask_bg">
         <div class="loading"><span class="loading_text">請稍等,正在上傳視訊<br><br>請勿重新整理<br>或離開本頁面</span></div>
     </div>
-    <div class="mask_bg" id="connecting_msg_block">
+    <div id="connecting_msg_block" class="mask_bg">
         <div class="loading"><span class="loading_text">正在嘗試連線視訊<br><br>請勿重新整理<br>或離開本頁面</span></div>
     </div>
-    <div class="mask_bg" id="break_by_partner_before_connect_msg_block">
+    <div id="break_by_partner_before_connect_msg_block" class="mask_bg">
         <div class="loading"><span class="loading_text">失敗！！！<br><br>尚未成功連線<br>但會員已自行結束通話<br>殘存視訊上傳中<br><br>請勿重新整理<br>或離開本頁面</span></div>
     </div>
-    <div class="mask_bg" id="break_by_partner_as_even_not_start_msg_block">
+    <div id="break_by_partner_as_even_not_start_msg_block" class="mask_bg">
         <div class="loading"><span class="loading_text">失敗！！！<br><br>會員已自行結束通話<br>無法接通視訊<br><br>3秒後將自動重新整理頁面</span></div>
     </div>  
-    <div class="mask_bg" id="decline_by_partner__msg_block">
+    <div id="decline_by_partner__msg_block" class="mask_bg">
         <div class="loading"><span class="loading_text">失敗！！！<br><br>會員拒絕接受通話<br>無法接通視訊<br><br>3秒後將自動重新整理頁面</span></div>
     </div> 
-    <div class="mask_bg" id="partner_leave_page_msg_block">
+    <div id="partner_leave_page_msg_block" class="mask_bg">
         <div class="loading"><span class="loading_text">失敗！！！<br><br>會員已離開或重新整理視訊頁面<br>無法接通視訊<br><br>3秒後將自動重新整理頁面</span></div>
     </div>    
-    <div class="mask_bg" id="video_error_msg_block">
+    <div id="video_error_msg_block" class="mask_bg">
         <div class="loading"><span class="loading_text"></span></div>
     </div>       
   </div>
@@ -280,31 +280,30 @@
 
     function log_video_chat_process(log_arr)
     {
-        log_arr['url'] = location.href;
+      log_arr['url'] = location.href;
 
-        fetch('/video/log_video_chat_process', {
-              method: 'POST',
-              headers: {'Content-Type': 'application/json'},
-              body: JSON.stringify(log_arr)
-              });              
+      fetch('/video/log_video_chat_process', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(log_arr)
+      });
     }
-    
 
-import Peer from "simple-peer";
-//import { getPermissions } from "../helpers";
-import LZString from "../lz-string.js";
 
-export default {
-  props: [
-    "allusers",
-    "authuserid",
-    "user_permission",
-    "ice_server_json",
-  ],
-  data() {
-    return {
-      userList:[],
-      isFocusMyself: true,
+    import Peer from "simple-peer";
+    //import { getPermissions } from "../helpers";
+
+    export default {
+      props: [
+        "allusers",
+        "authuserid",
+        "user_permission",
+        "ice_server_json",
+      ],
+      data() {
+        return {
+          userList: [],
+          isFocusMyself: true,
       callPlaced: false,
       callPartner: null,
       callUser:null,
@@ -411,7 +410,7 @@ export default {
         log_arr.title = 'end mounted@export default@VideoChat.vue';
         log_video_chat_process(log_arr);  
   },
-  updated: function() {console.log('updated');console.log(this.userList);this.isUpdated=true;$('#data-table').DataTable().destroy();this.initDataTable(); },
+  updated: function() {console.log('updated');console.log(this.userList);this.isUpdated=true;$('#data-table').DataTable().draw( false ); },
   computed: {  
     getUsers() {
         let now_vue = this;
@@ -1858,9 +1857,11 @@ export default {
       log_video_chat_process(tca_log_arr);  
     },
 
-    getUserOnlineStatus(id) { 
+    getUserOnlineStatus(id) {
+      // console.log("Online users: ")
+      // console.log(this.videoCallParams.users)
       const onlineUserIndex = this.videoCallParams.users.findIndex(
-        (data) => data.id === id
+          (data) => data.id === id
       );
       if (onlineUserIndex < 0) {
         return false;

@@ -2,38 +2,34 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Models\BannedUsersImplicitly;
+use App\Models\SimpleTables\banned_users;
+use App\Services\AdminService;
+use App\Services\ImagesCompareService;
 use Auth;
-use App\Models\User;
-use App\Models\Blocked;
-use Illuminate\Database\Eloquent\Model;
-use App\Notifications\MessageEmail;
-use Illuminate\Support\Facades\Config;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
-use App\Services\AdminService;
 use Intervention\Image\Facades\Image;
-use App\Models\SimpleTables\banned_users;
-use App\Services\UserService;
-use App\Services\ImagesCompareService;
-use Illuminate\Support\Facades\Cache;
-use YlsIdeas\FeatureFlags\Facades\Features;
-use Outl1ne\ScoutBatchSearchable\BatchSearchable;
 
 class Message extends Model
 {
-    use SoftDeletes, BatchSearchable;
+    use SoftDeletes;
 
+    static $date = null;
+    static $quota_of_is_truth_VVIP = 3;
+    static $quota_of_is_truth_VIP = 1;
+    public static $truthMessages = [];
     /**
      * The database table used by the model.
      *
      * @var string
      */
     protected $table = 'message';
-
     /**
      * Fillable fields
      *
@@ -53,15 +49,8 @@ class Message extends Model
         'show_time_limit',
         'room_id',
         'is_truth',
+        'chat_with_admin',
     ];
-
-    static $date = null;
-    
-    static $quota_of_is_truth_VVIP = 3;
-    
-    static $quota_of_is_truth_VIP = 1;
-
-    public static $truthMessages = [];
 
     public function __construct(array $attributes = [])
     {
@@ -77,34 +66,7 @@ class Message extends Model
     | relationships
     |--------------------------------------------------------------------------
     */
-    public function sender()
-    {
-        return $this->belongsTo(User::class, 'from_id', 'id');
-    }
 
-    public function receiver()
-    {
-        return $this->belongsTo(User::class, 'to_id', 'id');
-    }
-    
-    public function parent_message() 
-    {
-        return $this->belongsTo(Message::class, 'parent_msg', 'id');
-    }
-
-    public function latestMessage2() {
-        return $this->messages()??"";
-    }
-
-    public function roomMembers() {
-        return $this->belongsToMany(User::class, MessageRoomUserXref::class);
-    }
-
-    public function joinedMessageRooms() {
-        return $this->belongsTo(User::class, MessageRoomUserXref::class, 'user_id', 'id', 'id');
-    }
-    
-    // handle delete Message
     public static function deleteBetween($uid, $sid) {
         $message = Message::where([['to_id', $uid], ['from_id', $sid]])->orWhere([['to_id', $sid], ['from_id', $uid]])->orderBy('created_at', 'desc')->first();
 
@@ -119,32 +81,6 @@ class Message extends Model
         }
     }
 
-    public static function deleteAll($uid) {
-        $message = Message::where([['to_id', $uid], ['from_id', '!=', $uid]])->orWhere([['from_id', $uid], ['to_id', '!=',$uid]])->orderBy('created_at', 'desc')->get();
-
-        for($i = 0; $i < $message->count(); $i++) {
-            //echo $message[$i]->temp_id . '<br/>';
-            //echo $uid . '<br/>';
-            if($message[$i]->temp_id != $uid) {
-                $message[$i]->all_delete_count += 1;
-                $message[$i]->temp_id = $uid;
-                $message[$i]->save();
-            }
-        }
-    }
-
-    public static function deleteSingleMessageFromDB($uid, $sid, $ct_time, $content) {
-        return Message::where([['to_id', $uid], ['from_id', $sid], ['created_at', $ct_time], ['content', $content]])->orWhere([['to_id', $sid], ['from_id', $uid], ['created_at', $ct_time], ['content', $content]])->delete();
-    }
-
-    public static function deleteAllMessagesFromDB($uid, $sid) {
-        return Message::where([['to_id', $uid],['from_id', $sid]])->orWhere([['to_id', $sid],['from_id', $uid]])->delete();
-    }
-
-    public static function deleteRowMessagesFromDB($uid, $sid) {
-        return Message::where('is_row_delete_1', '!=', 0)->where('is_row_delete_2', '!=', 0)->where([['to_id', $uid], ['from_id', $sid]])->orWhere([['to_id', $sid], ['from_id', $uid]])->delete();
-    }
-
     public static function deleteRowMessage($uid, $sid, $step) {
         $message = Message::where([['to_id', $uid], ['from_id', $sid]])->orWhere([['to_id', $sid], ['from_id', $uid]])->get();
 
@@ -152,8 +88,7 @@ class Message extends Model
             if($step == 0) {
                 $message[$i]->is_row_delete_1 = $uid;
                 $message[$i]->updated_at = Carbon::now();
-            }
-            else if($step == 1) {
+            } else if ($step == 1) {
                 $message[$i]->is_row_delete_2 = $uid;
                 $message[$i]->updated_at = Carbon::now();
                 Message::deleteRowMessagesFromDB($uid, $sid);
@@ -162,12 +97,47 @@ class Message extends Model
         }
     }
 
-    public static function deleteSingleMessage($message, $uid, $sid, $ct_time, $content, $step) {
-        if($step == 0) {
+    public static function deleteRowMessagesFromDB($uid, $sid)
+    {
+        return Message::where('is_row_delete_1', '!=', 0)->where('is_row_delete_2', '!=', 0)->where([['to_id', $uid], ['from_id', $sid]])->orWhere([['to_id', $sid], ['from_id', $uid]])->delete();
+    }
+
+    public static function deleteAll($uid)
+    {
+        $message = Message::where([['to_id', $uid], ['from_id', '!=', $uid]])->orWhere([['from_id', $uid], ['to_id', '!=', $uid]])->orderBy('created_at', 'desc')->get();
+
+        for ($i = 0; $i < $message->count(); $i++) {
+            //echo $message[$i]->temp_id . '<br/>';
+            //echo $uid . '<br/>';
+            if ($message[$i]->temp_id != $uid) {
+                $message[$i]->all_delete_count += 1;
+                $message[$i]->temp_id = $uid;
+                $message[$i]->save();
+            }
+        }
+    }
+
+    public static function deleteSingle($uid, $sid, $ct_time, $content)
+    {
+        $message = Message::where([['to_id', $uid], ['from_id', $sid], ['created_at', $ct_time], ['content', $content]])
+            ->orWhere([['to_id', $sid], ['from_id', $uid], ['created_at', $ct_time], ['content', $content]])
+            ->first();
+
+        if ($message) {
+            if ($message->is_single_delete_1 == 0) {
+                Message::deleteSingleMessage($message, $uid, $sid, $ct_time, $content, 0);
+            } elseif ($message->is_single_delete_1 <> 0 && $message->is_single_delete_2 == 0) {
+                Message::deleteSingleMessage($message, $uid, $sid, $ct_time, $content, 1);
+            }
+        }
+    }
+
+    public static function deleteSingleMessage($message, $uid, $sid, $ct_time, $content, $step)
+    {
+        if ($step == 0) {
             $message->is_single_delete_1 = $uid;
             $message->updated_at = Carbon::now();
-        }
-        else if($step == 1) {
+        } else if ($step == 1) {
             $message->is_single_delete_2 = $uid;
             $message->updated_at = Carbon::now();
             Message::deleteSingleMessageFromDB($uid, $sid, $ct_time, $content);
@@ -175,29 +145,22 @@ class Message extends Model
         $message->save();
     }
 
-    public static function deleteSingle($uid, $sid, $ct_time, $content) {
-        $message = Message::where([['to_id', $uid], ['from_id', $sid], ['created_at', $ct_time], ['content', $content]])
-            ->orWhere([['to_id', $sid], ['from_id', $uid], ['created_at', $ct_time], ['content', $content]])
-            ->first();
+    // handle delete Message
 
-        if($message) {
-            if($message->is_single_delete_1 == 0) {
-                Message::deleteSingleMessage($message, $uid, $sid, $ct_time, $content, 0);
-            }elseif($message->is_single_delete_1 <> 0 && $message->is_single_delete_2 == 0) {
-                Message::deleteSingleMessage($message, $uid, $sid, $ct_time, $content, 1);
-            }
-        }
+    public static function deleteSingleMessageFromDB($uid, $sid, $ct_time, $content)
+    {
+        return Message::where([['to_id', $uid], ['from_id', $sid], ['created_at', $ct_time], ['content', $content]])->orWhere([['to_id', $sid], ['from_id', $uid], ['created_at', $ct_time], ['content', $content]])->delete();
     }
 
-    public static function reportMessage($id, $content, $images = null) {
+    public static function reportMessage($id, $content, $images = null)
+    {
         $message = Message::where('id', $id)->first();
         $message->isReported = 1;
         $message->reportContent = $content;
 
-        if(!is_null($images) && count($images)){
+        if (!is_null($images) && count($images)) {
 
-            if($files = $images)
-            {
+            if ($files = $images) {
                 $images_ary=array();
                 foreach ($files as $key => $file) {
                     $now = Carbon::now()->format('Ymd');
@@ -234,132 +197,44 @@ class Message extends Model
         event(new \App\Events\CheckWarnedOfReport($message->from_id));
     }
 
-    public static function isAdminMessage($content) {
-        if(strstr($content, '系統通知: 車馬費邀請') != false) {
-            //echo strpos($content, '系統通知: 車馬費邀請');
-            return true;
-        }
-        return false;
-    }
-
-    // show message setting
-    public static function onlyShowVip($user, $msgUser, $isVip = false) {
-        if (!isset($msgUser)){
-            return false;
-        }
-        return $isVip && !$msgUser->isVipOrIsVvip() && $user->user_meta->notifhistory == '顯示VIP會員信件';
-    }
-
-    public static function showNoVip($user, $msgUser, $isVip = false) {
+    public static function showNoVip($user, $msgUser, $isVip = false)
+    {
         return $isVip && !$msgUser->isVipOrIsVvip() && ($user->user_meta->notifhistory == '顯示普通會員信件' || $user->user_meta->notifhistory == '');
     }
 
-    public static function getLastSender($uid, $sid) {
+    public static function getLastSender($uid, $sid)
+    {
         $lastSender = Message::latestMessage($uid, $sid);
 
         return $lastSender;
     }
 
-    public static function chatArray($uid, $messages, $isVip) {
-        $saveMessages = [];
-        $tempMessages = [];
-        $noVipCount = 0;
-        $isAllDelete = true;
-        $user = \Auth::user();
-        $banned_users = \App\Services\UserService::getBannedId($user->id);
-        foreach($messages as $key => &$message) {
-            if($banned_users->contains('member_id', $message->to_id)){
-                unset($messages[$key]);
-                continue;
-            }
-            if($banned_users->contains('member_id', $message->from_id) && $message->from_id != $user->id){
-                unset($messages[$key]);
-                continue;
-            }
-            if($message->to_id == $user->id) {
-                $msgUser = \App\Models\User::findById($message->from_id);
-            }
-            else if($message->from_id == $user->id) {
-                $msgUser =  \App\Models\User::findById($message->to_id);
-            }
-            if(\App\Models\Message::onlyShowVip($user, $msgUser, $isVip)) {
-                unset($messages[$key]);
-                continue;
-            }
-
-            // end 1 and 2
-            if($message->all_delete_count == 2) {
-                Message::deleteAllMessagesFromDB($message->to_id, $message->from_id);
-            }
-            if($message->all_delete_count == 1 && ($message->is_row_delete_1 == $message->to_id || $message->is_row_delete_2 == $message->to_id || $message->is_row_delete_1 == $message->from_id || $message->is_row_delete_2 == $message->from_id)) {
-                Message::deleteAllMessagesFromDB($message->to_id, $message->from_id);
-            }
-
-            // delete row messages
-            if($message->is_row_delete_1 == $uid || $message->is_row_delete_2 == $uid) {
-                unset($messages[$key]);
-                continue;
-            }
-
-            // delete all messages
-            if($uid == $message->temp_id && $message->all_delete_count == 1 && $isAllDelete == true) {
-                unset($messages[$key]);
-                continue;
-            }
-
-            // add messages to array
-            if(!in_array(['to_id' => $message->to_id, 'from_id' => $message->from_id], $tempMessages) && !in_array(['to_id' => $message->from_id, 'from_id' => $message->to_id], $tempMessages)) {
-                array_push($tempMessages, ['to_id' => $message->to_id, 'from_id' => $message->from_id]);
-                array_push($saveMessages, ['created_at' => $message->created_at,'to_id' => $message->to_id, 'from_id' => $message->from_id, 'temp_id' => $message->temp_id,'all_delete_count' => $message->all_delete_count, 'is_row_delete_1' => $message->is_row_delete_1,
-                    'is_row_delete_2' => $message->is_row_delete_2, 'is_single_delete_1' => $message->is_single_delete_1, 'is_single_delete_2' => $message->is_single_delete_2,'content'=>$message->content]);
-                $noVipCount++;
-            }
-
-            if($isVip == 0 && $noVipCount == Config::get('social.limit.show-chat')) {
-                break;
-            }
+    /**
+     * 取得最新私人訊息
+     * @param Int $user_id
+     * @param Int $targetUser_id
+     */
+    public static function latestMessage($user_id, $targetUser_id, $userBlockList = null)
+    {
+        $uid = $user_id;
+        $sid = $targetUser_id;
+        if ($userBlockList && in_array($sid, $userBlockList->toArray())) {
+            $blockTime = Blocked::getBlockTime($uid, $sid);
+            //echo 'blockTime = ' . $blockTime->created_at;
+            $latestMessage = Message::where([['to_id', $uid], ['from_id', $sid], ['created_at', '<=', $blockTime->created_at]])->orWhere([['to_id', $sid], ['from_id', $uid], ['created_at', '<=', $blockTime->created_at]])->orderBy('created_at', 'desc')->first();
+            if ($latestMessage == NULL) return NULL;
+            return $latestMessage;
         }
 
-        return $saveMessages;
-    }
-
-    public static function chatArrayAJAX($uid, $messages, $isVip, $noVipCount = 0,&$truthMessages = []) {
-        $saveMessages = [];
-        $tempMessages = [];
-        $isAllDelete = true;
-        foreach($messages as $key => $message) {
-            if($isVip == 0 && $noVipCount >0 &&$noVipCount >= Config::get('social.limit.show-chat')) {
-                break;
-            }
-            // end 1 and 2
-            if($message->all_delete_count == 2) {
-                Message::deleteAllMessagesFromDB($message->to_id, $message->from_id);
-            }
-            if($message->all_delete_count == 1 && ($message->is_row_delete_1 == $message->to_id || $message->is_row_delete_2 == $message->to_id || $message->is_row_delete_1 == $message->from_id || $message->is_row_delete_2 == $message->from_id)) {
-                Message::deleteAllMessagesFromDB($message->to_id, $message->from_id);
-            }
-
-            // delete row messages
-            if($message->is_row_delete_1 == $uid || $message->is_row_delete_2 == $uid) {
-                unset($messages[$key]);
-                continue;
-            }
-
-            // delete all messages
-            if($uid == $message->temp_id && $message->all_delete_count == 1 && $isAllDelete == true) {
-                unset($messages[$key]);
-                continue;
-            }
-
-            // add messages to array
-            if(!in_array(['to_id' => $message->to_id, 'from_id' => $message->from_id], $tempMessages) && !in_array(['to_id' => $message->from_id, 'from_id' => $message->to_id], $tempMessages)) {
-                array_push($tempMessages, ['to_id' => $message->to_id, 'from_id' => $message->from_id]);
-                array_push($saveMessages, ['to_id' => $message->to_id, 'from_id' => $message->from_id, 'temp_id' => $message->temp_id,'all_delete_count' => $message->all_delete_count, 'is_row_delete_1' => $message->is_row_delete_1, 'is_row_delete_2' => $message->is_row_delete_2, 'is_single_delete_1' => $message->is_single_delete_1, 'is_single_delete_2' => $message->is_single_delete_2]);
-                $noVipCount++;
-            }
+        $theMessage = Message::where([['to_id', $uid], ['from_id', $sid]])->orWhere([['to_id', $sid], ['from_id', $uid]])->orderBy('created_at', 'desc')->first();
+        $msgUser = User::findById($sid);
+        $data = \App\Services\UserService::checkRecommendedUser($msgUser);
+        if (isset($data['button']) && isset($theMessage)) {
+            $theMessage->isPreferred = 1;
+            $theMessage->button = $data['button'];
         }
 
-        return $saveMessages;
+        return $theMessage;
     }
 
     public static function allSenders($uid, $isVip)
@@ -421,13 +296,89 @@ class Message extends Model
             }
         }
 
-        if($isVip == 1)
+        if ($isVip == 1)
             $saveMessages = Message::chatArray($uid, $messages, 1);
-        else if($isVip == 0) {
+        else if ($isVip == 0) {
             $saveMessages = Message::chatArray($uid, $messages, 0);
         }
 
         return $saveMessages;
+    }
+
+    public static function chatArray($uid, $messages, $isVip)
+    {
+        $saveMessages = [];
+        $tempMessages = [];
+        $noVipCount = 0;
+        $isAllDelete = true;
+        $user = \Auth::user();
+        $banned_users = \App\Services\UserService::getBannedId($user->id);
+        foreach ($messages as $key => &$message) {
+            if ($banned_users->contains('member_id', $message->to_id)) {
+                unset($messages[$key]);
+                continue;
+            }
+            if ($banned_users->contains('member_id', $message->from_id) && $message->from_id != $user->id) {
+                unset($messages[$key]);
+                continue;
+            }
+            if ($message->to_id == $user->id) {
+                $msgUser = \App\Models\User::findById($message->from_id);
+            } else if ($message->from_id == $user->id) {
+                $msgUser = \App\Models\User::findById($message->to_id);
+            }
+            if (\App\Models\Message::onlyShowVip($user, $msgUser, $isVip)) {
+                unset($messages[$key]);
+                continue;
+            }
+
+            // end 1 and 2
+            if ($message->all_delete_count == 2) {
+                Message::deleteAllMessagesFromDB($message->to_id, $message->from_id);
+            }
+            if ($message->all_delete_count == 1 && ($message->is_row_delete_1 == $message->to_id || $message->is_row_delete_2 == $message->to_id || $message->is_row_delete_1 == $message->from_id || $message->is_row_delete_2 == $message->from_id)) {
+                Message::deleteAllMessagesFromDB($message->to_id, $message->from_id);
+            }
+
+            // delete row messages
+            if ($message->is_row_delete_1 == $uid || $message->is_row_delete_2 == $uid) {
+                unset($messages[$key]);
+                continue;
+            }
+
+            // delete all messages
+            if ($uid == $message->temp_id && $message->all_delete_count == 1 && $isAllDelete == true) {
+                unset($messages[$key]);
+                continue;
+            }
+
+            // add messages to array
+            if (!in_array(['to_id' => $message->to_id, 'from_id' => $message->from_id], $tempMessages) && !in_array(['to_id' => $message->from_id, 'from_id' => $message->to_id], $tempMessages)) {
+                array_push($tempMessages, ['to_id' => $message->to_id, 'from_id' => $message->from_id]);
+                array_push($saveMessages, ['created_at' => $message->created_at, 'to_id' => $message->to_id, 'from_id' => $message->from_id, 'temp_id' => $message->temp_id, 'all_delete_count' => $message->all_delete_count, 'is_row_delete_1' => $message->is_row_delete_1,
+                    'is_row_delete_2' => $message->is_row_delete_2, 'is_single_delete_1' => $message->is_single_delete_1, 'is_single_delete_2' => $message->is_single_delete_2, 'content' => $message->content]);
+                $noVipCount++;
+            }
+
+            if ($isVip == 0 && $noVipCount == Config::get('social.limit.show-chat')) {
+                break;
+            }
+        }
+
+        return $saveMessages;
+    }
+
+    public static function onlyShowVip($user, $msgUser, $isVip = false)
+    {
+        if (!isset($msgUser)) {
+            return false;
+        }
+        return $isVip && !$msgUser->isVipOrIsVvip() && $user->user_meta->notifhistory == '顯示VIP會員信件';
+    }
+
+    public static function deleteAllMessagesFromDB($uid, $sid)
+    {
+        return Message::where([['to_id', $uid], ['from_id', $sid]])->orWhere([['to_id', $sid], ['from_id', $uid]])->delete();
     }
 
     public static function allSendersAdmin($uid, $isVip)
@@ -442,13 +393,16 @@ class Message extends Model
         return $saveMessages;
     }
 
-    public static function daySendersAdmin($uid, $isVip,$day_page){   
-        $s = date('Y-m-d H:i:s',strtotime(($day_page-1).'day'));
-        $e = date('Y-m-d H:i:s',strtotime($day_page.'day'));
+    // show message setting
+
+    public static function daySendersAdmin($uid, $isVip, $day_page)
+    {
+        $s = date('Y-m-d H:i:s', strtotime(($day_page - 1) . 'day'));
+        $e = date('Y-m-d H:i:s', strtotime($day_page . 'day'));
         $messages = DB::select(DB::raw("
             select * from `message` 
             WHERE  ((`to_id` = $uid and `from_id` != $uid) or (`from_id` = $uid and `to_id` != $uid))
-            AND created_at BETWEEN '".$s."' AND '".$e."'
+            AND created_at BETWEEN '" . $s . "' AND '" . $e . "'
             order by `created_at` desc 
         "));
         $saveMessages = Message::chatArray($uid, $messages, 1);
@@ -504,45 +458,60 @@ class Message extends Model
             $saveMessages = Message::chatArrayAJAX($uid, $messages, 0, $noVipCount,$truthMessages);
         }
 
-        if(count($saveMessages) == 0){
+        if (count($saveMessages) == 0) {
             return array_values(['No data', self::$date]);
-        }
-        else{
+        } else {
             return Message::sortMessages($saveMessages);
         }
     }
 
-    public static function allSendersAJAX($uid, $isVip)
+    public static function chatArrayAJAX($uid, $messages, $isVip, $noVipCount = 0, &$truthMessages = [])
     {
-        $userBlockList = Blocked::select('blocked_id')->where('member_id', $uid)->get();
-        $banned_users = \App\Services\UserService::getBannedId($uid);
-        $messages = Message::where([['to_id', $uid], ['from_id', '!=', $uid]])->orWhere([['from_id', $uid], ['to_id', '!=',$uid]])->orderBy('created_at', 'desc');
-        $messages->whereNotIn('to_id', $userBlockList);
-        $messages->whereNotIn('from_id', $userBlockList);
-        $messages->whereNotIn('to_id', $banned_users);
-        $messages->whereNotIn('from_id', $banned_users);
-        $messages = $messages->get();
+        $saveMessages = [];
+        $tempMessages = [];
+        $isAllDelete = true;
+        foreach ($messages as $key => $message) {
+            if ($isVip == 0 && $noVipCount > 0 && $noVipCount >= Config::get('social.limit.show-chat')) {
+                break;
+            }
+            // end 1 and 2
+            if ($message->all_delete_count == 2) {
+                Message::deleteAllMessagesFromDB($message->to_id, $message->from_id);
+            }
+            if ($message->all_delete_count == 1 && ($message->is_row_delete_1 == $message->to_id || $message->is_row_delete_2 == $message->to_id || $message->is_row_delete_1 == $message->from_id || $message->is_row_delete_2 == $message->from_id)) {
+                Message::deleteAllMessagesFromDB($message->to_id, $message->from_id);
+            }
 
-        if($isVip == 1)
-            $saveMessages = Message::chatArrayAJAX($uid, $messages, 1);
-        else if($isVip == 0) {
-            $saveMessages = Message::chatArrayAJAX($uid, $messages, 0);
+            // delete row messages
+            if ($message->is_row_delete_1 == $uid || $message->is_row_delete_2 == $uid) {
+                unset($messages[$key]);
+                continue;
+            }
+
+            // delete all messages
+            if ($uid == $message->temp_id && $message->all_delete_count == 1 && $isAllDelete == true) {
+                unset($messages[$key]);
+                continue;
+            }
+
+            // add messages to array
+            if (!in_array(['to_id' => $message->to_id, 'from_id' => $message->from_id], $tempMessages) && !in_array(['to_id' => $message->from_id, 'from_id' => $message->to_id], $tempMessages)) {
+                array_push($tempMessages, ['to_id' => $message->to_id, 'from_id' => $message->from_id]);
+                array_push($saveMessages, ['to_id' => $message->to_id, 'from_id' => $message->from_id, 'temp_id' => $message->temp_id, 'all_delete_count' => $message->all_delete_count, 'is_row_delete_1' => $message->is_row_delete_1, 'is_row_delete_2' => $message->is_row_delete_2, 'is_single_delete_1' => $message->is_single_delete_1, 'is_single_delete_2' => $message->is_single_delete_2]);
+                $noVipCount++;
+            }
         }
 
-        if(count($saveMessages) == 0){
-            return array_values(['No data']);
-        }
-        else{
-            return Message::sortMessages($saveMessages);
-        }
+        return $saveMessages;
     }
 
-    public static function sortMessages($messages){
+    public static function sortMessages($messages)
+    {
         if ($messages instanceof Illuminate\Database\Eloquent\Collection) {
             $messages = $messages->toArray();
         }
         $user = Auth::user();
-        $block_people =  Config::get('social.block.block-people');
+        $block_people = Config::get('social.block.block-people');
         $userBlockList = \App\Models\Blocked::select('blocked_id')->where('member_id', $user->id)->get();
         $banned_users = \App\Services\UserService::getBannedId($user->id);
         $isVip = $user->isVipOrIsVvip();
@@ -612,7 +581,17 @@ class Message extends Model
         return array_values($messages);
     }
 
-    public static function search($value, $array) {
+    public static function isAdminMessage($content)
+    {
+        if (strstr($content, '系統通知: 車馬費邀請') != false) {
+            //echo strpos($content, '系統通知: 車馬費邀請');
+            return true;
+        }
+        return false;
+    }
+
+    public static function search($value, $array)
+    {
         foreach ($array as $key => $val) {
             if ($val['blocked_id'] === $value) {
                 return true;
@@ -621,93 +600,44 @@ class Message extends Model
         return false;
     }
 
-    /**
-     * 取得最新私人訊息
-     * @param  Int $user_id
-     * @param  Int $targetUser_id
-     */
-    public static function latestMessage($user_id, $targetUser_id, $userBlockList = null)
-    {
-        $uid = $user_id;
-        $sid = $targetUser_id;
-        if($userBlockList && in_array($sid, $userBlockList->toArray())) {
-            $blockTime = Blocked::getBlockTime($uid, $sid);
-            //echo 'blockTime = ' . $blockTime->created_at;
-            $latestMessage = Message::where([['to_id', $uid],['from_id', $sid],['created_at', '<=', $blockTime->created_at]])->orWhere([['to_id', $sid],['from_id', $uid],['created_at', '<=', $blockTime->created_at]])->orderBy('created_at', 'desc')->first();
-            if($latestMessage == NULL) return NULL;
-            return $latestMessage;
-        }
-
-        $theMessage = Message::where([['to_id', $uid],['from_id', $sid]])->orWhere([['to_id', $sid],['from_id', $uid]])->orderBy('created_at', 'desc')->first();
-        $msgUser = User::findById($sid);
-        $data = \App\Services\UserService::checkRecommendedUser($msgUser);
-        if(isset($data['button']) && isset($theMessage)){
-            $theMessage->isPreferred = 1;
-            $theMessage->button = $data['button'];
-        }
-
-        return $theMessage;
-    }
-    
-    public static function addAutoDestroyWhereToQuery($query)
-    {
-        return $query
-                ->where(function($q){
-                    $q->where('views_count_quota','>',0)
-                        ->whereRaw('views_count < views_count_quota')
-                        ->orWhere('views_count_quota',0)
-                        ->orWhereNull('views_count_quota')
-                        ;   
-                }) 
-                ->where(function($q){
-                    $q->where(function($q2) {
-                        $q2->where('show_time_limit','>',0)
-                            ->whereRaw('ADDTIME(created_at,show_time_limit) > DATE_ADD(now(), INTERVAL 8 HOUR)');
-                            // ADD 8 HOUR 暫時寫死，未來可能需要使用浮動時間
-                    })->orWhere('show_time_limit',0)
-                      ->orWhereNull('show_time_limit');
-                }) ;       
-    }
-
     public static function allToFromSender($uid, $sid, $includeDeleted = false, $sys_notice = NULL) {
         $user = \View::shared('user');
         if(!$user){
             $user = User::find($uid);
         }
         $admin_id = AdminService::checkAdmin()->id;
-        $isAdminSender = $admin_id==$sid;
-		if(!$isAdminSender) 
-        {
+        $isAdminSender = $admin_id == $sid;
+        if (!$isAdminSender) {
             $includeUnsend = $includeDeleted;
-            if($user->isVip() || $user->isVVIP()) {
-                self::$date =\Carbon\Carbon::parse("180 days ago")->toDateTimeString();
-            }else {
+            if ($user->isVip() || $user->isVVIP()) {
+                self::$date = \Carbon\Carbon::parse("180 days ago")->toDateTimeString();
+            } else {
                 self::$date = \Carbon\Carbon::parse("30 days ago")->toDateTimeString();
-            }   
-           
-            $query = Message::where('created_at','>=',self::$date);
-                     
+            }
+
+            $query = Message::where('created_at', '>=', self::$date);
+
             $query = self::addAutoDestroyWhereToQuery($query);
-            
-            if($includeUnsend) { 
+
+            if ($includeUnsend) {
                 $query->withTrashed()->where(function ($q) {
                     $q->where(function ($q1) {
                         $q1->where('unsend', 0)->whereNull('deleted_at');
                     })
-                    ->orWhere(function ($q2) {
-                        $q2->where('unsend', 1);
-                    });
+                        ->orWhere(function ($q2) {
+                            $q2->where('unsend', 1);
+                        });
                 });
             }
-        }  
+        }
         else {
            $query = Message::whereNotNull('id');
         }
-		
+
 		$min_bad_date = self::getNotShowBadUserDate($uid, $sid);
-				
+
         $block = Blocked::where('member_id',$sid)->where('blocked_id', $uid)->get()->first();
-       
+
         $query = $query->where(function ($query) use ($uid,$sid,$isAdminSender,$includeDeleted) {
 			$whereArr1 = [['to_id', $uid],['from_id', $sid]];
 			$whereArr2 = [['from_id', $uid],['to_id', $sid]];
@@ -720,13 +650,13 @@ class Message extends Model
             $query->orWhere($whereArr2);
 
         });
-        
+
         if($isAdminSender) return $query->orderBy('created_at', 'desc')->paginate(10);//->get();
-        
+
         if($block) {
             $query = $query->where('from_id', '<>', $block->member_id);
         }
-		
+
 		if($min_bad_date) {
 			$query = $query->where('created_at', '<', $min_bad_date);
 		}
@@ -740,33 +670,74 @@ class Message extends Model
                     ->orWhereNull('sys_notice');
                 });
             }
-            return $query->orderBy('created_at', 'desc')->get();            
+            return $query->orderBy('created_at', 'desc')->get();
         }
-        $query = $query->where('created_at','>=',self::$date)
-                    ->orderBy('created_at', 'desc')
-                    ;
-        
-        if($user->engroup==1 && $user->isVipOrIsVvip()) {
-            $is_truth_msg =( clone $query)->where('is_truth',1)->where('is_row_delete_1',0)->where('is_row_delete_2',0)->orderByDesc('id')->first();
-            if($is_truth_msg && !in_array(['to_id' => $is_truth_msg->to_id, 'from_id' => $is_truth_msg->from_id], Self::$truthMessages) && !in_array(['to_id' => $is_truth_msg->from_id, 'from_id' => $is_truth_msg->to_id], Self::$truthMessages)) {
+        $query = $query->where('created_at', '>=', self::$date)
+            ->orderBy('created_at', 'desc');
+
+        if ($user->engroup == 1 && $user->isVipOrIsVvip()) {
+            $is_truth_msg = (clone $query)->where('is_truth', 1)->where('is_row_delete_1', 0)->where('is_row_delete_2', 0)->orderByDesc('id')->first();
+            if ($is_truth_msg && !in_array(['to_id' => $is_truth_msg->to_id, 'from_id' => $is_truth_msg->from_id], Self::$truthMessages) && !in_array(['to_id' => $is_truth_msg->from_id, 'from_id' => $is_truth_msg->to_id], Self::$truthMessages)) {
                 array_push(Self::$truthMessages, ['to_id' => $is_truth_msg->to_id, 'from_id' => $is_truth_msg->from_id]);
             }
-        }        
-       
-       $query = $query->paginate(10);
-        
+        }
+
+        $query = $query->paginate(10);
+
         return $query;
     }
 
-    public static function allToFromSenderAdmin($uid, $sid) {
-        self::$date =\Carbon\Carbon::parse("180 days ago")->toDateTimeString();
-        $query = Message::withTrashed()->where('created_at','>=',self::$date);
-        $query = $query->where(function ($query) use ($uid,$sid) {
-            $query->where([['to_id', $uid],['from_id', $sid]])
-                ->orWhere([['from_id', $uid],['to_id', $sid]]);
+    public static function addAutoDestroyWhereToQuery($query)
+    {
+        return $query
+            ->where(function ($q) {
+                $q->where('views_count_quota', '>', 0)
+                    ->whereRaw('views_count < views_count_quota')
+                    ->orWhere('views_count_quota', 0)
+                    ->orWhereNull('views_count_quota');
+            })
+            ->where(function ($q) {
+                $q->where(function ($q2) {
+                    $q2->where('show_time_limit', '>', 0)
+                        ->whereRaw('ADDTIME(created_at,show_time_limit) > DATE_ADD(now(), INTERVAL 8 HOUR)');
+                    // ADD 8 HOUR 暫時寫死，未來可能需要使用浮動時間
+                })->orWhere('show_time_limit', 0)
+                    ->orWhereNull('show_time_limit');
+            });
+    }
+
+    public static function getNotShowBadUserDate($uid, $sid)
+    {
+        $banned_sender_date = $banned_curuser_date = $bannedim_sender_date = $bannedim_curuser_date = $blockDate = '9999-12-31';
+        $banned_sender = banned_users::where('member_id', $sid)->get()->first();
+        if ($banned_sender->created_at ?? false) $banned_sender_date = $banned_sender->created_at->toDateTimeString();
+        $banned_curuser = banned_users::where('member_id', $uid)->get()->first();
+        if ($banned_curuser->created_at ?? false) $banned_curuser_date = $banned_curuser->created_at->toDateTimeString();
+        $bannedim_sender = BannedUsersImplicitly::where('target', $sid)->get()->first();
+        if ($bannedim_sender->created_at ?? false) $bannedim_sender_date = $bannedim_sender->created_at->toDateTimeString();
+        $bannedim_curuser = BannedUsersImplicitly::where('target', $uid)->get()->first();
+        if ($bannedim_curuser->created_at ?? false) $bannedim_curuser_date = $bannedim_curuser->created_at->toDateTimeString();
+
+        if (Blocked::isBlocked($uid, $sid)) {
+            $blockTime = Blocked::getBlockTime($uid, $sid);
+            if ($blockTime->created_at ?? false)
+                $blockDate = $blockTime->created_at->toDateTimeString();
+        }
+
+        return min($banned_sender_date, $banned_curuser_date, $bannedim_sender_date, $bannedim_curuser_date, $blockDate);
+
+    }
+
+    public static function allToFromSenderAdmin($uid, $sid)
+    {
+        self::$date = \Carbon\Carbon::parse("180 days ago")->toDateTimeString();
+        $query = Message::withTrashed()->where('created_at', '>=', self::$date);
+        $query = $query->where(function ($query) use ($uid, $sid) {
+            $query->where([['to_id', $uid], ['from_id', $sid]])
+                ->orWhere([['from_id', $uid], ['to_id', $sid]]);
         });
 
-        $query = $query->where('created_at','>=',self::$date)
+        $query = $query->where('created_at', '>=',self::$date)
             ->orderBy('created_at', 'asc')
             ->paginate(100);
         return $query;
@@ -801,12 +772,12 @@ class Message extends Model
 
     /**
      * 使用中
-     * @param mixed $uid 
-     * @param bool $tinker 
-     * @return int 
-     * @throws \InvalidArgumentException 
-     * @throws \Carbon\Exceptions\InvalidFormatException 
-     * @throws \Carbon\Exceptions\UnitException 
+     * @param mixed $uid
+     * @param bool $tinker
+     * @return int
+     * @throws \InvalidArgumentException
+     * @throws \Carbon\Exceptions\InvalidFormatException
+     * @throws \Carbon\Exceptions\UnitException
      */
     public static function unread($uid, $tinker = false)
     {
@@ -849,7 +820,7 @@ class Message extends Model
                         ->leftJoin('blocked as b7', function($join) use($uid) {
                             $join->on('b7.member_id', '=', 'message.from_id')
                                 ->where('b7.blocked_id', $uid); });
-        
+
         //增加篩選過濾條件
         if($inbox_refuse_set)
         {
@@ -866,7 +837,7 @@ class Message extends Model
                 $query = $query->leftJoin('pr_log as pr', 'pr.user_id', '=', 'message.from_id');
             }
         }
-        
+
         $all_msg = $query->whereNotNull('u1.id')
                         ->whereNotNull('u2.id')
                         ->whereNull('b1.member_id')
@@ -908,36 +879,36 @@ class Message extends Model
                 $all_msg = $all_msg->where('u1.created_at', '<=', $rtime);
             }
         }
-        
+
         $query_to = clone $all_msg;
         $query_from_admin = clone $all_msg;
-        
+
         $query_to->where([
-                        ['message.to_id', $uid],
-                        ['message.from_id', '<>', $uid],
-                        ['message.from_id', '<>', $admin_id]
-                    ]);
+            ['message.to_id', $uid],
+            ['message.from_id', '<>', $uid],
+            ['message.from_id', '<>', $admin_id]
+        ]);
 
         $query_from_admin->where([
-                        ['message.to_id', $uid],
-                        ['message.from_id', $admin_id],
-                        ['chat_with_admin', 1]
-                    ]);                        
-        
-        if($user->id != 1049){
-            $query_to->where(function($query){
+            ['message.to_id', $uid],
+            ['message.from_id', $admin_id],
+            ['chat_with_admin', 1]
+        ]);
+
+        if ($user->id != 1049) {
+            $query_to->where(function ($query) {
                 $query->where(DB::raw('(u1.engroup + u2.engroup)'), '<>', '2');
                 $query->orWhere(DB::raw('(u1.engroup + u2.engroup)'), '<>', '4');
             });
         }
-        
+
         $all_msg = $query_to->union($query_from_admin);
 
 		$all_msg = $all_msg->get();
 
         if($tinker){
             dd($all_msg);
-        } 
+        }
 
         //增加篩選過濾條件
         /*
@@ -971,17 +942,6 @@ class Message extends Model
         return $unreadCount;
     }
 
-    public static function read($message, $uid)
-    {
-        if ($message->to_id == $uid && $message->read!='Y')
-        {
-            $message->read = 'Y';
-            $message->save();
-            \App\Events\ChatRead::dispatch($message->id, $message->from_id, $message->to_id);
-            \App\Events\ChatReadSelf::dispatch($uid);
-        }
-    }
-
     public static function readFromDB($message, $uid)
     {
         if ($message->to_id == $uid && $message->read!='Y')
@@ -991,11 +951,7 @@ class Message extends Model
             \App\Events\ChatReadSelf::dispatch($uid);
         }
     }
-
-    public function compactRead(){
-        $this->read($this, request()->user()->id);
-    }
-
+    
     public static function allMessage($uid, $tinker = false)
     {
         $admin_id = AdminService::checkAdmin()->id;
@@ -1056,7 +1012,7 @@ class Message extends Model
         $query->where([['message.is_row_delete_1','<>',$uid],['message.is_single_delete_1', '<>' ,$uid], ['message.all_delete_count', '<>' ,$uid],['message.is_row_delete_2', '<>' ,$uid],['message.is_single_delete_2', '<>' ,$uid],['message.temp_id', '=', DB::raw('0')]]);
 
         if($tinker){
-            /* 除錯用 SQL 
+            /* 除錯用 SQL
              * select u1.engroup AS u1_engroup,u2.engroup AS u2_engroup from `message` as `m`
             left join `users` as `u1` on `u1`.`id` = `m`.`from_id`
             left join `users` as `u2` on `u2`.`id` = `m`.`to_id`
@@ -1092,57 +1048,57 @@ class Message extends Model
             */
             dd($query);
         }
-        
+
         $query_to = clone $query;
         $query_from = clone $query;
         $query_to_admin = clone $query;
         $query_from_admin = clone $query;
-        
+
         $query_to->where([
                         ['message.to_id', $uid],
                         ['message.from_id', '<>', $uid],
                         ['message.from_id', '<>', $admin_id]
-                    ]);
-                    
+        ]);
+
         $query_from->where([
                         ['message.from_id', $uid],
                         ['message.to_id', '<>', $uid],
                         ['message.to_id', '<>', $admin_id]
-                    ]);
-                    
+        ]);
+
         $query_to_admin->where([
-                        ['message.from_id', $uid],
-                        ['message.to_id', $admin_id],
-                        ['chat_with_admin', 1]
-                    ]);
+            ['message.from_id', $uid],
+            ['message.to_id', $admin_id],
+            ['chat_with_admin', 1]
+        ]);
 
         $query_from_admin->where([
-                        ['message.to_id', $uid],
-                        ['message.from_id', $admin_id],
-                        ['chat_with_admin', 1]
-                    ]);                        
-        
-        if($user->id != 1049){
-            
-            $query_to->where(function($query){
+            ['message.to_id', $uid],
+            ['message.from_id', $admin_id],
+            ['chat_with_admin', 1]
+        ]);
+
+        if ($user->id != 1049) {
+
+            $query_to->where(function ($query) {
                 $query->where(DB::raw('(u1.engroup + u2.engroup)'), '<>', '2');
                 $query->orWhere(DB::raw('(u1.engroup + u2.engroup)'), '<>', '4');
             });
-            
-            $query_from->where(function($query){
+
+            $query_from->where(function ($query) {
                 $query->where(DB::raw('(u1.engroup + u2.engroup)'), '<>', '2');
                 $query->orWhere(DB::raw('(u1.engroup + u2.engroup)'), '<>', '4');
             });
-            
+
         }
-        
-        $query = $query_to->union($query_from)->union($query_from_admin)->union($query_to_admin);        
+
+        $query = $query_to->union($query_from)->union($query_from_admin)->union($query_to_admin);
 
         return $query->count();
     }
 
     public static function post($from_id, $to_id, $msg, $tip_action = true, $sys_notice = 0,$parent_msg=null, $chat_with_admin=0)
-    {   
+    {
         $message = new Message;
         $message->from_id = $from_id;
         $message->to_id = $to_id;
@@ -1164,21 +1120,48 @@ class Message extends Model
         $message->chat_with_admin = $chat_with_admin;
         $message->save();
         $curUser = User::findById($to_id);
-        if ($curUser->user_meta->notifmessage !== '不通知')
-        {
-        // $curUser->notify(new MessageEmail($from_id, $to_id, $msg));
+        if ($curUser->user_meta->notifmessage !== '不通知') {
+            // $curUser->notify(new MessageEmail($from_id, $to_id, $msg));
         }
 
         return $message;
     }
-    
+
+    public static function checkMessageRoomBetween($from_id, $to_id)
+    {
+        $ids = [$from_id, $to_id];
+        $checkData = MessageRoomUserXref::query()
+            ->where('user_id', $from_id)
+            ->whereIn('room_id', function ($query) use ($to_id) {
+                $query->select('room_id')
+                    ->from(with(new MessageRoomUserXref)->getTable())
+                    ->where('user_id', $to_id);
+            })->get();
+
+        if ($checkData->count() == 0) {
+            $messageRoom = new MessageRoom;
+            $messageRoom->save();
+            $room_id = $messageRoom->id;
+
+            foreach ($ids as $row) {
+                $messageRoomUserXref = new MessageRoomUserXref;
+                $messageRoomUserXref->user_id = $row;
+                $messageRoomUserXref->room_id = $room_id;
+                $messageRoomUserXref->save();
+            }
+        } else {
+            $room_id = $checkData->first()?->room_id;
+        }
+
+        return $room_id ?? null;
+    }
 
     public static function postByArr($arr)
     {
 
 
-        $tip_action = array_key_exists('tip_action',$arr) ? $arr['tip_action'] : true;
-        $sys_notice = array_key_exists('sys_notice',$arr) ? $arr['sys_notice'] : 0;
+        $tip_action = array_key_exists('tip_action', $arr) ? $arr['tip_action'] : true;
+        $sys_notice = array_key_exists('sys_notice', $arr) ? $arr['sys_notice'] : 0;
         $message = new Message;
         $message->from_id = $arr['from_id'] ?? null;
         $message->to_id = $arr['to'] ?? null;
@@ -1202,38 +1185,80 @@ class Message extends Model
         $message->sys_notice = $sys_notice;
         $message->is_truth = ($arr['is_truth'] ?? 0)?intval($message->existIsTrueQuota()):0;
         if($message->save()) {
-            if($message->client_id??null ) {
-                Message::where('parent_client_id',$message->client_id)
-                    ->update(['parent_msg'=>$message->id]);
+            if($message->client_id ?? null) {
+                Message::where('parent_client_id', $message->client_id)
+                    ->update(['parent_msg' => $message->id]);
             }
-            
-            if(!($message->parent_msg??null) && ($message->parent_client_id??null)){
-                $parent_entry = Message::where('client_id',$message->parent_client_id)->first();
-                if($parent_entry->id??null) {
+
+            if (!($message->parent_msg ?? null) && ($message->parent_client_id ?? null)) {
+                $parent_entry = Message::where('client_id', $message->parent_client_id)->first();
+                if ($parent_entry->id ?? null) {
                     $message->parent_msg = $parent_entry->id;
-                    Message::where('parent_client_id',$message->parent_client_id)->update(['parent_msg'=>$parent_entry->id]);
+                    Message::where('parent_client_id', $message->parent_client_id)->update(['parent_msg' => $parent_entry->id]);
                     Log::info('Message Updated');
-                }  
-            }            
-            
-            if(($message->parent_msg??null) && ($message->parent_client_id??null)){
-                $parent_entryList = Message::where('parent_msg',$message->parent_msg)->get();
-                $parent_client_entryList = Message::where('parent_client_id',$message->parent_client_id)->get();
-                if(count($parent_entryList)!=count($parent_client_entryList)) {
-                    Message::where('parent_client_id',$message->parent_client_id)->update(['parent_msg'=>$message->parent_msg]);
-                }  
-            }        
+                }
+            }
+
+            if (($message->parent_msg ?? null) && ($message->parent_client_id ?? null)) {
+                $parent_entryList = Message::where('parent_msg', $message->parent_msg)->get();
+                $parent_client_entryList = Message::where('parent_client_id', $message->parent_client_id)->get();
+                if (count($parent_entryList) != count($parent_client_entryList)) {
+                    Message::where('parent_client_id', $message->parent_client_id)->update(['parent_msg' => $message->parent_msg]);
+                }
+            }
         }
         $curUser = User::findById($message->to_id);
-        if (($curUser->user_meta->notifmessage??null) !== '不通知')
-        {
-        // $curUser->notify(new MessageEmail($from_id, $to_id, $msg));
+        if (($curUser->user_meta->notifmessage ?? null) !== '不通知') {
+            // $curUser->notify(new MessageEmail($from_id, $to_id, $msg));
         }
 
         return $message;
-    }    
+    }
 
-    public static function cutLargeString($string) {
+    public function existIsTrueQuota()
+    {
+        if ($this->fromUser)
+            return $this->existIsTrueQuotaByFromUser($this->fromUser);
+    }
+
+    public static function existIsTrueQuotaByFromUser($from_user)
+    {
+        if ($from_user) {
+            return boolval(Message::getRemainQuotaOfIsTruthByFromUser($from_user));
+        }
+    }
+
+    public static function getRemainQuotaOfIsTruthByFromUser($from_user)
+    {
+        $remain_quota = 0;
+        if ($from_user) {
+            if ($from_user->isVVIP()) {
+                $remain_quota = Message::$quota_of_is_truth_VVIP;
+            } else if ($from_user->isVip()) {
+                $remain_quota = Message::$quota_of_is_truth_VIP;
+            }
+
+            $truth_count = Message::getNowDayIsTruthCountByFromUser($from_user);
+            $remain_quota = ($remain_quota - $truth_count) > 0 ? $remain_quota - $truth_count : 0;
+        }
+
+        return $remain_quota;
+    }
+
+    public static function getNowDayIsTruthCountByFromUser($from_user)
+    {
+        $truth_count = 0;
+        if ($from_user) {
+            $truth_count = $from_user->message_sent()->where('is_truth', 1)->where('created_at', '>=', Carbon::now()->subDay())->count();
+            $truth_count = intval($truth_count);
+
+        }
+
+        return $truth_count;
+    }
+
+    public static function cutLargeString($string)
+    {
         //dd($string);
         $string = strip_tags($string);
         //echo $string;
@@ -1251,7 +1276,7 @@ class Message extends Model
 
     /**
      * 是否回應車馬費邀請的訊息
-     * 
+     *
      * @param int from_id inviter
      * @param int to_id invited
      * @param date invied date
@@ -1267,14 +1292,14 @@ class Message extends Model
                 ->where('content', 'NOT LIKE', '系統通知%');
         return $message ? true : false;
     }
-
+    
     /**
      * does other side reply the message
-     * 
+     *
      * @param int from_id The user'id who sends the message.
      * @param int to_id The user'id who receive.
      * @param int msg_id message id
-     * 
+     *
      * @return bool
      */
 
@@ -1284,83 +1309,6 @@ class Message extends Model
                 ->where('from_id', $to_id)
                 ->where('to_id', $from_id);
         return $message ? true : false;
-    }
-	
-	public static function getNotShowBadUserDate($uid, $sid) {
-		$banned_sender_date = $banned_curuser_date = $bannedim_sender_date = $bannedim_curuser_date = $blockDate = '9999-12-31';
-		$banned_sender = banned_users::where('member_id',$sid)->get()->first();
-		if($banned_sender->created_at ?? false) $banned_sender_date = $banned_sender->created_at->toDateTimeString();
-		$banned_curuser = banned_users::where('member_id',$uid)->get()->first();
-		if($banned_curuser->created_at ?? false) $banned_curuser_date = $banned_curuser->created_at->toDateTimeString();	
-		$bannedim_sender = BannedUsersImplicitly::where('target',$sid)->get()->first();
-		if($bannedim_sender->created_at ?? false) $bannedim_sender_date = $bannedim_sender->created_at->toDateTimeString();
-		$bannedim_curuser = BannedUsersImplicitly::where('target',$uid)->get()->first();
-		if($bannedim_curuser->created_at ?? false) $bannedim_curuser_date = $bannedim_curuser->created_at->toDateTimeString();
-
-        if(Blocked::isBlocked($uid, $sid)) {
-            $blockTime = Blocked::getBlockTime($uid, $sid);
-			if($blockTime->created_at ?? false)
-			$blockDate = $blockTime->created_at->toDateTimeString();
-        }
-		
-		return min($banned_sender_date,$banned_curuser_date,$bannedim_sender_date,$bannedim_curuser_date,$blockDate);		
-		
-	}
-    
-    protected static function booted()
-    {
-        Message::addGlobalScope('created_at', function ($q) {
-            $q->where('message.created_at', '>', Message::implicitLimitDate());
-        });
-    }  
-
-    public function scopeImplicitWhere($q, $alias)
-    {
-        return $q->where($alias.'.created_at', '>', Message::implicitLimitDate());
-    } 
-
-    public static function implicitLimitDate() {
-        return Carbon::now()->subDays(180);
-    }    
-    
-    public static function checkMessageRoomBetween($from_id, $to_id)
-    {
-        $ids = [$from_id, $to_id];
-        $checkData = MessageRoomUserXref::query()
-                        ->where('user_id', $from_id)
-                        ->whereIn('room_id', function($query) use ($to_id) {
-                            $query->select('room_id')
-                                  ->from(with(new MessageRoomUserXref)->getTable())
-                                  ->where('user_id', $to_id);
-                        })->get();
-
-        if($checkData->count()==0){
-            $messageRoom = new MessageRoom;
-            $messageRoom->save();
-            $room_id = $messageRoom->id;   
-
-            foreach($ids as $row){
-                $messageRoomUserXref = new MessageRoomUserXref;
-                $messageRoomUserXref->user_id = $row;
-                $messageRoomUserXref->room_id = $room_id;
-                $messageRoomUserXref->save();
-            }
-        }
-        else{
-             $room_id = $checkData->first()?->room_id;
-        }
-
-        return $room_id ?? null;
-    }
-
-    public function fromUser()
-    {
-        return $this->belongsTo(User::class, 'from_id');
-    }
-
-    public function toUser()
-    {
-        return $this->belongsTo(User::class, 'to_id');
     }
 
     public static function showAllMsgWithinTimeRange($user_id, $timeRange)
@@ -1388,58 +1336,39 @@ class Message extends Model
                 if($data['created_at'] <= $time){
                     $msg_user=$data['from_id']==$user->id ? $data['to_id'] : $data['from_id'];
                     $result[$msg_user]['last_msg_content']=$data['content'];
-                    $result[$msg_user]['last_msg_created_at']=$data['created_at'];
-                    $result[$msg_user]['user_id']=$data['user_id'];
-                    $result[$msg_user]['user_name']=$data['user_name'];
-                    $result[$msg_user]['user_engroup']=$data['engroup'];
-                    $result[$msg_user]['user_pic']=$data['pic'];
+                    $result[$msg_user]['last_msg_created_at'] = $data['created_at'];
+                    $result[$msg_user]['user_id'] = $data['user_id'];
+                    $result[$msg_user]['user_name'] = $data['user_name'];
+                    $result[$msg_user]['user_engroup'] = $data['engroup'];
+                    $result[$msg_user]['user_pic'] = $data['pic'];
                 }
             }
         }
         return $result;
     }
-    
-    public static function existIsTrueQuotaByFromUser($from_user) 
+
+    public static function allSendersAJAX($uid, $isVip)
     {
-        if($from_user) {
-            return boolval(Message::getRemainQuotaOfIsTruthByFromUser($from_user));
-        }
-    }    
-    
-    public function existIsTrueQuota() 
-    {
-        if($this->fromUser)
-            return $this->existIsTrueQuotaByFromUser($this->fromUser);
-    }
-    
-    public static function getRemainQuotaOfIsTruthByFromUser($from_user)
-    {
-        $remain_quota = 0;
-       if($from_user) {
-            if($from_user->isVVIP()) {
-                $remain_quota = Message::$quota_of_is_truth_VVIP;
-            }
-            else if($from_user->isVip()) {
-                $remain_quota = Message::$quota_of_is_truth_VIP;
-            }
-            
-            $truth_count = Message::getNowDayIsTruthCountByFromUser($from_user);      
-            $remain_quota = ($remain_quota-$truth_count)>0?$remain_quota-$truth_count:0;
+        $userBlockList = Blocked::select('blocked_id')->where('member_id', $uid)->get();
+        $banned_users = \App\Services\UserService::getBannedId($uid);
+        $messages = Message::where([['to_id', $uid], ['from_id', '!=', $uid]])->orWhere([['from_id', $uid], ['to_id', '!=', $uid]])->orderBy('created_at', 'desc');
+        $messages->whereNotIn('to_id', $userBlockList);
+        $messages->whereNotIn('from_id', $userBlockList);
+        $messages->whereNotIn('to_id', $banned_users);
+        $messages->whereNotIn('from_id', $banned_users);
+        $messages = $messages->get();
+
+        if ($isVip == 1)
+            $saveMessages = Message::chatArrayAJAX($uid, $messages, 1);
+        else if ($isVip == 0) {
+            $saveMessages = Message::chatArrayAJAX($uid, $messages, 0);
         }
 
-        return $remain_quota;
-    }
-    
-    public static function getNowDayIsTruthCountByFromUser($from_user) 
-    {
-        $truth_count = 0;
-       if($from_user) {          
-            $truth_count = $from_user->message_sent()->where('is_truth',1)->where('created_at','>=',Carbon::now()->subDay())->count();
-            $truth_count = intval($truth_count);
-            
-        } 
-
-        return $truth_count;
+        if (count($saveMessages) == 0) {
+            return array_values(['No data']);
+        } else {
+            return Message::sortMessages($saveMessages);
+        }
     }
 
     public static function retrieve($user_id, $from_date)
@@ -1448,7 +1377,7 @@ class Message extends Model
             return Message::where('from_id', $user_id)->where('created_at', '>=', $from_date)->get();
         });
     }
-    
+	
     /**
      * Perform a search against the model's indexed data.
      *
@@ -1462,8 +1391,83 @@ class Message extends Model
             'model' => new static,
             'query' => $query,
             'callback' => $callback,
-            'softDelete'=> static::usesSoftDelete() && config('scout.soft_delete', false),
+            'softDelete' => static::usesSoftDelete() && config('scout.soft_delete', false),
         ]);
+    }
+
+    public static function getSearchFilterAttributes()
+    {
+        $columns = \Schema::getColumnListing('messages');
+        return $columns + [
+                'sender_is_banned',
+                'receiver_is_banned',
+                'sender_is_implicitly_banned',
+                'receiver_is_implicitly_banned',
+                'sender_is_warned',
+                'receiver_is_warned',
+            ];
+    }
+
+    protected static function booted()
+    {
+        Message::addGlobalScope('created_at', function ($q) {
+            $q->where('message.created_at', '>', Message::implicitLimitDate());
+        });
+    }
+
+    public static function implicitLimitDate()
+    {
+        return Carbon::now()->subDays(180);
+    }
+
+    public function parent_message()
+    {
+        return $this->belongsTo(Message::class, 'parent_msg', 'id');
+    }
+
+    public function latestMessage2()
+    {
+        return $this->messages() ?? "";
+    }
+
+    public function roomMembers()
+    {
+        return $this->belongsToMany(User::class, MessageRoomUserXref::class);
+    }
+
+    public function joinedMessageRooms()
+    {
+        return $this->belongsTo(User::class, MessageRoomUserXref::class, 'user_id', 'id', 'id');
+    }
+
+    public function compactRead()
+    {
+        $this->read($this, request()->user()->id);
+    }
+
+    public static function read($message, $uid)
+    {
+        if ($message->to_id == $uid && $message->read != 'Y') {
+            $message->read = 'Y';
+            $message->save();
+            \App\Events\ChatRead::dispatch($message->id, $message->from_id, $message->to_id);
+            \App\Events\ChatReadSelf::dispatch($uid);
+        }
+    }
+
+    public function scopeImplicitWhere($q, $alias)
+    {
+        return $q->where($alias . '.created_at', '>', Message::implicitLimitDate());
+    }
+
+    public function fromUser()
+    {
+        return $this->belongsTo(User::class, 'from_id');
+    }
+
+    public function toUser()
+    {
+        return $this->belongsTo(User::class, 'to_id');
     }
 
     public function toSearchableArray()
@@ -1480,24 +1484,22 @@ class Message extends Model
         return $msgArray;
     }
 
-    public static function getSearchFilterAttributes()
+    public function sender()
     {
-        $columns = \Schema::getColumnListing('messages');
-        return $columns + [
-            'sender_is_banned',
-            'receiver_is_banned',
-            'sender_is_implicitly_banned',
-            'receiver_is_implicitly_banned',
-            'sender_is_warned',
-            'receiver_is_warned',
-        ];
+        return $this->belongsTo(User::class, 'from_id', 'id');
     }
-    
-    public function encodeImages($encode_by=null) {
+
+    public function receiver()
+    {
+        return $this->belongsTo(User::class, 'to_id', 'id');
+    }
+
+    public function encodeImages($encode_by = null)
+    {
         $pic = $this->pic;
-        $pic_arr = json_decode($pic,true);
-        foreach($pic_arr as $k=>$v) {
-            ImagesCompareService::addIfNotEncodedByPic($v['file_path'],'message',$encode_by);
+        $pic_arr = json_decode($pic, true);
+        foreach ($pic_arr as $k => $v) {
+            ImagesCompareService::addIfNotEncodedByPic($v['file_path'], 'message', $encode_by);
         }
     } 
 }
