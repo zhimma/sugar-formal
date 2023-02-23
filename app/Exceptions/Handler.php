@@ -2,16 +2,12 @@
 
 namespace App\Exceptions;
 
-use Exception;
-use Illuminate\Validation\ValidationException;
+use App\Models\MessageErrorLog;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Request;
 use Throwable;
-use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
-use Log;
-use App\Models\MessageErrorLog;
 
 class Handler extends ExceptionHandler
 {
@@ -62,20 +58,23 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Throwable $exception)
     {
-        if($exception instanceof \Illuminate\Session\TokenMismatchException){
+        if (str_contains($exception->getMessage(), "type string, array given") && $request->session()->has('message')) {
+            \Sentry\captureMessage('Session message: ' . implode(", ", $request->session()->get('message')));
+        }
+        if ($exception instanceof \Illuminate\Session\TokenMismatchException) {
             logger("TokenMismatchException occurred, url: " . url()->current());
             logger("Referer: " . request()->headers->get("referer"));
             logger("UserAgent: " . request()->headers->get("User-Agent"));
             // logger("IP: " . request()->ip());
             return redirect()
-                    ->back()
-                    ->withInput($request->except('password', '_token'))
-                    ->withError('驗證已過期，請再試一次');
+                ->back()
+                ->withInput($request->except('password', '_token'))
+                ->withError('驗證已過期，請再試一次');
         }
         // if ($exception->getStatusCode() == 403) {
         //     return response()->view('errors.exception',[ 'exception' => '網站維護中:']);
         // }
-        
+
         // if($exception instanceof \Illuminate\Http\Exceptions\ThrottleRequestsException){
         //     return parent::render($request, $exception);
         // }
