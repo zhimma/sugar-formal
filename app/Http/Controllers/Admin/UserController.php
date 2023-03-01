@@ -4626,7 +4626,8 @@ class UserController extends \App\Http\Controllers\BaseController
                 .' 提出的匿名訊息，經站長審核已通過'.($only_show_text?' (僅文字，不附照片) ':'').'。評價已上線，'.$evaluation_entry->receiver->name
                 .'可以透過匿名對話向您解釋狀況，您可以自己決定是否回應。有問題可點右下聯絡我們或加站長<a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="all: initial;all: unset;height: 26px; float: unset;"></a>反應';
         } else if($status==2) {
-
+            //230301 先拿掉不通過會自動發送系統訊息的功能
+            /* 
             $content = $evaluation_entry->user->name . ' 您好，您在 ' . substr($evaluation_entry->created_at,0,16) .'對'.$evaluation_entry->receiver->name
                 .' 提出的匿名訊息，經站長審核，由於證據不足且您拒絕站方修改。故評價已撤回，您可以檢附證據重新評價，有問題可點右下聯絡我們或加站長<a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="all: initial;all: unset;height: 26px; float: unset;"></a>反應';
 
@@ -4635,7 +4636,7 @@ class UserController extends \App\Http\Controllers\BaseController
                 $content = $evaluation_entry->user->name . ' 您好，您在 ' . substr($evaluation_entry->created_at,0,16) .'對'.$evaluation_entry->receiver->name
                     .' 提出的匿名訊息，由於 '.$status_reason.'原因。故評價已撤回，您可以檢附證據重新評價。有問題可點右下聯絡我們或加站長<a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="all: initial;all: unset;height: 26px; float: unset;"></a>反應';
             }
-
+            */
 
         }
         //站長系統訊息
