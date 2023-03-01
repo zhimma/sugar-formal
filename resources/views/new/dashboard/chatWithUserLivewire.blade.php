@@ -162,7 +162,6 @@
 
         .xxi {
             min-height: 500px;
-            width: 92%;
             margin: 0 auto
         }
 
@@ -442,7 +441,6 @@
         }
     </style>
     <style>   
-        .xxi{min-height:500px;width:92%; margin:0 auto}
         .msg>p{ cursor: pointer;}
         @media (max-width:1024px) {
         .xxi{min-height:920px;}
