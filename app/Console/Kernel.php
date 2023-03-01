@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Request;
 use App\Services\EnvironmentService;
+use Illuminate\Support\Facades\Log;
 
 class Kernel extends ConsoleKernel
 {
@@ -160,9 +161,12 @@ class Kernel extends ConsoleKernel
 
         }
         if(app()->isProduction()) {
+            $schedule->command('send_registed_users_statistics_by_LineNotify')->timezone('Asia/Taipei')->dailyAt('2:00'); 
+            /*
             $schedule->call(function (){
                 $this->send_registed_users_statistics_by_LineNotify();
             })->timezone('Asia/Taipei')->dailyAt('2:00');
+            */
         }
     }
 
@@ -574,6 +578,7 @@ class Kernel extends ConsoleKernel
         }
     }
 
+    /*
     public function send_registed_users_statistics_by_LineNotify(){
 
         $LineToken = 'fb4KiuX5WJE9Nodq8Xo5xALrNCQE7buHta0ukQ4lgv4';
@@ -642,10 +647,13 @@ class Kernel extends ConsoleKernel
         $message .= "\n大前日註冊男會員-被Ban男會員: $three_days_ago_male_count_without_banned 人 ( $three_days_ago_male_count - $three_days_ago_male_count_with_banned = $three_days_ago_male_count_without_banned )";
         $message .= "\n大前日註冊女會員-被Ban女會員: $three_days_ago_womale_count_without_banned 人 ( $three_days_ago_womale_count - $three_days_ago_womale_count_with_banned = $three_days_ago_womale_count_without_banned )";
     
+        Log::Info($message);
+
         Http::withToken($LineToken)->asForm()->post('https://notify-api.line.me/api/notify', [
             'message' => $message
         ]);
     }
+    */
 
     protected function deleteAnonymousChat(){
         AnonymousChat::select('*')->delete();
