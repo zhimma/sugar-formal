@@ -312,7 +312,7 @@ class Message_new extends Model
             // add messages to array
             if(!in_array(['to_id' => $message->to_id, 'from_id' => $message->from_id], $tempMessages) && !in_array(['to_id' => $message->from_id, 'from_id' => $message->to_id], $tempMessages)) {
                 array_push($tempMessages, ['to_id' => $message->to_id, 'from_id' => $message->from_id]);
-                array_push($saveMessages, ['to_id' => $message->to_id, 'from_id' => $message->from_id, 'temp_id' => $message->temp_id,'all_delete_count' => $message->all_delete_count, 'is_row_delete_1' => $message->is_row_delete_1, 'is_row_delete_2' => $message->is_row_delete_2, 'is_single_delete_1' => $message->is_single_delete_1, 'is_single_delete_2' => $message->is_single_delete_2, 'sender' => $message->sender, 'receiver' => $message->receiver, 'content' => $message->content, 'read' => $message->read, 'created_at' => $message->created_at, 'isCan' => $message->is_can]);
+                array_push($saveMessages, ['to_id' => $message->to_id, 'from_id' => $message->from_id, 'temp_id' => $message->temp_id,'all_delete_count' => $message->all_delete_count, 'is_row_delete_1' => $message->is_row_delete_1, 'is_row_delete_2' => $message->is_row_delete_2, 'is_single_delete_1' => $message->is_single_delete_1, 'is_single_delete_2' => $message->is_single_delete_2, 'sender' => $message->sender, 'receiver' => $message->receiver, 'content' => $message->content, 'read' => $message->read, 'created_at' => $message->created_at, 'isCan' => $message->is_can,'msg_pic'=>$message->pic]);
                 //$noVipCount++;
             }
             

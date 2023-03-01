@@ -34,7 +34,7 @@
 
 	Echo.private('NewMessage.{{ $user->id }}')
 		.listen('NewMessage', (e) => {
-			unread++;
+            unread++;
 			unread2++;
 			$('#unreadCount').text(unread);
 			$('#unreadCount2').text(unread2);
@@ -48,7 +48,7 @@
 				$('.number.' + e.from_id).text(chatUnread);
 			}
 			if(showMsg){
-				$('.ellipsis.' + e.from_id).text(e.content);
+				$('.ellipsis.' + e.from_id).text((e.pic==1)?'圖片已傳送':e.content);
 			}
 			@endif
 		});

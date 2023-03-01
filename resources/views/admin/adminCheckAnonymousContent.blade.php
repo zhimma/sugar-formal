@@ -102,7 +102,7 @@
                             <button type="button" class="btn btn-primary" onclick="checkAction({{$row->evaluation_id}},1,{{ $row->id }})" >通過</button>
                             <button type="button" class="btn btn-primary" onclick="checkAction({{$row->evaluation_id}},1,{{ $row->id }},null,1)" >通過<br>(不附照片)</button>
                             <br>
-                            <button type="button" class="btn btn-danger reject_button" onclick="showRejectDetailBlock(this);" >不通過</button>
+                            <button type="button" data-evaluation_id="{{$row->evaluation_id}}" class="btn btn-danger reject_button" onclick="showRejectDetailBlock(this);" >不通過</button>
                             <div class="reject_detail_edit_block">
                                 <div>
                                 <b>請輸入不通過原因或直接送出</b>
@@ -354,8 +354,9 @@
     
     function showRejectDetailBlock(dom) 
     {
-        window.open('/admin/users/message/anonymous-checked/to/{{$row->id}}/{{$row->evaluation_id}}');
+        
         let now_elt = $(dom);
+        window.open('/admin/users/message/anonymous-checked/to/{{$row->id}}/'+now_elt.data('evaluation_id'));
         let now_parent = now_elt.closest('td');
         now_parent.children().hide();
         now_parent.find('.reject_detail_edit_block').show(); 
