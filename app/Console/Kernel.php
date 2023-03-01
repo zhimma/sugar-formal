@@ -578,6 +578,7 @@ class Kernel extends ConsoleKernel
         }
     }
 
+    /*
     public function send_registed_users_statistics_by_LineNotify(){
 
         $LineToken = 'fb4KiuX5WJE9Nodq8Xo5xALrNCQE7buHta0ukQ4lgv4';
@@ -648,10 +649,11 @@ class Kernel extends ConsoleKernel
     
         Log::Info($message);
 
-        /*Http::withToken($LineToken)->asForm()->post('https://notify-api.line.me/api/notify', [
+        Http::withToken($LineToken)->asForm()->post('https://notify-api.line.me/api/notify', [
             'message' => $message
-        ]);*/
+        ]);
     }
+    */
 
     protected function deleteAnonymousChat(){
         AnonymousChat::select('*')->delete();
