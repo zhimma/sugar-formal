@@ -126,7 +126,11 @@
                 </td>
                 <td>{{ $list->reason }}</td>
                 <td>{{ $list->created_at }}</td>
-                <td>{{ $admin ? $admin->name :'' }}</td>
+                @if($admin)
+                    <td><a href="/admin/users/advInfo/{{ $admin->id }}" target="_blank">{{ substr($admin->email, 0, strpos($admin->email,"@")) }}</a></td>
+                @else
+                    <td></td>
+                @endif
                 <td>
                     <form method="POST" action="{{ route('observe_user_remove') }}" style="display: inline-flex;max-width: 250px;">
                         <input type="hidden" name="_token" value="{{ csrf_token() }}" >
