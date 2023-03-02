@@ -43,6 +43,7 @@ use App\Models\Message;
 use App\Models\MessageBoard;
 use App\Models\MessageRoomUserXref;
 use App\Models\Msglib;
+use App\Models\ObserveUser;
 use App\Models\Order;
 use App\Models\Posts;
 use App\Models\Reported;
@@ -8475,4 +8476,34 @@ class UserController extends \App\Http\Controllers\BaseController
 
         return response()->json($v);
     }
+    public function observe_user(Request $request){
+        ObserveUser::updateOrCreate(['user_id'=>$request->user_id], ['reason'=>$request->reason, 'admin_id'=>auth()->user()->id]);
+        return back()->with('message', '該帳號已列入觀察名單');
+    }
+    public function observe_user_remove(Request $request){
+        ObserveUser::where('user_id', $request->user_id)->delete();
+        return back()->with('message', '該帳號已移除觀察名單');
+    }
+
+    public function observe_user_list(Request $request){
+        $observeUserList=ObserveUser::selectRaw('observe_user.*, users.name as user_name, users.email as user_email')
+            ->leftJoin('users', 'users.id', 'observe_user.user_id')
+            ->orderBy('observe_user.created_at','desc');
+        if (!empty($request->get('account'))) {
+            $observeUserList->where('users.email', '=', $request->get('account'));
+        }
+        if (!empty($request->get('reason'))) {
+            $observeUserList->where('observe_user.reason', 'like', '%' . $request->get('reason') . '%');
+        }
+        if (!empty($request->get('date_start'))) {
+            $observeUserList->where('observe_user.created_at', '>=', $request->get('date_start'));
+        }
+        if (!empty($request->get('date_end'))) {
+            $observeUserList->where('observe_user.created_at', '<=', $request->get('date_end')." 23:59:59");
+        }
+        $observeUserList=$observeUserList->paginate();
+
+        return view('admin.users.observeUserList', compact('observeUserList'));
+    }
+
 }
