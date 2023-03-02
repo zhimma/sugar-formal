@@ -7381,7 +7381,7 @@ class UserController extends \App\Http\Controllers\BaseController
             }
             if(count($auth_tag_success)>0){
                 $auth_string=count($auth_tag_success) >0 ? implode('&', $auth_tag_success) :'';
-                $message= $user->name .'您好，您已通過本站的 '.$auth_string.'，此驗證 tag以及您的照片站方僅預設開放給 vvip，以及 pr 值超過80的vip daddy，如果您想要調整，<a href="/dashboard/tag_display_settings" style="color: red;">請點此自行調整。';
+                $message= $user->name .'您好，您已通過本站的 '.$auth_string.'，此驗證 tag以及您的照片站方僅預設開放給 vvip，以及 pr 值超過80的vip daddy，如果您想要調整，<a href="/dashboard/tag_display_settings" style="color: red;">請點此自行調整。</a>';
                 $admin_id = AdminService::checkAdmin()->id;
                 Message::post($admin_id, $user_id, $message);
             }
