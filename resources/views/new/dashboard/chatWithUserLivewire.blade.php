@@ -2216,6 +2216,7 @@
                         if(response.indexOf('錯誤類型：Pusher error')>=0 
                             || response.indexOf('Server Error')>=0
                             ||  postmsg_error_show_msg.indexOf("SyntaxError")>=0
+                            || response.indexOf('{"isTrusted":true}')>=0
                             ) {
                             postmsg_error_show_msg = '(hidden)'+postmsg_error_show_msg;
                         }

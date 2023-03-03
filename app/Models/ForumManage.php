@@ -16,6 +16,13 @@ class ForumManage extends Model
      * @var string
      */
     protected $table = 'forum_manage';
+    
+    protected $guarded = ['id'];
+
+    public function forum()
+    {
+        return $this->belongsTo(Forum::class, 'forum_id', 'id');
+    }
 
     //啟動使用者先前的討論區功能
     public static function open_forum_active($user_id)

@@ -66,7 +66,7 @@
 							<div class="btn_back"></div>
 						</a>
 						<span style="margin: 0 auto; position: relative;line-height: 44px;padding-bottom: 3px; left: 40px; font-size: 18px;"><a href="/dashboard/forum_personal/{{$forum->id}}" style="color: #fd5678;">{{$forum->title}}</a></span>
-						@if($forum->user_id == $user->id)
+						@if($forum->user_id == $user->id || $forum->forum_manager()->where('user_id',$user->id)->count()>0)
 						<a class="toug_back btn_img01 userlogo xzgn">
 							<div class="btn_back">功能選單<img src="/posts/images/jiant_a.png"></div>
 						</a>
@@ -117,17 +117,20 @@
 								<li>
 								<div class="h3_divtab1"><span>會員暱稱丨 </span><font><a href="/dashboard/viewuser/{{$row->user_id}}">{{$row->name}}</a></font></div>
 								<div class="hy_icobutton list1"  id="itemssxN">
-								@if($row->status == 0)
+                                @if($row->status == 0)
 								<a href="/dashboard/forum_manage_chat/{{$user->id}}/{{$row->user_id}}?fromUrl=/dashboard/forum_manage/{{$forum->id}}" class="hy_icon022 custom_s"><span class="iconfont icon-fangdajing"></span>審核中，點此查看聊天記錄</a>
 								@elseif($row->status == 1)
-								<font class="hy_icon011 custom_s @if($row->forum_status==1) active @endif" onclick="forum_status_toggle({{$row->user_id}}, {{$row->forum_status == 1 ? 1 : 0}}, 'forum_status')"><span class="iconfont icon-liaotian1"></span>
+                                <font class="hy_icon011 custom_s @if($row->forum_status==1) active @endif" onclick="forum_status_toggle({{$row->user_id}}, {{$row->forum_status == 1 ? 1 : 0}}, 'forum_status')"><span class="iconfont icon-liaotian1"></span>
 									討論區
 								</font>
 								<font class="hy_icon011 custom_s @if($row->chat_status==1) active @endif" onclick="forum_status_toggle({{$row->user_id}}, {{$row->chat_status == 1 ? 1 : 0}}, 'chat_status')"><span class="iconfont icon-liaotian1"></span>
 									聊天室
 								</font>
-								<font class="hy_icon011 custom_s"><span class="iconfont icon-yichuchengyuan1"></span><a onclick="forum_manage_toggle({{$row->user_id}}, 3)">移除成員</a></font>
-								@endif
+                                <font class="hy_icon011 custom_s @if($row->is_manager==1) active @endif" onclick="forum_status_toggle({{$row->user_id}}, {{$row->is_manager == 1 ? 1 : 0}}, 'is_manager')"><span class="iconfont"></span>
+									管理員權限
+								</font>
+								<font class="hy_icon011 custom_s"  onclick="forum_manage_toggle({{$row->user_id}}, 3)"><span class="iconfont icon-yichuchengyuan1" ></span>移除成員</font>
+                                @endif
 								</div>
 								</li>
 								@endforeach
@@ -195,6 +198,18 @@
 			msg='您確定要移除此會員聊天室權限嗎?';
 		}else if(status==0 && mode=='chat_status'){
 			msg='您確定要賦予此會員聊天室權限嗎?';
+		}else if(status==0 && mode=='is_manager'){
+            @if($forum->hire_manager_quota &&  $forum->forum_manager->count()>=$forum->hire_manager_quota)
+            msg='最多只能指派';
+            msg+='{{$forum->hire_manager_quota}}個管理員';
+            msg+='，目前已額滿，您可先移除其他管理員，再指派新的管理員。';
+			c5(msg);
+            return false;
+            @else
+                msg='您確定要指派此會員為管理員嗎?';
+            @endif
+		}else if(status==1 && mode=='is_manager'){
+			msg='您確定要移除此會員的管理員權限嗎?';
 		}
 		// alert(mode);
 		c4(msg);

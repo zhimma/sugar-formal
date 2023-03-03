@@ -80,7 +80,7 @@
 							<div class="btn_back"></div>
 						</a>
 						<span style="margin: 0 auto; position: relative;line-height: 44px;padding-bottom: 3px; left: 40px; font-size: 18px;"><a href="" style="color: #fd5678;">{{$forum->title}}</a></span>
-						@if($forum->user_id == $user->id)
+                        @if($forum->user_id == $user->id || $forum->forum_manager()->where('user_id',$user->id)->count()>0)
 							<a class="toug_back btn_img01 userlogo xzgn">
 								<div class="btn_back">功能選單<img src="/posts/images/jiant_a.png"></div>
 							</a>

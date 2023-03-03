@@ -221,7 +221,7 @@
 								<li @if($post->f_warned==1 || $post->f_status==0) class="huis_01" @endif>
 									<div class="ta_lwid_left">
 										<a href="/dashboard/viewuser/{{$post->uid}}">
-										<img src="@if(file_exists( public_path().$post->umpic ) && $post->umpic != ""){{$post->umpic}} @elseif($post->uengroup==2)/new/images/female.png @else/new/images/male.png @endif" class="hycov">
+										<img  alt="{{$post->uname}}" src="@if(file_exists( public_path().$post->umpic ) && $post->umpic != ""){{$post->umpic}} @elseif($post->uengroup==2)/new/images/female.png @else/new/images/male.png @endif" class="hycov">
 										</a>
 									</div>
 									<div class="ta_lwid_right">
@@ -267,7 +267,7 @@
 													@elseif(isset($getStatus) && ($getStatus->status==2 || $getStatus->status==3))
 														<div class="wtg_z" onclick="forumStatus({{$getStatus->status}})">未通過</div>
 													@elseif($post->uid != $user->id && !isset($getStatus) && $post->f_status==1)
-														<a onclick="forum_manage_toggle({{$post->uid}}, 1, {{$post->f_id}})" class="seqr">申請加入</a>
+														<a onclick="forum_manage_toggle({{$post->uid}}, 0, {{$post->f_id}},this)" class="seqr">申請加入</a>
 													@endif
 												@endif
 												<div class="wt_txb">
@@ -338,6 +338,43 @@
 				</div>
 			</div>
 		</div>
+        
+                
+        <div class="blbg" id="blbg_forum_info" style="display: none;" onclick="forum_info_popup_close();"></div>
+        <div class="bl bl_tab " id="tab_forum_info" style="display: none;">
+            <div class="bltitle"><font>申請加入說明</font></div>
+            <div class="new_poptk" style="padding-top:0;">
+                <div class="n_heighnn">
+                    <div class="yidy_tk">
+                        <div class="giti">
+                            <div class="t_iphoto" style="margin-top: 10px;">
+                                <!--<img src="{{asset('new/images/zz_pt.jpg')}}">-->
+                                <div style="display:inline-block;width:20px;vertical-align:top;">
+                                    <img src="{{asset('new/images/ciicon_h.png')}}">
+                                </div>
+                                <div style="display:inline-block;width:calc(97% - 20px);">
+                                    您將加入<span class="forum_title"></span> ，此為 <span class="forum_owner"></span> 設立的私人群組專區                            
+                                </div>
+                            </div>
+                            <h2 class="t_list" style="margin-top:20px;">
+                                <div style="display:inline-block;width:20px;vertical-align:top;">
+                                    <img src="{{asset('new/images/ciicon_h.png')}}">
+                                </div>
+                                <div style="display:inline-block;width:calc(97% - 20px);">
+                                    <font>成立目的：</font>
+                                    <font class="forum_info_show"></font>
+                                </div>
+                            </h2>
+                        </div>
+                    </div>			
+                </div>
+                <div class="n_bbutton" >
+                    <span><a class="n_left" onclick="forum_info_popup_close();">確認</a></span>
+                    <span><a class="n_right" onclick="forum_info_popup_close();">返回</a></span>
+                </div>
+            </div>
+            <a id="" onclick="forum_info_popup_close();" class="bl_gb"><img src="{{asset('new/images/gb_icon.png')}}"></a>
+        </div>        
 		@stop
 
 @section('javascript')
@@ -363,22 +400,54 @@
 			c5('您目前已無法申請進入');
 		}
 	}
+    
+    function forum_info_popup_open() 
+    {
+        $('body').css('overflow','hidden');
+        $('#tab_forum_info').show();
+        $('#blbg_forum_info').show();
+    }
+    
+    function forum_info_popup_close() 
+    {
+        $('body').css('overflow','');
+        let tab_forum_info = $('#tab_forum_info');
+        $('#tab_forum_info').hide();
+        $('#blbg_forum_info').hide();
+        tab_forum_info.find('.forum_owner').html('');
+        tab_forum_info.find('.forum_title').html('');
+        tab_forum_info.find('.forum_info_show').html('');
+    }    
 
-	function forum_manage_toggle(auid, status) {
+	function forum_manage_toggle(auid, status, forum_id,dom) {
         // c5('功能維修中');
         // return false;
-		var msg, uid;
+        let cur_elt = $(dom);
+        let cur_forum_main_block = cur_elt.closest('.ta_lwid_right');
+		let cur_forum_owner_block = cur_forum_main_block.parent().children('.ta_lwid_left');
+        let cur_forum_owner_name = cur_forum_owner_block.children('a').children('img').attr('alt');
+        let forum_title = cur_forum_main_block.children('h2').html();
+        let forum_info_string = cur_forum_main_block.children('h3').html();
+        let tab_forum_info = $('#tab_forum_info');
+        if(forum_info_string.trim()=='') forum_info_string = '(無相關說明)';
+        var msg, uid;
 		var fid = '';
 
 		uid = '{{ $user->id }}';
 		if(status==0){
-			msg='您確定要申請加入嗎?'
+			//msg='您確定要申請加入嗎?'
+            tab_forum_info.find('.forum_owner').html(cur_forum_owner_name);
+            tab_forum_info.find('.forum_title').html(forum_title);
+            tab_forum_info.find('.forum_info_show').html(forum_info_string);
+            forum_info_popup_open();
+            
 		}else if(status==1){
-			msg='您確定要申請加入嗎?'
+			msg='您確定要申請加入嗎?';
+            c4(msg);
 		}else{
 			return false;
 		}
-		c4(msg);
+		
 		$(".n_left").on('click', function() {
 			$.post('{{ route('forum_manage_toggle') }}', {
 				uid: uid,
@@ -392,7 +461,10 @@
 				// c5(obj.message);
 				// $(".n_bllbut").on('click', function() {
 					if(obj.message=='申請成功'){
-						window.location.href = "/dashboard/forum_manage_chat/" + auid + "/" + uid + "";
+						ccc('已送出申請，管理員將進行審核');
+                        $(".n_bllbut_tab_other").on('click', function() {
+							window.location.href = "/dashboard/forum_manage_chat/" + auid + "/" + uid + "";
+						});
 						// window.location.href = "/dashboard/forum";
 					}else if(obj.message=='申請通過'){
 						ccc('申請通過');
