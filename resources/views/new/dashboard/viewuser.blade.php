@@ -2353,7 +2353,7 @@
             </div>
             <div class="n_bbutton" style="margin-top:10px;">
                 <div style="display: inline-flex;">
-                    @if($auth_check>0 && $advance_auth_status && $isSent3Msg)
+                    @if(($auth_check>0 || $advance_auth_status) && $isSent3Msg)
                         <div class="n_right enter_tab_evaluation" style="border-style: none; background: #8a9ff0; color:#ffffff; float: unset; margin-left: 0px; margin-right: 20px;" onclick="show_tab_evaluation()">進入評價</div>
                         <div class="n_left" style="border: 1px solid #8a9ff0; background: #ffffff; color:#8a9ff0; float: unset; margin-right: 0px;" onclick="tab_cancel();" >取消</div>
                     @else
@@ -3137,12 +3137,18 @@
                 $('.enter_tab_evaluation').removeClass('evaluation_type_myself');
                 $('.anonymous_illustrate').hide();
                 $('.self_illustrate').show();
+                
                 $('input[name=content_processing_method]').val('');
                 @if($user->engroup==2)
                     $('#tab_reject_female').show();
                     $('.phone_auth').removeClass('hide');
                     $(".announce_bg").show();
                     $('.enter_tab_evaluation').addClass('evaluation_type_myself');
+                    @if($auth_check>0)
+                        $('.enter_tab_evaluation').show();
+                    @else
+                        $('.enter_tab_evaluation').hide();
+                    @endif
                 @elseif($user->engroup==1)
                     $('#tab_reject_male').show();
                     $('.vipDays').removeClass('hide');
@@ -3173,12 +3179,18 @@
                 $('.advance_auth').addClass('hide');
                 $('.enter_tab_evaluation').removeClass('evaluation_type_anonymous');
                 $('.enter_tab_evaluation').removeClass('evaluation_type_myself');
+                
                 @if($user->engroup==2)
                     $('#tab_reject_female').show();
                     //$('.new_tkfont').text('您目前未達匿名評價標準，無法使用');
                     $('.advance_auth').removeClass('hide');
                     $(".announce_bg").show();
                     $('.enter_tab_evaluation').addClass('evaluation_type_anonymous');
+                    @if($advance_auth_status)
+                        $('.enter_tab_evaluation').show();
+                    @else
+                        $('.enter_tab_evaluation').hide();
+                    @endif
                 @elseif($user->engroup==1)
                     $('#tab_reject_male').show();
                     //$('.new_tkfont').text('您目前未達匿名評價標準，無法使用');
