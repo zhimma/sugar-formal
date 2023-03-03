@@ -7088,6 +7088,7 @@ class PagesController extends BaseController
             $postsForum->user_id = $user->id;
             $postsForum->title = $request->get('title');
             $postsForum->sub_title=$request->get('sub_title');
+            $postsForum->hire_manager_quota = 5;
             $postsForum->save();
             return redirect('/dashboard/forum')->with('message','新增成功');
         }
@@ -7158,11 +7159,13 @@ class PagesController extends BaseController
         if ($user->id != $forum->user_id && $user->id != 1049) {
             $checkForumMangeStatus = ForumManage::where('forum_id', $fid)->where('user_id', $user->id)->first();
             if (!isset($checkForumMangeStatus)) {
-                return back()->with('message', '您無法進入此討論區');
+                return redirect()->route('forum')->with('message', '您無法進入此討論區');
             } elseif ($checkForumMangeStatus->status == 0 && isset($checkForumMangeStatus)) {
-                return back()->with('message', '此討論區尚在申請中');
+                return redirect()->route('forum')->with('message', '此討論區尚在申請中');
             } elseif ($checkForumMangeStatus->status == 2) {
-                return back()->with('message', '您無法進入此討論區');
+                return redirect()->route('forum')->with('message', '您無法進入此討論區');
+            }elseif ($checkForumMangeStatus->status == 3) {
+                return redirect()->route('forum')->with('message', '您無法進入此討論區');
             }
         }
         if ($user->id == 1049) {
@@ -7251,10 +7254,26 @@ class PagesController extends BaseController
         $forum = Forum::where('id', $forum_id)->first();
 
         if(!$forum) {
-            return back()->with('message', '您的討論區不存在。');
+            return redirect()->route('forum')->with('message', '您的討論區不存在。');
         }
 
-        $posts_manage_users = ForumManage::select('forum_manage.user_id','users.name','forum_manage.status','forum_manage.forum_status','forum_manage.chat_status')
+        $checkForumMangeStatus ='';
+        if ($user->id != $forum->user_id && $user->id != 1049) {
+            $checkForumMangeStatus = ForumManage::where('forum_id', $fid)->where('user_id', $user->id)->first();
+            if (!isset($checkForumMangeStatus)) {
+                return redirect()->route('forum')->with('message', '您無法進入此討論區');
+            } elseif ($checkForumMangeStatus->status == 0 && isset($checkForumMangeStatus)) {
+                return redirect()->route('forum')->with('message', '此討論區尚在申請中');
+            } elseif ($checkForumMangeStatus->status == 2) {
+                return redirect()->route('forum')->with('message', '您無法進入此討論區');
+            }elseif ($checkForumMangeStatus->status == 3) {
+                return redirect()->route('forum')->with('message', '您無法進入此討論區');
+            }elseif ($checkForumMangeStatus->is_manager!=1) {
+                return redirect()->route('forum')->with('message', '您沒有使用該功能的權限');
+            }
+        }        
+
+        $posts_manage_users = ForumManage::select('forum_manage.user_id','users.name','forum_manage.status','forum_manage.forum_status','forum_manage.chat_status','forum_manage.is_manager')
             ->leftJoin('users', 'users.id','=','forum_manage.user_id')
             ->where('forum_id', $forum_id)
             ->whereNotIn('status',[2,3]);
@@ -7370,44 +7389,91 @@ class PagesController extends BaseController
         $status = $request->status;
         $fid =$request->fid;
         $mode = $request->mode;
+        $curMngData = ForumManage::where('forum_id', $fid)->where('user_id', $user->id)->first();
         $checkData = ForumManage::where('forum_id', $fid)->where('user_id', $uid)->first();
-        if($status==1 && $mode=='forum_status'){
-            if(isset($checkData)){
-                ForumManage::where('forum_id', $fid)->where('user_id', $uid)->update(['forum_status' => 0, 'updated_at' => Carbon::now()]);
-                $msg = '已移除討論區權限';
-            }else{
-                $msg = 'error';
-            }
-
-        }else if($status==0 && $mode=='forum_status'){
-            if(isset($checkData)){
-                ForumManage::where('forum_id', $fid)->where('user_id', $uid)->update(['forum_status' => 1, 'updated_at' => Carbon::now()]);
-                $msg = '已開通該會員討論區權限';
-            }else{
-                $msg = 'error';
-            }
-
-        }else if($status==1 && $mode=='chat_status'){
-            if(isset($checkData)){
-                ForumManage::where('forum_id', $fid)->where('user_id', $uid)->update(['chat_status' => 0, 'updated_at' => Carbon::now()]);
-                $msg = '已移除聊天室權限';
-            }else{
-                $msg = 'error';
-            }
-
-        }else if ($status == 0 && $mode == 'chat_status') {
-            if (isset($checkData)) {
-                ForumManage::where('forum_id', $fid)->where('user_id', $uid)->update(['chat_status' => 1, 'updated_at' => Carbon::now()]);
-                $msg = '已開通該會員聊天室權限';
-            } else {
-                $msg = 'error';
-            }
-
-        } else {
-            $msg = 'error';
+        $manager_num = $manager_quota =0;
+        $not_allow_toggle = false;
+        if($curMngData && $curMngData->forum->user_id!=$user->id  && $curMngData->is_manager!=1) $not_allow_toggle = true; 
+        if($not_allow_toggle) {
+            $msg = '錯誤!無管理權限';
         }
+        else {
+            if($status==1 && $mode=='forum_status'){
+                if(isset($checkData)){
+                    if($checkData->is_manager!=1) {
+                        ForumManage::where('forum_id', $fid)->where('user_id', $uid)->update(['forum_status' => 0, 'updated_at' => Carbon::now()]);
+                        $msg = '已移除討論區權限';
+                    }
+                    else {
+                        $msg = '移除失敗!請先移除該會員的管理員權限';
+                    }
+                }else{
+                    $msg = 'error';
+                }
 
-        echo json_encode(['message'=>$msg]);
+            }else if($status==0 && $mode=='forum_status'){
+                if(isset($checkData)){
+                        ForumManage::where('forum_id', $fid)->where('user_id', $uid)->update(['forum_status' => 1, 'updated_at' => Carbon::now()]);
+                        $msg = '已開通該會員討論區權限';
+                }else{
+                    $msg = 'error';
+                }
+
+            }else if($status==1 && $mode=='chat_status'){
+                if(isset($checkData)){
+                    if($checkData->is_manager!=1) {
+                        ForumManage::where('forum_id', $fid)->where('user_id', $uid)->update(['chat_status' => 0, 'updated_at' => Carbon::now()]);
+                        $msg = '已移除聊天室權限';
+                    }
+                    else {
+                        $msg = '移除失敗!請先移除該會員的管理員權限';
+                    }
+                }else{
+                    $msg = 'error';
+                }
+
+            }else if ($status == 0 && $mode == 'chat_status') {
+                if (isset($checkData)) {
+                    $checkData->update(['chat_status' => 1, 'updated_at' => Carbon::now()]);
+                    $msg = '已開通該會員聊天室權限';
+                } else {
+                    $msg = 'error';
+                }
+
+            }else if($status==1 && $mode=='is_manager'){
+                if(isset($checkData)){
+                    $checkData->fill(['is_manager' => 0, 'updated_at' => Carbon::now()])->save();
+                    $msg = '已移除管理員權限';
+                }else{
+                    $msg = 'error';
+                }
+
+            }else if ($status == 0 && $mode == 'is_manager') {
+                if (isset($checkData)) {
+                    $manager_num = $checkData->forum->forum_manager->count();
+                    $manager_quota = $checkData->forum->hire_manager_quota;
+                    if($manager_num<$manager_quota) {
+                        $checkData->fill(['is_manager' => 1, 'updated_at' => Carbon::now()])->save();
+                        $msg = '已指派該會員為管理員';
+                    }
+                    else {
+                        $msg = '最多只能指派'.$checkData->forum->hire_manager_quota.'個管理員';
+                        $msg.= '，目前已額滿，您可先移除其他管理員，再指派新的管理員。';
+                    }
+                    
+                } else {
+                    $msg = 'error';
+                }
+
+            }
+            else {
+                $msg = 'error';
+            }
+        }
+        $return_data = ['message'=>$msg];
+        if($manager_quota) $return_data['manager_quota'] = $manager_quota;
+        if($manager_num) $return_data['manager_num'] = $manager_num;
+        echo json_encode($return_data);
     }
 
     public function forum_manage_chat($auid, $uid)
@@ -7460,6 +7526,21 @@ class PagesController extends BaseController
         }
 
         if ($user) {
+            $forum = Forum::where('id', $fid)->first();
+            $checkForumMangeStatus ='';
+            if ($user->id != $forum->user_id && $user->id != 1049) {
+                $checkForumMangeStatus = ForumManage::where('forum_id', $fid)->where('user_id', $user->id)->first();
+                if (!isset($checkForumMangeStatus)) {
+                    return redirect()->route('forum')->with('message', '您無法進入此討論區');
+                } elseif ($checkForumMangeStatus->status == 0 && isset($checkForumMangeStatus)) {
+                    return redirect()->route('forum')->with('message', '此討論區尚在申請中');
+                } elseif ($checkForumMangeStatus->status == 2) {
+                    return redirect()->route('forum')->with('message', '您無法進入此討論區');
+                }elseif ($checkForumMangeStatus->status == 3) {
+                    return redirect()->route('forum')->with('message', '您無法進入此討論區');
+                }
+            }            
+            
             return view('/dashboard/forum_posts')
                 ->with('user', $user)
                 ->with('cur', $user)
