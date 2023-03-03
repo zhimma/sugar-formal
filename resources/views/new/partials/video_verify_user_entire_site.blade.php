@@ -133,7 +133,7 @@
             url: '{{route('user_video_chat_verify_allow_check')}}',
             method: 'GET',
             data: {
-                user_id : {{ auth()->id() }}
+                user_id : {{ auth()->id() ?? "0" }}
             },
             success: function(data){
                 if(data.is_allow)

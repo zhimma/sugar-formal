@@ -825,6 +825,9 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('users/ip/{ip}', 'UserController@getIpUsers')->name('getIpUsers');
 		Route::get('users/getLog', 'UserController@getUsersLog')->name('getUsersLog');
         Route::post('users/logUserLoginHide', 'UserController@logUserLoginHide')->name('logUserLoginHide');
+        Route::post('users/observe_user', 'UserController@observe_user')->name('observe_user');
+        Route::post('users/observe_user_remove', 'UserController@observe_user_remove')->name('observe_user_remove');
+        Route::get('users/observe_user_list', 'UserController@observe_user_list')->name('observe_user_list');
 
         Route::group(['prefix'=>'users/message'], function(){
             Route::get('record/all', 'UserController@showAdminMessageAllRecord')->name('AdminMessageAllRecord');

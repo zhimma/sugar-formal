@@ -102,19 +102,7 @@
                             <button type="button" class="btn btn-primary" onclick="checkAction({{$row->evaluation_id}},1,{{ $row->id }})" >通過</button>
                             <button type="button" class="btn btn-primary" onclick="checkAction({{$row->evaluation_id}},1,{{ $row->id }},null,1)" >通過<br>(不附照片)</button>
                             <br>
-                            <button type="button" data-evaluation_id="{{$row->evaluation_id}}" class="btn btn-danger reject_button" onclick="showRejectDetailBlock(this);" >不通過</button>
-                            <div class="reject_detail_edit_block">
-                                <div>
-                                <b>請輸入不通過原因或直接送出</b>
-                                </div>
-                                <div>
-                                    <textarea name="status_reason" class="status_reason"></textarea>
-                                </div>
-                                <div>
-                                    <button class="btn btn-info" onclick="checkAction({{$row->evaluation_id}},2,{{ $row->id }},this)" >送出</button>
-                                    <button class="btn btn-danger" onclick="closeRejectDetailBlock(this);">取消</button>
-                                </div>
-                            </div>
+                            <button type="button" data-evaluation_id="{{$row->evaluation_id}}" class="btn btn-danger reject_button" onclick="checkAction({{$row->evaluation_id}},2,{{ $row->id }},this);window.open('/admin/users/message/anonymous-checked/to/{{$row->id}}/{{$row->evaluation_id}}');" >不通過</button>
                             @endif
                         @break
                         @case(1)
@@ -352,23 +340,6 @@
         });
     });
     
-    function showRejectDetailBlock(dom) 
-    {
-        
-        let now_elt = $(dom);
-        window.open('/admin/users/message/anonymous-checked/to/{{$row->id}}/'+now_elt.data('evaluation_id'));
-        let now_parent = now_elt.closest('td');
-        now_parent.children().hide();
-        now_parent.find('.reject_detail_edit_block').show(); 
-    }
-    
-    function closeRejectDetailBlock(dom) 
-    {
-        let now_elt = $(dom);
-        let now_parent = now_elt.closest('td');
-        now_parent.children().show();
-        now_parent.find('.reject_detail_edit_block').hide(); 
-    }  
 
     function toggle_row(status,dom)
     {

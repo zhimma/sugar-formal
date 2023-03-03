@@ -7492,6 +7492,9 @@ class PagesController extends BaseController
             ->where('forum_posts.reply_id', $pid)->get();
 
         $forum = Forum::where('id', $postDetail->forum_id)->first();
+        if (!$forum) {
+            return redirect()->back();
+        }
         //檢查是否為連續兩個月以上的VIP會員
         $checkUserVip=0;
         $isVip =Vip::where('member_id',auth()->user()->id)->where('active',1)->where('free',0)->first();

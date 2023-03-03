@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use App\Models\Message;
 use App\Models\UserMeta;
+use Carbon\Carbon;
 
 class ComputeStatisticInformation extends Command
 {
@@ -63,7 +64,7 @@ class ComputeStatisticInformation extends Command
         $median = $recipients_count_of_vip_male->median('recipients_count');
 
         DB::table('log_system_day_statistic')->insert(
-            [   'date' => now(),
+            [   'date' => Carbon::today(),
                 'average_recipients_count_of_vip_male_senders'   => $avg,
                 'median_recipients_count_of_vip_male_senders'  => $median,
                 'created_at' => now(),
@@ -82,5 +83,22 @@ class ComputeStatisticInformation extends Command
         {
             UserMeta::where('user_id', $male->id)->update(['recipients_count' => $male->recipients_count]);
         }
+
+        // 昨日男會員數
+        $date_yesterday = Carbon::yesterday()->toDateString();
+        $yesterdayMaleCount = \App\Models\User::without(['user_meta', 'vip'])
+            ->select('id')
+            ->where('engroup', 1)
+            ->whereBetween('created_at', [$date_yesterday, $date_yesterday . ' 23:59:59'])
+            ->count();
+
+        // 昨日女會員數
+        $yesterdayWomaleCount = \App\Models\User::without(['user_meta', 'vip'])
+            ->select('id')
+            ->where('engroup', 2)
+            ->whereBetween('created_at', [$date_yesterday, $date_yesterday . ' 23:59:59'])
+            ->count();
+
+        DB::table('log_system_day_statistic')->where('date', Carbon::yesterday())->update(['number_of_male_registrants' => $yesterdayMaleCount, 'number_of_female_registrants' => $yesterdayWomaleCount]);
     }
 }

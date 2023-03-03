@@ -1015,10 +1015,19 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                 }
 
                 $('.sjlist_admin>.li_no_data').remove();
-
-                if($('.sjlist_admin>li:visible').length == 0 && isLoading == 0){
+                let check_row_class = '';
+                if(date!='all') {
+                    check_row_class = '.date'+date;
+                }
+                if($('.sjlist_admin>li.row_data'+check_row_class).length == 0 ){
                     $('#sjlist_admin_warning').hide();
                     $('.sjlist_admin').append(no_row_li);
+                    $('.sjlist_admin').parent().hide();
+                    $('.lebox0').removeClass('off').removeClass('on').addClass('on').hide();
+                }
+                else {
+                    $('.sjlist_admin').parent().show();
+                    $('.lebox0').removeClass('off').removeClass('on').addClass('on').show();
                 }
             });
         }
@@ -2198,9 +2207,22 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                             $('#sjlist_vvipSelectionRewardActive_warning_warning').hide();
                             $('.sjlist_vvipSelectionRewardActive').append(no_row_li);
                         }
-                        if ($('.sjlist_admin>li:visible').length == 0) {
+                        
+                        let check_row_class = '';
+                        let check_date = $("#daysSelect option:selected").val();
+                        if(check_date!='all') {
+                            check_row_class = '.date'+check_date;
+                        }
+                        if ($('.sjlist_admin>li.row_data'+check_row_class).length == 0) {
                             $('#sjlist_admin_warning').hide();
                             $('.sjlist_admin').append(no_row_li);
+                            $('.sjlist_admin').parent().hide();
+                            $('.lebox0').removeClass('off').removeClass('on').addClass('on').hide();
+                            $('#sjlist_admin_warning').hide();
+                        }
+                        else {
+                            $('.sjlist_admin').parent().show();
+                            $('.lebox0').removeClass('off').removeClass('on').addClass('on').show();
                         }
                         if ($('.sjlist_alert>li:visible').length == 0) {
                             $('#sjlist_alert_warning').hide();
@@ -2497,10 +2519,23 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                         $('#sjlist_vvipSelectionRewardActive_warning').hide();
                         $('.sjlist_vvipSelectionRewardActive').append(no_row_li);
                     }
+                    
+                    let check_row_class = '';
+                    let check_date = $("#daysSelect option:selected").val();
+                    if(check_date!='all') {
+                        check_row_class = '.date'+check_date;
+                    }
                     $('.sjlist_admin>.li_no_data').remove();
-                    if ($('.sjlist_admin>li:visible').length == 0 && isLoading == 0) {
+                    if ($('.sjlist_admin>li.row_data'+check_row_class).length == 0 ) {
                         $('#sjlist_admin_warning').hide();
                         $('.sjlist_admin').append(no_row_li);
+                        $('.sjlist_admin').parent().hide();
+                        $('.lebox0').removeClass('off').removeClass('on').addClass('on').hide();
+                        $('#sjlist_admin_warning').hide();
+                    }
+                    else {
+                        $('.sjlist_admin').parent().show();
+                        $('.lebox0').removeClass('off').removeClass('on').addClass('on').show();
                     }
                     @if($user->engroup==2)
                         $('.sjlist_vvip>.li_no_data').remove();
@@ -2925,8 +2960,9 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                 //window.location.reload();
             });
         });
-
-        $('.leboxVvipSelectionRewardActive,.leboxVVIP,.lebox0,.lebox1,.lebox2,.lebox3,.lebox6,.lebox_alert,.lebox5').toggleClass('off');
+        $('.lebox0').hide();
+        $('#sjlist_admin_warning').hide();
+        $('.leboxVvipSelectionRewardActive,.leboxVVIP,.lebox1,.lebox2,.lebox3,.lebox6,.lebox_alert,.lebox5').toggleClass('off');
         $('.leboxVvipSelectionRewardActive,.leboxVVIP,.lebox1,.lebox2,.lebox3,.lebox6,.lebox_alert,.lebox5').next('dd').slideToggle("slow");
 
         $('.leboxVvipSelectionRewardActive,.leboxVVIP,.lebox0,.lebox1,.lebox2,.lebox3,.lebox6,.lebox_alert,.lebox5').click(function(e) {
@@ -2974,10 +3010,18 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                 $('.sjlist_vvipSelectionRewardActive').append(no_row_li);
             }
 
+            let check_row_class = '';
+            let check_date = $("#daysSelect option:selected").val();
+            if(check_date!='all') {
+                check_row_class = '.date'+check_date;
+            }
             $('.sjlist_admin>.li_no_data').remove();
-            if ($('.sjlist_admin>li:visible').length == 0 && isLoading == 0) {
+            if ($('.sjlist_admin>li.row_data'+check_row_class).length == 0 ) {
                 $('#sjlist_admin_warning').hide();
                 $('.sjlist_admin').append(no_row_li);
+                $('.sjlist_admin').parent().hide();
+                $('.lebox0').removeClass('off').removeClass('on').addClass('on').hide();
+                $('#sjlist_admin_warning').hide();
             }
 
             $('.sjlist_alert>.li_no_data').remove();

@@ -318,6 +318,30 @@
         <a href="{{ route('activateUser',$userMeta->activation_token) }}" class="btn btn-success"> 通過認證信 </a>
     @endif
 
+    @php
+        $observe_user=\App\Models\ObserveUser::where('user_id', $user->id)->first();
+    @endphp
+    @if($observe_user)
+        <button class="btn btn-secondary" style="cursor: default;background-color:#C0C0C0;border-color: #C0C0C0;opacity: .65;">已加觀察</button>
+    @else
+        <button id="observe_user_btn" class="btn btn-primary">觀察名單</button>
+    @endif
+    <form id="observe_user_form" method="POST" hidden action="{{ route('observe_user') }}" style="display: inline-flex;max-width: 250px;">
+        <input type="hidden" name="_token" value="{{ csrf_token() }}" >
+        <input type="hidden" name='user_id' value="{{ $user->id }}">
+        <input class="form-control m-input" type=text name="reason" value="{{ $observe_user ? $observe_user->reason :'' }}" placeholder="請輸入原因"  style="width: 300px;">
+        <button type="submit" class="btn btn-success">送出</button>
+    </form>
+    <script>
+        $("#observe_user_btn").click(function(){
+            if ($("#observe_user_form").attr("hidden")) {
+                $("#observe_user_form").attr("hidden", false)
+            } else {
+                $("#observe_user_form").attr("hidden", true)
+            }
+        });
+    </script>
+
 </h1>
 <h4>基本資料</h4>
 <table class='table table-hover table-bordered '>

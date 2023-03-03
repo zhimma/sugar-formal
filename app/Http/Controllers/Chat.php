@@ -57,8 +57,44 @@ class Chat extends BaseController
             if(!$m->parent_client_id??null) {
                 $m->parent_client_id = $m->parent_message->client_id??null; 
             }
+            //23.03.01 目前傳訊不是使用pusher，所以先將parent_message刪除
+            //日後若要改回用pusher，則需要先將parent_message用不到的欄位刪除
+            //避免超過pusher的大小限制
+            $m->parent_message = null;
+            unset($m->parent_message);
         }
 
+        $m->pic_bak 
+        = $m->reportContent
+        = $m->reportContentPic
+        = $m->hide_reported_log
+        = $m->handle
+        = $m->all_delete_count
+        = $m->is_row_delete_1
+        = $m->is_row_delete_2
+        = $m->is_single_delete_1
+        = $m->is_single_delete_2
+        = $m->isReported
+        = $m->cancel
+        = $m->is_write
+        = null;
+        
+        unset(
+            $m->pic_bak 
+            ,$m->reportContent
+            ,$m->reportContentPic
+            ,$m->hide_reported_log
+            ,$m->handle
+            ,$m->all_delete_count
+            ,$m->is_row_delete_1
+            ,$m->is_row_delete_2
+            ,$m->is_single_delete_1
+            ,$m->is_single_delete_2
+            ,$m->isReported
+            ,$m->cancel
+            ,$m->is_write        
+        );
+        
         if(!isset($m['error'])){
             \App\Events\NewMessage::dispatch($m->id, $m->content, $m->from_id, $m->to_id,$m->pic?1:0);
         }

@@ -162,7 +162,6 @@
 
         .xxi {
             min-height: 500px;
-            width: 92%;
             margin: 0 auto
         }
 
@@ -442,7 +441,6 @@
         }
     </style>
     <style>   
-        .xxi{min-height:500px;width:92%; margin:0 auto}
         .msg>p{ cursor: pointer;}
         @media (max-width:1024px) {
         .xxi{min-height:920px;}
@@ -2215,7 +2213,10 @@
                         var postmsg_error_show_msg = '傳送失敗 ';
                         if(logout_all_finded) postmsg_error_show_msg+='。您已登出或基於帳號安全由系統自動登出，請重新登入。'
                         else postmsg_error_show_msg+= e.name+'-'+e.message;
-                        if(response.indexOf('錯誤類型：Pusher error')>=0) {
+                        if(response.indexOf('錯誤類型：Pusher error')>=0 
+                            || response.indexOf('Server Error')>=0
+                            ||  postmsg_error_show_msg.indexOf("SyntaxError")>=0
+                            ) {
                             postmsg_error_show_msg = '(hidden)'+postmsg_error_show_msg;
                         }
                         else {
