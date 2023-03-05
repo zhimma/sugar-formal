@@ -1223,6 +1223,87 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
                 "cfpid_userid <-> custom id 一對多的數量: " . $cfp_user_has_many,
             ];
         });
+        Route::get("simpleStat", function() {
+            $data1 = collect(\DB::raw('SELECT
+                                            u.email,
+                                            u.created_at,
+                                            (
+                                                select
+                                                    count(id)
+                                                from
+                                                    log_user_login
+                                                WHERE
+                                                    user_id = u.id
+                                            ) as "login_times"
+                                        FROM
+                                            users u
+                                        WHERE
+                                            engroup = 2
+                                            and created_at > "2023-02-02"
+                                            AND id not in (
+                                                select
+                                                    member_id
+                                                from
+                                                    banned_users
+                                                where
+                                                    expire_date is null
+                                                    or expire_date > now()
+                                            )
+                                            AND id not in (
+                                                select
+                                                    target
+                                                from
+                                                    banned_users_implicitly
+                                            )
+                                            ORDER BY u.id ASC'))->get();
+            echo "<table border='1'>";
+            echo "<tr><td>email</td><td>created_at</td><td>login_times</td><td>通訊人數</td></tr>";
+            foreach($data1 as $data) {
+                $messages_all = Message::select(
+                    'id',
+                    'room_id',
+                    'to_id',
+                    'from_id',
+                    'read',
+                    'created_at'
+                )
+                    ->where(function ($query) use ($user) {
+                        $query->where('to_id', $user->id)->orwhere('from_id', $user->id);
+                    })
+                    ->where('from_id', '!=', 1049)
+                    ->where('to_id', '!=', 1049)
+                    ->orderBy('id')
+                    ->withTrashed()
+                    ->showSql()
+                    ->get();
+                /*總房間數*/
+                $first_messages_all = $messages_all->unique('room_id');
+                $first_send_room = $first_messages_all
+                    ->where('from_id', $user_id)
+                    ->pluck('room_id');
+                /*第一則訊息為收訊的房間*/
+                $first_reply_room = $first_messages_all
+                    ->where('to_id', $user_id)
+                    ->pluck('room_id');
+                $send_message_all = \App\Models\Message::withTrashed()
+                    ->select('id', 'room_id', 'to_id', 'from_id', 'read', 'created_at')
+                    ->whereIn('room_id', $first_send_room)
+                    ->where('from_id', $user_id)
+                    ->orderByDesc('id')
+                    ->showSql()
+                    ->get();
+                $reply_message_all = \App\Models\Message::withTrashed()
+                    ->select('id', 'room_id', 'to_id', 'from_id', 'read', 'created_at')
+                    ->whereIn('room_id', $first_reply_room)
+                    ->where('from_id', $user_id)
+                    ->orderByDesc('id')->showSql()
+                    ->get();
+
+                $data->mesasge_people_count = $send_message_all->unique('room_id') + $reply_message_all->unique('room_id');
+                echo "<tr><td>{$data->email}</td><td>{$data->created_at}</td><td>{$data->login_times}</td><td>{$data->mesasge_people_count}</td></tr>";
+            }
+            echo "</table>";
+        });
     });
 
 
