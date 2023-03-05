@@ -1224,7 +1224,12 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
             ];
         });
         Route::get("simpleStat", function() {
-            $data1 = collect(\DB::raw('SELECT
+	    ini_set("max_execution_time",'0');
+            ini_set('memory_limit','-1');
+            ini_set("request_terminate_timeout",'0');
+            set_time_limit(0);
+            $data1 = collect(\DB::select(\DB::raw('SELECT
+					    u.id,
                                             u.email,
                                             u.created_at,
                                             (
@@ -1255,11 +1260,11 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
                                                 from
                                                     banned_users_implicitly
                                             )
-                                            ORDER BY u.id ASC'))->get();
+                                            ORDER BY u.id ASC')));
             echo "<table border='1'>";
             echo "<tr><td>email</td><td>created_at</td><td>login_times</td><td>通訊人數</td></tr>";
             foreach($data1 as $data) {
-                $messages_all = Message::select(
+                $messages_all = \App\Models\Message::select(
                     'id',
                     'room_id',
                     'to_id',
@@ -1267,8 +1272,8 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
                     'read',
                     'created_at'
                 )
-                    ->where(function ($query) use ($user) {
-                        $query->where('to_id', $user->id)->orwhere('from_id', $user->id);
+                    ->where(function ($query) use ($data) {
+                        $query->where('to_id', $data["id"])->orwhere('from_id', $data["id"]);
                     })
                     ->where('from_id', '!=', 1049)
                     ->where('to_id', '!=', 1049)
@@ -1279,23 +1284,23 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
                 /*總房間數*/
                 $first_messages_all = $messages_all->unique('room_id');
                 $first_send_room = $first_messages_all
-                    ->where('from_id', $user_id)
+                    ->where('from_id', $data["id"])
                     ->pluck('room_id');
                 /*第一則訊息為收訊的房間*/
                 $first_reply_room = $first_messages_all
-                    ->where('to_id', $user_id)
+                    ->where('to_id', $data["id"])
                     ->pluck('room_id');
                 $send_message_all = \App\Models\Message::withTrashed()
                     ->select('id', 'room_id', 'to_id', 'from_id', 'read', 'created_at')
                     ->whereIn('room_id', $first_send_room)
-                    ->where('from_id', $user_id)
+                    ->where('from_id', $data["id"])
                     ->orderByDesc('id')
                     ->showSql()
                     ->get();
                 $reply_message_all = \App\Models\Message::withTrashed()
                     ->select('id', 'room_id', 'to_id', 'from_id', 'read', 'created_at')
                     ->whereIn('room_id', $first_reply_room)
-                    ->where('from_id', $user_id)
+                    ->where('from_id', $data["id"])
                     ->orderByDesc('id')->showSql()
                     ->get();
 
