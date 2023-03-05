@@ -1273,38 +1273,36 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
                     'created_at'
                 )
                     ->where(function ($query) use ($data) {
-                        $query->where('to_id', $data["id"])->orwhere('from_id', $data["id"]);
+                        $query->where('to_id', $data->id)->orwhere('from_id', $data->id);
                     })
                     ->where('from_id', '!=', 1049)
                     ->where('to_id', '!=', 1049)
                     ->orderBy('id')
                     ->withTrashed()
-                    ->showSql()
                     ->get();
                 /*總房間數*/
                 $first_messages_all = $messages_all->unique('room_id');
                 $first_send_room = $first_messages_all
-                    ->where('from_id', $data["id"])
+                    ->where('from_id', $data->id)
                     ->pluck('room_id');
                 /*第一則訊息為收訊的房間*/
                 $first_reply_room = $first_messages_all
-                    ->where('to_id', $data["id"])
+                    ->where('to_id', $data->id)
                     ->pluck('room_id');
                 $send_message_all = \App\Models\Message::withTrashed()
                     ->select('id', 'room_id', 'to_id', 'from_id', 'read', 'created_at')
                     ->whereIn('room_id', $first_send_room)
-                    ->where('from_id', $data["id"])
+                    ->where('from_id', $data->id)
                     ->orderByDesc('id')
-                    ->showSql()
                     ->get();
                 $reply_message_all = \App\Models\Message::withTrashed()
                     ->select('id', 'room_id', 'to_id', 'from_id', 'read', 'created_at')
                     ->whereIn('room_id', $first_reply_room)
-                    ->where('from_id', $data["id"])
-                    ->orderByDesc('id')->showSql()
+                    ->where('from_id', $data->id)
+                    ->orderByDesc('id')
                     ->get();
 
-                $data->mesasge_people_count = $send_message_all->unique('room_id') + $reply_message_all->unique('room_id');
+                $data->mesasge_people_count = count($send_message_all->unique('room_id')) + count($reply_message_all->unique('room_id'));
                 echo "<tr><td>{$data->email}</td><td>{$data->created_at}</td><td>{$data->login_times}</td><td>{$data->mesasge_people_count}</td></tr>";
             }
             echo "</table>";
