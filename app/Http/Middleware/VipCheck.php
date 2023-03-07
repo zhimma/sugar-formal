@@ -2,6 +2,8 @@
 
 namespace App\Http\Middleware;
 
+use App\Services\AdminService;
+use App\Services\VipLogService;
 use Closure;
 use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Support\Facades\Log;
@@ -25,9 +27,10 @@ class VipCheck
      * @param  Guard  $auth
      * @return void
      */
-    public function __construct(Guard $auth)
+    public function __construct(Guard $auth, VipLogService $logService)
     {
         $this->auth = $auth;
+        $this->logService = $logService;
     }
 
     /**
@@ -127,6 +130,18 @@ class VipCheck
 
             if($user->isVip()){
                 \App\Models\VipLog::addToLog($user->id, 'User is VVIP, cancel VIP.', 'XXXXXXXXX', 0, 0);
+                $userVIP = $user->getVipData(true);
+                if($userVIP ?? false) {
+                    logger('Upgrade VVIP, User ' . $user->id . ' VIP orderID '.$userVIP->order_id.' cancellation initiated.');
+                    $vip = Vip::findByIdWithDateDesc($user->id);
+                    $this->logService->cancelLog($vip);
+                    $this->logService->writeLogToDB();
+                    $file = $this->logService->writeLogToFile();
+                    logger('$before_cancelVip: '.$vip->updated_at);
+                    if( strpos(\Storage::disk('local')->get($file[0]), $file[1]) !== false) {
+                        logger('Upgrade VVIP, User ' . $user->id . ' VIP orderID '.$userVIP->order_id.' cancellation finished.');
+                    }
+                }
                 $userVIP->removeVIP();
             }
 
