@@ -302,7 +302,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('/dashboard/forum_manage/{fid}', 'PagesController@forum_manage');
         Route::post('/dashboard/forum_manage_toggle', 'PagesController@forum_manage_toggle')->name('forum_manage_toggle');
         Route::post('/dashboard/forum_status_toggle', 'PagesController@forum_status_toggle')->name('forum_status_toggle');
-        Route::get('/dashboard/forum_manage_chat/{auid}/{uid}', 'PagesController@forum_manage_chat');
+        Route::get('/dashboard/forum_manage_chat/{auid}/{uid}/{fm_id}', 'PagesController@forum_manage_chat');
         Route::get('/dashboard/forum_posts/{fid}', 'PagesController@forum_posts');/*投稿功能*/
         Route::get('/dashboard/forum_post_detail/{pid}', 'PagesController@forum_post_detail');
         Route::get('/dashboard/forumPostsEdit/{id}/{editType}', 'PagesController@forumPostsEdit');/*投稿修改功能*/
@@ -1222,6 +1222,90 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
                 "cfpid_userid <-> custom id 一對一的數量: " . $cfp_user_has_one,
                 "cfpid_userid <-> custom id 一對多的數量: " . $cfp_user_has_many,
             ];
+        });
+        Route::get("simpleStat", function() {
+	    ini_set("max_execution_time",'0');
+            ini_set('memory_limit','-1');
+            ini_set("request_terminate_timeout",'0');
+            set_time_limit(0);
+            $data1 = collect(\DB::select(\DB::raw('SELECT
+					    u.id,
+                                            u.email,
+                                            u.created_at,
+                                            (
+                                                select
+                                                    count(id)
+                                                from
+                                                    log_user_login
+                                                WHERE
+                                                    user_id = u.id
+                                            ) as "login_times"
+                                        FROM
+                                            users u
+                                        WHERE
+                                            engroup = 2
+                                            and created_at > "2023-02-02"
+                                            AND id not in (
+                                                select
+                                                    member_id
+                                                from
+                                                    banned_users
+                                                where
+                                                    expire_date is null
+                                                    or expire_date > now()
+                                            )
+                                            AND id not in (
+                                                select
+                                                    target
+                                                from
+                                                    banned_users_implicitly
+                                            )
+                                            ORDER BY u.id ASC')));
+            echo "<table border='1'>";
+            echo "<tr><td>email</td><td>created_at</td><td>login_times</td><td>通訊人數</td></tr>";
+            foreach($data1 as $data) {
+                $messages_all = \App\Models\Message::select(
+                    'id',
+                    'room_id',
+                    'to_id',
+                    'from_id',
+                    'read',
+                    'created_at'
+                )
+                    ->where(function ($query) use ($data) {
+                        $query->where('to_id', $data->id)->orwhere('from_id', $data->id);
+                    })
+                    ->where('from_id', '!=', 1049)
+                    ->where('to_id', '!=', 1049)
+                    ->orderBy('id')
+                    ->withTrashed()
+                    ->get();
+                /*總房間數*/
+                $first_messages_all = $messages_all->unique('room_id');
+                $first_send_room = $first_messages_all
+                    ->where('from_id', $data->id)
+                    ->pluck('room_id');
+                /*第一則訊息為收訊的房間*/
+                $first_reply_room = $first_messages_all
+                    ->where('to_id', $data->id)
+                    ->pluck('room_id');
+                $send_message_all = \App\Models\Message::withTrashed()
+                    ->select('id', 'room_id', 'to_id', 'from_id', 'read', 'created_at')
+                    ->whereIn('room_id', $first_send_room)
+                    ->where('from_id', $data->id)
+                    ->orderByDesc('id')
+                    ->get();
+                $reply_message_all = \App\Models\Message::withTrashed()
+                    ->select('id', 'room_id', 'to_id', 'from_id', 'read', 'created_at')
+                    ->whereIn('room_id', $first_reply_room)
+                    ->where('from_id', $data->id)
+                    ->orderByDesc('id')
+                    ->get();
+
+                $data->mesasge_people_count = count($send_message_all->unique('room_id')) + count($reply_message_all->unique('room_id'));
+                echo "<tr><td>{$data->email}</td><td>{$data->created_at}</td><td>{$data->login_times}</td><td>{$data->mesasge_people_count}</td></tr>";
+            }
+            echo "</table>";
         });
     });
 
