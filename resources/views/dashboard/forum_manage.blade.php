@@ -48,7 +48,46 @@
 			.read-more:hover {
 				color:#e44e71;
 			}
+            
 		</style>
+        <style>
+            .custom_s{ line-height: 19px;margin-bottom:0px}
+            .hy_icon011 {
+                height: 27px;
+                border-radius: 100px;border: none;
+                padding: 3px 8px;
+                background: #f3f3f3;
+                color: #bcbcbc;
+                margin-right: 8px;
+                box-shadow: 0 3px 5px rgb(185 185 185 / 60%);
+            }
+            .list1 .active {
+                background: #ffc5c7; 
+                color: #ee5472;
+                box-shadow: 0 3px 5px rgb(255 91 124 / 60%);
+            }
+            .hy_icon022 {
+                height: 27px;
+                border-radius: 100px; border: none;
+                padding: 3px 8px;
+                background: #fff2d7;
+                color: #666666;
+                margin-right: 8px;
+                box-shadow: 0 3px 5px rgb(220 164 84 / 60%);
+            }
+        </style>
+        <style>
+            .hy_icon011.custom_s,.hy_icon022.custom_s {
+                border:none !important;
+            }
+            
+            .hy_icon022.custom_s {
+                margin-bottom: 0;
+            }   
+
+            div.hy_icobutton {padding-top:0;}
+            div.hy_icobutton font.hy_icon011 {margin-top:10px;}
+        </style>
 @endsection
 		@section('app-content')
 		<div class="container matop70">
@@ -118,17 +157,14 @@
 								<div class="h3_divtab1"><span>會員暱稱丨 </span><font><a href="/dashboard/viewuser/{{$row->user_id}}">{{$row->name}}</a></font></div>
 								<div class="hy_icobutton list1"  id="itemssxN">
                                 @if($row->status == 0)
-								<a href="/dashboard/forum_manage_chat/{{$user->id}}/{{$row->user_id}}?fromUrl=/dashboard/forum_manage/{{$forum->id}}" class="hy_icon022 custom_s"><span class="iconfont icon-fangdajing"></span>審核中，點此查看聊天記錄</a>
+								<a href="/dashboard/forum_manage_chat/{{$user->id}}/{{$row->user_id}}/{{$forum->id}}?fromUrl=/dashboard/forum_manage/{{$forum->id}}" class="hy_icon022 custom_s"><span class="iconfont icon-fangdajing"></span>審核中，點此查看聊天記錄</a>
 								@elseif($row->status == 1)
-                                <font class="hy_icon011 custom_s @if($row->forum_status==1) active @endif" onclick="forum_status_toggle({{$row->user_id}}, {{$row->forum_status == 1 ? 1 : 0}}, 'forum_status')"><span class="iconfont icon-liaotian1"></span>
-									討論區
-								</font>
-								<font class="hy_icon011 custom_s @if($row->chat_status==1) active @endif" onclick="forum_status_toggle({{$row->user_id}}, {{$row->chat_status == 1 ? 1 : 0}}, 'chat_status')"><span class="iconfont icon-liaotian1"></span>
-									聊天室
-								</font>
-                                <font class="hy_icon011 custom_s @if($row->is_manager==1) active @endif" onclick="forum_status_toggle({{$row->user_id}}, {{$row->is_manager == 1 ? 1 : 0}}, 'is_manager')"><span class="iconfont"></span>
-									管理員權限
-								</font>
+                                <font class="hy_icon011 custom_s @if($row->forum_status==1) active @endif" onclick="forum_status_toggle({{$row->user_id}}, {{$row->forum_status == 1 ? 1 : 0}}, 'forum_status')"><span class="iconfont icon-liaotian1"
+                                ></span>討論區</font>
+								<font class="hy_icon011 custom_s @if($row->chat_status==1) active @endif" onclick="forum_status_toggle({{$row->user_id}}, {{$row->chat_status == 1 ? 1 : 0}}, 'chat_status')"><span class="iconfont icon-gonggongliaotianshi-fill"
+                                ></span>聊天室</font>
+                                <font class="hy_icon011 custom_s @if($row->is_manager==1) active @endif" onclick="forum_status_toggle({{$row->user_id}}, {{$row->is_manager == 1 ? 1 : 0}}, 'is_manager')"><span class="iconfont"
+                                ></span>管理員權限</font>
 								<font class="hy_icon011 custom_s"  onclick="forum_manage_toggle({{$row->user_id}}, 3)"><span class="iconfont icon-yichuchengyuan1" ></span>移除成員</font>
                                 @endif
 								</div>

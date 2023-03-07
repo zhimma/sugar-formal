@@ -244,7 +244,7 @@
 											@php
 												$show_a = 1;
 											@endphp
-											<a href="/dashboard/forum_manage_chat/{{$post->uid}}/{{$user->id}}">
+											<a href="/dashboard/forum_manage_chat/{{$post->uid}}/{{$user->id}}/{{$post->f_id}}">
 										@elseif(isset($getStatus) && ($getStatus->status==2 || $getStatus->status==3))
 											@php
 												$show_a = 1;
@@ -263,7 +263,7 @@
 											<div class="ta_witx_rig">
 												@if($user->id != 1049 && $post->f_status != 0 && $post->f_warned != 1)
 													@if(isset($getStatus) && $getStatus->status==0)
-														<a href="/dashboard/forum_manage_chat/{{$post->uid}}/{{$user->id}}" class="shenhe_z">審核中</a>
+														<a href="/dashboard/forum_manage_chat/{{$post->uid}}/{{$user->id}}/{{$post->f_id}}" class="shenhe_z">審核中</a>
 													@elseif(isset($getStatus) && ($getStatus->status==2 || $getStatus->status==3))
 														<div class="wtg_z" onclick="forumStatus({{$getStatus->status}})">未通過</div>
 													@elseif($post->uid != $user->id && !isset($getStatus) && $post->f_status==1)
@@ -452,7 +452,7 @@
 			$.post('{{ route('forum_manage_toggle') }}', {
 				uid: uid,
 				auid: auid,
-				fid: fid,
+				fid: forum_id,
 				status: status,
 				_token: '{{ csrf_token() }}'
 			}, function (data) {
@@ -463,7 +463,7 @@
 					if(obj.message=='申請成功'){
 						ccc('已送出申請，管理員將進行審核');
                         $(".n_bllbut_tab_other").on('click', function() {
-							window.location.href = "/dashboard/forum_manage_chat/" + auid + "/" + uid + "";
+							window.location.href = "/dashboard/forum_manage_chat/" + auid + "/" + uid + "/"+forum_id;
 						});
 						// window.location.href = "/dashboard/forum";
 					}else if(obj.message=='申請通過'){

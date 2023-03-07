@@ -29,8 +29,8 @@ class ForumManageChatShow extends Component
             ->join('user_meta', 'users.id','=','user_meta.user_id')
             ->where('forum_manage_chat.forum_id', $this->forum_id)
             ->where(function($query){
-                $query->where([['forum_manage_chat.to_id', $this->to_id], ['forum_manage_chat.from_id', auth()->user()->id]])
-                    ->orWhere([['forum_manage_chat.to_id', auth()->user()->id], ['forum_manage_chat.from_id', $this->to_id]]);
+                $query->where([['forum_manage_chat.to_id', $this->to_id]])
+                    ->orWhere([['forum_manage_chat.from_id', $this->to_id]]);
             })
             ->groupby('forum_manage_chat.id')
             ->orderBy('forum_manage_chat.created_at', 'desc')->paginate(10);

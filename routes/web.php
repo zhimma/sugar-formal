@@ -302,7 +302,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('/dashboard/forum_manage/{fid}', 'PagesController@forum_manage');
         Route::post('/dashboard/forum_manage_toggle', 'PagesController@forum_manage_toggle')->name('forum_manage_toggle');
         Route::post('/dashboard/forum_status_toggle', 'PagesController@forum_status_toggle')->name('forum_status_toggle');
-        Route::get('/dashboard/forum_manage_chat/{auid}/{uid}', 'PagesController@forum_manage_chat');
+        Route::get('/dashboard/forum_manage_chat/{auid}/{uid}/{fm_id}', 'PagesController@forum_manage_chat');
         Route::get('/dashboard/forum_posts/{fid}', 'PagesController@forum_posts');/*投稿功能*/
         Route::get('/dashboard/forum_post_detail/{pid}', 'PagesController@forum_post_detail');
         Route::get('/dashboard/forumPostsEdit/{id}/{editType}', 'PagesController@forumPostsEdit');/*投稿修改功能*/

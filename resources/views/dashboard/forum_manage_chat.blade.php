@@ -129,7 +129,7 @@
 								</style>
 								<script type="text/javascript" src="/posts/js/self.js"></script>
 								<div class="shenqing">
-									@if($user->id ==$checkStatus->apply_user_id && $checkStatus->status==0)
+									@if(($user->id ==$checkStatus->apply_user_id || $forumInfo->forum_manager->where('user_id',$user->id)->count()) && $checkStatus->status==0)
 										<div style=" margin: 0 auto; display: table">
 											<a onclick="forum_manage_toggle({{$checkStatus->user_id}}, 1)" class="dc-button1 dc-anniudh dc-tcbox1-open1 dc_l" style="float: left;">通過</a>
 											<a onclick="forum_manage_toggle({{$checkStatus->user_id}}, 2)" class="dc-button1 dc-anniudh dc-tcbox1-open1 dc_l">不通過</a>
