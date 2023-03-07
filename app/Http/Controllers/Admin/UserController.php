@@ -87,6 +87,7 @@ use App\Services\MessageService;
 use App\Services\RealAuthAdminService;
 use App\Services\ShortMessageService;
 use App\Services\UserService;
+use App\Services\VipLogService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -100,13 +101,14 @@ use Yajra\DataTables\Facades\DataTables;
 
 class UserController extends \App\Http\Controllers\BaseController
 {
-    public function __construct(UserService $userService, AdminService $adminService, RealAuthAdminService $raa_service, MessageService $messageService, FaqUserService $faqUserService)
+    public function __construct(UserService $userService, AdminService $adminService, RealAuthAdminService $raa_service, MessageService $messageService, FaqUserService $faqUserService, VipLogService $logService)
     {
         $this->service = $userService;
         $this->admin = $adminService;
         $this->raa_service = $raa_service->riseByUserService($this->service);
         $this->messageService = $messageService;
         $this->faqUserService = $faqUserService;
+        $this->logService = $logService;
     }
 
     /**
@@ -7809,6 +7811,15 @@ class UserController extends \App\Http\Controllers\BaseController
                     VipLog::addToLog($user_id, 'Upgrade VVIP, system auto cancel VIP pay.', 'XXXXXXXXX', 0, 0);
                     $userVIP = $user->getVipData(true);
                     if($userVIP ?? false) {
+                        logger('Upgrade VVIP, User ' . $user_id . ' VIP orderID '.$userVIP->order_id.' cancellation initiated.');
+                        $vip = Vip::findByIdWithDateDesc($user_id);
+                        $this->logService->cancelLog($vip);
+                        $this->logService->writeLogToDB();
+                        $file = $this->logService->writeLogToFile();
+                        logger('$before_cancelVip: '.$vip->updated_at);
+                        if( strpos(\Storage::disk('local')->get($file[0]), $file[1]) !== false) {
+                            logger('Upgrade VVIP, User ' . $user_id . ' VIP orderID '.$userVIP->order_id.' cancellation finished.');
+                        }
                         $userVIP->removeVIP();
                     }
                 }
