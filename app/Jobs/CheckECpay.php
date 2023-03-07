@@ -60,7 +60,8 @@ class CheckECpay implements ShouldQueue
         }
 
         //先檢查訂單
-        if($this->vipData->business_id == Config::get('ecpay.payment'.$envStr.'.MerchantID') && substr($this->vipData->order_id,0,2) == 'SG') {
+        if( ($this->vipData->business_id == Config::get('ecpay.payment'.$envStr.'.MerchantID') || $this->vipData->business_id == Config::get('funpoint.payment'.$envStr.'.MerchantID'))
+            && substr($this->vipData->order_id,0,2) == 'SG') {
 
             $user = User::findById($this->vipData->member_id);
             if(!$user){
