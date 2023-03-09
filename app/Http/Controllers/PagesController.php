@@ -7496,6 +7496,7 @@ class PagesController extends BaseController
     {
         $user = $this->user;
         $forumInfo = null;
+        $checkStatus = null;
         
         if($auid != $uid ) {
             $forumInfo = Forum::find($fm_id);
