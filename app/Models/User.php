@@ -279,6 +279,16 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasOne(SuspiciousUser::class, 'user_id', 'id')->whereNull('deleted_at');
     }
+    
+    public function suspicious_withTrashed()
+    {
+        return $this->hasMany(SuspiciousUser::class, 'user_id', 'id')->withTrashed();
+    } 
+
+    public function suspicious_withTrashed_orderByDesc()
+    {
+        return $this->suspicious_withTrashed()->orderByDesc('id');
+    }     
 
     //生活照倒序
     public function pic_orderByDecs()
@@ -309,6 +319,11 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasMany(AdminActionLog::class, 'target_id', 'id')->where('act', '查看會員基本資料')->orderByDesc('created_at');
     }
+    
+    public function suspicious_remove_log()
+    {
+        return $this->hasMany(AdminActionLog::class, 'target_id', 'id')->where('act', '刪除可疑名單')->orderByDesc('created_at');
+    }    
 
     /*
     |--------------------------------------------------------------------------
@@ -505,7 +520,7 @@ class User extends Authenticatable implements JWTSubject
 
     public function latest_real_auth_user_modify() 
     {
-        return $this->hasOneThrough(RealAuthUserModify::class,RealAuthUserApply::class,'user_id','apply_id')->orderByDesc('real_auth_user_modify.id')->take(1);
+        return $this->hasOneThrough(RealAuthUserModify::class,RealAuthUserApply::class,'user_id','apply_id')->orderByDesc('real_auth_user_modify.id')->latest();
     }     
     
     public function real_auth_user_modify_max_created_at() 
@@ -521,6 +536,11 @@ class User extends Authenticatable implements JWTSubject
     public function order()
     {
         return $this->hasMany(Order::class,'user_id','id');
+    }
+    
+    public function forum_manage()
+    {
+        return $this->hasMany(ForumManage::class,'user_id','id');
     }
 
     /**

@@ -1210,15 +1210,133 @@
                                                                 ->get();
     @endphp
     <tr>
-        <th width="33%">時間</th>
-        <th width="33%">紀錄</th>
-        <th width="33%">紀錄者</th>
+        <th width="16%">時間</th>
+        <th width="16%">紀錄</th>
+        <th width="16%">紀錄者</th>
+        <th width="16%">回到可疑列表時間</th>
+        <th width="16%">移除可疑列表時間</th>
+        <th>可疑列表查看紀錄</th>
     </tr>
-    @foreach($wait_for_more_data_record_list as $wait_for_more_data_record)
+    @foreach($wait_for_more_data_record_list as $key=> $wait_for_more_data_record)
         <tr>
             <td>{{$wait_for_more_data_record->created_at}}</th>
             <td>{{$wait_for_more_data_record->act}}</th>
-            <td>{{$wait_for_more_data_record->operator_user->name}}</th>
+            <td>{{strstr($wait_for_more_data_record->operator_user->email, '@', true)}}</th>
+            @if(!$key)
+            <td rowspan="{{$wait_for_more_data_record_list->count()}}">
+            @if(!$user->suspicious_withTrashed_orderByDesc->count())
+                無
+            @else
+                @foreach($user->suspicious_withTrashed_orderByDesc as $key => $suspicious)
+                @php                     
+                    $cursus_advInfo_check_log = $user->advInfo_check_log->where('created_at','>',$suspicious->created_at)->where('created_at','<',$suspicious->deleted_at??'9999-12-31');
+                    $allsus_advInfo_check_log = ($allsus_advInfo_check_log??collect([]))->merge($cursus_advInfo_check_log);
+                    $cursus_advInfo_check_log_count = $user->advInfo_check_log->where('created_at','>',$suspicious->created_at)->where('created_at','<',$suspicious->deleted_at??'9999-12-31')->count(); 
+                    $old_total_advInfo_check_log_count = ($total_advInfo_check_log_count??0);
+                    $total_advInfo_check_log_count = ($total_advInfo_check_log_count??0) +  $cursus_advInfo_check_log_count;
+                    $is_cur_start_over_3 = ($old_total_advInfo_check_log_count<3 && $total_advInfo_check_log_count>=3);
+                    $is_cur_after_over_3 = ($old_total_advInfo_check_log_count>3 && $total_advInfo_check_log_count>3);
+                @endphp
+                <div class="suspicious_ctime {{$is_cur_start_over_3?'start_over_3':null}}"  
+                    style="white-space:nowrap;
+                        {{$key>2 || $is_cur_after_over_3?'display:none;':null}};
+                        height:{{$is_cur_start_over_3?14:$cursus_advInfo_check_log_count*5-1}}em;
+                        min-height:4.72em;"
+                        {{$is_cur_start_over_3?'data-expand_height='.($cursus_advInfo_check_log_count*5-1).'em':null}}  
+                        >
+                    <hr>{{$suspicious->created_at}}
+                </div>
+                @endforeach
+                @if($key > 2 || ($total_advInfo_check_log_count>3 && $key>0))
+                <a class="look_more_suspicious_ctime">. . .</a>
+                <script>
+                    $('.look_more_suspicious_ctime').on('click', function(){
+                        $(this).text('');
+                        $(this).parent('td').children('.suspicious_ctime').show();
+                        let start_over_3_elt = $(this).parent('td').find('.start_over_3');
+                        start_over_3_elt.css('height',start_over_3_elt.data('expand_height'));
+                    });
+                </script>
+                @endif
+            @endif
+            </td>
+            <td rowspan="{{$wait_for_more_data_record_list->count()}}">
+            @if(!$user->suspicious_withTrashed_orderByDesc->count())
+                無
+            @else
+                @foreach($user->suspicious_withTrashed_orderByDesc as $key => $suspicious)
+                @php 
+                    if(!$key) {$old_total_advInfo_check_log_count=$total_advInfo_check_log_count=$is_cur_start_over_3=$is_cur_after_over_3=0;}
+                    $cursus_advInfo_check_log = $user->advInfo_check_log->where('created_at','>',$suspicious->created_at)->where('created_at','<',$suspicious->deleted_at??'9999-12-31');
+                    $cursus_advInfo_check_log_count = $user->advInfo_check_log->where('created_at','>',$suspicious->created_at)->where('created_at','<',$suspicious->deleted_at??'9999-12-31')->count(); 
+                    $old_total_advInfo_check_log_count = ($total_advInfo_check_log_count??0);
+                    $total_advInfo_check_log_count = ($total_advInfo_check_log_count??0) +  $cursus_advInfo_check_log_count;
+                    $is_cur_start_over_3 = ($old_total_advInfo_check_log_count<3 && $total_advInfo_check_log_count>=3);
+                    $is_cur_after_over_3 = ($old_total_advInfo_check_log_count>3 && $total_advInfo_check_log_count>3);
+                @endphp                    
+                <div  class="suspicious_dtime  {{$is_cur_start_over_3?'start_over_3':null}}" 
+                    style="{{$key>2 || $is_cur_after_over_3?'display:none;':null}}
+                            height:{{$is_cur_start_over_3?14:$cursus_advInfo_check_log_count*5-1}}em;
+                            min-height:4.72em;
+                            "
+                    {{$is_cur_start_over_3?'data-expand_height='.($cursus_advInfo_check_log_count*5-1).'em':null}}  
+                ><hr>
+                    <div style="white-space:nowrap;">
+                    {{$suspicious->deleted_at?$suspicious->deleted_at:'無'}}
+                    </div>
+                    @if($suspicious->deleted_at)
+                    <div style="white-space:nowrap;">
+                        @if($user->suspicious_remove_log()->where('created_at',$suspicious->deleted_at)->count())
+                        {{strstr($user->suspicious_remove_log()->where('created_at',$suspicious->deleted_at)->first()->operator_user->email, '@', true)}}
+                        @else
+                        無紀錄
+                        @endif
+                    </div>
+                    @endif
+                </div>
+                @endforeach
+                @if($key > 2 || ($total_advInfo_check_log_count>3 && $key>0))
+                <a class="look_more_suspicious_dtime">. . .</a>
+                <script>
+                    $('.look_more_suspicious_dtime').on('click', function(){
+                        $(this).text('');
+                        $(this).parent('td').children('.suspicious_dtime').show();
+                        let start_over_3_elt = $(this).parent('td').find('.start_over_3');
+                        start_over_3_elt.css('height',start_over_3_elt.data('expand_height'));
+                    });
+                </script>
+                @endif
+            @endif
+            </td>
+            <td rowspan="{{$wait_for_more_data_record_list->count()}}">
+            @if(!$user->suspicious_withTrashed_orderByDesc->count() || !$allsus_advInfo_check_log->count())
+                無
+            @else
+                @foreach($allsus_advInfo_check_log as $key => $log)
+                    @if($key < 3)
+                        <div class="log_line"><hr>
+                            <div style="white-space:nowrap;">{{$log->created_at}}</div> 
+                            <div style="white-space:nowrap;">{{strstr($log->operator_user->email, '@', true)}}</div>
+                        </div>
+                    @else
+                        <div class="log_line" style="display:none"><hr>
+                            <div style="white-space:nowrap;">{{$log->created_at}}</div>
+                            <div style="white-space:nowrap;">{{strstr($log->operator_user->email, '@', true)}}</div>
+                        </div>
+                    @endif
+                @endforeach
+                @if($allsus_advInfo_check_log->count() > 3)
+                    <a class="look_more_log">. . .</a>
+                    <script>
+                    $('.look_more_log').on('click', function(){
+                        $(this).text('');
+                        $(this).parent('td').children('.log_line').show();
+                    });
+                    </script>    
+                @endif 
+            @endif
+            </td>
+            @endif
         </tr>
     @endforeach
 <table>
