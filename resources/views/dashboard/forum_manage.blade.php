@@ -87,6 +87,7 @@
 
             div.hy_icobutton {padding-top:0;}
             div.hy_icobutton font.hy_icon011 {margin-top:10px;}
+            a.hy_icon022.custom_s {margin-top:10px;}
         </style>
 @endsection
 		@section('app-content')
