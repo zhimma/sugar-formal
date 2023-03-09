@@ -310,7 +310,7 @@ class Kernel extends ConsoleKernel
                     $string = $string."Condition 2(log, New):\n";
                     $log_str = $log_str."Condition 2(log, New):\n";
                     //檢查是否已獲得權限
-                    if (isset($user) && !$user->isVip()) {
+                    if (isset($user) && !$user->isVip() && !$user->isVVIP()) {
                         //若沒獲得權限，補權限
                         $tmp = \App\Models\Vip::upgrade($user->id, $line[0], $line[2], $line[5], 'auto completion', 1, 0);
                         //$string = $string.'Condition 2(New): ';
@@ -375,7 +375,7 @@ class Kernel extends ConsoleKernel
                 else {
                     $string = $string."Condition 4(file, New):\n";
                     //檢查是否已獲得權限
-                    if (isset($user) && !$user->isVip()) {
+                    if (isset($user) && !$user->isVip() && !$user->isVVIP()) {
                         //若沒獲得權限，補權限
                         $tmp = \App\Models\Vip::upgrade($user->id, $line[0], $line[2], $line[5], 'auto completion', 1, 0);
                         //$string = $string.'Condition 4(New): ';

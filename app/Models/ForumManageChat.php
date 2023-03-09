@@ -34,4 +34,31 @@ class ForumManageChat extends Model
             ->orderBy('created_at', 'desc');
 
     }
+    
+    public function from_user()
+    {
+        return $this->belongsTo(User::class, 'from_id', 'id');
+    }    
+    /*
+    public function from_forum_manage()
+    {
+        //return $this->belongsTo(ForumManage::class, 'from_id', 'user_id')->where('forum_id',$this->forum_id);
+        //return $this->hasOneThrough(ForumManage::class,Forum::class,'id','forum_id','forum_id','id')->where('user_id=forum_manage_chat.from_id');        
+    }
+    
+    public function from_forum_manager()
+    {
+        return $this->from_forum_manage()->where('is_manager',1);
+    }    
+    
+    public function to_forum_manage()
+    {
+        return $this->belongsTo(ForumManage::class, 'to_id', 'user_id');
+    } 
+
+    public function to_forum_manager()
+    {
+        return $this->to_forum_manage()->where('is_manager',1);
+    } 
+     */   
 }

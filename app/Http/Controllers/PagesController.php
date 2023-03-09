@@ -7302,9 +7302,25 @@ class PagesController extends BaseController
         $user = $request->user();
         $uid = $request->uid;
         $auid = $request->auid;
+        $forum_id = $request->fid;
         $status = $request->status;
-        $fid = Forum::where('user_id', $auid)->first();
-        $checkData = ForumManage::where('forum_id', $fid->id)->where('user_id', $uid)->where('apply_user_id', $auid)->first();
+        $is_manager = false;
+        
+        if($forum_id){
+            $fid = Forum::find($forum_id);
+        }
+        if(!$forum_id || !$fid) {
+            echo json_encode(['message'=>'錯誤! 無此討論區']);
+            exit;
+        }
+        
+        if( $auid==$fid->user_id ||   $fid->forum_manager->where('user_id',$user->id)->count()) {
+            $is_manager = true;
+        }  
+
+        if(!$is_manager && $uid!=$user->id) return;
+        //$checkData = ForumManage::where('forum_id', $fid->id)->where('user_id', $uid)->where('apply_user_id', $auid)->first();
+        $checkData = ForumManage::where('forum_id', $fid->id)->where('user_id', $uid)->first();
         if($status==0){
             if(!isset($checkData)){
 //                ForumManage::insert(['forum_id'=>$fid->id, 'user_id' => $uid, 'apply_user_id' => $auid, 'status'=> 1, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()]);
@@ -7321,9 +7337,9 @@ class PagesController extends BaseController
                 $msg = '已重複申請';
             }
 
-        }else if($status==1){
+        }else if($status==1 && $is_manager){
             if(isset($checkData)){
-                ForumManage::where('user_id', $uid)->where('forum_id', $fid->id)->update(['status' => $status, 'forum_status' => 1, 'chat_status' => 1,'updated_at' => Carbon::now()]);
+                ForumManage::where('user_id', $uid)->where('forum_id', $fid->id)->update(['status' => $status, 'forum_status' => 1, 'chat_status' => 1,'updated_at' => Carbon::now(),'apply_user_id'=>$auid]);
                 $msg = '該會員已通過';
             }else{
                 ForumManage::insert([
@@ -7342,18 +7358,18 @@ class PagesController extends BaseController
 //                $msg = 'error';
 //            }
 
-        }else if ($status == 2) {
+        }else if ($status == 2 && $is_manager) {
             if (isset($checkData)) {
-                ForumManage::where('user_id', $uid)->where('forum_id', $fid->id)->update(['status' => $status, 'updated_at' => Carbon::now()]);
+                ForumManage::where('user_id', $uid)->where('forum_id', $fid->id)->update(['status' => $status, 'updated_at' => Carbon::now(),'apply_user_id'=>$auid]);
                 $msg = '已拒絕該會員申請';
             } else {
                 $msg = 'error';
             }
 
-        } else if ($status == 3) {
+        } else if ($status == 3 && $is_manager) {
             if (isset($checkData)) {
                 //                ForumManage::where('user_id', $uid)->where('forum_id', $fid->id)->delete();
-                ForumManage::where('user_id', $uid)->where('forum_id', $fid->id)->update(['status' => $status, 'updated_at' => Carbon::now()]);
+                ForumManage::where('user_id', $uid)->where('forum_id', $fid->id)->update(['status' => $status, 'updated_at' => Carbon::now(),'apply_user_id'=>$auid]);
                 if ($auid = $user->id) {
                     $msg = '已移除該會員';
                 } else {
@@ -7365,7 +7381,7 @@ class PagesController extends BaseController
         } else if ($status == 4) {
             if (isset($checkData)) {
                 //                ForumManage::where('user_id', $uid)->where('forum_id', $fid->id)->delete();
-                ForumManage::where('user_id', $uid)->where('forum_id', $fid->id)->update(['status' => $status]);
+                ForumManage::where('user_id', $uid)->where('forum_id', $fid->id)->update(['status' => $status,'apply_user_id'=>$auid]);
                 ForumManage::where('user_id', $uid)->where('forum_id', $fid->id)->delete();
                 if ($auid = $user->id) {
                     $msg = '已取消申請';
@@ -7476,20 +7492,22 @@ class PagesController extends BaseController
         echo json_encode($return_data);
     }
 
-    public function forum_manage_chat($auid, $uid)
+    public function forum_manage_chat($auid, $uid,$fm_id)
     {
         $user = $this->user;
+        $forumInfo = null;
+        $checkStatus = null;
+        
+        if($auid != $uid ) {
+            $forumInfo = Forum::find($fm_id);
 
-        if($auid != $uid) {
-
-            $forumInfo = Forum::select('forum.*')
-                ->leftJoin('users', 'users.id','=','forum.user_id')
-                ->where('forum.user_id', $auid)->first();
-
+            if(!$forumInfo) {
+                return redirect()->route('forum')->with('message', '無法進入! 討論區不存在');
+            }
+            
             $checkStatus = ForumManage::select('forum_manage.status','users.name', 'forum_manage.user_id', 'forum_manage.apply_user_id')
                 ->leftJoin('users', 'users.id','=','forum_manage.apply_user_id')
                 ->where('forum_manage.user_id', $uid)
-                ->where('forum_manage.apply_user_id', $auid)
                 ->where('forum_manage.status','<>', 2)
                 ->where('forum_manage.forum_id', $forumInfo->id)
                 ->get()->first();

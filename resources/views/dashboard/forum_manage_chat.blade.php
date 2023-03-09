@@ -44,6 +44,26 @@
 		/*input[type="file"] {*/
 			/*display: none;*/
 		/*}*/
+        
+        .nickname{
+            display: block;
+            position: absolute;
+            top: -10px;
+            color: white;
+            border-radius: 10px;
+            border: 1px #fe92a8;
+            background-color: #ffcbcb;
+            padding-left: 5px;
+            padding-right: 5px;
+            left: 5px;
+            font-size: 10px;
+            white-space:nowrap;
+        } 
+
+        .nickname.right {
+             left: unset; 
+             right: 10px;
+        }
 	</style>
 @endsection
 
@@ -104,10 +124,19 @@
 						@php
 
 							$forum_id = $forumInfo->id;
-
+                            $forum_owner_id = $forumInfo->user_id;
+                            $applicant_id = $checkStatus->user_id;
+                            /*
                            if($user->id ==$checkStatus->apply_user_id){
                                $to_id = $checkStatus->user_id;
                            }elseif($user->id != $checkStatus->apply_user_id){
+                               $to_id = $checkStatus->apply_user_id;
+                           }
+                                */
+                           if($user->id!=$checkStatus->user_id) {
+                               $to_id = $checkStatus->user_id;
+                           }
+                           else {
                                $to_id = $checkStatus->apply_user_id;
                            }
 
@@ -116,7 +145,7 @@
 						<div class="taol_tab01" >
 							<div class="tao_qu" style="overflow: unset;">
 								<div style="overflow: auto; position: relative; max-height: 550px;">
-									<livewire:forum-manage-chat-show :forum_id="$forum_id" :to_id="$to_id" :user="$user"/>
+									<livewire:forum-manage-chat-show :forum_id="$forum_id" :to_id="$to_id" :user="$user" :applicant_id="$applicant_id" :forum_owner_id="$forum_owner_id" />
 								</div>
 
 								<style>
@@ -129,7 +158,7 @@
 								</style>
 								<script type="text/javascript" src="/posts/js/self.js"></script>
 								<div class="shenqing">
-									@if($user->id ==$checkStatus->apply_user_id && $checkStatus->status==0)
+									@if(($user->id ==$checkStatus->apply_user_id || $forumInfo->forum_manager->where('user_id',$user->id)->count()) && $checkStatus->status==0)
 										<div style=" margin: 0 auto; display: table">
 											<a onclick="forum_manage_toggle({{$checkStatus->user_id}}, 1)" class="dc-button1 dc-anniudh dc-tcbox1-open1 dc_l" style="float: left;">通過</a>
 											<a onclick="forum_manage_toggle({{$checkStatus->user_id}}, 2)" class="dc-button1 dc-anniudh dc-tcbox1-open1 dc_l">不通過</a>
