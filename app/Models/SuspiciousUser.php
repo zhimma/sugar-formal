@@ -67,6 +67,11 @@ class SuspiciousUser extends Model
         //操作紀錄
         AdminActionLog::insert_log($operator->id, $ip, $user_id, '刪除可疑名單', 29);
     }
+    
+    public function admin_user()
+    {
+        return $this->belongsTo(User::class, 'admin_id', 'id');
+    }     
 
 
 
