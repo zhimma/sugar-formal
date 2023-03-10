@@ -112,9 +112,6 @@
 						</a>
 						<div class="fabiao showslide" style="text-align: center;">
 							<a onclick="checkUserVip();">我要發表</a>
-							@if($forum->user_id == $user->id)
-								<a href="/dashboard/forum_manage/{{$forum->id}}">會員管理</a>
-							@endif
 							<a onclick="forumEdit('{{ $forum->user_id }}');" style="margin-top:2px;line-height: 18px;">編輯討論區主旨</a>
 							<a onclick="orderStatus();">⇅待審核</a>
 						</div>
