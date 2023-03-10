@@ -11,6 +11,11 @@ class Forum extends Model
 
     protected $table = 'forum';
 
+    public $fillable = [
+        'title',
+        'sub_title',
+    ];
+
     public function posts_of_forum()
     {
         return $this->hasMany(ForumPosts::class, 'forum_id', 'id');

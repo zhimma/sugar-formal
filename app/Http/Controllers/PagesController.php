@@ -7081,8 +7081,8 @@ class PagesController extends BaseController
 
         if($request->get('action') == 'update'){
             Forum::find($request->get('forum_id'))->update(['title'=>$request->get('title'),'sub_title'=>$request->get('sub_title')]);
-            return redirect('/dashboard/forum')->with('message','修改成功');
-
+            $tab=$request->show_tab ? '?show_tab='.$request->show_tab : '';
+            return redirect('/dashboard/forum_personal/'.$request->get('forum_id').$tab)->with('message','修改成功');
         }else{
             $postsForum = new Forum();
             $postsForum->user_id = $user->id;
