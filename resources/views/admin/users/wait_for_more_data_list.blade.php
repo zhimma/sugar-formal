@@ -14,8 +14,8 @@
             <tbody>
             @foreach($check_extend_list as $check_extend_data)
                 <tr>
-                    <td>{{  $check_extend_data->user?->email ?? "會員資料已刪除" }}</td>
-                    <td>{{  $check_extend_data->user?->name ?? "會員資料已刪除 }}</td>
+                    <td>{{ $check_extend_data->user?->email ?? "會員資料已刪除" }}</td>
+                    <td>{{ $check_extend_data->user?->name ?? "會員資料已刪除" }}</td>
                     @if($check_extend_data->check_extend_admin_action_log->first() ?? false)
                         <td>{{$check_extend_data->check_extend_admin_action_log->first()->created_at}}</td>
                         <td>{{$check_extend_data->check_extend_admin_action_log->first()->operator_user->email}}</td>
