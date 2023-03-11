@@ -2,13 +2,12 @@
 
 namespace App\Services;
 
-use App\Repositories\EvaluationRepository;
-use App\Repositories\AnonymousEvaluationChatRepository;
-use App\Repositories\AnonymousEvaluationChatReportRepository;
-use App\Repositories\AnonymousEvaluationMessageRepository;
-use Illuminate\Support\Facades\Crypt;
 use App\Models\UserMeta;
-use App\Services\UserService;
+use App\Repositories\AnonymousEvaluationChatReportRepository;
+use App\Repositories\AnonymousEvaluationChatRepository;
+use App\Repositories\AnonymousEvaluationMessageRepository;
+use App\Repositories\EvaluationRepository;
+use Illuminate\Support\Facades\Crypt;
 
 class EvaluationService
 {
@@ -28,7 +27,8 @@ class EvaluationService
         $chats = $this->anonymousEvaluationChat->getActiveChats($data['user_id']);
 
         foreach($chats as $k => $v){
-            if($v->messages()->count()==0) continue;
+            if ($v->messages()->count() == 0) continue;
+            if (!$v->evaluation()->first()) continue;
             $is_anonymous = $v->evaluation()->first()->from_id!=$data['user_id'];
             $to_id =  $v->evaluation()->first()->to_id;
             $user_meta = UserMeta::where('user_id', $to_id)->first();
