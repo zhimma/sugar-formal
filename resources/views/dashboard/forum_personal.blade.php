@@ -87,6 +87,7 @@
 							<div class="fabiao showslide" style="text-align: center;">
 								<a onclick="checkUserVip();">我要發表</a>
 								<a href="/dashboard/forum_manage/{{$forum->id}}">會員管理</a>
+								<a onclick="forumEdit('{{ $forum->user_id }}');" style="margin-top:2px;line-height: 18px;">編輯討論區主旨</a>
 							</div>
 						@else
 							<a onclick="checkUserVip();" class="aid_but"><img style="margin-left: 10px;" src="/posts/images/tg_03.png">我要發表</a>
@@ -296,6 +297,19 @@
 
 
 	})
+
+	var showTab='{{Request()->get('show_tab')}}';
+	if(showTab=='sh1'){
+		$('.lis_sq04').click();
+	}
+
+	function forumEdit(forum_user_id){
+		var tab='';
+		if($('.sh1').css('display')!=='none'){
+			tab='?show_tab=sh1';
+		}
+		window.location = '/dashboard/ForumEdit/'+forum_user_id +tab;
+	}
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js"></script>
 @stack('scripts')

@@ -1210,12 +1210,14 @@
                                                                 ->get();
     @endphp
     <tr>
-        <th width="16%">時間</th>
-        <th width="16%">紀錄</th>
-        <th width="16%">紀錄者</th>
-        <th width="16%">回到可疑列表時間</th>
-        <th width="16%">移除可疑列表時間</th>
+        <th width="20%">時間</th>
+        <th width="20%">紀錄</th>
+        <th width="20%">紀錄者</th>
+        <th width="20%">回到可疑列表時間</th>
+        <th width="20%">移除可疑列表時間</th>
+        {{--
         <th>可疑列表查看紀錄</th>
+        --}}
     </tr>
     @foreach($wait_for_more_data_record_list as $key=> $wait_for_more_data_record)
         <tr>
@@ -1239,22 +1241,46 @@
                 @endphp
                 <div class="suspicious_ctime {{$is_cur_start_over_3?'start_over_3':null}}"  
                     style="white-space:nowrap;
-                        {{$key>2 || $is_cur_after_over_3?'display:none;':null}};
-                        height:{{$is_cur_start_over_3?14:$cursus_advInfo_check_log_count*5-1}}em;
-                        min-height:4.72em;"
-                        {{$is_cur_start_over_3?'data-expand_height='.($cursus_advInfo_check_log_count*5-1).'em':null}}  
+                        {{$key>2?'display:none;':null}};
+                        min-height:{{$cursus_advInfo_check_log->count()?4.72:5.72}}em; "
                         >
-                    <hr>{{$suspicious->created_at}}
-                </div>
+                    <hr>
+                    @if($cursus_advInfo_check_log->count())
+                    <div class="btn_showAdvInfoCheckLog_block">
+                        <span class="btn_showAdvInfoCheckLog btn btn-primary" >+</span>
+                    </div>
+                    @endif
+                    <div style="display:inline-block;">
+                        <div>{{$suspicious->created_at}}</div>
+                        <div style="white-space:nowrap;">
+                            @if($suspicious->admin_user)
+                            {{strstr($suspicious->admin_user->email, '@', true)}}
+                            @elseif($suspicious->admin_id==0 && str_contains($suspicious->reason,'(系統自動新增)'))
+                            系統自動新增
+                            @else
+                            無紀錄
+                            @endif
+                        </div> 
+                        <div class="{{$cursus_advInfo_check_log->count()?'show_cursus_advInfo_check_log':null}}">
+                            <h6>{{$cursus_advInfo_check_log->count()?null:'無'}}可疑列表查看紀錄</h6>
+                            <div>
+                                @foreach($cursus_advInfo_check_log as $log)
+                                <div class="log_line"><hr>
+                                    <div style="white-space:nowrap;">{{$log->created_at}}</div> 
+                                    <div style="white-space:nowrap;">{{strstr($log->operator_user->email, '@', true)}}</div>
+                                </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+                </div>                
                 @endforeach
-                @if($key > 2 || ($total_advInfo_check_log_count>3 && $key>0))
+                @if($key > 2)
                 <a class="look_more_suspicious_ctime">. . .</a>
                 <script>
                     $('.look_more_suspicious_ctime').on('click', function(){
                         $(this).text('');
                         $(this).parent('td').children('.suspicious_ctime').show();
-                        let start_over_3_elt = $(this).parent('td').find('.start_over_3');
-                        start_over_3_elt.css('height',start_over_3_elt.data('expand_height'));
                     });
                 </script>
                 @endif
@@ -1275,11 +1301,8 @@
                     $is_cur_after_over_3 = ($old_total_advInfo_check_log_count>3 && $total_advInfo_check_log_count>3);
                 @endphp                    
                 <div  class="suspicious_dtime  {{$is_cur_start_over_3?'start_over_3':null}}" 
-                    style="{{$key>2 || $is_cur_after_over_3?'display:none;':null}}
-                            height:{{$is_cur_start_over_3?14:$cursus_advInfo_check_log_count*5-1}}em;
-                            min-height:4.72em;
-                            "
-                    {{$is_cur_start_over_3?'data-expand_height='.($cursus_advInfo_check_log_count*5-1).'em':null}}  
+                    style="{{$key>2 ?'display:none;':null}}
+                            min-height:{{$cursus_advInfo_check_log->count()?4.72:5.72}}em; "
                 ><hr>
                     <div style="white-space:nowrap;">
                     {{$suspicious->deleted_at?$suspicious->deleted_at:'無'}}
@@ -1295,19 +1318,18 @@
                     @endif
                 </div>
                 @endforeach
-                @if($key > 2 || ($total_advInfo_check_log_count>3 && $key>0))
+                @if($key > 2 )
                 <a class="look_more_suspicious_dtime">. . .</a>
                 <script>
                     $('.look_more_suspicious_dtime').on('click', function(){
                         $(this).text('');
                         $(this).parent('td').children('.suspicious_dtime').show();
-                        let start_over_3_elt = $(this).parent('td').find('.start_over_3');
-                        start_over_3_elt.css('height',start_over_3_elt.data('expand_height'));
                     });
                 </script>
                 @endif
             @endif
             </td>
+            {{--
             <td rowspan="{{$wait_for_more_data_record_list->count()}}">
             @if(!$user->suspicious_withTrashed_orderByDesc->count() || !$allsus_advInfo_check_log->count())
                 無
@@ -1336,11 +1358,43 @@
                 @endif 
             @endif
             </td>
+            --}}
             @endif
         </tr>
     @endforeach
 <table>
-
+<style>
+    .show_cursus_advInfo_check_log {display:none;margin-top:1.2em;margin-left:1.8em;}
+    .btn_showAdvInfoCheckLog_block {display:inline-block;vertical-align:top;}
+    .show_cursus_advInfo_check_log h6 {margin:0;}
+    .show_cursus_advInfo_check_log .log_line hr:first-child {margin-top:0.7em;margin-bottom:0.7em;}
+    .suspicious_ctime div,.suspicious_ctime h6,.suspicious_dtime div,.suspicious_dtime h6 {white-space:nowrap;}
+</style>
+<script>
+    $('.btn_showAdvInfoCheckLog').click(function(){
+        let now_elt = $(this);
+        let now_suspicious_ctime_elt = now_elt.closest('.suspicious_ctime');
+        let now_cell_elt = now_suspicious_ctime_elt.closest('td');
+        let now_suspicious_ctime_index = now_cell_elt.find('.suspicious_ctime').index( now_suspicious_ctime_elt );
+        let show_cursus_advInfo_check_log_elt = now_suspicious_ctime_elt.find('.show_cursus_advInfo_check_log');
+        let now_relative_dtime_elt = now_cell_elt.next().find('.suspicious_dtime').eq(now_suspicious_ctime_index);
+        switch(now_elt.html()) {
+            case '+':
+                show_cursus_advInfo_check_log_elt.show();
+                now_elt.html('-');
+                now_relative_dtime_elt.css('height',now_suspicious_ctime_elt.height()); 
+                console.log('+now_suspicious_ctime_elt.height()='+now_suspicious_ctime_elt.height());
+            break;
+            case '-':
+                now_elt.html('+');
+                show_cursus_advInfo_check_log_elt.hide();
+                now_relative_dtime_elt.css('height',now_suspicious_ctime_elt.height());
+                console.log('-now_suspicious_ctime_elt.height()='+now_suspicious_ctime_elt.height());
+            break;
+        }
+        
+    });
+</script>
 <br>
 
     <h4>封鎖與警示紀錄</h4>
