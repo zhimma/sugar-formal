@@ -419,6 +419,11 @@
         .ly_time{float: right; color: #999999;}
         .liu_text_2{margin-bottom: unset;}
     </style>
+    <style>
+        .popover{
+            padding: unset !important;
+        }
+    </style>
     @if($user->engroup==2)
     <style>
         li .he_tkcn ul {width:100% !important;}
@@ -1336,7 +1341,7 @@
                                                                 @if($looking_for_relationships->first()->xref_id ?? false)
                                                                     @foreach($looking_for_relationships as $option)
                                                                         @if($option->xref_id ?? false)
-                                                                            <div class="ka_tico_1"><i>{{$option->option_name}}</i></div>
+                                                                            <div class="ka_tico_1 show_option_content" data-toggle="popover" data-content="{{ $option->option_content }}"><i>{{$option->option_name}}</i></div>
                                                                         @endif
                                                                     @endforeach
                                                                 @else
@@ -1413,7 +1418,7 @@
                                                                 @if($expected_type->first()->xref_id ?? false)
                                                                     @foreach($expected_type as $option)
                                                                         @if($option->xref_id ?? false)
-                                                                            <div class="ka_tico_1"><i>{{$option->option_name}}</i></div>
+                                                                            <div class="ka_tico_1 show_option_content" data-toggle="popover" data-content="{{ $option->option_content }}"><i>{{$option->option_name}}</i></div>
                                                                         @endif
                                                                     @endforeach
                                                                 @else
