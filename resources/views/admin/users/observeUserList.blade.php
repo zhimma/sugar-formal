@@ -145,7 +145,7 @@
             </tr>
         @endforelse
     </table>
-    {{ $observeUserList->links() }}
+    {!! $observeUserList->appends(request()->input())->links('pagination::sg-pages') !!}
     </body>
     <script>
         let date = new Date();
