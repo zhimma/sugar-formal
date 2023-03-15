@@ -1346,7 +1346,7 @@
     @elseif(Session::has('message'))
         @if (is_array(Session::get('message')))
             {{-- 針對 \App\Services\RealAuthPageService::getSelfAuthApplyMsgBeforeVideo() 的文字有時會被陣列包起來造成的問題所做的修補 --}}
-            c5('{{ implode("", Session::get('message') }}');
+            c5('{{ implode("", Session::get('message')) }}');
         @else
             c5('{{Session::get('message')}}');
         @endif
