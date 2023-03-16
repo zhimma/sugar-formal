@@ -322,7 +322,7 @@
         $observe_user=\App\Models\ObserveUser::where('user_id', $user->id)->first();
     @endphp
     @if($observe_user)
-        <button class="btn btn-secondary" style="cursor: default;background-color:#C0C0C0;border-color: #C0C0C0;opacity: .65;">已加觀察</button>
+        <button id="show_observe_reason" reason="{{$observe_user->reason}}"  class="btn btn-secondary" style="cursor: default;background-color:#C0C0C0;border-color: #C0C0C0;opacity: .65;">已加觀察</button>
     @else
         <button id="observe_user_btn" class="btn btn-primary">觀察名單</button>
     @endif
@@ -3819,6 +3819,16 @@ $('.btn_show_more_admin_log').click(function(){
         now_elt.text('+');
 
     }
-});  
+});
+@if($observe_user)
+    $('#show_observe_reason').popover({
+        animated: 'fade',
+        placement: 'top',
+        trigger: 'hover',
+        sanitize: false,
+        html: true,
+        content: function () { return $('#show_observe_reason').attr('reason'); }
+    });
+@endif
 </script>
 </html>
