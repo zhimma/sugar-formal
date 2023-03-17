@@ -8512,7 +8512,7 @@ class UserController extends \App\Http\Controllers\BaseController
         if (!empty($request->get('date_end'))) {
             $observeUserList->where('observe_user.created_at', '<=', $request->get('date_end')." 23:59:59");
         }
-        $observeUserList=$observeUserList->paginate();
+        $observeUserList=$observeUserList->paginate(50);
 
         return view('admin.users.observeUserList', compact('observeUserList'));
     }
