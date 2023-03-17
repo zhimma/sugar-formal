@@ -61,6 +61,7 @@ use App\Models\StayOnlineRecord;
 use App\Models\StayOnlineRecordPageName;
 use App\Models\SuspiciousUser;
 use App\Models\Tip;
+use App\Models\TrackUser;
 use App\Models\User;
 use App\Models\UserMeta;
 use App\Models\UserRecord;
@@ -8497,7 +8498,7 @@ class UserController extends \App\Http\Controllers\BaseController
     }
 
     public function observe_user_list(Request $request){
-        $observeUserList=ObserveUser::selectRaw('observe_user.*, users.name as user_name, users.email as user_email')
+        $observeUserList=ObserveUser::selectRaw('observe_user.*, users.name as user_name, users.email as user_email, users.advance_auth_time as advance_auth_time')
             ->leftJoin('users', 'users.id', 'observe_user.user_id')
             ->orderBy('observe_user.created_at','desc');
         if (!empty($request->get('account'))) {
@@ -8515,6 +8516,36 @@ class UserController extends \App\Http\Controllers\BaseController
         $observeUserList=$observeUserList->paginate(50);
 
         return view('admin.users.observeUserList', compact('observeUserList'));
+    }
+
+    public function track_user(Request $request){
+        TrackUser::updateOrCreate(['user_id'=>$request->user_id], ['reason'=>$request->reason, 'admin_id'=>auth()->user()->id]);
+        return back()->with('message', '已列入列管追蹤名單');
+    }
+    public function track_user_remove(Request $request){
+        TrackUser::where('user_id', $request->user_id)->delete();
+        return back()->with('message', '該帳號已移除列管追蹤名單');
+    }
+
+    public function track_user_list(Request $request){
+        $trackUserList=TrackUser::selectRaw('track_user.*, users.name as user_name, users.email as user_email')
+            ->leftJoin('users', 'users.id', 'track_user.user_id')
+            ->orderBy('track_user.created_at','desc');
+        if (!empty($request->get('account'))) {
+            $trackUserList->where('users.email', '=', $request->get('account'));
+        }
+        if (!empty($request->get('reason'))) {
+            $trackUserList->where('track_user.reason', 'like', '%' . $request->get('reason') . '%');
+        }
+        if (!empty($request->get('date_start'))) {
+            $trackUserList->where('track_user.created_at', '>=', $request->get('date_start'));
+        }
+        if (!empty($request->get('date_end'))) {
+            $trackUserList->where('track_user.created_at', '<=', $request->get('date_end')." 23:59:59");
+        }
+        $trackUserList=$trackUserList->paginate(50);
+
+        return view('admin.users.trackUserList', compact('trackUserList'));
     }
 
 }
