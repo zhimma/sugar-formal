@@ -59,7 +59,8 @@
         <tr>
             <td width="15%">會員帳號</td>
             <td width="15%">暱稱</td>
-            <td width="40%">原因</td>
+            <td width="15%">進階驗證時間</td>
+            <td width="25%">原因</td>
             <td width="15%">時間</td>
             <td width="15%">站長</td>
             <td></td>
@@ -72,6 +73,13 @@
                     $result['isBlocked'] = \App\Models\BannedUsersImplicitly::select(\DB::raw('id, "隱性" as type'))->where('target', 'like', $list->user_id)->get()->first();
                 }
                 $userInfo=\App\Models\User::findById($list->user_id);
+                $advance_auth_time='';
+                if($userInfo->isAdvanceAuth()){
+                    $advance_auth_time= $userInfo->advance_auth_email_at ? $userInfo->advance_auth_email_at : $list->advance_auth_time;
+                    if($advance_auth_time=='0000-00-00 00:00:00'){
+                        $advance_auth_time='';
+                    }
+                }
                 $user['name'] = $userInfo->name;
                 $user['engroup'] = $userInfo->engroup;
                 $user['last_login'] = $userInfo->last_login;
@@ -124,6 +132,7 @@
                         </p>
                     </a>
                 </td>
+                <td>{{ $advance_auth_time }}</td>
                 <td>{{ $list->reason }}</td>
                 <td>{{ $list->created_at }}</td>
                 @if($admin)

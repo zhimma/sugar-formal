@@ -8498,7 +8498,7 @@ class UserController extends \App\Http\Controllers\BaseController
     }
 
     public function observe_user_list(Request $request){
-        $observeUserList=ObserveUser::selectRaw('observe_user.*, users.name as user_name, users.email as user_email')
+        $observeUserList=ObserveUser::selectRaw('observe_user.*, users.name as user_name, users.email as user_email, users.advance_auth_time as advance_auth_time')
             ->leftJoin('users', 'users.id', 'observe_user.user_id')
             ->orderBy('observe_user.created_at','desc');
         if (!empty($request->get('account'))) {
