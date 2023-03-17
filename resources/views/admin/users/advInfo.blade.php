@@ -270,6 +270,30 @@
     </div>
     @endif
 
+    @php
+        $track_user=\App\Models\TrackUser::where('user_id', $user->id)->first();
+    @endphp
+    @if($track_user)
+        <button id="show_track_reason" reason="{{$track_user->reason}}"  class="btn btn-secondary" style="cursor: default;background-color:#C0C0C0;border-color: #C0C0C0;opacity: .65;">已加列管追蹤</button>
+    @else
+        <button id="track_user_btn" class="btn btn-primary">列管追蹤</button>
+    @endif
+    <form id="track_user_form" method="POST" hidden action="{{ route('track_user') }}" style="display: inline-flex;max-width: 250px;">
+        <input type="hidden" name="_token" value="{{ csrf_token() }}" >
+        <input type="hidden" name='user_id' value="{{ $user->id }}">
+        <input class="form-control m-input" type=text name="reason" value="{{ $track_user ? $track_user->reason :'' }}" placeholder="請輸入備註"  style="width: 300px;">
+        <button type="submit" class="btn btn-success">送出</button>
+    </form>
+    <script>
+        $("#track_user_btn").click(function(){
+            if ($("#track_user_form").attr("hidden")) {
+                $("#track_user_form").attr("hidden", false)
+            } else {
+                $("#track_user_form").attr("hidden", true)
+            }
+        });
+    </script>
+
     @if(isset($posts_forum))
         @if($posts_forum->status==1)
             <botton onclick="forum_toggle({{$user->id}}, 0)" class="btn btn-success">討論區啟用中</botton>
@@ -312,12 +336,6 @@
         @endif
     @endif
 
-    @if(is_null($userMeta->activation_token))
-        <b style="font-size:18px">已開通會員</b>
-    @else
-        <a href="{{ route('activateUser',$userMeta->activation_token) }}" class="btn btn-success"> 通過認證信 </a>
-    @endif
-
     @php
         $observe_user=\App\Models\ObserveUser::where('user_id', $user->id)->first();
     @endphp
@@ -342,6 +360,11 @@
         });
     </script>
 
+    @if(is_null($userMeta->activation_token))
+        <b style="font-size:18px">已開通會員</b>
+    @else
+        <a href="{{ route('activateUser',$userMeta->activation_token) }}" class="btn btn-success"> 通過認證信 </a>
+    @endif
 </h1>
 <h4>基本資料</h4>
 <table class='table table-hover table-bordered '>
@@ -3829,6 +3852,16 @@ $('.btn_show_more_admin_log').click(function(){
         html: true,
         content: function () { return $('#show_observe_reason').attr('reason'); }
     });
+@endif
+@if($track_user)
+$('#show_track_reason').popover({
+    animated: 'fade',
+    placement: 'top',
+    trigger: 'hover',
+    sanitize: false,
+    html: true,
+    content: function () { return $('#show_track_reason').attr('reason'); }
+});
 @endif
 </script>
 </html>
