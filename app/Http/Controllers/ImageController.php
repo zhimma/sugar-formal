@@ -1302,4 +1302,34 @@ class ImageController extends BaseController
         }
         return $blurPhotoPath;
     }
+
+    //後台批次刪除會員生活照
+    public function deleteImageBatch(Request $request, $admin = false)
+    {
+        $pictures = $request->pictures;
+        foreach ($pictures as $key =>$picID){
+            MemberPic::destroy($picID);
+            if($admin){
+                // 操作紀錄
+                \App\Models\AdminPicturesSimilarActionLog::insert([
+                    'operator_id'   => Auth::user()->id,
+                    'operator_role' => Auth::user()->roles->first()->id,
+                    'target_id'     => MemberPic::withTrashed()->find($picID)->member_id,
+                    'act'           => '刪除生活照',
+                    'pic'           => MemberPic::withTrashed()->find($picID)->pic,
+                    'ip'            => $request->ip(),
+                    'created_at'    => now(),
+                    'updated_at'    => now(),
+                ]);
+
+                $imageInfo=MemberPic::withTrashed()->find($picID);
+                // 由後台刪除的生活照,寫入log紀錄
+                AdminDeleteImageLog::create([
+                    'member_id'=>$imageInfo->member_id,
+                    'member_pic_id'=>$imageInfo->id,
+                ]);
+            }
+        }
+        return response()->json(['status' => 'ok', 'message' => '照片刪除成功']);
+    }
 }
