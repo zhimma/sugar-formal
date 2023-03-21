@@ -419,6 +419,11 @@
         .ly_time{float: right; color: #999999;}
         .liu_text_2{margin-bottom: unset;}
     </style>
+    <style>
+        .popover{
+            padding: unset !important;
+        }
+    </style>
     @if($user->engroup==2)
     <style>
         li .he_tkcn ul {width:100% !important;}
@@ -1336,7 +1341,7 @@
                                                                 @if($looking_for_relationships->first()->xref_id ?? false)
                                                                     @foreach($looking_for_relationships as $option)
                                                                         @if($option->xref_id ?? false)
-                                                                            <div class="ka_tico_1"><i>{{$option->option_name}}</i></div>
+                                                                            <div class="ka_tico_1 show_option_content" data-toggle="popover" data-content="{{ $option->option_content }}"><i>{{$option->option_name}}</i></div>
                                                                         @endif
                                                                     @endforeach
                                                                 @else
@@ -1413,7 +1418,7 @@
                                                                 @if($expected_type->first()->xref_id ?? false)
                                                                     @foreach($expected_type as $option)
                                                                         @if($option->xref_id ?? false)
-                                                                            <div class="ka_tico_1"><i>{{$option->option_name}}</i></div>
+                                                                            <div class="ka_tico_1 show_option_content" data-toggle="popover" data-content="{{ $option->option_content }}"><i>{{$option->option_name}}</i></div>
                                                                         @endif
                                                                     @endforeach
                                                                 @else
@@ -2319,7 +2324,7 @@
             <div class="new_tablema">
                 <table>
 
-                    <tr class="phone_auth">
+                    {{--<tr class="phone_auth">
                         <td class="new_baa new_baa1">女生須通過手機驗證</td>
                         <td class="new_baa1">
                             @if($auth_check)
@@ -2328,7 +2333,7 @@
                                 <img src="/new/images/ticon_02.png">
                             @endif
                         </td>
-                    </tr>
+                    </tr>--}}
                     <tr class="advance_auth">
                         <td class="new_baa new_baa1">女生須通過進階驗證</td>
                         <td class="new_baa1">
@@ -2353,7 +2358,7 @@
             </div>
             <div class="n_bbutton" style="margin-top:10px;">
                 <div style="display: inline-flex;">
-                    @if(($auth_check>0 || $advance_auth_status) && $isSent3Msg)
+                    @if($advance_auth_status && $isSent3Msg)
                         <div class="n_right enter_tab_evaluation" style="border-style: none; background: #8a9ff0; color:#ffffff; float: unset; margin-left: 0px; margin-right: 20px;" onclick="show_tab_evaluation()">進入評價</div>
                         <div class="n_left" style="border: 1px solid #8a9ff0; background: #ffffff; color:#8a9ff0; float: unset; margin-right: 0px;" onclick="tab_cancel();" >取消</div>
                     @else
@@ -3141,7 +3146,7 @@
                 $('input[name=content_processing_method]').val('');
                 @if($user->engroup==2)
                     $('#tab_reject_female').show();
-                    $('.phone_auth').removeClass('hide');
+                    $('.advance_auth').removeClass('hide');
                     $(".announce_bg").show();
                     $('.enter_tab_evaluation').addClass('evaluation_type_myself');
                     @if($auth_check>0)

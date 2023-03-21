@@ -9,63 +9,18 @@
         }
     </style>
     <body style="padding: 15px;">
-    <h1>觀察名單列表</h1>
-    {{--<div class="col col-12 col-sm-12 col-md-8 col-lg-6">
-        <form action="{{ route('observe_user_list') }}" method='get'>
-            <table class="table-hover table table-bordered">
-                <tr>
-                    <th>帳號</th>
-                    <td>
-                        <input type="text" name="account" class="form-control" placeholder="name@example.com" value="@if(isset($_GET['account'])){{ $_GET['account'] }}@endif">
-                    </td>
-                </tr>
-                <tr>
-                    <th>原因</th>
-                    <td>
-                        <input type="text" name="reason" class="form-control" placeholder="" value="@if(isset($_GET['reason'])){{ $_GET['reason'] }}@endif">
-                    </td>
-                </tr>
-                <tr>
-                    <th>時間 (開始)</th>
-                    <td>
-                        <input type='text' id="datepicker_1" name="date_start" data-date-format='yyyy-mm-dd' value="@if(isset($_GET['date_start'])){{ $_GET['date_start'] }}@endif" class="form-control">
-                    </td>
-                <tr>
-                    <th>時間 (結束)</th>
-                    <td>
-                        <input type='text' id="datepicker_2" name="date_end" data-date-format='yyyy-mm-dd' value="@if(isset($_GET['date_end'])){{ $_GET['date_end'] }}@endif" class="form-control">
-                    </td>
-                </tr>
-                <tr>
-                    <th>預設時間選項</th>
-                    <td>
-                        <a class="text-white btn btn-success today">今天</a>
-                        <a class="text-white btn btn-success last3days">最近3天</a>
-                        <a class="text-white btn btn-success last10days">最近10天</a>
-                        <a class="text-white btn btn-success last30days">最近30天</a>
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="2">
-                        <a href="/admin/users/observe_user_list" class='text-white btn btn-dark submit'>清除條件</a>
-                        <input type="submit" class='btn btn-outline-primary submit' value="查詢">
-                    </td>
-                </tr>
-            </table>
-        </form>
-    </div>--}}
-    <div>查詢結果：共 <span style="color: red;">{{ $observeUserList->total() }}</span> 筆記錄。</div>
+    <h1>列管追蹤名單列表</h1>
+    <div>查詢結果：共 <span style="color: red;">{{ $trackUserList->total() }}</span> 筆記錄。</div>
     <table class='table table-bordered table-hover'>
         <tr>
             <td width="15%">會員帳號</td>
             <td width="15%">暱稱</td>
-            <td width="15%">進階驗證時間</td>
-            <td width="25%">原因</td>
+            <td width="40%">原因</td>
             <td width="15%">時間</td>
             <td width="15%">站長</td>
             <td></td>
         </tr>
-        @forelse($observeUserList as $list)
+        @forelse($trackUserList as $list)
             @php
                 $admin=\App\Models\User::find($list->admin_id);
                 $result['isBlocked'] = \App\Models\SimpleTables\banned_users::where('member_id', 'like', $list->user_id)->get()->first();
@@ -73,13 +28,6 @@
                     $result['isBlocked'] = \App\Models\BannedUsersImplicitly::select(\DB::raw('id, "隱性" as type'))->where('target', 'like', $list->user_id)->get()->first();
                 }
                 $userInfo=\App\Models\User::findById($list->user_id);
-                $advance_auth_time='';
-                if($userInfo->isAdvanceAuth()){
-                    $advance_auth_time= $userInfo->advance_auth_email_at ? $userInfo->advance_auth_email_at : $list->advance_auth_time;
-                    if($advance_auth_time=='0000-00-00 00:00:00'){
-                        $advance_auth_time='';
-                    }
-                }
                 $user['name'] = $userInfo->name;
                 $user['engroup'] = $userInfo->engroup;
                 $user['last_login'] = $userInfo->last_login;
@@ -132,7 +80,6 @@
                         </p>
                     </a>
                 </td>
-                <td>{{ $advance_auth_time }}</td>
                 <td>{{ $list->reason }}</td>
                 <td>{{ $list->created_at }}</td>
                 @if($admin)
@@ -141,7 +88,7 @@
                     <td></td>
                 @endif
                 <td>
-                    <form method="POST" action="{{ route('observe_user_remove') }}" style="display: inline-flex;max-width: 250px;">
+                    <form method="POST" action="{{ route('track_user_remove') }}" style="display: inline-flex;max-width: 250px;">
                         <input type="hidden" name="_token" value="{{ csrf_token() }}" >
                         <input type="hidden" name='user_id' value="{{ $list->user_id }}">
                         <button type="submit" class="btn btn-success">移除</button>
@@ -154,7 +101,7 @@
             </tr>
         @endforelse
     </table>
-    {!! $observeUserList->appends(request()->input())->links('pagination::sg-pages') !!}
+    {!! $trackUserList->appends(request()->input())->links('pagination::sg-pages') !!}
     </body>
     <script>
         let date = new Date();

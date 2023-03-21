@@ -1491,29 +1491,36 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
             <a class="n_bllbut matop30" onclick="location.href='{{route('dashboard_img',['real_auth'=>request()->real_auth])}}';">確定</a> 
         </div>
         <a onclick="real_auth_tab_close(this);" class="bl_gb"><img src="{{asset('/new/images/gb_icon.png')}}"></a>
-    </div>      
- 
+    </div>
 
-<script>
-    function pr() {
-        $(".blbg").show();
-        $(".prz").show();
-    }
 
-    $(document).ready(function() {
-        @if(Session::has('message'))
-        c5('{{Session::get('message')}}');
-        <?php session()->forget('message');?>
-        @endif
-    });
+  <script>
+      function pr() {
+          $(".blbg").show();
+          $(".prz").show();
+      }
 
-</script>
+      $(document).ready(function () {
+          @if(Session::has('message'))
+          @if (is_array(Session::get('message')))
+          c5('{{ implode("", Session::get('message')) }}');
+          @php
+              \Sentry\captureMessage(implode("", \Session::get('message')));
+          @endphp
+          @else
+          c5('{{Session::get('message')}}');
+          @endif
+              <?php session()->forget('message'); ?>
+          @endif
+      });
+
+  </script>
   <script src="/new/js/birthday.js" type="text/javascript"></script>
   <script src="/js/jquery.twzipcode.min.js" type="text/javascript"></script>
   <script type="text/javascript">
-    $.ms_DatePicker({
-        YearSelector: ".sel_year",
-        MonthSelector: ".sel_month",
+      $.ms_DatePicker({
+          YearSelector: ".sel_year",
+          MonthSelector: ".sel_month",
     });
     $('.twzipcode').twzipcode({
       'detect': true, 'css':['select_xx2', 'select_xx2', 'd-none'], onCountySelect: function() {
