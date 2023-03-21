@@ -222,7 +222,8 @@ td.real_auth_user_modify_pic_col img {margin:auto;}
     <div class="mempic_tital_head_container">
         <h4>現有生活照</h4>
         <h4>照片異動</h4>
-    </div>    
+        <button id="delete_more_pic_btn" type="submit" class="btn btn-metal">批次刪除生活照</button>
+    </div>
     <table class="table table-hover table-bordered table-mempic" style="width: {{($raa_service->isPassedByAuthTypeId(1) && $raa_service->getApplyByAuthTypeId(1)->actual_unchecked_rau_modify_pic->count())?'100':'50'}}%;">
         @forelse ($pics as $pic)
             <tr>
@@ -242,6 +243,11 @@ td.real_auth_user_modify_pic_col img {margin:auto;}
                     <td>
                         @if(!($pic->modify_id??null) && !($pic->pic_cat??null))
                         <button type="submit" class="btn btn-metal">刪除</button>
+                        @endif
+                    </td>
+                    <td>
+                        @if(!($pic->modify_id??null) && !($pic->pic_cat??null))
+                            <input type="checkbox" name="pic_more[]" value="{{$pic->id}}">
                         @endif
                     </td>
                     @if($raa_service->isPicExistActualUncheckedModify($pic))
@@ -388,6 +394,36 @@ td.real_auth_user_modify_pic_col img {margin:auto;}
                 alert('刪除失敗');
             }
             
+        });
+
+        $("#delete_more_pic_btn").on('click', function(){
+            var r=confirm("確定批次刪除生活照？")
+            if (r==true) {
+                var count =  $("input[name='pic_more[]']:checked").length;
+                if(count==0){
+                    alert('尚未選取生活照');
+                }
+                var pictures = $('input[name="pic_more[]"]:checked').map(function(){
+                    return this.value;
+                }).get();
+
+                $.ajax({
+                    type: 'POST',
+                    url: "/dashboard/imagedel/batch/1",
+                    data:{
+                        _token :'{{csrf_token()}}',
+                        user_id :'{{$user->id}}',
+                        pictures : pictures,
+                    },
+                    dataType:"json",
+                    success: function(res){
+                        if(res.status=='ok'){
+                            alert('刪除成功');
+                            location.reload();
+                        }
+                    }
+                });
+            }
         });
     </script>
     <script>

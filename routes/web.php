@@ -465,6 +465,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
     Route::post('/fileuploader_image_upload', 'ImageController@fileuploader_image_upload')->name('fileuploader_image_upload');
     Route::post('/dashboard/image/{admin?}', 'ImageController@resizeImagePost');
     Route::post('/dashboard/imagedel/{admin?}', 'ImageController@deleteImage');
+    Route::post('/dashboard/imagedel/batch/{admin?}', 'ImageController@deleteImageBatch');
     Route::post('/dashboard/block', 'PagesController@postBlock');
     Route::post('/dashboard/blockAJAX', 'PagesController@postBlockAJAX')->name('postBlockAJAX');//new route
     Route::post('/dashboard/messageUserNoteAJAX', 'PagesController@messageUserNoteAJAX')->name('messageUserNoteAJAX');//new route
