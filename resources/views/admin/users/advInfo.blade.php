@@ -2508,6 +2508,9 @@
     <tr>
         <th width="5%"></th>
         <th width="10%">發送給</th>
+        @if($user->engroup==2)
+            <th width="10%">縣市</th>
+        @endif
         <th>最新內容</th>
         <th>上傳照片</th>
         <th width="15%">發送時間</th>
@@ -2529,6 +2532,7 @@
 
             $toCount_user_id=\App\Models\Message::withTrashed()->where('from_id',$user->id)->where('to_id',$ref_user_id)->get()->count();
             $toCount_ref_user_id=\App\Models\Message::withTrashed()->where('from_id',$ref_user_id)->where('to_id',$user->id)->get()->count();
+            $city_and_area= $ref_user->meta_()? $ref_user->meta_()->city.$ref_user->meta_()->area : '';
         @endphp
         <tr id='message_room_{{$messageLog->room_id}}'
             {{--一次顯示50個 臨時搭建用--}}
@@ -2539,7 +2543,15 @@
             <td style="text-align: center;">
                 <button data-toggle="collapse" data-target="#msgLog{{$ref_user_id}}" class="accordion-toggle btn btn-primary message_toggle" value="{{$messageLog->room_id}}">+</button>
             </td>
-            <td>@if(!empty($ref_user->name))<a href="{{ route('admin/showMessagesBetween', [$user->id, $ref_user_id]) }}" target="_blank">{{ $ref_user->name }}</a>@else 會員資料已刪除@endif</td>
+            <td>@if(!empty($ref_user->name))
+                    <a href="{{ route('admin/showMessagesBetween', [$user->id, $ref_user_id]) }}" target="_blank">{{ $ref_user->name }}</a>
+                @else
+                    會員資料已刪除
+                @endif
+            </td>
+            @if($user->engroup==2)
+                <td>{{ $city_and_area }}</td>
+            @endif
             <td id="new{{$messageLog->to_id}}">
                 @if($message_log)
                     {{($message_log->from_id==$message_1st->from_id ? '(發)' :'(回)') .$message_log->content}}
