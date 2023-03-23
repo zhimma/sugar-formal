@@ -694,7 +694,7 @@ class UserService
         //        $median = $query?->median_recipients_count_of_vip_male_senders;
         //        $greeting_rate = max($avg ?? 999, $median ?? 999) * 1.75;
         // 招手比後台調整，測試 OK 再使用下面2行，並刪除或註解上面 4行
-        $postfix = DB::table('greeting_rate_calculations')->first()->postfix;
+        $postfix = DB::table('greeting_rate_calculations')->first()?->postfix;
         $greeting_rate = UserService::computeGreetingRate($postfix);
         $recipients_count = UserMeta::where('user_id', $from_id)->pluck('recipients_count')->first();
 

@@ -99,6 +99,7 @@ use Illuminate\Support\Facades\Log;
 use Intervention\Image\Facades\Image;
 use Session;
 use Yajra\DataTables\Facades\DataTables;
+use App\Http\Controllers\Message_newController;
 
 class UserController extends \App\Http\Controllers\BaseController
 {
@@ -2723,12 +2724,23 @@ class UserController extends \App\Http\Controllers\BaseController
     public function sendAdminMessage(Request $request,RealAuthAdminService $raa_service, $id)
     {
         $payload = $request->all();
+        if(!is_null($request->file('images')) && count($request->file('images'))){
+            $payload['msg'] = $payload['msg']??'';
+        }
         if($request->has('chat_with_admin')) {
             $p_rs = Message::post($payload['admin_id'], $id, $payload['msg'],true,0,null, $payload['chat_with_admin']);
         } else {
             $p_rs = Message::post($payload['admin_id'], $id, $payload['msg']);
         }
-
+        
+        if(!is_null($request->file('images')) && count($request->file('images'))){
+            $msgController = resolve(Message_newController::class);
+            $upload_rs = $msgController->message_pic_save($p_rs->id, $request->file('images'));
+            if($upload_rs) {
+                $p_rs->refresh();
+            }
+        }
+        
         $raa_service->riseByUserId($id);
         if($p_rs) {
             $raa_service->savePatchByMsgEntryAndReqArr($p_rs,$payload);

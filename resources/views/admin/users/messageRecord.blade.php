@@ -3,6 +3,97 @@
 
 
 <body style="padding: 15px;">
+    <link href="{{ asset('css/jquery.fileuploader.min.css') }}" media="all" rel="stylesheet">
+    <link href="{{ asset('new/css/fileupload.css') }}" media="all" rel="stylesheet">
+    <link href="{{ asset('css/font/font-fileuploader.css') }}" media="all" rel="stylesheet">
+    <style>
+        .fileuploader-icon-remove:after {
+            content: none !important;
+        } 
+
+        .announce_bg {
+            width: 100%;
+            height: 100%;
+            width: 100%;
+            height: 100%;
+            position: fixed;
+            top: 0px;
+            left: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 9;
+            display: none;
+        } 
+
+.bl_tab_aa {
+    width: 100%;
+    position: fixed;
+    top: 8%;
+    z-index: 10;
+    display: none;
+}  
+
+.bl_tab_bb {
+    width: 600px;
+    margin: 0 auto;
+    display: table;
+    background: #e2e8ff;
+    border: #8a9fef 2px solid;
+    border-radius: 5px;
+    position: relative;
+}
+
+
+.new_poptk_nn{width: 96%; padding-bottom: 0; padding-top: 0; margin-top:15px; margin-bottom: 15px;}
+.new_pot{width:96%;height:auto;margin: 0 auto;color: #666666;padding-bottom: 20px; padding-top:15px; display: block;}
+  
+
+.bl_tab{width:36%;background:#e2e8ff; border:#8a9fef 2px solid;border-radius:5px;position: fixed;left:32%;top: 8%;z-index: 10;display:none;}
+.bltitle{width:100%; height:45px; line-height:45px; background:#8a9fef; color:#ffffff; text-align:center; font-size:18px;}
+.bltitle span{ float:left; margin-left:15px;}
+.blnr{width:95%; margin:0 auto; display:table; /*padding:30px 0 50px 0;color:#666666;*/color:#6783c7;font-size: 18px;}
+.bltext{ text-align:center; word-break:break-word;}
+.bl_gb{position:absolute; top:9px; right:5px;}
+.bl_gb img{width:30px;}
+.blinput {
+width: 100%;
+height: 35px;
+line-height: 35px;
+border: #cccccc 1px solid;
+border-radius: 3px;
+}
+
+.n_ulhh{width:45px;height:45px;position:absolute; top:0; left:0; z-index:3}
+.n_ulhh img{width:100%}
+
+}
+.n_blnr01 {width:90%;margin: 0 auto;color: #666666;padding-bottom: 20px; padding-top: 28px;}
+.n_nutext{width:100%; min-height:100px; background:#ffffff; border:none; padding:5px; color:#666666; border-radius:5px;}
+.n_blbut{margin-top:15px;}
+
+.n_bbutton{/*width:90%;*/ margin:0 auto; display:table;margin-top:15px}
+.n_bbutton span{width:50%; float:left}
+.n_left{ float:right;width:120px;height: 40px;background: #8a9ff0;border-radius: 200px;color: #ffffff;text-align: center;line-height: 40px;font-size: 16px; margin-right:11px;}
+.n_left:hover{color:#ffffff;box-shadow:inset 0px 15px 10px -10px #4c6ded,inset 0px -10px 10px -20px #4c6ded;}
+.n_right{ float:left;width:120px;height: 40px;background: #ffffff; border: #8a9ff0 1px solid;border-radius: 200px;color: #8a9ff0;text-align: center;line-height: 40px;font-size: 16px; margin-left:11px;}
+.n_right:hover{color:#ffffff;box-shadow:inset 0px 15px 10px -10px #516cd4,inset 0px -10px 10px -20px #516cd4; background:#8a9ff0}
+
+.n_bllbut{height: 40px;background: #8a9ff0;border-radius: 200px;color: #ffffff !important;text-align: center;line-height: 40px;display: table;margin: 0 auto; padding:0 60px;font-size:16px; margin-top:15px; cursor: pointer;}
+.n_bllbut:hover{color:#ffffff;box-shadow:inset 0px 15px 10px -10px #4c6ded,inset 0px -10px 10px -20px #4c6ded;}
+
+.n_fengs{width:95%; margin:0 auto;display:table; line-height:25px;}
+.n_fengs img{ height:25px;margin-right:10px;}
+.n_fengs span{width: calc(100% - 35px); float:right}
+
+.n_jianj{position:absolute; top:0; z-index:4;width:100%;}
+.n_jianj a{ background:#e54f72; line-height:25px; color:#ffffff; border-radius:0 0px 50px 50px; margin:0 auto; padding:0px 20px; display:table}
+
+.n_input{width:100%; display:table}
+.n_input dt{width:100%; float:left; margin-bottom:15px;}
+.n_input dt span{width:100%; font-size:15px; color:#666666; display:table; line-height:35px; font-weight:normal}
+.n_input dt i{ color:#fd5678; font-style:normal}
+    
+    </style>
+
     <h4>{{ $user->name }} 與 {{ $admin->name }} 的所有訊息</h1>
     <table class="table table-hover table-bordered" id="table-message">
         <tr>
@@ -200,8 +291,41 @@
         @if($user->is_admin_chat_channel_open)
         <button type="button" class="btn btn-dark" onclick="closeChat({{$user->id}})">結束對話</button>
         @endif
+        <button type='button' class='text-white btn btn-success'  onclick="tab_uploadPic();">上傳</button>
     </form>
-    
+<div class="announce_bg" id="announce_bg" onclick="tab_uploadPic_close();"></div>    
+<div class="bl_tab_aa" id="tab_uploadPic" style="display: none;">
+    <form id="form_uploadPic" action="{{ route('admin/send', $user->id) }}{{request()->from_videoChat?'?from_videoChat='.request()->from_videoChat:''}}"  method="post" enctype="multipart/form-data">
+        <input type="hidden" name="_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="userId" value="{{ $admin->id }}">
+        <input type="hidden" name="from" value="{{ $admin->id }}">
+        <input type="hidden" name="to" value="{{ $user->id }}">
+        <input type="hidden" name="msg" value="">
+        <input type="hidden" name="m_time" @if(isset($m_time)) value="{{ $m_time }}" @else value="" @endif>
+        <input type="hidden" name="{{ \Carbon\Carbon::now()->timestamp }}"
+            value="{{ \Carbon\Carbon::now()->timestamp }}">
+        <input type="hidden" name="parent" class="message_parent" value="">
+        <input type="hidden" name="is_truth" id="is_truth_of_form_uploadPic" value="0">
+        <input type="hidden" name="client_id" class="client_id" value="">
+        <input type="hidden" name="chat_with_admin" value="1">
+        <input type="hidden" value="{{ $admin->id }}" name="admin_id">
+        <div class="bl_tab_bb">
+            <div class="bltitle"><span style="text-align: center; float: none;">上傳照片</span></div>
+            <div class="new_pot1 new_poptk_nn new_height_mobile ">
+                <div class="fpt_pic">
+                    <input id="images" type="file" name="images">
+                    <div style="text-align:center;">
+                        <span class="alert_tip" style="color:red;"></span>
+                    </div>
+                    <div class="n_bbutton" style="margin-top:0px;">
+                        <a class="n_bllbut" onclick="form_uploadPic_submit()">送出</a>
+                    </div>
+                </div>
+            </div>
+            <a onclick="tab_uploadPic_close()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+        </div>
+    </form>
+</div>    
 </body>
 
 <script src="/js/vendors.bundle.js" type="text/javascript"></script>
@@ -337,4 +461,176 @@ jQuery(document).ready(function(){
         }
     }
 </script>
+<script src="{{ asset('js/jquery.fileuploader.js') }}" type="text/javascript"></script>
+<script>
+$(document).ready(function () {
+    images_uploader = $('input[name="images"]').fileuploader({
+        //extensions: ['jpg', 'png', 'jpeg', 'bmp'],
+        changeInput: ' ',
+        theme: 'thumbnails',
+        enableApi: true,
+        addMore: true,
+        limit: 5,
+        thumbnails: {
+            box: '<div class="fileuploader-items">' +
+                '<ul class="fileuploader-items-list">' +
+                '<li class="fileuploader-thumbnails-input"><div class="fileuploader-thumbnails-input-inner" style="background: url({{ asset("new/images/addpic.png") }}); background-size:100%"></div></li>' +
+                '</ul>' +
+                '</div>',
+            item: '<li class="fileuploader-item">' +
+                '<div class="fileuploader-item-inner">' +
+                '<div class="type-holder">${extension}</div>' +
+                '<div class="actions-holder">' +
+                '<button type="button" class="fileuploader-action fileuploader-action-remove" title="${captions.remove}"><i class="fileuploader-icon-remove"></i></button>' +
+                '</div>' +
+                '<div class="thumbnail-holder">' +
+                '${image}' +
+                '<span class="fileuploader-action-popup"></span>' +
+                '</div>' +
+                '<div class="content-holder"><h5>${name}</h5><span>${size2}</span></div>' +
+                '<div class="progress-holder">${progressBar}</div>' +
+                '</div>' +
+                '</li>',
+            item2: '<li class="fileuploader-item">' +
+                '<div class="fileuploader-item-inner">' +
+                '<div class="type-holder">${extension}</div>' +
+                '<div class="actions-holder">' +
+                '<a href="${file}" class="fileuploader-action fileuploader-action-download" title="${captions.download}" download><i class="fileuploader-icon-download"></i></a>' +
+                '<button type="button" class="fileuploader-action fileuploader-action-remove" title="${captions.remove}"><i class="fileuploader-icon-remove"></i></button>' +
+                '</div>' +
+                '<div class="thumbnail-holder">' +
+                '${image}' +
+                '<span class="fileuploader-action-popup"></span>' +
+                '</div>' +
+                '<div class="content-holder"><h5 title="${name}">${name}</h5><span>${size2}</span></div>' +
+                '<div class="progress-holder">${progressBar}</div>' +
+                '</div>' +
+                '</li>',
+            startImageRenderer: true,
+            canvasImage: false,
+            _selectors: {
+                list: '.fileuploader-items-list',
+                item: '.fileuploader-item',
+                start: '.fileuploader-action-start',
+                retry: '.fileuploader-action-retry',
+                remove: '.fileuploader-action-remove'
+            },
+            onItemShow: function(item, listEl, parentEl, newInputEl, inputEl) {
+                var plusInput = listEl.find('.fileuploader-thumbnails-input'),
+                    api = $.fileuploader.getInstance(inputEl.get(0));
+
+                plusInput.insertAfter(item.html)[api.getOptions().limit && api.getChoosedFiles().length >= api.getOptions().limit ? 'hide' : 'show']();
+
+                if(item.format == 'image') {
+                    item.html.find('.fileuploader-item-icon').hide();
+                }
+
+                if (api.getListEl().length > 0) {
+                    $('.fileuploader-thumbnails-input-inner').css('background-image', 'url({{ asset("new/images/addpic.png") }})');
+                }
+            },
+            onItemRemove: function(html, listEl, parentEl, newInputEl, inputEl) {
+                var plusInput = listEl.find('.fileuploader-thumbnails-input'),
+                    api = $.fileuploader.getInstance(inputEl.get(0));
+
+                html.children().animate({'opacity': 0}, 200, function() {
+                    html.remove();
+
+                    if (api.getOptions().limit && api.getChoosedFiles().length - 1 < api.getOptions().limit)
+                        plusInput.show();
+                });
+
+                if (api.getFiles().length == 1) {
+                    $('.fileuploader-thumbnails-input-inner').css('background-image', 'url({{ asset("new/images/addpic.png") }})');
+                }
+            }
+        },
+        dialogs: {
+            alert:function(message) {
+                alert(message);
+            },
+            // confirm:function(message, confirm) {
+            //     popUpTrueOrFalse(message, function () {
+            //         confirm();
+            //         gmBtn2();
+            //     })
+            // }
+        },
+        dragDrop: {
+            container: '.fileuploader-thumbnails-input'
+        },                 
+        afterRender: function(listEl, parentEl, newInputEl, inputEl) {
+            var plusInput = listEl.find('.fileuploader-thumbnails-input'),
+                api = $.fileuploader.getInstance(inputEl.get(0));
+
+            plusInput.on('click', function() {
+                api.open();
+            });
+
+            api.getOptions().dragDrop.container = plusInput;
+        },
+        editor: {
+            cropper: {
+                showGrid: true,
+            },
+        },
+        captions: {
+            confirm: '確認',
+            cancel: '取消',
+            name: '檔案名稱',
+            type: '類型',
+            size: '容量',
+            dimensions: '尺寸',
+            duration: '持續時間',
+            crop: '裁切',
+            rotate: '旋轉',
+            sort: '分類',
+            download: '下載',
+            remove: '刪除',
+            drop: '拖曳至此上傳檔案',
+            open: '打開',
+            removeConfirmation: '確認要刪除檔案嗎?',
+            errors: {
+                filesLimit: function(options) {
+                    return '最多上傳 ${limit} 張圖片.'
+                },
+                filesType: '檔名: ${name} 不支援此格式, 只允許 ${extensions} 檔案類型上傳.',
+                fileSize: '${name} 檔案太大, 請確認容量需小於 ${fileMaxSize}MB.',
+                filesSizeAll: '上傳的所有檔案過大, 請確認未超過 ${maxSize} MB.',
+                fileName: '${name} 已有選取相同名稱的檔案.',
+            }
+        }
+    });
+    
+    $(".announce_bg").attr('onclick',$(".announce_bg").attr('onclick')+";$('.bl_tab_aa').hide();");
+});
+
+    function form_uploadPic_submit()
+    {
+        var num_of_images=$('.fileuploader-items-list .fileuploader-item').length;
+        if(num_of_images==0) {
+            $('.alert_tip').text();
+            $('.alert_tip').text('請選擇照片');
+        }else{
+            $('#form_uploadPic').submit();
+        }
+    }
+
+    function tab_uploadPic() 
+    {
+        $(".announce_bg").show();
+        $("#tab_uploadPic").show();
+        $('body').css("overflow", "hidden");
+        $('.alert_tip').text('');
+    } 
+
+    function tab_uploadPic_close() 
+    {
+        $(".announce_bg").hide();
+        $("#tab_uploadPic").hide();
+        $('body').css("overflow", "auto").css("fixed", "");
+        $('.alert_tip').text('');
+    }    
+</script>
+    
 </html>
