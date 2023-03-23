@@ -43,11 +43,15 @@
 	$(document).ready(function(){
 		$(".tw_input").keyup(function() {
 			let title = $("#title").val();
-			let name = '{{$user->name}}';
+			let name = '{{isset($forumInfo) ? \App\Models\User::findById($forumInfo->user_id)->name :$user->name}}';
 			let result = title.includes(name);
 			// alert(2);
 			if (result==false){
-				ccc('個人討論區的名稱，需以您的暱稱為開頭');
+				@if(isset($forumInfo) && ($user->id!=$forumInfo->user_id))
+					ccc('個人討論區的名稱，需以創建者的暱稱為開頭');
+				@else
+					ccc('個人討論區的名稱，需以您的暱稱為開頭');
+				@endif
 				$(".n_bllbut_tab_other").on('click', function() {
 					$(".blbg").hide();
 					$(".bl").hide();
