@@ -2014,6 +2014,12 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasMany(SearchIgnore::class, 'member_id', 'id');
     }
+    
+    //搜尋條件記錄
+    public function search_filter_remember()
+    {
+        return $this->hasOne(SearchFilterRemember::class, 'user_id', 'id');
+    }    
 
     //刺青
     public function tattoo() {
