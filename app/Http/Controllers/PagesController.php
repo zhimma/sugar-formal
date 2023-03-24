@@ -4241,6 +4241,12 @@ class PagesController extends BaseController
     {
         $input = $request->input();
         $search_page_key=session()->get('search_page_key',[]);
+        if(!$search_page_key && !$input) {
+            if(auth()->user()->search_filter_remember) {
+                $search_page_key = $input = json_decode(auth()->user()->search_filter_remember?->filter,true);
+                if(!$search_page_key) $search_page_key = $input  = [];
+            }
+        }
         $rap_service = $this->rap_service;
 
         $county_array = ['county', 'county2', 'county3', 'county4', 'county5'];
@@ -4279,6 +4285,16 @@ class PagesController extends BaseController
                     session()->put('search_page_key.' . $key, array_get($input, $key, null));
                 }
             }
+            
+            if(auth()->user()->search_filter_remember) {
+                auth()->user()->search_filter_remember->filter = json_encode(session()->get('search_page_key',[]));
+                auth()->user()->search_filter_remember->save();
+            }
+            else {
+                auth()->user()->search_filter_remember()->create(['filter'=>json_encode(session()->get('search_page_key',[]))]);            
+            }
+                
+            
         }
 
         $user = $request->user();
