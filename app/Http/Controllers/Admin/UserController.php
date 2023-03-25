@@ -939,6 +939,7 @@ class UserController extends \App\Http\Controllers\BaseController
     public function advInfo(Request $request, $id)
     {
         $operator = Auth::user();
+        $service = $this->service->riseByUserEntry($operator);
         $advInfo_check_log = AdminActionLog::where('act','查看會員基本資料')
             ->where('operator',$operator->id)
             ->where('target_id',$id)
@@ -973,18 +974,21 @@ class UserController extends \App\Http\Controllers\BaseController
             return view('admin.users.advInfoPicBlock')
                 ->with('user', $user)
                 ->with('userMeta', $userMeta)
-                ->with('last_images_compare_encode', ImagesCompareEncode::orderByDesc('id')->firstOrNew());
+                ->with('last_images_compare_encode', ImagesCompareEncode::orderByDesc('id')->firstOrNew())
+                ->with('service',$service);
         }
         if ($block == 'userAdvInfo') {
             $userAdvInfo = \App\Models\User::userAdvInfo($user->id);
             return view('admin.users.advInfo_UserAdvInfo')
-                ->with('userAdvInfo', $userAdvInfo);
+                ->with('userAdvInfo', $userAdvInfo)
+                ->with('service',$service);
         }
         if ($block == 'advInfoLoginLog') {
             $userLogin_log= \App\Models\User::userLoginLog($user->id,$request);
             return view('admin.users.advInfoLoginLog')
                 ->with('user', $user)
-                ->with('userLogin_log', $userLogin_log);
+                ->with('userLogin_log', $userLogin_log)
+                ->with('service',$service);
         }
         $userMessage = Message::where('from_id', $id)->orderBy('created_at', 'desc')->paginate(config('social.admin.showMessageCount'));
         if (!empty($request->get('page'))) {
@@ -1693,7 +1697,8 @@ class UserController extends \App\Http\Controllers\BaseController
                 ->with('fnm_step3_time_arr', $fnm_step3_time_arr ?? null)
                 ->with('is_test', $is_test)
                 ->with('exif_cat_lang_arr',$exif_cat_lang_arr)
-                ->with('step2_admin_log_list',$step2_admin_log_list);
+                ->with('step2_admin_log_list',$step2_admin_log_list)
+                ->with('service',$service);
         }
     }
 
@@ -5934,7 +5939,8 @@ class UserController extends \App\Http\Controllers\BaseController
             ->with('male_user_list', $male_user_list)
             ->with('ip', $ip)
             ->with('recordType', $request->type)
-            ->with('is_test', $is_test);
+            ->with('is_test', $is_test)
+            ->with('service',$this->service->riseByUserEntry(auth()->user()));
     }
 
     public function getUsersLog(Request $request)
