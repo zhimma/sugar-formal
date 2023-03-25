@@ -719,14 +719,13 @@
                                     {!!$rap_service->getTagShowOnPicLayoutByLoginedUserIsVip($user->isVipOrIsVvip()) !!}
                                 @elseif($to->meta->isWarned == 1 || $to->aw_relation)
                                     <li>
-
-                                        <div class="tagText" data-toggle="popover" data-content="此會員為警示會員，與此會員交流務必提高警覺！">
-                                            @if($user->isVip() || $user->isVVIP())
+                                        @if($user->isVip() || $user->isVVIP())
+                                            <div class="tagText" data-toggle="popover" data-content="此會員為警示會員，與此會員交流務必提高警覺！">
                                                 <img src="/new/images/a5.png">
-                                            @else
-                                                <img src="/new/images/b_5.png" style="height: 50px;">
-                                            @endif
-                                        </div>
+                                            </div>
+                                        @else
+                                            <img src="/new/images/b_5.png" style="height: 50px;">
+                                        @endif
                                     </li>
                                     @php
                                         $user->isReadIntro = 1;
@@ -734,13 +733,13 @@
                                     @endphp
                                 @elseif(isset($data['description']) && $to->engroup == 2)
                                     <li>
-                                        <div class="tagText" data-toggle="popover" data-content="新進甜心是指註冊未滿30天的新進會員，建議男會員可以多多接觸，不過要注意是否為八大行業人員。" style="width: 100%">
-                                            @if($user->isVip() || $user->isVVIP())
+                                        @if($user->isVip() || $user->isVVIP())
+                                            <div class="tagText" data-toggle="popover" data-content="新進甜心是指註冊未滿30天的新進會員，建議男會員可以多多接觸，不過要注意是否為八大行業人員。" style="width: 100%">
                                                 <img src="/new/images/a1.png">
-                                            @else
-                                                <img src="/new/images/b_1.png" style="height: 50px;">
-                                            @endif
-                                        </div>
+                                            </div>
+                                        @else
+                                            <img src="/new/images/b_1.png" style="height: 50px;">
+                                        @endif
                                         {{--                                        <span>{{$new_sweet}}</span>--}}
                                     </li>
                                     @php
@@ -749,13 +748,13 @@
                                     @endphp
                                 @elseif(($to->isVip() || $to->isVVIP()) && $to->engroup == 1)
                                     <li>
-                                        <div class="tagText" data-toggle="popover" data-content="本站的付費會員。" style="width: 100%">
-                                            @if($user->isVip() || $user->isVVIP())
+                                        @if($user->isVip() || $user->isVVIP())
+                                            <div class="tagText" data-toggle="popover" data-content="本站的付費會員。" style="width: 100%">
                                                 <img src="/new/images/a4.png">
-                                            @else
-                                                <img src="/new/images/b_4.png" style="height: 50px;">
-                                            @endif
-                                        </div>
+                                            </div>
+                                        @else
+                                            <img src="/new/images/b_4.png" style="height: 50px;">
+                                        @endif
                                         {{--                                        <span>{{$label_vip}}</span>--}}
                                     </li>
                                     @php
