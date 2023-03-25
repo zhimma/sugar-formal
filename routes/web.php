@@ -270,6 +270,10 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
 
     Route::get('user_video_chat_verify_allow_check', 'VideoChatController@user_video_chat_verify_allow_check')->name('user_video_chat_verify_allow_check');
 
+    //錄影驗證頁面
+    Route::get('video_record_verify', 'VideoChatController@video_record_verify')->name('video_record_verify');
+    Route::post('video_record_verify_upload', 'VideoChatController@video_record_verify_upload')->name('video_record_verify_upload');
+
     //視訊功能測試
     Route::get('/video-chat-test', 'VideoChatController@videoChatTest');
 

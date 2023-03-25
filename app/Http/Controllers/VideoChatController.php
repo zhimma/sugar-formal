@@ -19,6 +19,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Services\UserService;
 use App\Services\VipLogService;
 use App\Repositories\SuspiciousRepository;
+use App\Models\RealAuthQuestion;
 
 class VideoChatController extends BaseController
 {
@@ -803,14 +804,34 @@ class VideoChatController extends BaseController
         
         $rs = false;
         if($verify_user_entry->video_verify_memo) {
-            $rs = $verify_user_entry->video_verify_memo()->update(['user_question_into_chat_at'=>Carbon::now()]);                    
-        }                   
+            $rs = $verify_user_entry->video_verify_memo()->update(['user_question_into_chat_at'=>Carbon::now()]);               
+        }
         
         if($rs) {
             return response()->json(['memo' => $verify_user_entry->video_verify_memo()->firstOrNew()]);
         }
  
-    }    
+    }   
     
+    public function video_record_verify(Request $request,RealAuthPageService $rap_service)
+    {   
+        $questions = RealAuthQuestion::get();
+        return view('auth.video_record_verify')->with('questions', $questions);
+    }
+
+    public function video_record_verify_upload(Request $request,RealAuthPageService $rap_service)
+    {
+        Log::Info('test');
+        $path = $request->file('video')->store('video_chat_verify');
+        $user_video_verify_record = new UserVideoVerifyRecord;
+
+        $user_video_verify_record->user_video = $path;
+        $user_video_verify_record->user_id = auth()->user()->id;
+        $user_video_verify_record->admin_id = 0;               
+
+        $user_video_verify_record->save();
+
+        return ['path'=>$path,'upload'=>'success'];
+    }
     
 }

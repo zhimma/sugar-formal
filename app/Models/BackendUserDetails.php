@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class BackendUserDetails extends Model
 {
@@ -67,5 +68,45 @@ class BackendUserDetails extends Model
         $log->save();
 
         return $backend_user_detail;
+    }
+
+    public static function apply_video_verify($user_id)
+    {
+        $backend_user_detail = BackendUserDetails::first_or_new($user_id);
+        $backend_user_detail->is_need_video_verify = 1;
+        $backend_user_detail->need_video_verify_date = Carbon::now();
+        $backend_user_detail->save();
+    }
+
+    public static function cancel_video_verify($user_id)
+    {
+        $backend_user_detail = BackendUserDetails::first_or_new($user_id);
+        if($backend_user_detail->is_need_video_verify == 1)
+        {
+            $backend_user_detail->video_verify_fail_count = $backend_user_detail->video_verify_fail_count + 1;
+        }
+        $backend_user_detail->save();
+    }
+
+    public static function reset_cancel_video_verify($user_id)
+    {
+        $backend_user_detail = BackendUserDetails::first_or_new($user_id);
+        $backend_user_detail->video_verify_fail_count = 0;
+        $backend_user_detail->login_times_after_need_video_verify_date = 0;
+        $backend_user_detail->save();
+    }
+
+    public static function login_update($user_id)
+    {
+        $backend_user_detail = BackendUserDetails::first_or_new($user_id);
+        if($backend_user_detail->remain_login_times_of_wait_for_more_data > 0)
+        {
+            $backend_user_detail->remain_login_times_of_wait_for_more_data = $backend_user_detail->remain_login_times_of_wait_for_more_data - 1;
+        }
+        if($backend_user_detail->is_need_video_verify == 1)
+        {
+            $backend_user_detail->login_times_after_need_video_verify_date = $backend_user_detail->login_times_after_need_video_verify_date + 1;
+        }
+        $backend_user_detail->save();
     }
 }
