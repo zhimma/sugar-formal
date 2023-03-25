@@ -1821,4 +1821,90 @@ class UserService
         $this->userMeta = $userEntry->meta;
         return $this;
     }
+    
+    public function riseByUserId($user_id)
+    {
+        if(!$user_id) {
+            $this->model = new User;
+            $this->userMeta = new UserMeta;
+            return $this;
+        }
+        
+        $user = $this->find($user_id);
+        
+        if(!$user) {
+            $this->model = new User;
+            $this->userMeta = new UserMeta;
+            return $this;
+        }        
+
+        return $this->riseByUserEntry($user);
+    }    
+    
+    public function isJuniorAdminOrUnder() {
+        $roles = $this->model->roles;
+        
+        if($roles->where('id',3)->count() && !$roles->where('id',1)->count())
+            return true; 
+        
+        if(!$roles->where('id',3)->count() && !$roles->where('id',1)->count())
+            return true; 
+    }
+    
+    public function getLayoutEmailByEmail($email) 
+    {
+        if($this->isJuniorAdminOrUnder()) {
+            return $this->getPartialMaskFullEmail($email);
+        }
+        
+        return $email;
+    }
+    
+    public function getLayoutPhoneByPhone($phone) 
+    {
+        if($this->isJuniorAdminOrUnder()) {
+            return $this->getPartialMaskFullPhone($phone);
+        }
+        
+        return $phone;
+    }    
+    
+    public static function getPartialMaskFullPhone($phone) 
+    {
+        if($phone) {
+            $show_code = substr($phone,0,4);
+            if($show_code) return $show_code.'******';
+        }
+    }      
+    
+    public static function getPartialMaskFullEmail($email) 
+    {
+        $except_domain = [
+            'icloud.com',
+            'me.com',
+            'mac.com',
+            'yahoo.com',
+            'yahoo.com.tw',
+            'gmail.com',
+            'gmail.com.tw',
+            'hotmail.com',
+            'proton.me',
+            'kimo.com',
+            'msa.hinet.net',
+            'msn.com',
+            'livemail.tw',
+            'outlook.com',
+            'pchome.com.tw',
+            'live.com',
+            'live.jp',
+            'protonmail.com',
+        ];
+        
+        $email_domain = substr($email,strpos($email, '@')+1);
+    
+        if(!in_array($email_domain,$except_domain)) {
+            return str_replace($email_domain,'********',$email);
+        }
+        else return $email;
+    }    
 }

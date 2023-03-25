@@ -94,7 +94,7 @@
                     @if(!(Auth::user()->can('juniorAdmin') && $is_test && ($isBanned || $isAdminWarned)))
                         <tr @if($isBanned) style="background: yellow;" @elseif($isAdminWarned) style="background: palegreen;" @endif>
                             <td>{{$loginLog->ip}}</td>
-                            <td><a href="../advInfo/{{ $row->user_id }}" target="_blank">{{$user->email}}</a></td>
+                            <td><a href="../advInfo/{{ $row->user_id }}" target="_blank">{{$service->getLayoutEmailByEmail(  $user->email)}}</a></td>
                             <td>{{$loginLog->country}}</td>
                             <td>{{$row->cfp_id}}</td>
                             @if($user->engroup==1)

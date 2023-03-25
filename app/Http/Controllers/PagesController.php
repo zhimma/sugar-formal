@@ -5143,7 +5143,8 @@ class PagesController extends BaseController
             ->with('init_check_msg', $init_check_msg ?? null)
             ->with('user_pause_during_msg', $this->advance_auth_get_msg('user_pause2'))
             ->with('rap_service', $rap_service)
-            ->with('users', $users);
+            ->with('users', $users)
+            ->with('service',$this->service);
     }
 
     public function clear_advance_auth_email_entrance()
