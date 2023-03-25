@@ -313,7 +313,7 @@ class LoginController extends \App\Http\Controllers\BaseController
         }
 
         //更新後台紀錄登入次數
-        BackendUserDetails::login_update($uid)
+        BackendUserDetails::login_update($uid);
 
         //移至LogSuccessfulLoginListener
         /*
