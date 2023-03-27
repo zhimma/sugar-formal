@@ -335,7 +335,7 @@
                         </div>
                         <div class="tabbox_new_dd">
                             @if($user->backend_user_details->first()->is_need_video_verify ?? false)
-                                @if($user->is_video_auth_warn)
+                                @if($user->is_warn->first()->video_auth ?? false)
                                 <h2 class="tabbox_h2">你好，您目前被站方警示，站方會再跟您約視訊驗證時間，再請注意來訊。</h2>
                                 @else
                                 <h2 class="tabbox_h2">已申請</h2>

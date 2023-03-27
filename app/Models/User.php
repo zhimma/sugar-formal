@@ -2539,6 +2539,6 @@ class User extends Authenticatable implements JWTSubject
 
     public function is_video_auth_warn()
     {
-        return $this->hasOne(warned_users::class, 'member_id', 'id')->first()->video_auth;
+        return $this->hasOne(warned_users::class, 'member_id', 'id');
     }
 }
