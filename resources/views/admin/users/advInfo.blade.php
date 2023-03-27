@@ -2812,10 +2812,10 @@
             </div>
             <form action="/admin/users/toggleUserWarned" method="POST" id="clickToggleUserWarned">
                 {!! csrf_field() !!}
-                <input type="hidden" value="" name="user_id" id="warnedUserID">
+                <input type="hidden" value="{{$user['id']}}" name="user_id" id="warnedUserID">
                 <input type="hidden" value="advInfo" name="page">
-                <input type="hidden" name="vip_pass">
-                <input type="hidden" name="adv_auth">
+                <input type="hidden" name="vip_pass" value="0">
+                <input type="hidden" name="adv_auth" value="0">
                 <input type="hidden" name="video_auth">
                 <div class="modal-body">
                      警示時間
