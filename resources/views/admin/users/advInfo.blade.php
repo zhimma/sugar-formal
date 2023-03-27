@@ -2816,7 +2816,7 @@
                 <input type="hidden" value="advInfo" name="page">
                 <input type="hidden" name="vip_pass" value="0">
                 <input type="hidden" name="adv_auth" value="0">
-                <input type="hidden" name="video_auth">
+                <input type="hidden" name="video_auth" value="0">
                 <div class="modal-body">
                      警示時間
                     <select name="days" class="days">
@@ -3082,7 +3082,7 @@ jQuery(document).ready(function(){
     })    
 
     $('.warned_video_auth').on('click', function () {
-        let videoAuth == 1;
+        let videoAuth = 1;
 
         @if( $user->video_verify_auth_status == 1)
             videoAuth = 0;
