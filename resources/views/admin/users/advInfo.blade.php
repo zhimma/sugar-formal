@@ -165,6 +165,7 @@
         <a class="btn @if($user['advance_auth_status']==1 ) btn-secondary @else btn-danger @endif warned-user warned_adv_auth" title="站方警示與自動封鎖的警示，只能經後台解除" id="adv_auth_warned_user" href="#" @if($user['advance_auth_status']==1 ) onclick="return false;"  @else data-toggle="modal" data-target="#warned_modal" data-vip_pass="0" data-vip_pass="0" data-adv_auth="1"  data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}" @endif >驗證警示</a>
         @endif
     @endif
+    <a class="btn @if($user->video_verify_auth_status == 1 ) btn-secondary @else btn-danger @endif warned-user warned_video_auth" title="站方警示與自動封鎖的警示，只能經後台解除" id="video_auth_warned_user" href="#" @if($user->video_verify_auth_status == 1) onclick="return false;"  @else data-toggle="modal" data-target="#warned_modal" data-vip_pass="0" data-vip_pass="0" data-adv_auth="0"  data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}" @endif >視訊驗證警示</a>
     @if($userMeta->isWarned==0)
         <button class="btn btn-info isWarned-user" title="自動計算檢舉分數達10分者警示，可經手機驗證解除警示(被檢舉總分)" onclick="@if($user->engroup == 2) return false; @endif WarnedToggler({{$user['id']}},1);"
             @if($user->engroup == 2) data-toggle="modal" data-target="#isWarned_blockade" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}" @endif
@@ -2815,6 +2816,7 @@
                 <input type="hidden" value="advInfo" name="page">
                 <input type="hidden" name="vip_pass">
                 <input type="hidden" name="adv_auth">
+                <input type="hidden" name="video_auth">
                 <div class="modal-body">
                      警示時間
                     <select name="days" class="days">
@@ -3076,6 +3078,20 @@ jQuery(document).ready(function(){
         $("#clickToggleUserWarned input[name='vip_pass']").val(0);
         if($(this).data('adv_auth')==1){
             $("#warnedModalLabel").append(' (驗證警示)');
+        }
+    })    
+
+    $('.warned_video_auth').on('click', function () {
+        let videoAuth == 1;
+
+        @if( $user->video_verify_auth_status == 1)
+            videoAuth = 0;
+        @endif
+
+        $("#clickToggleUserWarned input[name='video_auth']").val(videoAuth);
+        $("#clickToggleUserWarned input[name='vip_pass']").val(0);
+        if(videoAuth==1){
+            $("#warnedModalLabel").append(' (視訊驗證警示)');
         }
     })    
 

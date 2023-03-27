@@ -326,6 +326,21 @@
                             </div>
                         </div>         
                     @endif
+                    
+                    <div class="sys_aa">
+                        <div class="tabbox_new_dt"><span>視訊錄影驗證</span>
+                            @if(!($user->backend_user_details->first()->is_need_video_verify ?? false))
+                                <a id="apply_video_record_verify" class="zs_buttonn">申請驗證</a>
+                            @endif
+                        </div>
+                        <div class="tabbox_new_dd">
+                            @if($user->backend_user_details->first()->is_need_video_verify ?? false)
+                                <h2 class="tabbox_h2">已申請</h2>
+                            @else
+                                <h2 class="tabbox_h2"><span class="tu_dfont">尚未申請</span></h2>
+                            @endif
+                        </div>
+                    </div> 
 
                    <div class="sys_aa" id="vip_state_block">
                         <div class="tabbox_new_dt"><span>隱藏狀態</span>
@@ -865,6 +880,22 @@
         }
     </script>
 <script type="text/javascript">
+    $('#apply_video_record_verify').click(function(){   
+        console.log('test');
+        $.ajax({
+            url: '{{ route("apply_video_record_verify") }}',
+            type: 'GET',
+            data: {
+                '_token': '{{ csrf_token() }}',
+            },
+            success: function(data) {
+                if(data.status == 'success'){
+                    c5('已申請');
+                    location.reload();
+                }
+            }
+        });
+    });
 
     $(document).ready(function() {
 

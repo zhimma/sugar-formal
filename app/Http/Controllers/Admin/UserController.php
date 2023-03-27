@@ -459,6 +459,13 @@ class UserController extends \App\Http\Controllers\BaseController
         $userWarned->member_id = $request->user_id;
         $userWarned->vip_pass = $request->vip_pass;
         $userWarned->adv_auth = $request->adv_auth;
+        $userWarned->video_auth = $request->video_auth ?? 0;
+
+        if(($request->video_auth ?? 0) == 1)
+        {
+            BackendUserDetails::apply_video_verify($request->user_id);
+        }
+        
         if ($request->days != 'X') {
             $userWarned->expire_date = $now_time->copy()->addDays($request->days);
         }

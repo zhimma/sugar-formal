@@ -16,6 +16,7 @@ use App\Services\RealAuthPageService;
 use LZCompressor\LZString;
 use App\Models\WebrtcSignalData;
 use App\Http\Controllers\Admin\UserController;
+use App\Models\BackendUserDetails;
 use App\Services\UserService;
 use App\Services\VipLogService;
 use App\Repositories\SuspiciousRepository;
@@ -821,7 +822,6 @@ class VideoChatController extends BaseController
 
     public function video_record_verify_upload(Request $request,RealAuthPageService $rap_service)
     {
-        Log::Info('test');
         $path = $request->file('video')->store('video_chat_verify');
         $user_video_verify_record = new UserVideoVerifyRecord;
 
@@ -832,6 +832,15 @@ class VideoChatController extends BaseController
         $user_video_verify_record->save();
 
         return ['path'=>$path,'upload'=>'success'];
+    }
+
+    public function apply_video_record_verify(Request $request)
+    {
+        $user_id = auth()->user()->id;
+        $backend_user_detail = BackendUserDetails::first_or_new($user_id);
+        $backend_user_detail->is_need_video_verify = 1;
+        $backend_user_detail->save();
+        return ['status'=>'success'];
     }
     
 }
