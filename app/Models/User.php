@@ -2537,7 +2537,7 @@ class User extends Authenticatable implements JWTSubject
         return $expiryDate;
     }
 
-    public function is_video_auth_warn()
+    public function is_warn()
     {
         return $this->hasOne(warned_users::class, 'member_id', 'id');
     }
