@@ -460,6 +460,7 @@ class UserController extends \App\Http\Controllers\BaseController
         $userWarned->vip_pass = $request->vip_pass;
         $userWarned->adv_auth = $request->adv_auth;
         $userWarned->video_auth = $request->video_auth ?? 0;
+        Log::Info($request->video_auth);
 
         if(($request->video_auth ?? 0) == 1)
         {
