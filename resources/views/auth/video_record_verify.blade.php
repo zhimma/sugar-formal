@@ -143,12 +143,17 @@
         async function start_record() {
             await checkDevices();
             if(!deviceReady){
+                $('#start_record').show();
+                $('#vedio_field').hide();
+                $('#question_field').hide();
                 alert('未搜尋到鏡頭或麥克風裝置');
                 return;
             }
             await getMediaPermission();
-            if(getUserMediaError)
-            {     
+            if(getUserMediaError){    
+                $('#start_record').show();
+                $('#vedio_field').hide();
+                $('#question_field').hide(); 
                 alert('未取得鏡頭或麥克風裝置權限');
                 return;
             }
@@ -157,6 +162,21 @@
 
         function end_record() {
             stopRecording();
+            const video = document.querySelector('video');
+            if(record_stream) {
+                const videoStreams = record_stream.getVideoTracks()
+
+                videoStreams.forEach(stream => {
+                stream.stop()
+                });
+
+                video.src = video.srcObject = null;
+            }
+            deviceReady = false;
+            getUserMediaError = false;
+            recordedBlobs = [];
+            mediaRecorder = null;
+            record_stream = null;
         }
 
         function checkDevices() {
