@@ -2537,7 +2537,7 @@ class User extends Authenticatable implements JWTSubject
         return $expiryDate;
     }
 
-    public function is_warn()
+    public function warned_users()
     {
         return $this->hasOne(warned_users::class, 'member_id', 'id');
     }

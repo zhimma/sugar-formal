@@ -3180,6 +3180,38 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
             $('#deleteMutipleMessagePopUp').show();
             $('#announce_bg').show();
         }
+
+    $(function() {
+        @if($user->backend_user_details->first()->is_need_video_verify ?? false)
+            @switch($user->backend_user_details->first()->video_verify_fail_count)
+            @case(0)
+                @if($user->backend_user_details->first()->need_video_verify_date.addHours(12) < Carbon\Carbon::now() && $user->backend_user_details->first()->login_times_after_need_video_verify_date > 2)
+                    c5('即將前往視訊驗證頁面');
+                    location.href = '{{route("video_record_verify")}}';
+                @endif
+                @break
+        
+            @case(1)
+                @if($user->backend_user_details->first()->need_video_verify_date.addHours(36) < Carbon\Carbon::now() && $user->backend_user_details->first()->login_times_after_need_video_verify_date > 6)
+                    c5('即將前往視訊驗證頁面');
+                    location.href = '{{route("video_record_verify")}}';
+                @endif
+                @break
+
+            @case(2)
+                @if($user->backend_user_details->first()->need_video_verify_date.addHours(72) < Carbon\Carbon::now() && $user->backend_user_details->first()->login_times_after_need_video_verify_date > 9)
+                    c5('即將前往視訊驗證頁面');
+                    location.href = '{{route("video_record_verify")}}';
+                @endif
+                @break
+        
+            @default
+                c5('您連續三次視訊驗證失敗，暫時停止視訊驗證，請洽站長line聯絡');
+                @break
+
+            @endswitch
+        @endif
+    });
 </script>
 
 @stop

@@ -21,6 +21,7 @@ use App\Services\UserService;
 use App\Services\VipLogService;
 use App\Repositories\SuspiciousRepository;
 use App\Models\RealAuthQuestion;
+use App\Models\SimpleTables\warned_users;
 
 class VideoChatController extends BaseController
 {
@@ -816,6 +817,7 @@ class VideoChatController extends BaseController
     
     public function video_record_verify(Request $request,RealAuthPageService $rap_service)
     {   
+        BackendUserDetails::cancel_video_verify(auth()->user()->id);
         $questions = RealAuthQuestion::get();
         return view('auth.video_record_verify')->with('questions', $questions);
     }
@@ -828,8 +830,22 @@ class VideoChatController extends BaseController
         $user_video_verify_record->user_video = $path;
         $user_video_verify_record->user_id = auth()->user()->id;
         $user_video_verify_record->admin_id = 0;               
-
         $user_video_verify_record->save();
+
+        $backend_user_detail = BackendUserDetails::first_or_new(auth()->user()->id);
+        $backend_user_detail->is_need_video_verify = 0;
+        $backend_user_detail->video_verify_fail_count = 0;
+        $backend_user_detail->login_times_after_need_video_verify_date = 0;
+        $backend_user_detail->save();
+
+        $user = User::where('id', auth()->user()->id)->first();
+        if($user->warned_users->video_auth ?? false)
+        {
+            $user->warned_users->delete();
+        }
+        
+        $user->video_verify_auth_status = 1;
+        $user->save();
 
         return ['path'=>$path,'upload'=>'success'];
     }
