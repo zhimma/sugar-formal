@@ -676,8 +676,8 @@
                                 @endfor
                             </div>
                             <!-- Add Arrows -->
-                            <div class="swiper-button-next"></div>
-                            <div class="swiper-button-prev"></div>
+                            <div class="swiper-button-next" style="width:36px;height:36px;background-size: 100%;opacity: .6;background-image:url(/new/images/jt_04_new.png)"></div>
+                            <div class="swiper-button-prev" style="width:36px;height:36px;background-size: 100%;opacity: .6;background-image:url(/new/images/jt_03_new.png)"></div>
                         </div>
                         <!--新改-->
                         @php
