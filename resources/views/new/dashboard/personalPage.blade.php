@@ -885,7 +885,6 @@
     </script>
 <script type="text/javascript">
     $('#apply_video_record_verify').click(function(){   
-        console.log('test');
         $.ajax({
             url: '{{ route("apply_video_record_verify") }}',
             type: 'GET',
