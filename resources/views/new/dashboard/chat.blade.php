@@ -3185,21 +3185,21 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
         @if($user->backend_user_details->first()->is_need_video_verify ?? false)
             @switch($user->backend_user_details->first()->video_verify_fail_count)
             @case(0)
-                @if($user->backend_user_details->first()->need_video_verify_date->addHours(12) < Carbon\Carbon::now() && $user->backend_user_details->first()->login_times_after_need_video_verify_date > 2)
+                @if(Carbon\Carbon::parse($user->backend_user_details->first()->need_video_verify_date)->addHours(12) < Carbon\Carbon::now() && $user->backend_user_details->first()->login_times_after_need_video_verify_date > 2)
                     c5('即將前往視訊驗證頁面');
                     location.href = '{{route("video_record_verify")}}';
                 @endif
                 @break
         
             @case(1)
-                @if($user->backend_user_details->first()->need_video_verify_date->addHours(36) < Carbon\Carbon::now() && $user->backend_user_details->first()->login_times_after_need_video_verify_date > 6)
+                @if(Carbon\Carbon::parse($user->backend_user_details->first()->need_video_verify_date)->addHours(36) < Carbon\Carbon::now() && $user->backend_user_details->first()->login_times_after_need_video_verify_date > 6)
                     c5('即將前往視訊驗證頁面');
                     location.href = '{{route("video_record_verify")}}';
                 @endif
                 @break
 
             @case(2)
-                @if($user->backend_user_details->first()->need_video_verify_date->addHours(72) < Carbon\Carbon::now() && $user->backend_user_details->first()->login_times_after_need_video_verify_date > 9)
+                @if(Carbon\Carbon::parse($user->backend_user_details->first()->need_video_verify_date)->addHours(72) < Carbon\Carbon::now() && $user->backend_user_details->first()->login_times_after_need_video_verify_date > 9)
                     c5('即將前往視訊驗證頁面');
                     location.href = '{{route("video_record_verify")}}';
                 @endif
