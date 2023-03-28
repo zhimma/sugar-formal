@@ -25,7 +25,7 @@ class VedioVerifyColumn extends Migration
             $table->after('remain_login_times_of_wait_for_more_data', function (Blueprint $table) {
                 $table->boolean('is_need_video_verify')->default(0);
                 $table->integer('video_verify_fail_count')->default(0);
-                $table->date('need_video_verify_date')->nullable();
+                $table->timestamp('need_video_verify_date')->nullable();
                 $table->integer('login_times_after_need_video_verify_date')->default(0);
             });
         });
