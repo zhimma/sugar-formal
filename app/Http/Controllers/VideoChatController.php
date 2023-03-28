@@ -855,6 +855,7 @@ class VideoChatController extends BaseController
         $user_id = auth()->user()->id;
         $backend_user_detail = BackendUserDetails::first_or_new($user_id);
         $backend_user_detail->is_need_video_verify = 1;
+        $backend_user_detail->need_video_verify_date = Carbon::now();
         $backend_user_detail->save();
         return ['status'=>'success'];
     }
