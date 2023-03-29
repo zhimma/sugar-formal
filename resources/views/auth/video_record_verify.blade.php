@@ -120,6 +120,13 @@
         </div>
     </div>  
     <script>
+        $(function() {
+            $(this).hide();
+            $('#vedio_field').show();
+            $('#question_field').show();
+            start_record();
+        });
+
         let deviceReady = false;
         let getUserMediaError = false;
         let recordedBlobs = [];

@@ -817,7 +817,6 @@ class VideoChatController extends BaseController
     
     public function video_record_verify(Request $request,RealAuthPageService $rap_service)
     {   
-        BackendUserDetails::cancel_video_verify(auth()->user()->id);
         $questions = RealAuthQuestion::get();
         return view('auth.video_record_verify')->with('questions', $questions);
     }
@@ -858,6 +857,21 @@ class VideoChatController extends BaseController
         $backend_user_detail->need_video_verify_date = Carbon::now();
         $backend_user_detail->save();
         return ['status'=>'success'];
+    }
+
+    public function hint_to_video_record_verify(Request $request)
+    {
+        $access = $request->access;
+        if($access)
+        {
+            BackendUserDetails::cancel_video_verify(auth()->user()->id);
+            return redirect()->route('video_record_verify');
+        }
+        else
+        {
+            BackendUserDetails::cancel_video_verify(auth()->user()->id);
+            return redirect()->back();
+        }
     }
     
 }

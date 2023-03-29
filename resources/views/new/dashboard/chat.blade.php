@@ -826,6 +826,16 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
     <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
 </div>
 
+
+<div class="bl bl_tab" id="video_verify_pop_up">
+    <div class="bltitle">提示</div>
+    <div class="n_blnr01 matop10">
+        <div class="blnr bltext">是否要進行視訊驗證?</div>
+        <a id="btn_access_video_verify" href="/hint_to_video_record_verify?access=1" class="n_bllbut matop30">前往視訊</a>
+        <a id="btn_reject_video_verify" href="/hint_to_video_record_verify?access=0" class="n_bllbut matop30">拒絕視訊</a>
+    </div>
+</div>
+
 <script>
     let showMsg = false;
     let isLoading = 1;
@@ -3186,22 +3196,19 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
             @switch($user->backend_user_details->first()->video_verify_fail_count)
             @case(0)
                 @if(Carbon\Carbon::parse($user->backend_user_details->first()->need_video_verify_date)->addHours(12) < Carbon\Carbon::now() && $user->backend_user_details->first()->login_times_after_need_video_verify_date > 2)
-                    c5('即將前往視訊驗證頁面');
-                    location.href = '{{route("video_record_verify")}}';
+                    video_verify_pop_up();
                 @endif
                 @break
         
             @case(1)
                 @if(Carbon\Carbon::parse($user->backend_user_details->first()->need_video_verify_date)->addHours(36) < Carbon\Carbon::now() && $user->backend_user_details->first()->login_times_after_need_video_verify_date > 6)
-                    c5('即將前往視訊驗證頁面');
-                    location.href = '{{route("video_record_verify")}}';
+                    video_verify_pop_up();
                 @endif
                 @break
 
             @case(2)
                 @if(Carbon\Carbon::parse($user->backend_user_details->first()->need_video_verify_date)->addHours(72) < Carbon\Carbon::now() && $user->backend_user_details->first()->login_times_after_need_video_verify_date > 9)
-                    c5('即將前往視訊驗證頁面');
-                    location.href = '{{route("video_record_verify")}}';
+                    video_verify_pop_up();
                 @endif
                 @break
         
@@ -3212,6 +3219,10 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
             @endswitch
         @endif
     });
+
+    function video_verify_pop_up(){
+        $("#video_verify_pop_up").show();
+    }
 </script>
 
 @stop
