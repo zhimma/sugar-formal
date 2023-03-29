@@ -3244,10 +3244,6 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
         $("#video_verify_pop_up").show();
         $('#video_verify_pop_up').css('z-index',39).css('position','fixed');
     }
-
-    $(function() {
-        video_verify_pop_up();
-    });
 </script>
 <style>
     #video_verify_bg {
