@@ -741,7 +741,7 @@ class Message_new extends Model
                 $messages[$key]['message_user_note'] = $message_user_note;
 
                 //$messages[$key]['isWarned']=$msgUser->meta_()->isWarned;
-                if(($msgUser->user_meta->isWarned==1 || $msgUser->aw_relation ) && $msgUser->id != 1049){
+                if(($msgUser->user_meta->isWarned()==1 || $msgUser->aw_relation ) && $msgUser->id != 1049){
                     $messages[$key]['isWarned']=1;
                 }else{
                     $messages[$key]['isWarned']=0;

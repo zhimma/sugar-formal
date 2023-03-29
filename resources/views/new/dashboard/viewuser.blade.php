@@ -696,7 +696,7 @@
                                 @if(isset($data['description']) && $to->engroup == 1)
                                     <li><div style='min-width: {{$introMinDiv}};text-align: center;'><img @if($user->isVip()||$user->isVVIP())width='85px'@endif src='@if($user->isVip()||$user->isVVIP())/new/images/a2.png @else/new/images/b_2.png @endif'></div> <span>長期付費的VIP，或者常用車馬費邀請的男會員</span></li>
                                 @endif
-                                @if($to->meta->isWarned == 1 || $to->aw_relation)
+                                @if($to->meta->isWarned() == 1 || $to->aw_relation)
                                     <li><div style='min-width: {{$introMinDiv}};text-align: center;'><img @if($user->isVip()||$user->isVVIP())width='85px'@endif src='@if($user->isVip()||$user->isVVIP())/new/images/a5.png @else/new/images/b_5.png @endif'></div> <span>被多人檢舉或被網站評為可疑的會員</span></li>
                                 @endif
                                 @if($to->isPhoneAuth())
@@ -717,7 +717,7 @@
                                 @endif
                                 @if($rap_service->isNeedShowTagOnPic())
                                     {!!$rap_service->getTagShowOnPicLayoutByLoginedUserIsVip($user->isVipOrIsVvip()) !!}
-                                @elseif($to->meta->isWarned == 1 || $to->aw_relation)
+                                @elseif($to->meta->isWarned() == 1 || $to->aw_relation)
                                     <li>
                                         @if($user->isVip() || $user->isVVIP())
                                             <div class="tagText" data-toggle="popover" data-content="此會員為警示會員，與此會員交流務必提高警覺！">
@@ -3090,7 +3090,7 @@
             } else {
                 @if($user->id == $to->id)
                     c5('不可對自己評價');
-                @elseif($user->meta->isWarned == 1 || $isAdminWarned)
+                @elseif($user->meta->isWarned() == 1 || $isAdminWarned)
                     c5('您目前為警示帳戶，暫不可評價');
                 @elseif ($is_banned_v2)
                     c5('您目前為封鎖帳戶，暫不可評價');

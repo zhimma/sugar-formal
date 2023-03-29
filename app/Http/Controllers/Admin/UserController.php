@@ -3401,6 +3401,7 @@ class UserController extends \App\Http\Controllers\BaseController
         } else {
             $data['isWarned'] = null;
         }
+        if($f_user && $f_user->isVipOrIsVvip()) $data['isWarned']  = 0;
         if (isset($f_user)) {
             $data['WarnedScore'] = $f_user->WarnedScore();
             $data['auth_status'] = $f_user->isPhoneAuth();
