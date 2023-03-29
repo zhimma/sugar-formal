@@ -1635,7 +1635,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                         if(e.isVip!=1 || e.isVip==0) {
                             e.is_truth = 0;
                         }
-                        if('{{$user->meta_()->isWarned == 1 || $user->aw_relation}}' == true){
+                        if('{{$user->meta_()->isWarned() == 1 || $user->aw_relation}}' == true){
                             isBlur = true;
                         }else{
                             var blurryAvatar = e.blurry_avatar? e.blurry_avatar.split(',') : '';

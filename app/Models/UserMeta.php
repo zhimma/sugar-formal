@@ -706,10 +706,11 @@ class UserMeta extends Model
             }
             if (isset($situation) && strlen($situation) != 0) $query->where('situation', $situation);
             if (isset($education) && strlen($education) != 0) $query->where('education', $education);
-
+/*
             if($isWarned != 2 && $userIsVip){
                 $query->where('isWarned', 0);
             }
+            */
             $meta = UserMeta::select('city', 'area')->where('user_id', $userid)->get()->first();
             $user_city = explode(',', $meta->city);
             $user_area = explode(',', $meta->area);
@@ -754,9 +755,10 @@ class UserMeta extends Model
          */
         // 效能調整：Eager Loading
         if($engroup==1) {
-            $query = User::with(['user_meta' => $constraint, 'vip', 'vas', 'aw_relation', 'fa_relation', 'pr_log'])
+            $query = //User::with(['user_meta' => $constraint, 'vip', 'vas', 'aw_relation', 'fa_relation', 'pr_log'])
+                User::with([ 'vip', 'vas', 'aw_relation', 'fa_relation', 'pr_log'])
                 ->select('*', \DB::raw("IF(is_hide_online = 1, hide_online_time, last_login) as last_login"))
-                ->whereHas('user_meta', $constraint)
+                //->whereHas('user_meta', $constraint)
                 ->where('engroup', $engroup)
                 ->where('accountStatus', 1)
                 ->where('account_status_admin', 1)
@@ -773,9 +775,10 @@ class UserMeta extends Model
                 })
                 ;
         }else {
-            $query = User::with(['user_meta' => $constraint, 'vip', 'vas', 'aw_relation', 'fa_relation'])
+            //$query = User::with(['user_meta' => $constraint, 'vip', 'vas', 'aw_relation', 'fa_relation'])
+            $query = User::with(['user_meta', 'vip', 'vas', 'aw_relation', 'fa_relation'])
                 ->select('*', \DB::raw("IF(is_hide_online = 1, hide_online_time, last_login) as last_login"))
-                ->whereHas('user_meta', $constraint)
+                //->whereHas('user_meta', $constraint)
                 ->where('engroup', $engroup)
                 ->where('accountStatus', 1)
                 ->where('account_status_admin', 1)
@@ -826,6 +829,23 @@ class UserMeta extends Model
                     ->where('expire_date','>=',Carbon::now())
                     ->orWhere('expire_date',null);
             });
+            
+            /*
+            $query->where(function($q1){
+                $q1->where('isWarned', 0);
+                $q1->orWhere(function($q2){
+                    $q2->where('isWarned', 1);
+                    $q2->where(function($q3){
+                        $q3->whereHas('vip');
+                        $q3->orWhere(function($q4){
+                            $q4->whereHas('working_VvipApplication_list');
+                            $q4->whereHas('unexpired_VVIP_vas_list');
+                        });
+                    });
+                    
+                });
+            }); 
+            */
         }
         if ( $prRange != '' && $userIsVip) {
             $pieces = explode('-', $prRange);
@@ -891,10 +911,47 @@ class UserMeta extends Model
             $query->whereNotIn('users.id',$ignore_user_ids);
         }
         // $time_end = microtime(true);
+        if($isWarned !=2 && $userIsVip){
+            /*
+            $constraintVipWarned = clone $constraint;
+            $constraintVVipWarned = clone $constraint;
+            $queryVipWarned = clone $query;
+            $queryVVipWarned = clone $query;
+            $constraintVipWarned->where('isWarned', 1);
+            $constraintVVipWarned->where('isWarned', 1);
+            if(!($userIsVip && isset($isVip) && $isVip==1)) {
+                 $queryVipWarned->whereHas('vip');
+                 $queryVVipWarned->where('is_vvip',1);
+            }
+           
+            $constraint->where('isWarned', 0); 
+             */
+            $query->where(function($q1){
+                $q1->whereHas('user_meta',function($q1sub){$q1sub->where('isWarned', 0);});
+                $q1->orWhere(function($q2){
+                    $q2->whereHas('user_meta',function($q2_1){$q2_1->where('isWarned', 1);});
+                    $q2->where(function($q2_2){
+                        $q2_2->whereHas('vip');
+                        $q2_2->orWhere('is_vvip',1);
+                    });
+                    
+                });
+            });             
+        }
 
+        //$query->with(['user_meta'=>$constraint])
+        $query->whereHas('user_meta',$constraint);
+           /* 
+        $queryVipWarned->with(['user_meta'=>$constraintVipWarned])
+            ->whereHas('user_meta',$constraintVipWarned);
+            
+        $queryVVipWarned->with(['user_meta'=>$constraintVVipWarned])
+            ->whereHas('user_meta',$constraintVVipWarned);
+*/
         $page = $page-1;
         $count = $request->perPageCount;
         $start = $page*$count;
+      
         $allPageDataCount = $query->count();
         $DataQuery = $query->orderBy($orderBy, 'desc');
 
@@ -1000,6 +1057,12 @@ class UserMeta extends Model
         }
         return 0;
     }
+    
+    public function isWarned()
+    {
+        if($this->user->isVipOrIsVvip()) return 0;
+        return $this->isWarned;
+    }
 
     public function isAllSet($engroup = 2)
     {
@@ -1092,6 +1155,12 @@ class UserMeta extends Model
     {
         return $this->hasOne(RealAuthUserModifyPic::class, 'old_pic', 'pic')->whereHas('real_auth_user_modify',function($q){$q->where([['status',0],['apply_status_shot',1]])->whereHas('real_auth_user_apply',function($qq){$qq->where('status',1);});})->latest();
     }
+    
+    //Vip
+    public function vip()
+    {
+        return $this->hasMany(Vip::class, 'member_id', 'user_id')->where('active', 1)->orderBy('id', 'desc');
+    }    
 }
 
 

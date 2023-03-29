@@ -73,7 +73,7 @@ class UserService
         }
         $setting = $to->self_auth_tags_display;
         $show = false;
-        if($user->meta->isWarned == 1 || $user->aw_relation){
+        if($user->meta->isWarned() == 1 || $user->aw_relation){
             $show = false;
         } else{
             $getPr  =   $user->pr_log?$user->pr_log->pr:0;
@@ -116,7 +116,7 @@ class UserService
         
         $blurryAvatar = isset($to->meta->blurryAvatar)? $to->meta->blurryAvatar : "";
         $blurryAvatar = explode(',', $blurryAvatar);
-        if($user->meta->isWarned == 1 || $user->aw_relation){
+        if($user->meta->isWarned() == 1 || $user->aw_relation){
             $isBlurAvatar = true;
         } else{
             if(sizeof($blurryAvatar)>1){
@@ -160,7 +160,7 @@ class UserService
         
         $blurryLifePhoto = isset($to->meta->blurryLifePhoto)? $to->meta->blurryLifePhoto : "";
         $blurryLifePhoto = explode(',', $blurryLifePhoto);
-        if($user->meta->isWarned == 1 || $user->aw_relation ){
+        if($user->meta->isWarned() == 1 || $user->aw_relation ){
             $isBlurLifePhoto = true;
         } else{
             if(sizeof($blurryLifePhoto)>1){
@@ -214,7 +214,7 @@ class UserService
         $new_sugar_no_msg_days = 7;
         $new_sugar_error_user_type = '普通';
 
-        if(($maleUser->user_meta->isWarned??false) || ($maleUser->aw_relation??false)) {
+        if(($maleUser->user_meta->isWarned()??false) || ($maleUser->aw_relation??false)) {
             $new_sugar_no_msg_days = 20;
             $new_sugar_error_user_type = '警示';
         }
@@ -381,7 +381,7 @@ class UserService
             $w_vip_pass_count = 0;
             $b_count = 0;
             $w_count = 0;
-            if($logEntry->user->user_meta->isWarned??null) return false;
+            if($logEntry->user && $logEntry->user->user_meta && ($logEntry->user->user_meta->isWarned()??null)) return false;
 
             if(($logEntry->user->aw_relation??null) && $logEntry->user->aw_relation()->where('vip_pass',0)->count()) {
                 return false;
