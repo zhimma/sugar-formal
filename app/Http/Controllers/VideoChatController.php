@@ -829,7 +829,7 @@ class VideoChatController extends BaseController
 
         $user_video_verify_record->user_video = $path;
         $user_video_verify_record->user_id = auth()->user()->id;
-        $user_video_verify_record->admin_id = 0;               
+        $user_video_verify_record->admin_id = 0;
         $user_video_verify_record->save();
 
         $backend_user_detail = BackendUserDetails::first_or_new(auth()->user()->id);
