@@ -787,29 +787,6 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
             </div>
         </div>
     </div>
-    <div class="row" id="video_verify_pop_up" style="display:none;">
-        <div class="col">
-            <p style="margin-bottom:10px;">
-                您好，是否要進行視訊驗證?
-            </p>
-            <div class="btn-group">
-                <a
-                    id="btn_reject_video_verify" href="/hint_to_video_record_verify?access=0"
-                    type="button"
-                    class="btn btn-danger"
-                >
-                    拒絕視訊
-                </a>
-                <a
-                    id="btn_access_video_verify" href="/hint_to_video_record_verify?access=1" 
-                    type="button"
-                    class="btn btn-success ml-5"
-                >
-                    前往視訊
-                </a>
-            </div>
-        </div>
-    </div>
 </div>
 
 <div class="bl bl_tab" id="tab03">
@@ -848,6 +825,32 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
     </div>
     <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
 </div>
+<div id="video_verify_pop_up" class="container" style="display:none;">
+    <div class="row" >
+        <div class="col">
+            <p style="margin-bottom:10px;">
+                您好，是否要進行視訊驗證?
+            </p>
+            <div class="btn-group">
+                <a
+                    id="btn_reject_video_verify" href="/hint_to_video_record_verify?access=0"
+                    type="button"
+                    class="btn btn-danger"
+                >
+                    拒絕視訊
+                </a>
+                <a
+                    id="btn_access_video_verify" href="/hint_to_video_record_verify?access=1" 
+                    type="button"
+                    class="btn btn-success ml-5"
+                >
+                    前往視訊
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="video_verify_bg" class="mask_bg" ></div>
 
 <script>
     let showMsg = false;
@@ -3234,8 +3237,42 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
     });
 
     function video_verify_pop_up(){
+
+        $('.mask_bg').hide();
+        $('#video_verify_bg').show();
+
         $("#video_verify_pop_up").show();
+        $('#video_verify_pop_up').css('z-index',39).css('position','fixed');
     }
+
+    $(function() {
+        video_verify_pop_up();
+    });
 </script>
+<style>
+    #video_verify_bg {
+        z-index:20;
+    }
+    .mask_bg {
+        width: 100%;
+        height: 100%;
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0px;
+        left: 0;
+        background: rgba(0,0,0,0.8);
+        z-index: 20;
+        display: none;
+    }
+    #video_verify_pop_up {
+        background: white;
+        top: 20%;
+        left: 2%;
+        width: 96%;
+        text-align: center;
+        border-radius: 5px;
+    }
+</style>
 
 @stop
