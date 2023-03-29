@@ -787,6 +787,29 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
             </div>
         </div>
     </div>
+    <div class="row" id="video_verify_pop_up" style="display:none;">
+        <div class="col">
+            <p style="margin-bottom:10px;">
+                您好，是否要進行視訊驗證?
+            </p>
+            <div class="btn-group">
+                <a
+                    id="btn_reject_video_verify" href="/hint_to_video_record_verify?access=0"
+                    type="button"
+                    class="btn btn-danger"
+                >
+                    拒絕視訊
+                </a>
+                <a
+                    id="btn_access_video_verify" href="/hint_to_video_record_verify?access=1" 
+                    type="button"
+                    class="btn btn-success ml-5"
+                >
+                    前往視訊
+                </a>
+            </div>
+        </div>
+    </div>
 </div>
 
 <div class="bl bl_tab" id="tab03">
@@ -824,16 +847,6 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
         </form>
     </div>
     <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
-</div>
-
-
-<div class="bl bl_tab" id="video_verify_pop_up">
-    <div class="bltitle">提示</div>
-    <div class="n_blnr01 matop10">
-        <div class="blnr bltext">是否要進行視訊驗證?</div>
-        <a id="btn_access_video_verify" href="/hint_to_video_record_verify?access=1" class="n_bllbut matop30">前往視訊</a>
-        <a id="btn_reject_video_verify" href="/hint_to_video_record_verify?access=0" class="n_bllbut matop30">拒絕視訊</a>
-    </div>
 </div>
 
 <script>
