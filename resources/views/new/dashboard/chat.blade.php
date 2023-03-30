@@ -1444,8 +1444,8 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                     li += `<img src="/new/images/zz_zt1.png" class="ys_gt">`;
                 }
 
-                li += `<div class="sjpic ${styBlur} shanx" id="${user_id}" style="width: 65px; height: 65px;">
-                        <img src="${pic}" style="margin-top: 5px;width: 65px; height: 65px;">
+                li += `<div class="sjpic shanx" id="${user_id}" style="width: 65px; height: 65px;">
+                        <img class="${styBlur}" src="${pic}" style="margin-top: 5px;width: 65px; height: 65px;">
                         <div class="onlineStatusChatView ${isOnline==true?'denglu_nn':(isOnline==-1?'denglu_nn deng_nn':'')}">${isOnline==-1?'<img src="{{asset('images/wsx.png')}}">':''}</div>
                        </div>
                         </div>
@@ -1459,8 +1459,8 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                 if (show == 0 && engroup == 2) {
                     li += `<img src="/new/images/zz_zt2.png" class="ys_gt1">`;
                 }
-                li += `<div class="sjpic ${styBlur} shanx" id="${user_id}" style="width: 65px; height: 65px;">
-                    <img src="${pic}" style="margin-top: 5px;width: 65px; height: 65px;">
+                li += `<div class="sjpic shanx" id="${user_id}" style="width: 65px; height: 65px;">
+                    <img class="${styBlur}" src="${pic}" style="margin-top: 5px;width: 65px; height: 65px;">
                     <div class="onlineStatusChatView ${isOnline==true?'denglu_nn':(isOnline==-1?'denglu_nn deng_nn':'')}">${isOnline==-1?'<img src="{{asset('images/wsx.png')}}">':''}</div>
                 </div>
                 </div>
@@ -2836,8 +2836,8 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                                         <div class="si_bg ys_pr">
                                             <a href="/dashboard/anonymousEvaluationChat/Room/${v.chatid}" target="_self">
                                                 <div style="width: 70px; float: left;">
-                                                    <div class="sjpic ${isBlur?'blur_img':''} shanx">
-                                                        <img src="${v.avatar?v.avatar:`/new/images/${anonymousGender}.png`}">
+                                                    <div class="sjpic shanx">
+                                                        <img class="${isBlur?'blur_img':''}" src="${v.avatar?v.avatar:`/new/images/${anonymousGender}.png`}">
                                                         <div class="onlineStatusChatView ${v.isOnline==true?'denglu_nn':(v.isOnline==-1?'denglu_nn deng_nn':'')}">${v.isOnline==-1?'<img src="{{asset('images/wsx.png')}}">':''}</div>
                                                     </div>
                                                 </div>
