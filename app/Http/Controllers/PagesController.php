@@ -3252,7 +3252,7 @@ class PagesController extends BaseController
                     $temp_array['visitorAge'] = $visitor->age();
                     $temp_array['visitorIsOnline'] = $visitor->isOnline();
                     $temp_array['visitorExchangePeriodName'] = DB::table('exchange_period_name')->where('id', $visitor->exchange_period)->first();
-                    $temp_array['visitorValueAddedServiceStatusHideOnline'] = $visitor->valueAddedServiceStatus('hideOnline');
+                    $temp_array['visitorValueAddedServiceStatusHideOnline'] = $visitor->valueAddedServiceStatus('hideOnline') && $visitor->is_hide_online == 1;
                     $temp_array['new_occupation'] = UserOptionsXref::where('user_id', $visitor->id)->where('option_type', 1)->first()->occupation->option_name ?? '';
                     $dataList_vvip[] = $temp_array;
                 } else {
@@ -3273,7 +3273,7 @@ class PagesController extends BaseController
                     $temp_array['visitorAge'] = $visitor->age();
                     $temp_array['visitorIsOnline'] = $visitor->isOnline();
                     $temp_array['visitorExchangePeriodName'] = DB::table('exchange_period_name')->where('id',$visitor->exchange_period)->first();
-                    $temp_array['visitorValueAddedServiceStatusHideOnline'] = $visitor->valueAddedServiceStatus('hideOnline');
+                    $temp_array['visitorValueAddedServiceStatusHideOnline'] = $visitor->valueAddedServiceStatus('hideOnline') && $visitor->is_hide_online == 1;
                     $temp_array['new_occupation'] = UserOptionsXref::where('user_id', $visitor->id)->where('option_type', 1)->first()->occupation->option_name ?? '';
                     $dataList_normal[] = $temp_array;
                 }
@@ -8401,7 +8401,7 @@ class PagesController extends BaseController
 
         $vasStatus = '';
 
-        if($user->valueAddedServiceStatus('hideOnline') == 1) {
+        if($user->valueAddedServiceStatus('hideOnline') == 1 && $user->is_hide_online == 1) {
             $vasStatus = '您目前已購買隱藏功能。';
             $vas = $user->vas->where('service_name','hideOnline')->first();
             if($vas->payment){
@@ -8571,6 +8571,8 @@ class PagesController extends BaseController
             $adminWarnedStatus .= '您從 ' . substr($user_isBannedOrWarned->warned_created_at, 0, 10) . ' <span class="main_word">被站方警示 ' . $diffDays . '天</span>，預計至 ' . substr($user_isBannedOrWarned->warned_expire_date, 0, 16) . ' 日解除，原因是<span class="main_word"> ' . $user_isBannedOrWarned->warned_reason . '</span>，若要解鎖請升級VIP解除，並同意如有再犯，站方有權不退費並永久警示。同意[<a href="../dashboard/new_vip" class="red">請點我</a>]';
         } else if (!empty($user_isBannedOrWarned->warned_id) && $user_isBannedOrWarned->warned_expire_date == null) {
             $adminWarnedStatus = '您目前<span class="main_word">已被站方警示</span>，原因是<span class="main_word"> ' . $user_isBannedOrWarned->warned_reason . '</span>，如有需要反應請點右下聯絡我們聯絡站長。';
+        } else if ($user->warned_users->video_auth ?? false) {
+            $adminWarnedStatus .= '您從 ' . substr($user_isBannedOrWarned->warned_created_at, 0, 10) . ' <span class="main_word">被站方警示 ' . $diffDays . '天</span>，預計至 ' . substr($user_isBannedOrWarned->warned_expire_date, 0, 16) . ' 日解除，原因是<span class="main_word"> ' . $user_isBannedOrWarned->warned_reason . '</span>，站方會再跟您約視訊驗證時間，再請注意來訊。';
         } else if (!empty($user_isBannedOrWarned->warned_id) && $user_isBannedOrWarned->warned_expire_date > now()) {
             $adminWarnedStatus .= '您從 ' . substr($user_isBannedOrWarned->warned_created_at, 0, 10) . ' <span class="main_word">被站方警示 ' . $diffDays . '天</span>，預計至 ' . substr($user_isBannedOrWarned->warned_expire_date, 0, 16) . ' 日解除，原因是<span class="main_word"> ' . $user_isBannedOrWarned->warned_reason . '</span>，如有需要反應請點右下聯絡我們聯絡站長。';
         }
