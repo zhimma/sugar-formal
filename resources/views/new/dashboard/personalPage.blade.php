@@ -76,7 +76,7 @@
     .sl_bllbut01:hover{color:#fff;background: #8a9ff0;box-shadow:inset 0px 15px 10px -10px #4c6ded,inset 0px -10px 10px -20px #4c6ded;}
 
     #vip_state_block .tu_dfont,#self_auth_state_block .tu_dfont  {width:auto;max-height:unset; -webkit-box-orient: vertical; -webkit-line-clamp:none; -webkit-line-clamp:unset;}
-    #vip_state_block .tabbox_new_dt a.zs_buttonn,#self_auth_state_block  .tabbox_new_dt a.zs_buttonn,#adv_auth_state_block .tabbox_new_dt a.zs_buttonn{font-size: 15px; line-height: 30px;font-weight:normal;margin-right:2%; }
+    #vip_state_block .tabbox_new_dt a.zs_buttonn,#self_auth_state_block  .tabbox_new_dt a.zs_buttonn,#adv_auth_state_block .tabbox_new_dt a.zs_buttonn,#apply_video_record_block .tabbox_new_dt a.zs_buttonn{font-size: 15px; line-height: 30px;font-weight:normal;margin-right:2%; }
 
     span.main_word {color:#fd5678;font-weight:bolder;}
     div.one_row_sys_aa {overflow:hidden;}
@@ -327,7 +327,7 @@
                         </div>         
                     @endif
                     
-                    <div class="sys_aa">
+                    <div class="sys_aa" id="apply_video_record_block">
                         <div class="tabbox_new_dt"><span>視訊錄影驗證</span>
                             @if(!($user->backend_user_details->first()->is_need_video_verify ?? false))
                                 <a id="apply_video_record_verify" class="zs_buttonn">申請驗證</a>
@@ -337,6 +337,8 @@
                             @if($user->backend_user_details->first()->is_need_video_verify ?? false)
                                 @if($user->warned_users->video_auth ?? false)
                                 <h2 class="tabbox_h2">你好，您目前被站方警示，站方會再跟您約視訊驗證時間，再請注意來訊。</h2>
+                                @elseif($user->backend_user_details->first()->video_verify_fail_count>=3)
+                                    <h2 class="tabbox_h2">您連續三次視訊驗證失敗，暫時停止視訊驗證，若有問題請與站長聯絡<a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="all: initial;all: unset;height: 26px; float: unset;vertical-align:middle !important;"></a></h2>
                                 @else
                                 <h2 class="tabbox_h2">已申請</h2>
                                 @endif

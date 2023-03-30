@@ -3229,7 +3229,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                 @break
         
             @default
-                c5('您連續三次視訊驗證失敗，暫時停止視訊驗證，請洽站長line聯絡');
+                c5html('您連續三次視訊驗證失敗，暫時停止視訊驗證，若有問題請與站長聯絡<a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="all: initial;all: unset;height: 26px; float: unset;vertical-align:middle !important;"></a>');
                 @break
 
             @endswitch
