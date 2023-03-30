@@ -2168,7 +2168,7 @@
                         }
                         else {
                             c5(rentry.content);
-                            $('.n_bllbut').focus();
+                            $('#msg').blur();
                         }
                     }
                     @if($isVip)
@@ -2179,7 +2179,7 @@
             }
             xhr.onerror = function(e) {
                 c5('傳送失敗!');
-                $('.n_bllbut').focus();
+                $('#msg').blur();
             }
             if(formData.get('is_truth')==1) {
                 add_adbut_on(document.getElementById('truth_actor'));
