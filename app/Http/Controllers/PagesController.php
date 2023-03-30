@@ -3254,12 +3254,16 @@ class PagesController extends BaseController
                     $temp_array['visitorExchangePeriodName'] = DB::table('exchange_period_name')->where('id', $visitor->exchange_period)->first();
                     $temp_array['visitorValueAddedServiceStatusHideOnline'] = $visitor->valueAddedServiceStatus('hideOnline');
                     $temp_array['new_occupation'] = UserOptionsXref::where('user_id', $visitor->id)->where('option_type', 1)->first()->occupation->option_name ?? '';
+                    $visitor->user_meta->isWarned = 0;
                     $dataList_vvip[] = $temp_array;
                 } else {
                     $temp_array = [];
                     $temp_array['rawData'] = $visitor;
                     $temp_array['visitorCheckRecommendedUser'] = \App\Services\UserService::checkRecommendedUser($visitor);
                     $temp_array['visitorIsVip'] = $visitor->isVip();
+                    if($temp_array['visitorIsVip']) {
+                        $visitor->user_meta->isWarned = 0;
+                    }
                     $temp_array['visitorIsVVIP'] = $visitor->isVVIP();
                     $temp_array['visitorVvipInfoStatus'] = $visitor->VvipInfoStatus();
                     $temp_array['visitorIsAdminWarned'] = $visitor->isAdminWarned();
@@ -3368,7 +3372,7 @@ class PagesController extends BaseController
             $isBlockList = \App\Models\Blocked::select('member_id')->where('blocked_id', $uid)->get();
             $bannedUsers = \App\Services\UserService::getBannedId();
             $isAdminWarnedList = warned_users::select('member_id')->where('expire_date','>=',Carbon::now())->orWhere('expire_date',null)->get();
-            $isWarnedList = UserMeta::select('user_id')->where('isWarned',1)->get();
+            $isWarnedList = UserMeta::select('user_id')->where('isWarned',1)->whereDoesntHave('vip')->whereDoesntHave('user',function($q){$q->where('is_vvip',1);})->get();
 
             $evaluation_data = DB::table('evaluation')->where('to_id',$uid)
                 ->whereNotIn('from_id',$userBlockList)
@@ -3518,13 +3522,6 @@ class PagesController extends BaseController
         }
         Reported::report($request->aid, $request->uid, $request->content);
         return redirect('/user/view/' . $request->uid)->with('message', '檢舉成功');
-    }
-
-    private function customTrim($str)
-    {
-        $search = array(" ", "　", "\n", "\r", "\t");
-        $replace = array("", "", "", "", "");
-        return str_replace($search, $replace, $str);
     }
 
     public function report(Request $request)
@@ -4120,7 +4117,7 @@ class PagesController extends BaseController
                     }
                     */
                 }
-                
+
                 if($user->engroup==2) {
                     $user_tiny_setting_to_blurry = $user->tiny_setting_to_blurry()->where('to_id',$cid_user->id)->firstOrNew();
                     $user_not_show_not_blurry_popup = $user->tiny_setting()->where('cat','not_blurry_not_show_popup')->firstOrNew();
@@ -4248,6 +4245,12 @@ class PagesController extends BaseController
     {
         $input = $request->input();
         $search_page_key=session()->get('search_page_key',[]);
+        if(!$search_page_key && !$input) {
+            if(auth()->user()->search_filter_remember) {
+                $search_page_key = $input = json_decode(auth()->user()->search_filter_remember?->filter,true);
+                if(!$search_page_key) $search_page_key = $input  = [];
+            }
+        }
         $rap_service = $this->rap_service;
 
         $county_array = ['county', 'county2', 'county3', 'county4', 'county5'];
@@ -4286,6 +4289,16 @@ class PagesController extends BaseController
                     session()->put('search_page_key.' . $key, array_get($input, $key, null));
                 }
             }
+            
+            if(auth()->user()->search_filter_remember) {
+                auth()->user()->search_filter_remember->filter = json_encode(session()->get('search_page_key',[]));
+                auth()->user()->search_filter_remember->save();
+            }
+            else {
+                auth()->user()->search_filter_remember()->create(['filter'=>json_encode(session()->get('search_page_key',[]))]);            
+            }
+                
+            
         }
 
         $user = $request->user();
@@ -4574,9 +4587,6 @@ class PagesController extends BaseController
         return back()->with('message', 'error');
     }
 
-    //本月封鎖 + 警示名單
-    //$type 0為封鎖名單 1為警示名單
-
     public function showCheckAccount(Request $request)
     {
         $user = $request->user();
@@ -4589,6 +4599,9 @@ class PagesController extends BaseController
             return view('auth.checkAccount')->with('user', $user);
         }
     }
+
+    //本月封鎖 + 警示名單
+    //$type 0為封鎖名單 1為警示名單
 
     public function banned_warned_list(Request $request)
     {
@@ -4661,8 +4674,6 @@ class PagesController extends BaseController
         }
     }
 
-    // 公告封鎖名單
-
     public function warned(Request $request)
     {
         if ($user = Auth::user()) {
@@ -4676,6 +4687,8 @@ class PagesController extends BaseController
         }
         abort(404);
     }
+
+    // 公告封鎖名單
 
     public function showWebAnnouncement(Request $request)
     {
@@ -5134,7 +5147,8 @@ class PagesController extends BaseController
             ->with('init_check_msg', $init_check_msg ?? null)
             ->with('user_pause_during_msg', $this->advance_auth_get_msg('user_pause2'))
             ->with('rap_service', $rap_service)
-            ->with('users', $users);
+            ->with('users', $users)
+            ->with('service',$this->service);
     }
 
     public function clear_advance_auth_email_entrance()
@@ -5747,7 +5761,8 @@ class PagesController extends BaseController
         $user_meta = $user->meta;
 
         $userWarned = $user->getWarnedOfAdvAuthQuery()->orderBy('created_at', 'DESC')->get()->first();
-        $isWarnedUser = $user_meta->isWarnedType == 'adv_auth' ? $user_meta->isWarned : 0;
+        $isWarnedUser = $user_meta->isWarnedType == 'adv_auth' ? $user_meta->isWarned() : 0;
+        if($user->isVipOrIsVvip()) $isWarnedUser=0;
         $banOrWarnCanceledMsg = [];
         $banOrWarnCanceledStr = '';
         if ($userBanned || $userWarned || $isWarnedUser) {
@@ -6139,8 +6154,6 @@ class PagesController extends BaseController
         }
     }
 
-    //官方討論區_照片上傳
-
     public function posts_pic_save($post_id, $images, $newImages)
     {
         $suspicious=Posts::where('id',$post_id)->first();
@@ -6192,6 +6205,8 @@ class PagesController extends BaseController
         $destinationPath = json_encode(array_merge($suspiciousImages, $destinationPath));
         return $destinationPath;
     }
+
+    //官方討論區_照片上傳
 
     public function posts_reply(Request $request)
     {
@@ -6535,8 +6550,6 @@ class PagesController extends BaseController
         }
     }
 
-    //官方討論區_照片上傳
-
     public function posts_pic_save_VVIP($post_id, $images, $newImages)
     {
         $suspicious=PostsVvip::where('id',$post_id)->first();
@@ -6588,6 +6601,8 @@ class PagesController extends BaseController
         $destinationPath = json_encode(array_merge($suspiciousImages, $destinationPath));
         return $destinationPath;
     }
+
+    //官方討論區_照片上傳
 
     public function posts_reply_VVIP(Request $request)
     {
@@ -7155,7 +7170,10 @@ class PagesController extends BaseController
         //        $uid = $request->uid;
         $fid = $request->fid;
         $forum = Forum::where('id', $fid)->first();
-        $checkForumMangeStatus ='';
+        if (!$forum) {
+            return redirect()->route('forum')->with('message', '討論區不存在');
+        }
+        $checkForumMangeStatus = '';
         if ($user->id != $forum->user_id && $user->id != 1049) {
             $checkForumMangeStatus = ForumManage::where('forum_id', $fid)->where('user_id', $user->id)->first();
             if (!isset($checkForumMangeStatus)) {
@@ -7164,7 +7182,7 @@ class PagesController extends BaseController
                 return redirect()->route('forum')->with('message', '此討論區尚在申請中');
             } elseif ($checkForumMangeStatus->status == 2) {
                 return redirect()->route('forum')->with('message', '您無法進入此討論區');
-            }elseif ($checkForumMangeStatus->status == 3) {
+            } elseif ($checkForumMangeStatus->status == 3) {
                 return redirect()->route('forum')->with('message', '您無法進入此討論區');
             }
         }
@@ -7271,7 +7289,7 @@ class PagesController extends BaseController
             }elseif ($checkForumMangeStatus->is_manager!=1) {
                 return redirect()->route('forum')->with('message', '您沒有使用該功能的權限');
             }
-        }        
+        }
 
         $posts_manage_users = ForumManage::select('forum_manage.user_id','users.name','forum_manage.status','forum_manage.forum_status','forum_manage.chat_status','forum_manage.is_manager')
             ->leftJoin('users', 'users.id','=','forum_manage.user_id')
@@ -7305,7 +7323,7 @@ class PagesController extends BaseController
         $forum_id = $request->fid;
         $status = $request->status;
         $is_manager = false;
-        
+
         if($forum_id){
             $fid = Forum::find($forum_id);
         }
@@ -7313,10 +7331,10 @@ class PagesController extends BaseController
             echo json_encode(['message'=>'錯誤! 無此討論區']);
             exit;
         }
-        
+
         if( $auid==$fid->user_id ||   $fid->forum_manager->where('user_id',$user->id)->count()) {
             $is_manager = true;
-        }  
+        }
 
         if(!$is_manager && $uid!=$user->id) return;
         //$checkData = ForumManage::where('forum_id', $fid->id)->where('user_id', $uid)->where('apply_user_id', $auid)->first();
@@ -7409,7 +7427,7 @@ class PagesController extends BaseController
         $checkData = ForumManage::where('forum_id', $fid)->where('user_id', $uid)->first();
         $manager_num = $manager_quota =0;
         $not_allow_toggle = false;
-        if($curMngData && $curMngData->forum->user_id!=$user->id  && $curMngData->is_manager!=1) $not_allow_toggle = true; 
+        if($curMngData && $curMngData->forum->user_id!=$user->id  && $curMngData->is_manager!=1) $not_allow_toggle = true;
         if($not_allow_toggle) {
             $msg = '錯誤!無管理權限';
         }
@@ -7476,7 +7494,7 @@ class PagesController extends BaseController
                         $msg = '最多只能指派'.$checkData->forum->hire_manager_quota.'個管理員';
                         $msg.= '，目前已額滿，您可先移除其他管理員，再指派新的管理員。';
                     }
-                    
+
                 } else {
                     $msg = 'error';
                 }
@@ -7497,14 +7515,14 @@ class PagesController extends BaseController
         $user = $this->user;
         $forumInfo = null;
         $checkStatus = null;
-        
+
         if($auid != $uid ) {
             $forumInfo = Forum::find($fm_id);
 
             if(!$forumInfo) {
                 return redirect()->route('forum')->with('message', '無法進入! 討論區不存在');
             }
-            
+
             $checkStatus = ForumManage::select('forum_manage.status','users.name', 'forum_manage.user_id', 'forum_manage.apply_user_id')
                 ->leftJoin('users', 'users.id','=','forum_manage.apply_user_id')
                 ->where('forum_manage.user_id', $uid)
@@ -7557,8 +7575,8 @@ class PagesController extends BaseController
                 }elseif ($checkForumMangeStatus->status == 3) {
                     return redirect()->route('forum')->with('message', '您無法進入此討論區');
                 }
-            }            
-            
+            }
+
             return view('/dashboard/forum_posts')
                 ->with('user', $user)
                 ->with('cur', $user)
@@ -8479,7 +8497,8 @@ class PagesController extends BaseController
             $vasStatus = '您尚未購買隱藏付費功能';
         }
 
-        $user_isBannedOrWarned = User::select(
+        $user_isBannedOrWarned = User::with('meta')->select(
+            'u.id',
             'm.isWarned',
             'm.isWarnedType',
             'b.id as banned_id',
@@ -8511,6 +8530,7 @@ class PagesController extends BaseController
             ->orderBy('w.id', 'desc')
             ->where('u.id',$user->id)
             ->get()->first();
+
         //封鎖
         $isBannedStatus = '';
         if($user_isBannedOrWarned->banned_expire_date != null){
@@ -8580,7 +8600,7 @@ class PagesController extends BaseController
         }
 
         $isWarnedStatus = '';
-        if($user_isBannedOrWarned->isWarned==1){
+        if($user_isBannedOrWarned->meta->isWarned()==1){
             if ($user_isBannedOrWarned->isWarnedType != 'adv_auth') {
                 $isWarnedAuthStr = '手機驗證';
                 $isWarnedAuthUrl = '../member_auth';
@@ -8693,7 +8713,9 @@ class PagesController extends BaseController
                 }
 
                 $reporter_isWarnedStatus = 0;
-                if ($row->isWarned == 1) {
+                if (($row->user && $row->user->meta && $row->user->meta->isWarned()== 1)
+                  ||  ($row->receiver && $row->receiver->meta && $row->receiver->meta->isWarned() == 1)     
+                ) {    
                     $reporter_isWarnedStatus = 1;
                 }
 
@@ -9269,10 +9291,10 @@ class PagesController extends BaseController
 
         $userMeta=UserMeta::findByMemberId($user->id);
         $type='';
-        if($data['isAdminWarned'] || $data['isBanned'] || $userMeta->isWarned==1){
+        if($data['isAdminWarned'] || $data['isBanned'] || $userMeta->isWarned()==1){
             if($data['isAdminWarned'] && $data['isBanned'])
                 $type='警示/封鎖';
-            elseif ($data['isAdminWarned'] || $userMeta->isWarned==1)
+            elseif ($data['isAdminWarned'] || $userMeta->isWarned()==1)
                 $type='警示';
             elseif ($data['isBanned'])
                 $type='封鎖';
@@ -9333,10 +9355,10 @@ class PagesController extends BaseController
 
         $userMeta=UserMeta::findByMemberId($user->id);
         $type='';
-        if($data['isAdminWarned'] || $data['isBanned'] || $userMeta->isWarned==1){
+        if($data['isAdminWarned'] || $data['isBanned'] || $userMeta->isWarned()==1){
             if($data['isAdminWarned'] && $data['isBanned'])
                 $type='警示/封鎖';
-            elseif ($data['isAdminWarned'] || $userMeta->isWarned==1)
+            elseif ($data['isAdminWarned'] || $userMeta->isWarned()==1)
                 $type='警示';
             elseif ($data['isBanned'])
                 $type='封鎖';
@@ -9462,10 +9484,10 @@ class PagesController extends BaseController
 
         $userMeta=UserMeta::findByMemberId($user->id);
         $type='';
-        if($data['isAdminWarned'] || $data['isBanned'] || $userMeta->isWarned==1){
+        if($data['isAdminWarned'] || $data['isBanned'] || $userMeta->isWarned()==1){
             if($data['isAdminWarned'] && $data['isBanned'])
                 $type='警示/封鎖';
-            elseif ($data['isAdminWarned'] || $userMeta->isWarned==1)
+            elseif ($data['isAdminWarned'] || $userMeta->isWarned()==1)
                 $type='警示';
             elseif ($data['isBanned'])
                 $type='封鎖';
@@ -10590,8 +10612,6 @@ class PagesController extends BaseController
         $request->session()->put('first_exchange_period_modify_next_time', true);
     }
 
-    //vvip
-
     public function view_vvipSelect(Request $request)
     {
 
@@ -10622,6 +10642,8 @@ class PagesController extends BaseController
             ->with('user', $user)
             ->with('warn_ban_reason', $warn_ban_reason);
     }
+
+    //vvip
 
     public function view_vvipSelect_a(Request $request)
     {
@@ -11145,20 +11167,6 @@ class PagesController extends BaseController
 
     }
 
-    //    public function VVIPisInvitedUpdateStatus(Request $request)
-    //    {
-    //        $user_id = $request->uid;
-    //        $status = $request->status;
-    //        $exist = VvipInvite::where('invite_user_id', $user_id)->where('status', 0)->first();
-    //        if(isset($exist)){
-    //            VvipInvite::where('invite_user_id', $user_id)->where('status', 0)->update(['status' => $status]);
-    //            return response()->json(array(
-    //                'status' => 1,
-    //                'msg' => 'ok',
-    //            ), 200);
-    //        }
-    //    }
-
     public function view_vvipSelectionReward(Request $request)
     {
         $user = auth()->user();
@@ -11195,6 +11203,20 @@ class PagesController extends BaseController
             ->with('area4', $area4)
             ->with('user', $user);
     }
+
+    //    public function VVIPisInvitedUpdateStatus(Request $request)
+    //    {
+    //        $user_id = $request->uid;
+    //        $status = $request->status;
+    //        $exist = VvipInvite::where('invite_user_id', $user_id)->where('status', 0)->first();
+    //        if(isset($exist)){
+    //            VvipInvite::where('invite_user_id', $user_id)->where('status', 0)->update(['status' => $status]);
+    //            return response()->json(array(
+    //                'status' => 1,
+    //                'msg' => 'ok',
+    //            ), 200);
+    //        }
+    //    }
 
     public function view_vvipSelectionRewardApply(Request $request)
     {
@@ -11315,12 +11337,12 @@ class PagesController extends BaseController
 
     }
 
-    //vvip end
-
     public function getChatIsTruthRemainQuota(Request $request)
     {
         return intval(Message::getRemainQuotaOfIsTruthByFromUser($request->user()));
     }
+
+    //vvip end
 
     public function logChatWithError(Request $request)
     {
@@ -11336,31 +11358,31 @@ class PagesController extends BaseController
         ];
 
         MessageErrorLog::create($error_log_arr);
-    }    
-    
+    }
+
     public function setBlurryToUser(Request $request)
     {
         $target = $request->target;
         $act = $request->act;
         $user = $request->user();
-        
+
         if(!$user) return;
         if(!$target) return;
         if(!$act) return;
         if(!in_array($act,[1,-1])) return;
-        
+
         $setting = $user->tiny_setting_to()->where([['to_id',$target],['cat','blurry_to_user']])->firstOrNew();
-        
+
         if($setting->id){
             if($setting->value==$act) {
                 return 1;
             }
             else {
                 $setting->value = $act;
-            
+
                 if($setting->save()) {
                     return 1;
-                }            
+                }
             }
         }
         else {
@@ -11371,7 +11393,14 @@ class PagesController extends BaseController
             if($setting->save()) {
                 return 1;
             }
-        }     
+        }
+    }
+    
+    private function customTrim($str)
+    {
+        $search = array(" ", "　", "\n", "\r", "\t");
+        $replace = array("", "", "", "", "");
+        return str_replace($search, $replace, $str);
     }
 }
 

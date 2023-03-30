@@ -37,6 +37,9 @@
 		.read-more:hover {
 		  color:#e44e71;
 		}
+		.liu_text_2 {
+			word-break: break-word;
+		}
 </style>
 @extends('new.layouts.website')
 <script src="{{ mix('/js/app.js') }}"></script>

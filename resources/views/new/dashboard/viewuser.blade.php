@@ -676,8 +676,8 @@
                                 @endfor
                             </div>
                             <!-- Add Arrows -->
-                            <div class="swiper-button-next"></div>
-                            <div class="swiper-button-prev"></div>
+                            <div class="swiper-button-next" style="width:36px;height:36px;background-size: 100%;opacity: .6;background-image:url(/new/images/jt_04_new.png)"></div>
+                            <div class="swiper-button-prev" style="width:36px;height:36px;background-size: 100%;opacity: .6;background-image:url(/new/images/jt_03_new.png)"></div>
                         </div>
                         <!--新改-->
                         @php
@@ -696,7 +696,7 @@
                                 @if(isset($data['description']) && $to->engroup == 1)
                                     <li><div style='min-width: {{$introMinDiv}};text-align: center;'><img @if($user->isVip()||$user->isVVIP())width='85px'@endif src='@if($user->isVip()||$user->isVVIP())/new/images/a2.png @else/new/images/b_2.png @endif'></div> <span>長期付費的VIP，或者常用車馬費邀請的男會員</span></li>
                                 @endif
-                                @if($to->meta->isWarned == 1 || $to->aw_relation)
+                                @if($to->meta->isWarned() == 1 || $to->aw_relation)
                                     <li><div style='min-width: {{$introMinDiv}};text-align: center;'><img @if($user->isVip()||$user->isVVIP())width='85px'@endif src='@if($user->isVip()||$user->isVVIP())/new/images/a5.png @else/new/images/b_5.png @endif'></div> <span>被多人檢舉或被網站評為可疑的會員</span></li>
                                 @endif
                                 @if($to->isPhoneAuth())
@@ -717,16 +717,15 @@
                                 @endif
                                 @if($rap_service->isNeedShowTagOnPic())
                                     {!!$rap_service->getTagShowOnPicLayoutByLoginedUserIsVip($user->isVipOrIsVvip()) !!}
-                                @elseif($to->meta->isWarned == 1 || $to->aw_relation)
+                                @elseif($to->meta->isWarned() == 1 || $to->aw_relation)
                                     <li>
-
-                                        <div class="tagText" data-toggle="popover" data-content="此會員為警示會員，與此會員交流務必提高警覺！">
-                                            @if($user->isVip() || $user->isVVIP())
+                                        @if($user->isVip() || $user->isVVIP())
+                                            <div class="tagText" data-toggle="popover" data-content="此會員為警示會員，與此會員交流務必提高警覺！">
                                                 <img src="/new/images/a5.png">
-                                            @else
-                                                <img src="/new/images/b_5.png" style="height: 50px;">
-                                            @endif
-                                        </div>
+                                            </div>
+                                        @else
+                                            <img src="/new/images/b_5.png" style="height: 50px;">
+                                        @endif
                                     </li>
                                     @php
                                         $user->isReadIntro = 1;
@@ -734,13 +733,13 @@
                                     @endphp
                                 @elseif(isset($data['description']) && $to->engroup == 2)
                                     <li>
-                                        <div class="tagText" data-toggle="popover" data-content="新進甜心是指註冊未滿30天的新進會員，建議男會員可以多多接觸，不過要注意是否為八大行業人員。" style="width: 100%">
-                                            @if($user->isVip() || $user->isVVIP())
+                                        @if($user->isVip() || $user->isVVIP())
+                                            <div class="tagText" data-toggle="popover" data-content="新進甜心是指註冊未滿30天的新進會員，建議男會員可以多多接觸，不過要注意是否為八大行業人員。" style="width: 100%">
                                                 <img src="/new/images/a1.png">
-                                            @else
-                                                <img src="/new/images/b_1.png" style="height: 50px;">
-                                            @endif
-                                        </div>
+                                            </div>
+                                        @else
+                                            <img src="/new/images/b_1.png" style="height: 50px;">
+                                        @endif
                                         {{--                                        <span>{{$new_sweet}}</span>--}}
                                     </li>
                                     @php
@@ -749,13 +748,13 @@
                                     @endphp
                                 @elseif(($to->isVip() || $to->isVVIP()) && $to->engroup == 1)
                                     <li>
-                                        <div class="tagText" data-toggle="popover" data-content="本站的付費會員。" style="width: 100%">
-                                            @if($user->isVip() || $user->isVVIP())
+                                        @if($user->isVip() || $user->isVVIP())
+                                            <div class="tagText" data-toggle="popover" data-content="本站的付費會員。" style="width: 100%">
                                                 <img src="/new/images/a4.png">
-                                            @else
-                                                <img src="/new/images/b_4.png" style="height: 50px;">
-                                            @endif
-                                        </div>
+                                            </div>
+                                        @else
+                                            <img src="/new/images/b_4.png" style="height: 50px;">
+                                        @endif
                                         {{--                                        <span>{{$label_vip}}</span>--}}
                                     </li>
                                     @php
@@ -3091,7 +3090,7 @@
             } else {
                 @if($user->id == $to->id)
                     c5('不可對自己評價');
-                @elseif($user->meta->isWarned == 1 || $isAdminWarned)
+                @elseif($user->meta->isWarned() == 1 || $isAdminWarned)
                     c5('您目前為警示帳戶，暫不可評價');
                 @elseif ($is_banned_v2)
                     c5('您目前為封鎖帳戶，暫不可評價');

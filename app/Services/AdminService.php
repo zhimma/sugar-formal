@@ -7,6 +7,7 @@ use App\Models\Reported;
 use App\Models\ReportedAvatar;
 use App\Models\ReportedPic;
 use App\Models\ValueAddedService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\LogChatPay;
@@ -125,13 +126,27 @@ class AdminService
         else{
             $users = $users->orderBy('u.last_login', 'desc');
         }
-        
-        if( empty($email) && empty($name) && empty($keyword)){
-            $users = $users->paginate(10);
+
+        //排序
+        if($request->member_type =='vip') {
+            $users->selectRaw('(select count(*) from member_vip where member_vip.member_id=u.id and member_vip.active=1 order by member_vip.id desc limit 1) as vip1');
+            $users = $users->selectRaw('(select count(*) from member_value_added_service where member_id =u.id  and active = 1 and service_name = "VVIP" and (expiry = "0000-00-00 00:00:00" or expiry >= "' . Carbon::now() . '") order by created_at desc limit 1) as vvip1');
+            $users = $users->selectRaw('(select count(*) from vvip_application where user_id=u.id and status=1 and vvip_application.deleted_at is null limit 1 ) as vvip2');
+            $users = $users->selectRaw('(case when ((select count(*) from member_value_added_service where member_id =u.id  and active = 1 and service_name = "VVIP" and (expiry = "0000-00-00 00:00:00" or expiry >= "' . Carbon::now() . '") order by created_at desc limit 1)=1 and (select count(*) from vvip_application where user_id=u.id and status=1 and vvip_application.deleted_at is null limit 1 )=1) then 1 else 0 end) as vvip_condition');
+            $users = $users->orderByRaw('vip1 desc,vvip_condition desc');
         }
-        else{
-            $users = $users->paginate(10);
+        if($request->member_type =='vvip'){
+            $users = $users->selectRaw('(case when ((select count(*) from member_value_added_service where member_id =u.id  and active = 1 and service_name = "VVIP" and (expiry = "0000-00-00 00:00:00" or expiry >= "' . Carbon::now() . '") order by created_at desc limit 1)=1 and (select count(*) from vvip_application where user_id=u.id and status=1 and vvip_application.deleted_at is null limit 1 )=1) then 1 else 0 end) as vvip_condition');
+            $users = $users->orderByRaw('vvip_condition desc');
         }
+        if($request->member_type =='banned'){
+            $users->selectRaw('(select count(*) from banned_users where banned_users.member_id like u.id limit 1) as banned_1');
+            $users->selectRaw('(select count(*) from banned_users_implicitly where target like u.id limit 1) as banned_2');
+            $users->selectRaw('(case when ((select count(*) from banned_users where banned_users.member_id like u.id limit 1)=1 or (select count(*) from banned_users_implicitly where target like u.id limit 1)=1) then 1 else 0 end) as banned_condition');
+            $users = $users->orderByRaw('banned_condition desc');
+        }
+        $users = $users->paginate(10);
+
         foreach ($users as $user){
             $user['isBlocked'] = banned_users::where('member_id', 'like', $user->id)->get()->first() == true  ? true : false;
             if($user['isBlocked'] == false){
@@ -152,17 +167,6 @@ class AdminService
                 ->where('service_name', 'VVIP')
                 ->orderBy('created_at', 'desc')
                 ->get()->first();
-        }
-        if($request->member_type =='vvip'){
-            $users = $users->sortByDesc('vvip');
-        }
-        if($request->member_type =='vip'){
-            //$users = collect($users)->sortBy('vip', true, true)->reverse()->toArray();
-            $users = $users->sortByDesc('vip');
-        }
-        if($request->member_type =='banned'){
-            //$users = collect($users)->sortBy('isBlocked')->reverse()->toArray();
-            $users = $users->sortByDesc('isBlocked');
         }
         return $users;
     }

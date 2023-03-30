@@ -229,16 +229,23 @@
         $('.sys_log dt').toggleClass('on');
 
         @if(Session::has('message'))
-        c5("{{Session::get('message')}}");
-        <?php session()->forget('message');?>
+        @if (is_array(Session::get('message')))
+        c5('{{ implode("", Session::get('message')) }}');
+        @php
+            \Sentry\captureMessage(implode("", \Session::get('message')));
+        @endphp
+        @else
+        c5('{{Session::get('message')}}');
+        @endif
+            <?php session()->forget('message'); ?>
         @endif
 
-        $('.sys_log dt').on('click', function() {
-            
-            if($(this).hasClass('on')){
+        $('.sys_log dt').on('click', function () {
+
+            if ($(this).hasClass('on')) {
                 $(this).removeClass('on');
                 $(this).toggleClass('off');
-            }else{
+            } else {
                 $(this).removeClass('off');
                 $(this).toggleClass('on');
             }

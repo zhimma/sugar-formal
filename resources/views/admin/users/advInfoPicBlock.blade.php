@@ -269,7 +269,7 @@ $(document).ready(function () {
                 @if ($pic->user_id == $pic->operator)
                     本人
                 @else
-                    {{ \App\Models\User::find($pic->operator)->email }}
+                    {{ $service->getLayoutEmailByEmail( \App\Models\User::find($pic->operator)->email) }}
                 @endif
             </td>
             <td>
@@ -593,7 +593,7 @@ $(document).ready(function () {
                         $checkAdminDeleted = \App\Models\AdminPicturesSimilarActionLog::where('pic', $pic->pic)->first();
                     @endphp
                     @if ($checkAdminDeleted)
-                        {{ $checkAdminDeleted->operator_user->email }}
+                        {{ $service->getLayoutEmailByEmail( $checkAdminDeleted->operator_user->email) }}
                     @else
                         本人
                     @endif

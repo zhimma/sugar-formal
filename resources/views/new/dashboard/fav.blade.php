@@ -164,7 +164,7 @@
                 $.each(res.msg,function(i,e){
                     var isBlur = true;
                     var vvipInfo = e.vvip;
-                    if('{{$user->meta->isWarned == 1 || $user->aw_relation}}' == true){
+                    if('{{$user->meta->isWarned() == 1 || $user->aw_relation}}' == true){
                         // console.log("1")
                         isBlur = true;
                     }else{
