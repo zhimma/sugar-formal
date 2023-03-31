@@ -1555,6 +1555,14 @@
             @if($to_forbid_msg_data??null)
                 return;
             @endif
+
+        if($('#tab05').css('display')=='none') {
+            $('#msg').focus();
+        }
+        else {
+            $('#msg').blur();
+        }            
+            
                 $('#chatForm').submit();
 
                 setTimeout(function() {
@@ -1564,16 +1572,6 @@
             }else{
                 $('.xin_input').css('height', '38px');
                 $('.xin_nleft, .xin_right').css('margin-top', '0px');
-            }
-        }
-    });
-    
-    $(document).keyup(function(e) {
-        if(e.keyCode == 13){
-            if($('#tab05').css('display')!='none') {
-                $('#msg').focus();
-                $('#tab05').hide();
-                $('.announce_bg').hide();
             }
         }
     });
@@ -1601,7 +1599,12 @@
         @if($to_forbid_msg_data??null)
             return;
         @endif
-        $('#msg').focus();
+        if($('#tab05').css('display')=='none') {
+            $('#msg').focus();
+        }
+        else {
+            $('#msg').blur();
+        }
         let content = $('#msg').val(), msgsnd = $('.msgsnd');
         var msg_str = $("#msg").val().replace(/\r\n|\n/g,"").replace(/\s+/g, "");
 
@@ -2240,7 +2243,7 @@
                         }
                         else {
                             c5(rentry.content);
-                            $('.n_bllbut').focus();
+                            $('#msg').blur();
                         }
                     }
                     @if($isVip)
@@ -2254,7 +2257,7 @@
                 formData.append('error','傳送失敗!'+xhr.statusText);
                 formData.append('error_return_data',JSON.stringify(e));
                 $.post( "{{route('logChatWithError')}}", formData);                 
-                $('.n_bllbut').focus();
+                $('#msg').blur();
             }
             if(formData.get('is_truth')==1) {
                 add_adbut_on(document.getElementById('truth_actor'));
