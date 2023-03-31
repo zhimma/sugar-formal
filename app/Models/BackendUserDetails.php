@@ -109,4 +109,14 @@ class BackendUserDetails extends Model
         }
         $backend_user_detail->save();
     }
+
+    public static function need_reverify($user_id)
+    {
+        $backend_user_detail = BackendUserDetails::first_or_new($user_id);
+        if($backend_user_detail->is_need_reverify == 0)
+        {
+            $backend_user_detail->is_need_reverify = 1;
+        }
+        $backend_user_detail->save();
+    }
 }

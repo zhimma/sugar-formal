@@ -3209,30 +3209,62 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
 
     $(function() {
         @if($user->backend_user_details->first()->is_need_video_verify ?? false)
-            @switch($user->backend_user_details->first()->video_verify_fail_count)
-            @case(0)
-                @if(Carbon\Carbon::parse($user->backend_user_details->first()->need_video_verify_date)->addHours(12) < Carbon\Carbon::now() && $user->backend_user_details->first()->login_times_after_need_video_verify_date > 2)
-                    video_verify_pop_up();
-                @endif
-                @break
-        
-            @case(1)
-                @if(Carbon\Carbon::parse($user->backend_user_details->first()->need_video_verify_date)->addHours(36) < Carbon\Carbon::now() && $user->backend_user_details->first()->login_times_after_need_video_verify_date > 6)
-                    video_verify_pop_up();
-                @endif
-                @break
+            @if($user->warned_users->video_auth ?? false)
+                @if($user->is_need_reverify ?? false)
+                    c5('您上一次視訊驗證失敗，請重新進行手機驗證與email驗證，若有問題請與站長聯絡');
+                    location.href('route("hint_to_video_record_verify_reverify")');
+                @else
+                    @switch($user->backend_user_details->first()->video_verify_fail_count)
+                        @case(0)
+                            @if(Carbon\Carbon::parse($user->backend_user_details->first()->need_video_verify_date) < Carbon\Carbon::now() && $user->backend_user_details->first()->login_times_after_need_video_verify_date > 0)
+                                video_verify_pop_up();
+                            @endif
+                            @break
+                    
+                        @case(1)
+                            @if(Carbon\Carbon::parse($user->backend_user_details->first()->need_video_verify_date)->addHours(12) < Carbon\Carbon::now() && $user->backend_user_details->first()->login_times_after_need_video_verify_date > 2)
+                                video_verify_pop_up();
+                            @endif
+                            @break
 
-            @case(2)
-                @if(Carbon\Carbon::parse($user->backend_user_details->first()->need_video_verify_date)->addHours(72) < Carbon\Carbon::now() && $user->backend_user_details->first()->login_times_after_need_video_verify_date > 9)
-                    video_verify_pop_up();
-                @endif
-                @break
-        
-            @default
-                c5html('您連續三次視訊驗證失敗，暫時停止視訊驗證，若有問題請與站長聯絡<a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="all: initial;all: unset;height: 26px; float: unset;vertical-align:middle !important;"></a>');
-                @break
+                        @case(2)
+                            @if(Carbon\Carbon::parse($user->backend_user_details->first()->need_video_verify_date)->addHours(36) < Carbon\Carbon::now() && $user->backend_user_details->first()->login_times_after_need_video_verify_date > 6)
+                                video_verify_pop_up();
+                            @endif
+                            @break
+                    
+                        @default
+                            c5html('您連續三次視訊驗證失敗，暫時停止視訊驗證，若有問題請與站長聯絡<a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="all: initial;all: unset;height: 26px; float: unset;vertical-align:middle !important;"></a>');
+                            @break
 
-            @endswitch
+                    @endswitch
+                @endif
+            @else
+                @switch($user->backend_user_details->first()->video_verify_fail_count)
+                    @case(0)
+                        @if(Carbon\Carbon::parse($user->backend_user_details->first()->need_video_verify_date)->addHours(12) < Carbon\Carbon::now() && $user->backend_user_details->first()->login_times_after_need_video_verify_date > 2)
+                            video_verify_pop_up();
+                        @endif
+                        @break
+                
+                    @case(1)
+                        @if(Carbon\Carbon::parse($user->backend_user_details->first()->need_video_verify_date)->addHours(36) < Carbon\Carbon::now() && $user->backend_user_details->first()->login_times_after_need_video_verify_date > 6)
+                            video_verify_pop_up();
+                        @endif
+                        @break
+
+                    @case(2)
+                        @if(Carbon\Carbon::parse($user->backend_user_details->first()->need_video_verify_date)->addHours(72) < Carbon\Carbon::now() && $user->backend_user_details->first()->login_times_after_need_video_verify_date > 9)
+                            video_verify_pop_up();
+                        @endif
+                        @break
+                
+                    @default
+                        c5html('您連續三次視訊驗證失敗，暫時停止視訊驗證，若有問題請與站長聯絡<a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="all: initial;all: unset;height: 26px; float: unset;vertical-align:middle !important;"></a>');
+                        @break
+
+                @endswitch
+            @endif
         @endif
     });
 

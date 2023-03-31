@@ -22,6 +22,8 @@ use App\Services\VipLogService;
 use App\Repositories\SuspiciousRepository;
 use App\Models\RealAuthQuestion;
 use App\Models\SimpleTables\warned_users;
+use App\Services\ShortMessageService;
+use App\Models\UserMeta;
 
 class VideoChatController extends BaseController
 {
@@ -835,6 +837,7 @@ class VideoChatController extends BaseController
         $backend_user_detail->is_need_video_verify = 0;
         $backend_user_detail->video_verify_fail_count = 0;
         $backend_user_detail->login_times_after_need_video_verify_date = 0;
+        $backend_user_detail->is_need_reverify = 0;
         $backend_user_detail->save();
 
         $user = User::where('id', auth()->user()->id)->first();
@@ -862,6 +865,11 @@ class VideoChatController extends BaseController
     public function hint_to_video_record_verify(Request $request)
     {
         $access = $request->access;
+        $user = User::where('id', auth()->user()->id)->first();
+        if($user->warned_users->video_auth ?? false)
+        {
+            BackendUserDetails::need_reverify(auth()->user()->id);
+        }
         if($access)
         {
             BackendUserDetails::cancel_video_verify(auth()->user()->id);
@@ -872,6 +880,28 @@ class VideoChatController extends BaseController
             BackendUserDetails::cancel_video_verify(auth()->user()->id);
             return redirect()->back();
         }
+    }
+
+    public function hint_to_video_record_verify_reverify(Request $request)
+    {
+        $user = User::where('id', auth()->user()->id)->first();
+
+        //刪除email
+        $user->advance_auth_status = 0;
+        $user->advance_auth_email = null;
+        $user->advance_auth_email_token = null;
+        $user->advance_auth_email_at = null;
+
+        //刪除手機
+        ShortMessageService::deleteShortMessageByUserId($request->user_id);
+        UserMeta::where('user_id', $request->user_id)->update(['phone' => '']);
+        event(new \App\Events\CheckWarnedOfReport($request->user_id));
+
+        $backend_user_detail = BackendUserDetails::first_or_new(auth()->user()->id);
+        $backend_user_detail->need_video_verify_date = Carbon::now();
+        $backend_user_detail->save();
+
+        return redirect()->back();
     }
     
 }
