@@ -337,11 +337,12 @@
                             <div class="tabbox_new_dd">
                                 @if($user->backend_user_details->first()->is_need_video_verify ?? false)
                                     @if($user->warned_users->video_auth ?? false)
-                                    <h2 class="tabbox_h2">你好，您目前被站方警示，站方會再跟您約視訊驗證時間，再請注意來訊。</h2>
-                                    @elseif($user->backend_user_details->first()->video_verify_fail_count>=3)
-                                        <h2 class="tabbox_h2">您連續三次視訊驗證失敗，暫時停止視訊驗證，若有問題請與站長聯絡<a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="all: initial;all: unset;height: 26px; float: unset;vertical-align:middle !important;"></a></h2>
+                                        <h2 class="tabbox_h2">你好，您目前被站方警示，站方會再跟您約視訊驗證時間，再請注意來訊。</h2>
                                     @else
-                                    <h2 class="tabbox_h2">已申請</h2>
+                                        <h2 class="tabbox_h2">已申請</h2>
+                                    @endif
+                                    @if($user->backend_user_details->first()->video_verify_fail_count>=3)
+                                        <h2 class="tabbox_h2">您連續三次視訊驗證失敗，暫時停止視訊驗證，若有問題請與站長聯絡<a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="all: initial;all: unset;height: 26px; float: unset;vertical-align:middle !important;"></a></h2>
                                     @endif
                                 @else
                                     <h2 class="tabbox_h2"><span class="tu_dfont">尚未申請</span></h2>

@@ -903,5 +903,11 @@ class VideoChatController extends BaseController
 
         return redirect()->back();
     }
+
+    public function reset_cancel_video_verify(Request $request)
+    {
+        BackendUserDetails::reset_cancel_video_verify($request->uid);
+        return redirect()->back();
+    }
     
 }
