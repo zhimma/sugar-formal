@@ -233,7 +233,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
     Route::post('addBlock', 'PagesController@addBlock');
 
     /*會員驗證*/
-    Route::get('member_auth', 'PagesController@member_auth');
+    Route::get('member_auth', 'PagesController@member_auth')->name('member_auth');
     Route::get('goto_member_auth', 'PagesController@goto_member_auth');
     Route::get('goto_advance_auth_email', 'PagesController@goto_advance_auth_email');    
     Route::post('member_auth_phone_process', 'PagesController@member_auth_phone_process');

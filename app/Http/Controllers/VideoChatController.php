@@ -898,7 +898,7 @@ class VideoChatController extends BaseController
         $backend_user_detail->need_video_verify_date = Carbon::now();
         $backend_user_detail->save();
 
-        return redirect()->back();
+        return redirect()->route('member_auth');
     }
 
     public function reset_cancel_video_verify(Request $request)
