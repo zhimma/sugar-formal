@@ -879,20 +879,22 @@ class VideoChatController extends BaseController
 
     public function hint_to_video_record_verify_reverify(Request $request)
     {
-        $user = User::where('id', auth()->user()->id)->first();
+        $user_id = auth()->user()->id;
+        $user = User::where('id', $user_id)->first();
 
         //刪除email
         $user->advance_auth_status = 0;
         $user->advance_auth_email = null;
         $user->advance_auth_email_token = null;
         $user->advance_auth_email_at = null;
+        $user->save();
 
         //刪除手機
-        ShortMessageService::deleteShortMessageByUserId($request->user_id);
-        UserMeta::where('user_id', $request->user_id)->update(['phone' => '']);
-        event(new \App\Events\CheckWarnedOfReport($request->user_id));
+        ShortMessageService::deleteShortMessageByUserId($user_id);
+        UserMeta::where('user_id', $user_id)->update(['phone' => '']);
+        event(new \App\Events\CheckWarnedOfReport($user_id));
 
-        $backend_user_detail = BackendUserDetails::first_or_new(auth()->user()->id);
+        $backend_user_detail = BackendUserDetails::first_or_new($user_id);
         $backend_user_detail->need_video_verify_date = Carbon::now();
         $backend_user_detail->save();
 
