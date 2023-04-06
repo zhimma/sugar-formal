@@ -158,6 +158,13 @@
         @else
             <button type="button" title="{{'於'.$user['adminWarned_createdAt'].'被警示，將於'.(isset($user['adminWarned_expireDate'])? $user['adminWarned_expireDate'] : '永久').'解除站方警示' }}" class='text-white btn unwarned_user @if($user["isAdminWarned"]) btn-success @else btn-danger @endif' onclick="ReleaseWarnedUser({{ $user['id'] }})" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}"> 解除站方警示 </button>
         @endif
+        @if($user->backend_user_details->first()->is_need_video_verify ?? false)
+            <form method="POST" action="route('reset_cancel_video_verify')" style="margin:0px;display:inline;">
+                {!! csrf_field() !!}
+                <input type="hidden" name='uid' value="{{ $user->id }}">
+                <button type="submit" class="btn">重設視訊驗證次數</button>
+            </form>
+        @endif
     @else
         <a class="btn btn-danger warned-user warned_vip_pass" title="站方警示與自動封鎖的警示，只能經後台解除" id="warned_user" href="#" data-toggle="modal" data-target="#warned_modal" data-vip_pass="0" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}">站方警示</a>
         <a class="btn btn-danger warned-user warned_vip_pass" title="站方警示與自動封鎖的警示，只能經後台解除" id="warned_user" href="#" data-toggle="modal" data-target="#warned_modal" data-vip_pass="1" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}" @if($user['isvip']==1 && $user['isfreevip']==0)style="display: none;"@endif>付費警示</a>
