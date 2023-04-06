@@ -3211,8 +3211,11 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
         @if($user->backend_user_details->first()->is_need_video_verify ?? false)
             @if($user->warned_users->video_auth ?? false)
                 @if($user->backend_user_details->first()->is_need_reverify ?? false)
-                    c5('您上一次視訊驗證失敗，請重新進行手機驗證與email驗證，若有問題請與站長聯絡');
-                    location.href = '{{route("hint_to_video_record_verify_reverify")}}';
+                    if(window.sessionStorage.getItem('has_need_reverify') != true){
+                        c5('您上一次視訊驗證失敗，請重新進行手機驗證與email驗證，若有問題請與站長聯絡');
+                        window.sessionStorage.setItem('has_need_reverify', true);
+                        location.href = '{{route("hint_to_video_record_verify_reverify")}}';
+                    }
                 @else
                     @switch($user->backend_user_details->first()->video_verify_fail_count)
                         @case(0)
