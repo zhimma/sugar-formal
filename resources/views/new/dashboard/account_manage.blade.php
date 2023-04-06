@@ -61,15 +61,9 @@
                             <font>手機驗證</font>
                         </a>
                         @if($user->engroup==2)
-                        <a @if($isAdvAuthUsable??false) href="/advance_auth/" @endif class="gg_zh_li" onclick="checkAdvAuth()"><span><img src="/new/images/zh10.png"></span>
-                            <font>進階驗證</font>
-                        </a>
-                        <a href="{{route('real_auth')}}" class="gg_zh_li"><span><img src="/new/images/zh11.png"></span>
-								<font>本人認證</font>
-						</a>
-                        <a href="javascript:void(0)" class="gg_zh_li" onclick="hasPassAuthCheck();"><span><img src="/new/images/zh11.png"></span>
-                            <font>tag預覽設定</font>
-                        </a>
+                            <a @if($isAdvAuthUsable??false) href="/advance_auth/" @endif class="gg_zh_li" onclick="checkAdvAuth()"><span><img src="/new/images/zh10.png"></span>
+                                <font>進階驗證</font>
+                            </a>
                         @endif
                         @if(!($user->warned_users->adv_auth ?? false))
                             @if(!($user->backend_user_details->first()->is_need_video_verify ?? false))
@@ -77,6 +71,14 @@
                                     <font>申請視訊錄影驗證</font>
                                 </a>
                             @endif
+                        @endif
+                        @if($user->engroup==2)
+                            <a href="{{route('real_auth')}}" class="gg_zh_li"><span><img src="/new/images/zh11.png"></span>
+                                    <font>本人認證</font>
+                            </a>
+                            <a href="javascript:void(0)" class="gg_zh_li" onclick="hasPassAuthCheck();"><span><img src="/new/images/zh11.png"></span>
+                                <font>tag預覽設定</font>
+                            </a>
                         @endif
 
                     </div>
