@@ -833,12 +833,7 @@ class VideoChatController extends BaseController
         $user_video_verify_record->admin_id = 0;
         $user_video_verify_record->save();
 
-        $backend_user_detail = BackendUserDetails::first_or_new(auth()->user()->id);
-        $backend_user_detail->is_need_video_verify = 0;
-        $backend_user_detail->video_verify_fail_count = 0;
-        $backend_user_detail->login_times_after_need_video_verify_date = 0;
-        $backend_user_detail->is_need_reverify = 0;
-        $backend_user_detail->save();
+        BackendUserDetails::reset_video_verify(auth()->user()->id);
 
         $user = User::where('id', auth()->user()->id)->first();
         if($user->warned_users->video_auth ?? false)
@@ -907,7 +902,7 @@ class VideoChatController extends BaseController
     public function reset_cancel_video_verify(Request $request)
     {
         BackendUserDetails::reset_cancel_video_verify($request->uid);
-        return redirect()->back();
+        return redirect()->back()->with('message', '成功歸零視訊驗證次數');
     }
     
 }

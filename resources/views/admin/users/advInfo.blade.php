@@ -162,7 +162,7 @@
             <form method="POST" action="{{route('reset_cancel_video_verify')}}" style="margin:0px;display:inline;">
                 {!! csrf_field() !!}
                 <input type="hidden" name='uid' value="{{ $user->id }}">
-                <button type="submit" class="btn">重設視訊驗證次數</button>
+                <button type="submit" class="btn btn-dark">重設視訊驗證次數</button>
             </form>
         @endif
     @else
@@ -176,7 +176,7 @@
             <form method="POST" action="{{route('reset_cancel_video_verify')}}" style="margin:0px;display:inline;">
                 {!! csrf_field() !!}
                 <input type="hidden" name='uid' value="{{ $user->id }}">
-                <button type="submit" class="btn">重設視訊驗證次數</button>
+                <button type="submit" class="btn btn-dark">重設視訊驗證次數</button>
             </form>
         @endif
     @endif

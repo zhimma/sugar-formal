@@ -685,6 +685,11 @@ class UserController extends \App\Http\Controllers\BaseController
 
         $warned = warned_users::where('member_id', $data['id'])->get();
 
+        if(($warned->video_auth ?? 0) == 1)
+        {
+            BackendUserDetails::reset_video_verify($data['id']);
+        }
+
         if ($warned->count() > 0) {
             foreach ($warned as $r) {
                 $checkLog = DB::table('is_warned_log')->where('user_id', $r->member_id)->where('created_at', $r->created_at)->first();
