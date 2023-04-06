@@ -685,17 +685,16 @@ class UserController extends \App\Http\Controllers\BaseController
 
         $warned = warned_users::where('member_id', $data['id'])->get();
 
-        if(($warned->video_auth ?? 0) == 1)
-        {
-            BackendUserDetails::reset_video_verify($data['id']);
-        }
-
         if ($warned->count() > 0) {
             foreach ($warned as $r) {
                 $checkLog = DB::table('is_warned_log')->where('user_id', $r->member_id)->where('created_at', $r->created_at)->first();
                 if (!$checkLog) {
                     //寫入log
                     DB::table('is_warned_log')->insert(['user_id' => $r->member_id, 'reason' => $r->reason, 'vip_pass' => $r->vip_pass, 'adv_auth' => $r->adv_auth, 'created_at' => $r->created_at]);
+                }
+                if(($r->video_auth ?? 0) == 1)
+                {
+                    BackendUserDetails::reset_video_verify($data['id']);
                 }
             }
             warned_users::where('member_id', '=', $data['id'])->delete();
