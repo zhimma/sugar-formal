@@ -327,7 +327,7 @@
                         </div>         
                     @endif
 
-                    @if(!($user->warned_users->adv_auth ?? false) || !($user->warned_users->video_auth ?? false))
+                    @if(!($user->warned_users->adv_auth ?? false) && !($user->warned_users->video_auth ?? false))
                         <div class="sys_aa" id="apply_video_record_block">
                             <div class="tabbox_new_dt"><span>視訊錄影驗證</span>
                                 @if(!($user->backend_user_details->first()->is_need_video_verify ?? false))
