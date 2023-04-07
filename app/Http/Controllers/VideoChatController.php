@@ -24,13 +24,14 @@ use App\Models\RealAuthQuestion;
 use App\Models\SimpleTables\warned_users;
 use App\Services\ShortMessageService;
 use App\Models\UserMeta;
+use App\Services\ActivateService;
 
 class VideoChatController extends BaseController
-{
-    
-    public function __construct(UserService $userService, VipLogService $logService, SuspiciousRepository $suspiciousRepo, RealAuthPageService $rap_service)
+{   
+    public function __construct(UserService $userService, VipLogService $logService, SuspiciousRepository $suspiciousRepo, RealAuthPageService $rap_service, ActivateService $activateService)
     {
         parent::__construct();
+        $this->service = $activateService;
     }    
     
     public function callUser(Request $request)
@@ -897,6 +898,10 @@ class VideoChatController extends BaseController
         $backend_user_detail = BackendUserDetails::first_or_new($user_id);
         $backend_user_detail->need_video_verify_date = Carbon::now();
         $backend_user_detail->save();
+
+        if(db_config('send-email')){
+            $this->service->sendActivationToken();
+        }
 
         return redirect()->route('member_auth');
     }

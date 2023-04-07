@@ -10,6 +10,7 @@ use DB;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use App\Models\SetAutoBan;
+use App\Models\BackendUserDetails;
 
 class Common extends BaseController {
     public function get_message(Request $request){
@@ -163,6 +164,7 @@ class Common extends BaseController {
                     'code'=>'200',
                     'msg' =>'此驗證碼可用',
                 );
+                BackendUserDetails::check_is_reverify($user->id);
             }else{
                 $data = array(
                     'code'=>'400',
