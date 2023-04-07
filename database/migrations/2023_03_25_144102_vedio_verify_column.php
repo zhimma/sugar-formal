@@ -18,7 +18,7 @@ class VedioVerifyColumn extends Migration
         });
         
         Schema::table('warned_users', function (Blueprint $table) {
-            $table->boolean('video_auth')->after('adv_auth');
+            $table->boolean('video_auth')->after('adv_auth')->nullable()->default(0);
         });
 
         Schema::table('backend_user_details', function (Blueprint $table) {
