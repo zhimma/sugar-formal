@@ -922,7 +922,7 @@ class VideoChatController extends BaseController
 
             $type = 'mobile';
         }
-        elseif($user->sdvance_auth_email ?? false)
+        elseif($user->advance_auth_email ?? false)
         {
             Log::Info('start_email_send_reverify');
             $receiver = new User;
