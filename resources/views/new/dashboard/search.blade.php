@@ -1428,8 +1428,14 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                             umeta.city.forEach((row, index) => {
                                 if (index==0){
                                     csrData +=  umeta.city[index];
+                                    if(umetaIsHideArea == 0 && this.user_engroup == 2){
+                                        csrData +=  umetaArea[index]+'  ';
+                                    }                                    
                                 }else{
                                     csrData +=  '<span>'+umeta.city[index];
+                                    if(umetaIsHideArea == 0 && this.user_engroup == 2){
+                                        csrData += (umetaArea[index]);
+                                    }                                    
                                     csrData += '</span>';
                                 }
                             })
