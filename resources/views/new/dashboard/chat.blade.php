@@ -3329,11 +3329,13 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                             dataType:"json",
                             success: function(response){
                                 c5('驗證成功');
+                                gmBtnNoReload();
                             }
                         });
                     }
                     else{
                         c5('驗證碼錯誤');
+                        gmBtnNoReload();
                     }
                 });
             }
