@@ -3232,7 +3232,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                             reverify();
                         });
                     @elseif($user->advance_auth_email ?? false)
-                        reverify_c5html('您上一次視訊驗證失敗，需要您重新進行進階驗證。您之前是使用 Email 驗證：{{$user->sdvance_auth_email}}，請確認是否重新驗證，按下確定後，即發送驗證碼至您原驗證信箱，若有問題請與站長聯絡');
+                        reverify_c5html('您上一次視訊驗證失敗，需要您重新進行進階驗證。您之前是使用 Email 驗證：{{$user->advance_auth_email}}，請確認是否重新驗證，按下確定後，即發送驗證碼至您原驗證信箱，若有問題請與站長聯絡');
                         $('#reverify_enter').addClass('go_to_reverify');
                         $('.go_to_reverify').click(function() {
                             $('.go_to_reverify').removeClass('go_to_reverify');
