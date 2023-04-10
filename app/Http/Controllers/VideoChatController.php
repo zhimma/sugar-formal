@@ -25,6 +25,7 @@ use App\Models\SimpleTables\warned_users;
 use App\Services\ShortMessageService;
 use App\Models\UserMeta;
 use App\Services\ActivateService;
+use App\Notifications\ReverifyAdvAuthUserEmail;
 
 class VideoChatController extends BaseController
 {   
@@ -878,38 +879,72 @@ class VideoChatController extends BaseController
         }
     }
 
-    public function hint_to_video_record_verify_reverify(Request $request)
-    {
-        $user_id = auth()->user()->id;
-        $user = User::where('id', $user_id)->first();
-
-        //刪除email
-        $user->advance_auth_status = 0;
-        $user->advance_auth_email = null;
-        $user->advance_auth_email_token = null;
-        $user->advance_auth_email_at = null;
-        $user->save();
-
-        //刪除手機
-        ShortMessageService::deleteShortMessageByUserId($user_id);
-        UserMeta::where('user_id', $user_id)->update(['phone' => '']);
-        event(new \App\Events\CheckWarnedOfReport($user_id));
-
-        $backend_user_detail = BackendUserDetails::first_or_new($user_id);
-        $backend_user_detail->need_video_verify_date = Carbon::now();
-        $backend_user_detail->save();
-
-        if(db_config('send-email')){
-            $this->service->sendActivationToken();
-        }
-
-        return redirect()->route('member_auth');
-    }
-
     public function reset_cancel_video_verify(Request $request)
     {
         BackendUserDetails::reset_cancel_video_verify($request->uid);
         return redirect()->back()->with('message', '成功歸零視訊驗證次數');
+    }
+
+    public function video_record_verify_reverify(Request $request)
+    {
+        Log::Info('start_send_reverify');
+        $user_id = auth()->user()->id;
+        BackendUserDetails::reset_cancel_video_verify($user_id);
+        $user = User::where('id', auth()->user()->id)->first();
+        $checkCode = str_pad(rand(0, pow(10, 5) - 1), 5, '0', STR_PAD_LEFT);
+        $type = '';
+
+        if($user->meta->phone ?? false && $user->meta->phone != '')
+        {
+            Log::Info('start_mobile_send_reverify');
+            $username = '54666024';
+            $password = 'zxcvbnm';
+            $Mobile = $user->meta->phone;
+
+            $smbody = "您的驗證碼為$checkCode";
+            $smbody = mb_convert_encoding($smbody, "BIG5", "UTF-8");
+            $Data = array(
+                "username" =>$username, //三竹帳號
+                "password" => $password, //三竹密碼
+                "dstaddr" =>$Mobile, //客戶手機
+                "DestName" => '客戶', //對客戶的稱謂 於三竹後台看的時候用的
+                "smbody" =>$smbody, //簡訊內容
+            );
+            $dataString = http_build_query($Data);
+            $url = "http://smexpress.mitake.com.tw:9600/SmSendGet.asp?$dataString";
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            $output = curl_exec($ch);
+            curl_close($ch);
+
+            $type = 'mobile';
+        }
+        elseif($user->sdvance_auth_email ?? false)
+        {
+            Log::Info('start_email_send_reverify');
+            $receiver = new User;
+
+            $receiver->email = $user->advance_auth_email;
+            $receiver->name = $user->name;
+
+            $receiver->notify(new ReverifyAdvAuthUserEmail($checkCode));
+
+            $type = 'email';
+        }
+
+        Log::Info($checkCode);
+
+        return ['checkCode' => $checkCode, 'type' => $type];
+    }
+
+    public function video_record_verify_reverify_success(Request $request)
+    {
+        $user_id = auth()->user()->id;
+        BackendUserDetails::check_is_reverify($user_id);
+        return ['status' => 'success'];
     }
     
 }

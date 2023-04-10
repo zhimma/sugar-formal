@@ -164,7 +164,6 @@ class Common extends BaseController {
                     'code'=>'200',
                     'msg' =>'此驗證碼可用',
                 );
-                BackendUserDetails::check_is_reverify($user->id);
             }else{
                 $data = array(
                     'code'=>'400',

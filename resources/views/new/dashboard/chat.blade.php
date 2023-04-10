@@ -852,6 +852,19 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
 </div>
 <div id="video_verify_bg" class="mask_bg" ></div>
 
+<div class="announce_bg" id="reverify_announce_bg" style="display:none;"></div>
+<div class="bl bl_tab" id="reverify_tab05">
+    <div class="bltitle">提示</div>
+    <div class="n_blnr01 matop10">
+    <div class="blnr bltext"></div>
+    <div>
+        <a id="reverify_enter" class="n_bllbut matop30">確定</a>
+        <a id="reverify_cancel" class="n_bllbut matop30" onclick="gmBtnNoReload()">取消</a>
+    </div>
+    </div>
+    <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+</div>
+
 <script>
     let showMsg = false;
     let isLoading = 1;
@@ -3211,8 +3224,24 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
         @if($user->backend_user_details->first()->is_need_video_verify ?? false)
             @if($user->warned_users->video_auth ?? false)
                 @if($user->backend_user_details->first()->is_need_reverify ?? false)
-                    c5('您上一次視訊驗證失敗，請重新進行手機驗證與email驗證，若有問題請與站長聯絡');
-                    location.href = '{{route("hint_to_video_record_verify_reverify")}}';
+                    @if($user->meta->phone ?? false && $user->meta->phone != '')
+                        reverify_c5html('您上一次視訊驗證失敗，需要您重新進行進階驗證。您之前是使用手機驗證：{{$user->meta->phone}}，請確認是否重新驗證，按下確定後，即發送驗證碼至您原留手機，若有問題請與站長聯絡');
+                        $('#reverify_enter').addClass('go_to_reverify');
+                        $('.go_to_reverify').click(function() {
+                            $('.go_to_reverify').removeClass('go_to_reverify');
+                            reverify();
+                        });
+                    @elseif($user->sdvance_auth_email ?? false)
+                        reverify_c5html('您上一次視訊驗證失敗，需要您重新進行進階驗證。您之前是使用 Email 驗證：{{$user->sdvance_auth_email}}，請確認是否重新驗證，按下確定後，即發送驗證碼至您原驗證信箱，若有問題請與站長聯絡');
+                        $('#reverify_enter').addClass('go_to_reverify');
+                        $('.go_to_reverify').click(function() {
+                            $('.go_to_reverify').removeClass('go_to_reverify');
+                            reverify();
+                        });
+                    @else
+                        c5html('您上一次視訊驗證失敗，需要您進行進階驗證，若有問題請與站長聯絡');
+                        location.reload();
+                    @endif
                 @else
                     @switch($user->backend_user_details->first()->video_verify_fail_count)
                         @case(0)
@@ -3276,6 +3305,47 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
         $("#video_verify_pop_up").show();
         $('#video_verify_pop_up').css('z-index',39).css('position','fixed');
     }
+
+    function reverify(){
+        $.ajax({
+            type: 'POST',
+            url: "/video_record_verify_reverify",
+            data:{
+                _token: '{{csrf_token()}}',
+            },
+            dataType:"json",
+            success: function(response){
+                reverify_c5html('請輸入驗證碼<br><input id="check_code_input">');
+                $('#reverify_cancel').hide();
+                $('#reverify_enter').addClass('check_checkcode');
+                $('.check_checkcode').click(function() {
+                    $('.check_checkcode').removeClass('check_checkcode');
+                    if($('#check_code_input').val() == response.checkCode){
+                        $.ajax({
+                            type: 'POST',
+                            url: "/video_record_verify_reverify_success",
+                            data:{
+                                _token: '{{csrf_token()}}',
+                            },
+                            dataType:"json",
+                            success: function(response){
+                                c5('驗證成功');
+                            }
+                        });
+                    }
+                    else{
+                        c5('驗證碼錯誤');
+                    }
+                });
+            }
+        });
+    }
+
+    function reverify_c5html(str) {
+		$("#reverify_announce_bg").show();
+		$("#reverify_tab05").show();
+		$("#reverify_tab05 .bltext").html(str);
+	}
 </script>
 <style>
     #video_verify_bg {

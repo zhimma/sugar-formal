@@ -275,8 +275,9 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
     Route::post('video_record_verify_upload', 'VideoChatController@video_record_verify_upload')->name('video_record_verify_upload');
     Route::get('apply_video_record_verify', 'VideoChatController@apply_video_record_verify')->name('apply_video_record_verify');
     Route::get('hint_to_video_record_verify', 'VideoChatController@hint_to_video_record_verify')->name('hint_to_video_record_verify');
-    Route::get('hint_to_video_record_verify_reverify', 'VideoChatController@hint_to_video_record_verify_reverify')->name('hint_to_video_record_verify_reverify');
     Route::post('reset_cancel_video_verify', 'VideoChatController@reset_cancel_video_verify')->name('reset_cancel_video_verify');
+    Route::post('video_record_verify_reverify', 'VideoChatController@video_record_verify_reverify')->name('video_record_verify_reverify');
+    Route::post('video_record_verify_reverify_success', 'VideoChatController@video_record_verify_reverify_success')->name('video_record_verify_reverify_success');
 
     //視訊功能測試
     Route::get('/video-chat-test', 'VideoChatController@videoChatTest');

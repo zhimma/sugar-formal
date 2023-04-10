@@ -134,13 +134,10 @@ class BackendUserDetails extends Model
     {
         $user_id = auth()->user()->id;
         $user = User::where('id', $user_id)->first();
-        if(!($user->advance_auth_status == 0 || $user->meta->phone == ''))
-        {
-            $backend_user_detail = BackendUserDetails::first_or_new($user_id);
-            $backend_user_detail->is_need_reverify = 0;
-            $backend_user_detail->login_times_after_need_video_verify_date = 0;
-            $backend_user_detail->need_video_verify_date = Carbon::now();
-            $backend_user_detail->save();
-        }
+        $backend_user_detail = BackendUserDetails::first_or_new($user_id);
+        $backend_user_detail->is_need_reverify = 0;
+        $backend_user_detail->login_times_after_need_video_verify_date = 0;
+        $backend_user_detail->need_video_verify_date = Carbon::now();
+        $backend_user_detail->save();
     }
 }
