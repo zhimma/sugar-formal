@@ -3240,7 +3240,6 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                         });
                     @else
                         c5html('您上一次視訊驗證失敗，需要您進行進階驗證，若有問題請與站長聯絡');
-                        location.reload();
                     @endif
                 @else
                     @switch($user->backend_user_details->first()->video_verify_fail_count)
