@@ -184,7 +184,7 @@
 	}
 
 	function c5html(str) {
-		$(".announce_bg").show();
+		$("#announce_bg").show();
 		$("#tab05").show();
 		$("#tab05 .bltext").html(str);
 	}
