@@ -257,6 +257,12 @@
 		$(".gg_tab").hide();
 		$('body').css("overflow","auto");
 	}
+
+	function c5_gmBtnNoReload(){
+		$("#announce_bg").hide();
+		$("#tab05").hide();
+	}
+
 	function ccc(str) {
 		$(".blbg").show();
 		$("#tab_other").show();

@@ -3312,7 +3312,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                 @php
                     $send_time = Carbon\Carbon::now();
                 @endphp
-                reverify_c5html('請輸入驗證碼<br><input id="check_code_input"><br><a id="resend_reverify" style="font-size:14px; color:#135FC3; text-decoration:underline;">五分鐘後點此重新發送驗證碼</a>');
+                reverify_c5html('請輸入驗證碼<br><input id="check_code_input"><br><a id="resend_reverify" style="font-size:14px; color:#135FC3; text-decoration:underline;">五分鐘後可點此重新發送驗證碼</a>');
                 $('#reverify_button_field').html('<a id="check_checkcode" class="n_bllbut">確定</a>');
                 $('#check_checkcode').click(function() {
                     if($('#check_code_input').val() == response.checkCode){
@@ -3338,10 +3338,8 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                     @if($send_time->addMinutes(5) < Carbon\Carbon::now())
                         reverify();
                         c5('已重新發送');
-                        reverify_c5html('請輸入驗證碼<br><input id="check_code_input"><br><a id="resend_reverify" style="font-size:14px; color:#135FC3; text-decoration:underline;">五分鐘後點此重新發送驗證碼</a>');
                     @else
                         c5('五分鐘內不可重複發送');
-                        reverify_c5html('請輸入驗證碼<br><input id="check_code_input"><br><a id="resend_reverify" style="font-size:14px; color:#135FC3; text-decoration:underline;">五分鐘後點此重新發送驗證碼</a>');
                     @endif
                 });
             }
