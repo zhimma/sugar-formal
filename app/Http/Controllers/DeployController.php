@@ -36,4 +36,13 @@ class DeployController extends Controller
             });
         }
     }
+
+    public function manualDeploy() {
+        $root_path = base_path();
+        $process = new Process('cd ' . $root_path . '; ./deploy.sh');
+        $process->run(function ($type, $buffer) {
+            echo $buffer;
+        });
+        return "呼叫完成";
+    }
 }
