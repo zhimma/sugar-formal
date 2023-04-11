@@ -13,6 +13,17 @@ if [ "$(. ./.env; printf '%s' "$APP_ENV")" = "production" ]; then
     php artisan optimize
     php artisan queue:restart
     sudo service php8.1-fpm restart
+elif [ "$(. ./.env; printf '%s' "$APP_ENV")" = "build" ]; then
+    git checkout dev_master 
+    git reset --hard DEV/master
+    git fetch DEV master
+    git reset --hard DEV/master
+    git checkout master 
+    git reset --hard origin/master
+    git fetch origin master
+    git reset --hard origin/master
+    git merge --no-ff -m "auto-merge on lzong.tw" dev_master
+    git push origin master
 else    
     # update source code
     git pull
