@@ -857,10 +857,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
     <div class="bltitle">提示</div>
     <div class="n_blnr01 matop10">
     <div class="blnr bltext"></div>
-    <div style="text-align: center">
-        <a id="reverify_cancel" class="n_bllbut matop30" style="display:inline-block; background-color:transparent; border:1px #8a9ff0 solid; color:#8a9ff0;" onclick="gmBtnNoReload()">取消</a>
-        <a id="reverify_enter" class="n_bllbut matop30" style="display:inline-block">確定</a>
-    </div>
+    <div id="reverify_button_field" style="text-align: center"></div>
     </div>
     <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
 </div>
@@ -3226,16 +3223,14 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                 @if($user->backend_user_details->first()->is_need_reverify ?? false)
                     @if($user->meta->phone ?? false && $user->meta->phone != '')
                         reverify_c5html('您上一次視訊驗證失敗，需要您重新進行進階驗證。您之前是使用手機驗證：{{$user->meta->phone}}，請確認是否重新驗證，按下確定後，即發送驗證碼至您原留手機，若有問題請與站長聯絡');
-                        $('#reverify_enter').addClass('go_to_reverify');
-                        $('.go_to_reverify').click(function() {
-                            $('.go_to_reverify').removeClass('go_to_reverify');
+                        $('#reverify_button_field').html('<a id="reverify_cancel" class="n_bllbut matop30" style="display:inline-block; background-color:transparent; border:1px #8a9ff0 solid; color:#8a9ff0;" onclick="gmBtnNoReload()">取消</a>  <a id="reverify_enter" class="n_bllbut matop30" style="display:inline-block">確定</a>');
+                        $('#reverify_enter').click(function() {
                             reverify();
                         });
                     @elseif($user->advance_auth_email ?? false)
-                        reverify_c5html('您上一次視訊驗證失敗，需要您重新進行進階驗證。您之前是使用 Email 驗證：{{$user->advance_auth_email}}，請確認是否重新驗證，按下確定後，即發送驗證碼至您原驗證信箱，若有問題請與站長聯絡');
-                        $('#reverify_enter').addClass('go_to_reverify');
-                        $('.go_to_reverify').click(function() {
-                            $('.go_to_reverify').removeClass('go_to_reverify');
+                    reverify_c5html('您上一次視訊驗證失敗，需要您重新進行進階驗證。您之前是使用手機驗證：{{$user->meta->phone}}，請確認是否重新驗證，按下確定後，即發送驗證碼至您原留手機，若有問題請與站長聯絡');
+                        $('#reverify_button_field').html('<a id="reverify_cancel" class="n_bllbut matop30" style="display:inline-block; background-color:transparent; border:1px #8a9ff0 solid; color:#8a9ff0;" onclick="gmBtnNoReload()">取消</a>  <a id="reverify_enter" class="n_bllbut matop30" style="display:inline-block">確定</a>');
+                        $('#reverify_enter').click(function() {
                             reverify();
                         });
                     @else
@@ -3314,11 +3309,12 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
             },
             dataType:"json",
             success: function(response){
-                reverify_c5html('請輸入驗證碼<br><input id="check_code_input">');
-                $('#reverify_cancel').hide();
-                $('#reverify_enter').addClass('check_checkcode');
-                $('.check_checkcode').click(function() {
-                    $('.check_checkcode').removeClass('check_checkcode');
+                @php
+                    $send_time = Carbon\Carbon::now();
+                @endphp
+                reverify_c5html('請輸入驗證碼<br><input id="check_code_input"><br>5分鐘後可以重發 <a id="resend_reverify">重新發送</a>');
+                $('#reverify_button_field').html('<a id="check_checkcode" class="n_bllbut matop30">確定</a>');
+                $('#check_checkcode').click(function() {
                     if($('#check_code_input').val() == response.checkCode){
                         $.ajax({
                             type: 'POST',
@@ -3337,6 +3333,14 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                         c5('驗證碼錯誤');
                         gmBtnNoReload();
                     }
+                });
+                $('#resend_reverify').click(function() {
+                    @if($send_time->addMinutes(5) < Carbon\Carbon::now())
+                        reverify();
+                        c5('已重新發送');
+                    @else
+                        c5('五分鐘內不可重複發送');
+                    @endif
                 });
             }
         });
