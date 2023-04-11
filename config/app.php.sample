@@ -30,6 +30,8 @@ return [
     
     'bypass_stay_online_record' => env('BYPASS_STAY_ONLINE_RECORD', false),
 
+    'deploy_secret' => env('APP_DEPLOY_SECRET'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Debug Mode
