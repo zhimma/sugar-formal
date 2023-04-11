@@ -857,9 +857,9 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
     <div class="bltitle">提示</div>
     <div class="n_blnr01 matop10">
     <div class="blnr bltext"></div>
-    <div>
-        <a id="reverify_enter" class="n_bllbut matop30">確定</a>
-        <a id="reverify_cancel" class="n_bllbut matop30" onclick="gmBtnNoReload()">取消</a>
+    <div style="text-align: center">
+        <a id="reverify_cancel" class="n_bllbut matop30" style="display:inline-block; background-color:transparent; border:1px #8a9ff0 solid; color:#8a9ff0;" onclick="gmBtnNoReload()">取消</a>
+        <a id="reverify_enter" class="n_bllbut matop30" style="display:inline-block">確定</a>
     </div>
     </div>
     <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
