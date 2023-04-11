@@ -13,7 +13,7 @@ if [ "$(. ./.env; printf '%s' "$APP_ENV")" = "production" ]; then
     php artisan optimize
     php artisan queue:restart
     sudo service php8.1-fpm restart
-elif [ "$(. ./.env; printf '%s' "$APP_ENV")" = "build" ]; then
+elif [ "$(. ./.env; printf '%s' "$APP_ENV")" = "build" ] || [ "$(. ./.env; printf '%s' "$APP_ENV")" = "staging" ]; then
     git checkout dev_master 
     git reset --hard DEV/master
     git fetch DEV master
