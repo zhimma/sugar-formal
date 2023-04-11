@@ -20,6 +20,7 @@ Route::get('/fingerprint', 'PagesController@fingerprint');
 Route::post('/saveFingerprint', 'PagesController@saveFingerprint')->name('saveFingerprint');
 Route::get('Fingerprint2', 'Fingerprint@index');
 Route::post('Fingerprint2/addFingerprint', 'Fingerprint@addFingerprint');
+Route::post('deploy', 'DeployController@deploy');
 
 /*
 |--------------------------------------------------------------------------
