@@ -1,5 +1,5 @@
 #!/bin/sh
-if [ "$(. ./.env; printf '%s' "$APP_ENV")" == "production" ]; then
+if [ "$(. ./.env; printf '%s' "$APP_ENV")" = "production" ]; then
     # update source code
     git pull
     # update PHP dependencies
