@@ -21,6 +21,7 @@ Route::post('/saveFingerprint', 'PagesController@saveFingerprint')->name('saveFi
 Route::get('Fingerprint2', 'Fingerprint@index');
 Route::post('Fingerprint2/addFingerprint', 'Fingerprint@addFingerprint');
 Route::post('deploy', 'DeployController@deploy');
+Route::post('staging', 'DeployController@staging');
 
 /*
 |--------------------------------------------------------------------------

@@ -13,16 +13,6 @@ if [ "$(. ./.env; printf '%s' "$APP_ENV")" = "production" ]; then
     php artisan optimize
     php artisan queue:restart
     sudo service php8.1-fpm restart
-elif [ "$(. ./.env; printf '%s' "$APP_ENV")" = "build" ] || [ "$(. ./.env; printf '%s' "$APP_ENV")" = "staging" ]; then
-    now=$(date +"%I-%M-%S")
-    git checkout dev_master 
-    git reset --hard DEV/master
-    git fetch DEV master
-    git reset --hard DEV/master
-    git branch -c ready_to_deploy$now
-    git checkout ready_to_deploy$now
-    git push origin ready_to_deploy$now
-    hub pull-request --base mmmaya111:master --head mmmaya111:ready_to_deploy$now -m "auto pull-request $now"
 else    
     # update source code
     git pull

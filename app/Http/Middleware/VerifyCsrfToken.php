@@ -31,5 +31,6 @@ class VerifyCsrfToken extends Middleware
         '/LocalMachineReceive/BanAndWarn',
         '/LocalMachineReceive/BanSetIPUpdate',
         '/deploy',
+        '/staging',
     ];
 }
