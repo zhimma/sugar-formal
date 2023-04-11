@@ -3330,7 +3330,6 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                         });
                     }
                     else{
-                        gmBtnNoReload();
                         c5('驗證碼錯誤');
                     }
                 });
