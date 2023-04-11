@@ -3325,20 +3325,20 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                             dataType:"json",
                             success: function(response){
                                 gmBtnNoReload();
-                                c5('驗證成功');
+                                c5html('<br>驗證成功<br><br>');
                             }
                         });
                     }
                     else{
-                        c5('驗證碼錯誤');
+                        c5html('<br>驗證碼錯誤<br><br>');
                     }
                 });
                 $('#resend_reverify').click(function() {
                     @if($send_time->addMinutes(5) < Carbon\Carbon::now())
                         reverify();
-                        c5('已重新發送');
+                        c5html('<br>已重新發送<br><br>');
                     @else
-                        c5('五分鐘內不可重複發送');
+                        c5html('<br>五分鐘內不可重複發送<br><br>');
                     @endif
                 });
             }
