@@ -889,7 +889,6 @@ class VideoChatController extends BaseController
     {
         Log::Info('start_send_reverify');
         $user_id = auth()->user()->id;
-        BackendUserDetails::reset_cancel_video_verify($user_id);
         $user = User::where('id', auth()->user()->id)->first();
         $checkCode = str_pad(rand(0, pow(10, 5) - 1), 5, '0', STR_PAD_LEFT);
         $type = '';
