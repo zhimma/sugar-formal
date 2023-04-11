@@ -8569,9 +8569,9 @@ class PagesController extends BaseController
             $adminWarnedStatus = '您目前<span class="main_word">已被站方警示</span>，原因是<span class="main_word"> ' . $user_isBannedOrWarned->warned_reason . '</span>，若要解鎖請升級VIP解除，並同意如有再犯，站方有權不退費並永久警示。同意[<a href="../dashboard/new_vip" class="red">請點我</a>]';
         } else if ($user_isBannedOrWarned->warned_vip_pass == 1 && $user_isBannedOrWarned->warned_expire_date > now()) {
             $adminWarnedStatus .= '您從 ' . substr($user_isBannedOrWarned->warned_created_at, 0, 10) . ' <span class="main_word">被站方警示 ' . $diffDays . '天</span>，預計至 ' . substr($user_isBannedOrWarned->warned_expire_date, 0, 16) . ' 日解除，原因是<span class="main_word"> ' . $user_isBannedOrWarned->warned_reason . '</span>，若要解鎖請升級VIP解除，並同意如有再犯，站方有權不退費並永久警示。同意[<a href="../dashboard/new_vip" class="red">請點我</a>]';
-        } else if ($user->warned_users->video_auth ?? false && $user_isBannedOrWarned->warned_expire_date == null) {
+        } else if ($user->warned_users->video_auth ?? false && $user->warned_users->expire_date == null) {
             $adminWarnedStatus = '您目前<span class="main_word">已被站方警示</span>，原因是<span class="main_word"> ' . $user_isBannedOrWarned->warned_reason . '</span>，站方會再跟您約視訊驗證時間，再請注意來訊。';
-        } else if ($user->warned_users->video_auth ?? false && $user_isBannedOrWarned->warned_expire_date > now()) {
+        } else if ($user->warned_users->video_auth ?? false && $user->warned_users->expire_date > now()) {
             $adminWarnedStatus .= '您從 ' . substr($user_isBannedOrWarned->warned_created_at, 0, 10) . ' <span class="main_word">被站方警示 ' . $diffDays . '天</span>，預計至 ' . substr($user_isBannedOrWarned->warned_expire_date, 0, 16) . ' 日解除，原因是<span class="main_word"> ' . $user_isBannedOrWarned->warned_reason . '</span>，站方會再跟您約視訊驗證時間，再請注意來訊。';
         } else if (!empty($user_isBannedOrWarned->warned_id) && $user_isBannedOrWarned->warned_expire_date == null) {
             $adminWarnedStatus = '您目前<span class="main_word">已被站方警示</span>，原因是<span class="main_word"> ' . $user_isBannedOrWarned->warned_reason . '</span>，如有需要反應請點右下聯絡我們聯絡站長。';
