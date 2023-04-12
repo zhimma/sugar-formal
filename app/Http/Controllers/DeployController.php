@@ -15,7 +15,7 @@ class DeployController extends Controller
         $localHash = 'sha1=' . hash_hmac('sha1', $payload, $localToken, false);
         if (hash_equals($hash, $localHash)) {
             $root_path = base_path();
-            $process = new Process('cd ' . $root_path . '; ./deploy.sh');
+            $process = new Process('cd ' . $root_path . '; sudo sh ./deploy.sh');
             $process->run(function ($type, $buffer) {
                 echo $buffer;
             });
@@ -30,7 +30,7 @@ class DeployController extends Controller
         $localHash = 'sha1=' . hash_hmac('sha1', $payload, $localToken, false);
         if (hash_equals($hash, $localHash)) {
             $root_path = base_path();
-            $process = new Process('cd ' . $root_path . '; ./staging.sh');
+            $process = new Process('cd ' . $root_path . '; sudo sh ./staging.sh');
             $process->run(function ($type, $buffer) {
                 echo $buffer;
             });
@@ -39,7 +39,7 @@ class DeployController extends Controller
 
     public function manualDeploy() {
         $root_path = base_path();
-        $process = new Process('cd ' . $root_path . '; ./deploy.sh');
+        $process = new Process('cd ' . $root_path . '; sudo sh ./deploy.sh');
         $process->run(function ($type, $buffer) {
             echo $buffer;
         });
