@@ -2693,7 +2693,7 @@ function real_auth_input_new_weight_handle()
             },
             success: function(data) {
                 if(data.status == 'success'){
-                    c5('已申請');
+                    c5('已申請，站方會再跟您約驗證時間，再請注意來訊。');
                     location.reload();
                 }
             }
