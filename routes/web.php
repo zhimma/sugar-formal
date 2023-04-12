@@ -1191,6 +1191,10 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('users/video_chat_get_users', 'VideoChatController@video_chat_get_users')->name('users/video_chat_get_users');
         
         Route::post('users/video_chat_verify_record_save', 'VideoChatController@video_chat_verify_record_save')->name('users/video_chat_verify_record_save');
+
+        //視訊錄影影片紀錄
+        Route::get('users/video_verify_record_list', 'VideoChatController@video_verify_record_list')->name('users/video_verify_record_list');
+        Route::get('users/video_verify_record', 'VideoChatController@video_verify_record')->name('users/video_verify_record');
         
         Route::post('users/video_chat_memo_save', 'VideoChatController@video_chat_memo_save')->name('users/video_chat_memo_save');
         Route::post('users/user_question_into_chat_time_save', 'VideoChatController@user_question_into_chat_time_save')->name('users/user_question_into_chat_time_save');

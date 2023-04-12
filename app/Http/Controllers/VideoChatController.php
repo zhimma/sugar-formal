@@ -622,6 +622,7 @@ class VideoChatController extends BaseController
     {
         $user_video_verify_record = UserVideoVerifyRecord::select('user_video_verify_record.*', 'users.name', 'users.email')
             ->leftJoin('users', 'user_video_verify_record.user_id', '=', 'users.id')
+            ->where('admin_id', '!=', 0)
             ->orderBy('user_video_verify_record.created_at', 'desc')
             ->get()
             ->unique('user_id');
@@ -632,7 +633,7 @@ class VideoChatController extends BaseController
     public function video_chat_verify_record(Request $request)
     {   
         $user_id = $request->user_id;
-        $record = UserVideoVerifyRecord::where('user_id', $user_id)->orderBy('created_at', 'desc')->get();
+        $record = UserVideoVerifyRecord::where('user_id', $user_id)->where('admin_id', '!=', 0)->orderBy('created_at', 'desc')->get();
 
         return view('admin.users.video_chat_verify_record', ['record' => $record]);
     }
@@ -944,6 +945,26 @@ class VideoChatController extends BaseController
         $user_id = auth()->user()->id;
         BackendUserDetails::check_is_reverify($user_id);
         return ['status' => 'success'];
+    }
+
+    public function video_verify_record_list(Request $request)
+    {
+        $user_video_verify_record = UserVideoVerifyRecord::select('user_video_verify_record.*', 'users.name', 'users.email')
+            ->leftJoin('users', 'user_video_verify_record.user_id', '=', 'users.id')
+            ->where('admin_id', 0)
+            ->orderBy('user_video_verify_record.created_at', 'desc')
+            ->get()
+            ->unique('user_id');
+
+        return view('admin.users.video_verify_record_list', ['user_video_verify_record' => $user_video_verify_record]);
+    }
+
+    public function video_verify_record(Request $request)
+    {   
+        $user_id = $request->user_id;
+        $record = UserVideoVerifyRecord::where('user_id', $user_id)->where('admin_id', 0)->orderBy('created_at', 'desc')->get();
+
+        return view('admin.users.video_verify_record', ['record' => $record]);
     }
     
 }
