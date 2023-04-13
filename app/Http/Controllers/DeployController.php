@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Symfony\Component\Process\Process;
 
 class DeployController extends Controller
 {
@@ -18,10 +17,7 @@ class DeployController extends Controller
         $localHash = 'sha1=' . hash_hmac('sha1', $payload, $localToken, false);
         if ($hash == $localToken) {
             $root_path = base_path();
-            $process = new Process('cd ' . $root_path . '; sudo sh ./deploy.sh');
-            $process->run(function ($type, $buffer) {
-                echo $buffer;
-            });
+            exec('cd ' . $root_path . '; sudo sh ./deploy.sh');
         }
         else {
             return response('hash not equal', 403);
@@ -36,10 +32,7 @@ class DeployController extends Controller
         $localHash = 'sha1=' . hash_hmac('sha1', $payload, $localToken, false);
         if ($hash == $localToken) {
             $root_path = base_path();
-            $process = new Process('cd ' . $root_path . '; sudo sh ./staging.sh');
-            $process->run(function ($type, $buffer) {
-                echo $buffer;
-            });
+            exec('cd ' . $root_path . '; sudo sh ./staging.sh');
         }
         else {
             return response('hash not equal', 403);
@@ -48,10 +41,7 @@ class DeployController extends Controller
 
     public function manualDeploy() {
         $root_path = base_path();
-        $process = new Process('cd ' . $root_path . '; sudo sh ./deploy.sh');
-        $process->run(function ($type, $buffer) {
-            echo $buffer;
-        });
+        exec('cd ' . $root_path . '; sudo sh ./deploy.sh');
         return "呼叫完成";
     }
 }
