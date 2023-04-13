@@ -65,13 +65,11 @@
                                 <font>進階驗證</font>
                             </a>
                         @endif
-                        @if(!($user->warned_users->adv_auth ?? false))
-                            @if((!($user->backend_user_details->first()->is_need_video_verify ?? false)) && $user->video_verify_auth_status == 0)
-                                <a id="apply_video_record_verify" class="gg_zh_li"><span><img src="/new/images/zh11.png"></span>
-                                    <font>申請視訊錄影驗證</font>
-                                </a>
-                            @endif
-                        @endif
+
+                        <a id="apply_video_record_verify" class="gg_zh_li"><span><img src="/new/images/zh11.png"></span>
+                            <font>申請視訊錄影驗證</font>
+                        </a>
+
                         @if($user->engroup==2)
                             <a href="{{route('real_auth')}}" class="gg_zh_li"><span><img src="/new/images/zh11.png"></span>
                                     <font>本人認證</font>
@@ -162,20 +160,28 @@
             return true;
         }
 
-        $('#apply_video_record_verify').click(function(){   
-            $.ajax({
-                url: '{{ route("apply_video_record_verify") }}',
-                type: 'GET',
-                data: {
-                    '_token': '{{ csrf_token() }}',
-                },
-                success: function(data) {
-                    if(data.status == 'success'){
-                        c5('已申請，站方會再跟您約驗證時間，再請注意來訊。');
-                        location.reload();
+        $('#apply_video_record_verify').click(function(){  
+            @if((!($user->backend_user_details->first()->is_need_video_verify ?? false)) && $user->video_verify_auth_status == 0 && (!($user->warned_users->adv_auth ?? false)))
+                $.ajax({
+                    url: '{{ route("apply_video_record_verify") }}',
+                    type: 'GET',
+                    data: {
+                        '_token': '{{ csrf_token() }}',
+                    },
+                    success: function(data) {
+                        if(data.status == 'success'){
+                            c5('已申請，站方會再跟您約驗證時間，再請注意來訊。');
+                            location.reload();
+                        }
                     }
-                }
-            });
+                });
+            @else
+                @if($user->video_verify_auth_status)
+                    c5('已通過');
+                @else
+                    c5('已申請，站方會再跟您約驗證時間，再請注意來訊。');
+                @endif
+            @endif
         });
     </script>
 @stop
