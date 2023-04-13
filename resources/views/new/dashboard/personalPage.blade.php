@@ -341,7 +341,7 @@
                                     @elseif($user->warned_users->video_auth ?? false)
                                         <h2 class="tabbox_h2">你好，您目前被站方警示，站方會再跟您約視訊驗證時間，再請注意來訊。</h2>
                                     @else
-                                        <h2 class="tabbox_h2">您好，您於 {{$user->backend_user_details->first()->need_video_verify_date}} 時於本站申請 視訊錄影認證站方會再跟您約驗證時間，再請注意來訊。</h2>
+                                        <h2 class="tabbox_h2">您好，您於 {{Carbon\Carbon::parse($user->backend_user_details->first()->need_video_verify_date)->format('Y-m-d')}} 時於本站申請 視訊錄影認證站方會再跟您約驗證時間，再請注意來訊。</h2>
                                     @endif
                                 @else
                                     @if($user->video_verify_auth_status == 0)
