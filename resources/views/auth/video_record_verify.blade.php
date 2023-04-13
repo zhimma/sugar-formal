@@ -299,7 +299,8 @@
                     method: 'POST',
                     body: formData
                     })
-                    .then(response => { console.log('upload success');})
+                    .then(response => { console.log('upload success'); })
+                    .then(response => { window.location.href = '{{route('chat2View')}}'; })
                     .catch(error => {console.log('error');})
             
 
