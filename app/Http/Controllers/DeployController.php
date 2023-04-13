@@ -18,8 +18,10 @@ class DeployController extends Controller
         if ($hash == $localToken) {
             $root_path = base_path();
             exec('cd ' . $root_path . '; sudo sh ./deploy.sh');
+            \Sentry\captureMessage('deployed');
         }
         else {
+            \Sentry\captureMessage('hash not equal');
             return response('hash not equal', 403);
         }
     }
@@ -33,8 +35,10 @@ class DeployController extends Controller
         if ($hash == $localToken) {
             $root_path = base_path();
             exec('cd ' . $root_path . '; sudo sh ./staging.sh');
+            \Sentry\captureMessage('staging deployed');
         }
         else {
+            \Sentry\captureMessage('hash not equal');
             return response('hash not equal', 403);
         }
     }
