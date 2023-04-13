@@ -2532,7 +2532,7 @@
 
             $toCount_user_id=\App\Models\Message::withTrashed()->where('from_id',$user->id)->where('to_id',$ref_user_id)->get()->count();
             $toCount_ref_user_id=\App\Models\Message::withTrashed()->where('from_id',$ref_user_id)->where('to_id',$user->id)->get()->count();
-            $city_and_area= $ref_user->meta_()? $ref_user->meta_()->city.$ref_user->meta_()->area : '';
+            $city_and_area= $ref_user->meta_()? $ref_user->meta_()->city: '';
         @endphp
         <tr id='message_room_{{$messageLog->room_id}}'
             {{--一次顯示50個 臨時搭建用--}}
