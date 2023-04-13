@@ -1521,7 +1521,7 @@ class Message extends Model
     public function deleteIfExpiredAfterFirstLoginAt()
     {
         
-        if($this->first_login_at && Carbon::parse($this->first_login_at)->diffInDays(Carbon::now())) {
+        if($this->first_login_at && Carbon::parse($this->first_login_at)->diffInDays(Carbon::now())>=3) {
             return $this->delete();
         }
         
