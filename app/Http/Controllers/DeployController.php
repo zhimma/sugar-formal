@@ -50,6 +50,8 @@ class DeployController extends Controller
     public function manualDeploy() {
         $root_path = base_path();
         exec('cd ' . $root_path . '; sudo sh ./deploy.sh');
+        \Sentry\captureMessage('production manually deployed');
+        logger('production manually deployed');
         return "呼叫完成";
     }
 }
