@@ -209,7 +209,9 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                         <span>
                             <div class="select_xx03">
                                 @if($user->backend_user_details->first()->is_need_video_verify ?? false)
-                                    @if($user->warned_users->video_auth ?? false)
+                                    @if($user->backend_user_details->first()->video_verify_fail_count>=3)
+                                        您連續三次視訊驗證失敗，暫時停止視訊驗證，若有問題請與站長聯絡 <a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="all: initial;all: unset;height: 26px; float: unset;vertical-align:middle !important;"></a>
+                                    @elseif($user->warned_users->video_auth ?? false)
                                         你好，您目前被站方警示，站方會再跟您約視訊驗證時間，再請注意來訊。
                                     @else
                                         已申請，站方會再跟您約驗證時間，再請注意來訊。
