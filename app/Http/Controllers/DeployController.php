@@ -11,14 +11,20 @@ class DeployController extends Controller
     {
         $payload = $request->getContent();
         $hash = $request->header('X-Hub-Signature') ?? $request->header('X-Gitlab-Token');
+        if ($hash == 'test') {
+            echo 'test';
+        }
         $localToken = config('app.deploy_secret');
         $localHash = 'sha1=' . hash_hmac('sha1', $payload, $localToken, false);
-        if (hash_equals($hash, $localHash)) {
+        if ($hash == $localToken) {
             $root_path = base_path();
             $process = new Process('cd ' . $root_path . '; sudo sh ./deploy.sh');
             $process->run(function ($type, $buffer) {
                 echo $buffer;
             });
+        }
+        else {
+            return response('hash not equal', 403);
         }
     }
 
@@ -28,12 +34,15 @@ class DeployController extends Controller
         $hash = $request->header('X-Hub-Signature') ?? $request->header('X-Gitlab-Token');
         $localToken = config('app.deploy_secret');
         $localHash = 'sha1=' . hash_hmac('sha1', $payload, $localToken, false);
-        if (hash_equals($hash, $localHash)) {
+        if ($hash == $localToken) {
             $root_path = base_path();
             $process = new Process('cd ' . $root_path . '; sudo sh ./staging.sh');
             $process->run(function ($type, $buffer) {
                 echo $buffer;
             });
+        }
+        else {
+            return response('hash not equal', 403);
         }
     }
 
