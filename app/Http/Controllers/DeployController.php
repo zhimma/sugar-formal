@@ -19,9 +19,11 @@ class DeployController extends Controller
             $root_path = base_path();
             exec('cd ' . $root_path . '; sudo sh ./deploy.sh');
             \Sentry\captureMessage('deployed');
+            logger('deployed');
         }
         else {
             \Sentry\captureMessage('hash not equal');
+            logger('hash not equal');
             return response('hash not equal', 403);
         }
     }
@@ -36,9 +38,11 @@ class DeployController extends Controller
             $root_path = base_path();
             exec('cd ' . $root_path . '; sudo sh ./staging.sh');
             \Sentry\captureMessage('staging deployed');
+            logger('staging deployed');
         }
         else {
             \Sentry\captureMessage('hash not equal');
+            logger('hash not equal');
             return response('hash not equal', 403);
         }
     }
