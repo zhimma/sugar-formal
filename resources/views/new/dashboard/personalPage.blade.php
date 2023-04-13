@@ -348,6 +348,7 @@
                                         <h2 class="tabbox_h2"><span class="tu_dfont">尚未申請</span></h2>
                                     @else
                                         <h2 class="tabbox_h2"><span class="tu_dfont">已通過</span></h2>
+                                    @endif
                                 @endif
                             </div>
                         </div> 
