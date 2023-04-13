@@ -330,7 +330,7 @@
                     @if((!($user->warned_users->adv_auth ?? false) && !($user->warned_users->video_auth ?? false)) || $user->backend_user_details->first()->video_verify_fail_count>=3)
                         <div class="sys_aa" id="apply_video_record_block">
                             <div class="tabbox_new_dt"><span>視訊錄影驗證</span>
-                                @if(!($user->backend_user_details->first()->is_need_video_verify ?? false))
+                                @if((!($user->backend_user_details->first()->is_need_video_verify ?? false)) && $user->video_verify_auth_status == 0)
                                     <a id="apply_video_record_verify" class="zs_buttonn">申請驗證</a>
                                 @endif
                             </div>
@@ -344,7 +344,10 @@
                                         <h2 class="tabbox_h2">您好，您於 {{$user->backend_user_details->first()->need_video_verify_date}} 時於本站申請 視訊錄影認證站方會再跟您約驗證時間，再請注意來訊。</h2>
                                     @endif
                                 @else
-                                    <h2 class="tabbox_h2"><span class="tu_dfont">尚未申請</span></h2>
+                                    @if($user->video_verify_auth_status == 0)
+                                        <h2 class="tabbox_h2"><span class="tu_dfont">尚未申請</span></h2>
+                                    @else
+                                        <h2 class="tabbox_h2"><span class="tu_dfont">已通過</span></h2>
                                 @endif
                             </div>
                         </div> 

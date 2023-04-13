@@ -66,7 +66,7 @@
                             </a>
                         @endif
                         @if(!($user->warned_users->adv_auth ?? false))
-                            @if(!($user->backend_user_details->first()->is_need_video_verify ?? false))
+                            @if((!($user->backend_user_details->first()->is_need_video_verify ?? false)) && $user->video_verify_auth_status == 0)
                                 <a id="apply_video_record_verify" class="gg_zh_li"><span><img src="/new/images/zh11.png"></span>
                                     <font>申請視訊錄影驗證</font>
                                 </a>

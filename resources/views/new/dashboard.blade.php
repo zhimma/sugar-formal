@@ -214,7 +214,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                                     @else
                                         已申請
                                     @endif
-                                @else
+                                @elseif($user->video_verify_auth_status == 0)
                                     尚未申請<a id="apply_video_record_verify" class="btn btn-success">申請驗證</a> 
                                 @endif
                             </div>
