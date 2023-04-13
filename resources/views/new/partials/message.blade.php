@@ -138,7 +138,7 @@
     <div class="bltitle">提示</div>
     <div class="n_blnr01 matop10">
     <div class="blnr bltext"></div>
-    <a class="n_bllbut matop30" onclick="c5_gmBtnNoReload()">確定</a>
+    <a id="c5_certain_btn" class="n_bllbut matop30" onclick="c5_gmBtnNoReload()">確定</a>
     </div>
     <a id="" onclick="c5_gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
 </div>

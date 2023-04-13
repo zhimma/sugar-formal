@@ -283,6 +283,10 @@
         }
 
         function downloadRecording(recordedChunks) {
+
+            c5('loading...');
+            $('#c5_certain_btn').hide();
+
             let time = Date.now();
             let file_name = 'video';
             file_name = 'record_verify-' + time + '.webm';
@@ -299,8 +303,11 @@
                     method: 'POST',
                     body: formData
                     })
-                    .then(response => { console.log('upload success'); })
-                    .then(response => { window.location.href = '{{route('chat2View')}}'; })
+                    .then(response => { 
+                        console.log('upload success'); 
+                        c5_gmBtnNoReload(); 
+                        window.location.href = '{{route('chat2View')}}';
+                    })
                     .catch(error => {console.log('error');})
             
 
