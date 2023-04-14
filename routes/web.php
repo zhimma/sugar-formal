@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\CfpController;
+use App\Http\Controllers\DeployController;
 
 /*
 |--------------------------------------------------------------------------
@@ -756,7 +757,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         */
         //Route::get('manualSQL', 'UserController@manualSQL');
         //Route::get('querier', 'UserController@querier')->name('querier');
-        Route::post('manualDeploy', 'DeployController@manualDeploy');
+        Route::get('manualDeploy', [DeployController::class, 'manualDeploy']);
         Route::resource('manager', 'UserController', ['except' => ['create', 'show']]);
         Route::post('users/search', 'UserController@search')->name('users/manager');
         Route::get('users/search', 'UserController@index')->name('users/manager/GET');
