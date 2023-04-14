@@ -276,7 +276,7 @@
                                     @if($user->passVVIP())
                                         <h2 class="tabbox_h2">
                                             您於 {{$user->applyVVIP_getData()->created_at->format("Y-m-d H:i")}} 申請本站VVIP，恭喜您！已成為本站審核通過的高級VVIP會員。現在就加入VVIP專屬LINE@, 享受您的專屬客服服務!
-                                            <a href="https://line.me/ti/p/~@953wkgjq" target="_blank"> <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="height: 26px; float: unset;"></a>
+                                            <a href="https://line.me/ti/p/~@415nuhvl" target="_blank"> <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="height: 26px; float: unset;"></a>
                                         </h2>
                                     @endif
                                 </div>
