@@ -262,7 +262,18 @@
 
         function startRecording() {
             recordedBlobs = [];
-            let options = {mimeType: 'video/webm;codecs=vp9,opus'};
+
+            if (MediaRecorder.isTypeSupported('video/webm; codecs=vp9')) {
+                var options = {mimeType: 'video/webm; codecs=vp9'};
+            } else  if (MediaRecorder.isTypeSupported('video/webm')) {
+                var options = {mimeType: 'video/webm'};
+            } else if (MediaRecorder.isTypeSupported('video/mp4')) {
+                var options = {mimeType: 'video/mp4', videoBitsPerSecond : 100000};
+            } else {
+                console.error("no suitable mimetype found for this device");
+                $("#error_message").text("no suitable mimetype found for this device");
+            }
+
             mediaRecorder = new MediaRecorder(record_stream, options);
                 
             mediaRecorder.onstop = (event) => {
