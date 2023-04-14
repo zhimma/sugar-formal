@@ -88,7 +88,7 @@
                             </div>
                             <div class="row mt-5" id="video-row">
                                 <div class="col-12 video-container">
-                                    <video id="record_video_screen">
+                                    <video id="record_video_screen" playsinline autoplay>
                                     </video>
                                     <div class="record-video" v-else>
                                         <div v-if="callPartner" class="column items-center q-pt-xl">
@@ -219,7 +219,6 @@
                 record_stream = stream;
                 let inputVideo = document.querySelector('#record_video_screen');
                 inputVideo.srcObject = stream;
-                inputVideo.play();
             }).catch((error) => {
                 $("#error_message").text(error);
             });
