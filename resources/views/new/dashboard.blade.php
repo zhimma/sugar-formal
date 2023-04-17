@@ -205,6 +205,26 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                     </dt>                
                     @endif
                     <dt>
+                        <span>視訊錄影驗證</span>
+                        <span>
+                            <div class="select_xx03">
+                                @if($user->backend_user_details->first()->is_need_video_verify ?? false)
+                                    @if($user->backend_user_details->first()->video_verify_fail_count>=3)
+                                        您連續三次視訊驗證失敗，暫時停止視訊驗證，若有問題請與站長聯絡 <a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="all: initial;all: unset;height: 26px; float: unset;vertical-align:middle !important;"></a>
+                                    @elseif($user->warned_users->video_auth ?? false)
+                                        你好，您目前被站方警示，站方會再跟您約視訊驗證時間，再請注意來訊。
+                                    @else
+                                        已申請，站方會再跟您約驗證時間，再請注意來訊。
+                                    @endif
+                                @elseif($user->video_verify_auth_status == 0)
+                                    尚未申請<a id="apply_video_record_verify" class="btn btn-success">申請驗證</a>
+                                @elseif($user->video_verify_auth_status == 1)
+                                    已通過
+                                @endif
+                            </div>
+                        </span>
+                    </dt>
+                    <dt>
                         <span>LINE 通知</span>
                         <span>
                             <div class="select_xx03">@if($user->line_notify_token == null) 尚未綁定<a class="btn btn-success line_notify">立即綁定</a> @else 已綁定 <a class="btn btn-secondary line_notify_cancel">取消綁定</a>&nbsp;<a href="{{route('viewChatNotice')}}">請點我設定</a>@endif</div>
@@ -2666,6 +2686,22 @@ function real_auth_input_new_weight_handle()
         {
             c5('已超過限制字數300字');
         }
+    });
+
+    $('#apply_video_record_verify').click(function(){   
+        $.ajax({
+            url: '{{ route("apply_video_record_verify") }}',
+            type: 'GET',
+            data: {
+                '_token': '{{ csrf_token() }}',
+            },
+            success: function(data) {
+                if(data.status == 'success'){
+                    c5('已申請，站方會再跟您約驗證時間，再請注意來訊。');
+                    location.reload();
+                }
+            }
+        });
     });
 </script>
 
