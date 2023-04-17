@@ -175,7 +175,7 @@
             @if($user->warned_users->adv_auth ?? false)
                 title="站方警示與自動封鎖的警示，只能經後台解除" 
             @else
-                {{$user->backend_user_details->first()->need_video_verify_date}} 申請
+                title="{{$user->backend_user_details->first()->need_video_verify_date}} 申請"
             @endif
             id="video_auth_warned_user" href="#" 
             @if($user->video_verify_auth_status == 1 || ($user->backend_user_details->first()->is_need_video_verify ?? false)) 
