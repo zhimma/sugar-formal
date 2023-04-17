@@ -1547,7 +1547,7 @@
                                     @endif
                                     --}}
 
-                                    @if(!empty($to->meta->domainType) && $to->meta->domainType != null && $to->meta->domainType != 'null' )
+                                    @if(!empty($to->meta->domainType) && $to->meta->domainType != null && $to->meta->domainType != 'null'  && $to->engroup==1)
                                     <dt>
                                         <span>產業</span>
                                         <span>
