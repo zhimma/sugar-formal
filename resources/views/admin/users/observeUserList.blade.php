@@ -87,8 +87,16 @@
                 $user['tipcount'] = \App\Models\Tip::TipCount_ChangeGood($userInfo->id);
                 $user['exchange_period'] = $userInfo->exchange_period;
                 $user['warnedicon'] = \App\Models\User::warned_icondata($list->user_id);
+
+                $background_color='';
+                if($result['isBlocked'])
+                    $background_color='yellow';
+                else if ($userInfo->account_status_admin)
+                    $background_color='darkgray';
+                else if ($userInfo->accountStatus)
+                    $background_color='lightgrey';
             @endphp
-            <tr>
+            <tr style="background:{{$background_color}};">
                 <td><a href="/admin/users/advInfo/{{ $list->user_id }}" target="_blank">{{ $list->user_email }}</a></td>
                 <td>
                     <a href="/admin/users/advInfo/{{ $list->user_id }}" target="_blank">
