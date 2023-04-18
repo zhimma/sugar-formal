@@ -172,10 +172,10 @@
         <a class="btn @if($user['advance_auth_status']==1 ) btn-secondary @else btn-danger @endif warned-user warned_adv_auth" title="站方警示與自動封鎖的警示，只能經後台解除" id="adv_auth_warned_user" href="#" @if($user['advance_auth_status']==1 ) onclick="return false;"  @else data-toggle="modal" data-target="#warned_modal" data-vip_pass="0" data-vip_pass="0" data-adv_auth="1"  data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}" @endif >驗證警示</a>
         @endif
         <a class="btn @if($user->video_verify_auth_status == 1 || ($user->backend_user_details->first()->is_need_video_verify ?? false)) btn-secondary @else btn-danger @endif warned-user warned_video_auth"
-            @if($user->warned_users->video_auth ?? false)
-                title="站方警示與自動封鎖的警示，只能經後台解除" 
-            @else
+            @if(!($user->warned_users->video_auth ?? false) && ($user->backend_user_details->first()->is_need_video_verify ?? false))
                 title="{{$user->backend_user_details->first()->need_video_verify_date}} 申請"
+            @else
+                title="站方警示與自動封鎖的警示，只能經後台解除" 
             @endif
             id="video_auth_warned_user" href="#" 
             @if($user->video_verify_auth_status == 1 || ($user->backend_user_details->first()->is_need_video_verify ?? false)) 
