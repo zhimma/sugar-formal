@@ -3307,6 +3307,8 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
         $('#video_verify_pop_up').css('z-index',39).css('position','fixed');
     }
 
+    let now_time = new Date();
+
     function reverify(){
         $.ajax({
             type: 'POST',
@@ -3316,9 +3318,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
             },
             dataType:"json",
             success: function(response){
-                @php
-                    $send_time = Carbon\Carbon::now();
-                @endphp
+                now_time = new Date();
                 reverify_c5html('請輸入驗證碼<br><input id="check_code_input"><br><a id="resend_reverify" style="font-size:14px; color:#135FC3; text-decoration:underline;">五分鐘後可點此重新發送驗證碼</a>');
                 $('#reverify_button_field').html('<a id="check_checkcode" class="n_bllbut">確定</a>');
                 $('#check_checkcode').click(function() {
@@ -3341,12 +3341,14 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                     }
                 });
                 $('#resend_reverify').click(function() {
-                    @if($send_time->addMinutes(5) < Carbon\Carbon::now())
+                    click_time = new Date();
+                    if((click_time - now_time)/1000/60 > 5){
                         reverify();
                         c5html('<br>已重新發送<br><br>');
-                    @else
+                    }
+                    else{
                         c5html('<br>五分鐘內不可重複發送<br><br>');
-                    @endif
+                    }
                 });
             }
         });
