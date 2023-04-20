@@ -158,11 +158,37 @@
         @else
             <button type="button" title="{{'於'.$user['adminWarned_createdAt'].'被警示，將於'.(isset($user['adminWarned_expireDate'])? $user['adminWarned_expireDate'] : '永久').'解除站方警示' }}" class='text-white btn unwarned_user @if($user["isAdminWarned"]) btn-success @else btn-danger @endif' onclick="ReleaseWarnedUser({{ $user['id'] }})" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}"> 解除站方警示 </button>
         @endif
+        @if($user->backend_user_details->first()->is_need_video_verify ?? false)
+            <form method="POST" action="{{route('reset_cancel_video_verify')}}" style="margin:0px;display:inline;">
+                {!! csrf_field() !!}
+                <input type="hidden" name='uid' value="{{ $user->id }}">
+                <button type="submit" class="btn btn-dark">重設視訊驗證次數</button>
+            </form>
+        @endif
     @else
         <a class="btn btn-danger warned-user warned_vip_pass" title="站方警示與自動封鎖的警示，只能經後台解除" id="warned_user" href="#" data-toggle="modal" data-target="#warned_modal" data-vip_pass="0" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}">站方警示</a>
         <a class="btn btn-danger warned-user warned_vip_pass" title="站方警示與自動封鎖的警示，只能經後台解除" id="warned_user" href="#" data-toggle="modal" data-target="#warned_modal" data-vip_pass="1" data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}" @if($user['isvip']==1 && $user['isfreevip']==0)style="display: none;"@endif>付費警示</a>
         @if($user->engroup == 2)
         <a class="btn @if($user['advance_auth_status']==1 ) btn-secondary @else btn-danger @endif warned-user warned_adv_auth" title="站方警示與自動封鎖的警示，只能經後台解除" id="adv_auth_warned_user" href="#" @if($user['advance_auth_status']==1 ) onclick="return false;"  @else data-toggle="modal" data-target="#warned_modal" data-vip_pass="0" data-vip_pass="0" data-adv_auth="1"  data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}" @endif >驗證警示</a>
+        @endif
+        <a class="btn @if($user->video_verify_auth_status == 1 || ($user->backend_user_details->first()->is_need_video_verify ?? false)) btn-secondary @else btn-danger @endif warned-user warned_video_auth"
+            @if(!($user->warned_users->video_auth ?? false) && ($user->backend_user_details->first()->is_need_video_verify ?? false))
+                title="{{$user->backend_user_details->first()->need_video_verify_date}} 申請"
+            @else
+                title="站方警示與自動封鎖的警示，只能經後台解除" 
+            @endif
+            id="video_auth_warned_user" href="#" 
+            @if($user->video_verify_auth_status == 1 || ($user->backend_user_details->first()->is_need_video_verify ?? false)) 
+                onclick="return false;" style="color: #fff; background-color: #C0C0C0; border-color: #C0C0C0;" 
+            @else 
+                data-toggle="modal" data-target="#warned_modal" data-vip_pass="0" data-vip_pass="0" data-adv_auth="0"  data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}" 
+            @endif >視訊驗證警示</a>
+        @if($user->backend_user_details->first()->is_need_video_verify ?? false)
+            <form method="POST" action="{{route('reset_cancel_video_verify')}}" style="margin:0px;display:inline;">
+                {!! csrf_field() !!}
+                <input type="hidden" name='uid' value="{{ $user->id }}">
+                <button type="submit" class="btn btn-dark">重設視訊驗證次數</button>
+            </form>
         @endif
     @endif
     @if($userMeta->isWarned==0)
@@ -2823,10 +2849,11 @@
             </div>
             <form action="/admin/users/toggleUserWarned" method="POST" id="clickToggleUserWarned">
                 {!! csrf_field() !!}
-                <input type="hidden" value="" name="user_id" id="warnedUserID">
+                <input type="hidden" value="{{$user['id']}}" name="user_id" id="warnedUserID">
                 <input type="hidden" value="advInfo" name="page">
-                <input type="hidden" name="vip_pass">
-                <input type="hidden" name="adv_auth">
+                <input type="hidden" name="vip_pass" value="0">
+                <input type="hidden" name="adv_auth" value="0">
+                <input type="hidden" name="video_auth" value="0">
                 <div class="modal-body">
                      警示時間
                     <select name="days" class="days">
@@ -3088,6 +3115,20 @@ jQuery(document).ready(function(){
         $("#clickToggleUserWarned input[name='vip_pass']").val(0);
         if($(this).data('adv_auth')==1){
             $("#warnedModalLabel").append(' (驗證警示)');
+        }
+    })    
+
+    $('.warned_video_auth').on('click', function () {
+        let videoAuth = 1;
+
+        @if( $user->video_verify_auth_status == 1)
+            videoAuth = 0;
+        @endif
+
+        $("#clickToggleUserWarned input[name='video_auth']").val(videoAuth);
+        $("#clickToggleUserWarned input[name='vip_pass']").val(0);
+        if(videoAuth==1){
+            $("#warnedModalLabel").append(' (視訊驗證警示)');
         }
     })    
 

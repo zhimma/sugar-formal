@@ -6,6 +6,7 @@ use App\Services\UserService;
 use App\Services\ActivateService;
 use App\Models\MasterWords;
 use App\Models\SetAutoBan;
+use App\Models\BackendUserDetails;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Log;
 

@@ -460,6 +460,14 @@ class UserController extends \App\Http\Controllers\BaseController
         $userWarned->member_id = $request->user_id;
         $userWarned->vip_pass = $request->vip_pass;
         $userWarned->adv_auth = $request->adv_auth;
+        $userWarned->video_auth = $request->video_auth ?? 0;
+        Log::Info($request->video_auth);
+
+        if(($request->video_auth ?? 0) == 1)
+        {
+            BackendUserDetails::apply_video_verify($request->user_id);
+        }
+        
         if ($request->days != 'X') {
             $userWarned->expire_date = $now_time->copy()->addDays($request->days);
         }
@@ -684,6 +692,10 @@ class UserController extends \App\Http\Controllers\BaseController
                 if (!$checkLog) {
                     //寫入log
                     DB::table('is_warned_log')->insert(['user_id' => $r->member_id, 'reason' => $r->reason, 'vip_pass' => $r->vip_pass, 'adv_auth' => $r->adv_auth, 'created_at' => $r->created_at]);
+                }
+                if(($r->video_auth ?? 0) == 1)
+                {
+                    BackendUserDetails::reset_video_verify($data['id']);
                 }
             }
             warned_users::where('member_id', '=', $data['id'])->delete();
