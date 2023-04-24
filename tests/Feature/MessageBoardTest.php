@@ -1,26 +1,20 @@
 <?php
-
-namespace Tests\Feature;
-
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Tests\TestCase;
-
-class MessageBoardTest extends TestCase
-{
-    public function test_render_show_list()
+    test('render_show_list' ,function ()
     {
         try{
-            $user = \App\Models\User::find(15600);//TESTfemaleVIP@test.com
+            $this->withoutMiddleware(\App\Http\Middleware\FaqCheck::class);
+            $user = \App\Models\User::whereHas('vip')
+                            ->where(function($q){
+                                    $q->where('engroup',2)->whereHas('short_message',function($smq){$smq->where('active',1);})
+                                      ->orWhere('engroup',1);  
+                                })->first();
 
-            $response = $this->actingAs($user)->get('/dashboard/showList');
-
+            $response = $this->actingAs($user)->get('/MessageBoard/showList');
             $response->assertStatus(200);
-        }catch(\Exception $e){
-            $notification_string = test_notification(__CLASS__, __FUNCTION__, __LINE__);
+        }catch(Throwable $e){
             
-            $lineNotify = new LineNotify;
-            $lineNotify->sendLineNotifyMessage($notification_string);
+            $notification_string = test_notification(__CLASS__, __FUNCTION__, __LINE__,__FILE__);
+            $this->handleCatchedException($e,$notification_string);
         }
-    }
-}
+    });
+

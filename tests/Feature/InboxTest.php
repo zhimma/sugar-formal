@@ -1,14 +1,37 @@
 <?php
+    uses(Illuminate\Foundation\Testing\WithoutMiddleware::class);
+    test('inbox_get_data_with_input', function ()
+    {
+        try{
+            /** @var \Illuminate\Contracts\Auth\Authenticatable $user */
+            $message = \App\Models\Message_new::factory()->create();
+            $user = \App\Models\User::find($message->from_id);
+            $hasUser = $user ? true : false;
+            $userMeta = null;
+            $postJson = [];
+            if($hasUser) {
+                $userMeta = $user->meta;
+                
+                $postJson = array(
+                                'date'=> 7,
+                                'uid'=> $user->id,
+                                'isVip'=> 1,
+                            );                
+            }
 
-namespace Tests\Feature;
+            
+            $response = $this->actingAs($user)->postJson('/dashboard/chat2/showMessages', $postJson);
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Tests\TestCase;
-use App\Services\LineNotifyService as LineNotify;
-class InboxTest extends TestCase
-{
-    public function test_inbox_get_data_with_input()
+            expect($response->getContent())->toBeJson()->json()->toBeArray()->status->toBe(1);           
+            //expect($response->getContent())->toBe($result); 
+        }catch(Throwable $e){
+            
+            $notification_string = test_notification(__CLASS__, __FUNCTION__, __LINE__,__FILE__);
+            $this->handleCatchedException($e,$notification_string);
+        }
+    });
+
+    test('inbox_get_no_data_with_input', function ()
     {
         try{
             /** @var \Illuminate\Contracts\Auth\Authenticatable $user */
@@ -24,40 +47,12 @@ class InboxTest extends TestCase
                 'isVip'=> 1,
             );
             $response = $this->actingAs($user)->postJson('/dashboard/chat2/showMessages', $postJson);
-
             $result = env("INBOX_NO_VALUE_RESULT");
-            $this->assertEquals($result, $response->getContent());
-        }catch(\Exception $e){
-            $notification_string = test_notification(__CLASS__, __FUNCTION__, __LINE__);
+            expect($response->getContent())->toBeJson()->json()->toBeArray()->msg->toBe([$result]);           
+        }catch(Throwable $e){
             
-            $lineNotify = new LineNotify;
-            $lineNotify->sendLineNotifyMessage($notification_string);
+            $notification_string = test_notification(__CLASS__, __FUNCTION__, __LINE__,__FILE__);
+            $this->handleCatchedException($e,$notification_string);
         }
-    }
+    });
 
-    public function test_inbox_get_no_data_with_input()
-    {
-        try{
-            /** @var \Illuminate\Contracts\Auth\Authenticatable $user */
-            $user = \App\Models\User::factory()->create();
-
-            $userMeta = \App\Models\UserMeta::factory()->create();
-
-            $hasUser = $user ? true : false;
-
-            $postJson = array(
-                'date'=> 7,
-                'uid'=> 15601,//TESTmaleVIP@test.com as user
-                'isVip'=> 1,
-            );
-            $response = $this->actingAs($user)->postJson('/dashboard/chat2/showMessages', $postJson);
-            $result = env("INBOX_HAS_VALUE_RESULT");
-            $this->assertEquals($result, $response->getContent());
-        }catch(\Exception $e){
-            $notification_string = test_notification(__CLASS__, __FUNCTION__, __LINE__);
-            
-            $lineNotify = new LineNotify;
-            $lineNotify->sendLineNotifyMessage($notification_string);
-        }
-    }
-}

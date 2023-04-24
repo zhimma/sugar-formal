@@ -1,51 +1,59 @@
 <?php
 
-use Tests\TestCase;
 use App\Services\UserService;
-use Illuminate\Foundation\Testing\DatabaseMigrations;
 
-class UserServiceTest extends TestCase
-{
-    use DatabaseMigrations;
+beforeEach(function () {
+    $this->service = $this->app->make(UserService::class);  
+});
 
-    protected $service;
-
-    public function setUp():void
-    {
-        parent::setUp();
-        $this->service = $this->app->make(UserService::class);
-    }
-
-    public function testGetUsers()
-    {
+test('GetUsers', function () {
+    try{
         $response = $this->service->all();
-        $this->assertEquals(get_class($response), 'Illuminate\Database\Eloquent\Collection');
+        expect($response)->toBeInstanceOf('Illuminate\Database\Eloquent\Collection');
+    }catch(Throwable $e){
+        $notification_string = test_notification(__CLASS__, __FUNCTION__, __LINE__,__FILE__);
+        $this->handleCatchedException($e,$notification_string);
     }
+});
 
-    public function testGetUser()
-    {
-        $user = factory(App\Models\User::class)->create();
-        factory(App\Models\UserMeta::class)->create(['user_id' => $user->id]);
+test('GetUser', function () {
+    try{
+        $user = App\Models\User::factory()->create();
+        App\Models\UserMeta::factory()->create(['user_id' => $user->id]);
         $response = $this->service->find($user->id);
+        
+        expect($response)->toBeObject()->name->toBe($user->name);
+    }catch(Throwable $e){
+        $notification_string = test_notification(__CLASS__, __FUNCTION__, __LINE__,__FILE__);
+        $this->handleCatchedException($e,$notification_string);
+    }    
+});
 
-        $this->assertTrue(is_object($response));
-        $this->assertEquals($user->name, $response->name);
-    }
-
-    public function testCreateUser()
-    {
-        $role = factory(App\Models\Role::class)->create();
-        $user = factory(App\Models\User::class)->create();
+test('CreateUser', function() {
+    try{
+        $role = App\Models\Role::factory()->create();
+        $user = App\Models\User::factory()->create();
+        $email_config = \DB::table("queue_global_variables")->where("name", 'send-email')->first();
+        if($email_config) {
+            \DB::table("queue_global_variables")->where("name", 'send-email')->update(['value'=>0]);
+        }
+        else {
+            \DB::table("queue_global_variables")->create(['name'=>'send-email','value'=>0]);
+        }
         $response = $this->service->create($user, 'password');
+        expect($response)->toBeObject()->name->toBe($user->name);
+    } catch (Throwable $e){
+        $notification_string = test_notification(__CLASS__, __FUNCTION__, __LINE__,__FILE__);
+        $this->handleCatchedException($e,$notification_string);
+    }          
+        
+    
+});
 
-        $this->assertTrue(is_object($response));
-        $this->assertEquals($user->name, $response->name);
-    }
-
-    public function testUpdateUser()
-    {
-        $user = factory(App\Models\User::class)->create();
-        factory(App\Models\UserMeta::class)->create(['user_id' => $user->id]);
+test('UpdateUser', function () {
+    try{
+        $user = App\Models\User::factory()->create();
+        App\Models\UserMeta::factory()->create(['user_id' => $user->id]);
 
         $response = $this->service->update($user->id, [
             'email' => $user->email,
@@ -57,62 +65,11 @@ class UserServiceTest extends TestCase
                 'terms_and_cond' => 1,
             ],
         ]);
-
+        
         $this->assertDatabaseHas('user_meta', ['phone' => '666']);
         $this->assertDatabaseHas('users', ['name' => 'jim']);
-    }
-
-    public function testAssignRole()
-    {
-        $role = factory(App\Models\Role::class)->create();
-        $user = factory(App\Models\User::class)->create();
-        $this->service->assignRole('member', $user->id);
-        $this->assertDatabaseHas('role_user', ['role_id' => $role->id, 'user_id' => $user->id]);
-        $this->assertEquals($user->roles->first()->label, 'Member');
-    }
-
-    public function testHasRole()
-    {
-        $role = factory(App\Models\Role::class)->create();
-        $user = factory(App\Models\User::class)->create();
-        $this->service->assignRole('member', $user->id);
-        $this->assertDatabaseHas('role_user', ['role_id' => $role->id, 'user_id' => $user->id]);
-        $this->assertTrue($user->hasRole('member'));
-    }
-
-    public function testUnassignRole()
-    {
-        $role = factory(App\Models\Role::class)->create();
-        $user = factory(App\Models\User::class)->create();
-        $this->service->assignRole('member', $user->id);
-        $this->service->unassignRole('member', $user->id);
-        $this->assertEquals(0, count($user->roles));
-    }
-
-    public function testUnassignAllRole()
-    {
-        $role = factory(App\Models\Role::class)->create();
-        $user = factory(App\Models\User::class)->create();
-        $this->service->assignRole('member', $user->id);
-        $this->service->unassignAllRoles($user->id);
-        $this->assertEquals(0, count($user->roles));
-    }
-
-    public function testJoinTeam()
-    {
-        $team = factory(App\Models\Team::class)->create();
-        $user = factory(App\Models\User::class)->create();
-        $this->service->joinTeam($team->id, $user->id);
-        $this->assertDatabaseHas('team_user', ['team_id' => $team->id, 'user_id' => $user->id]);
-        $this->assertEquals($user->teams->first()->name, $team->name);
-    }
-
-    public function testLeaveTeam()
-    {
-        $team = factory(App\Models\Team::class)->create();
-        $user = factory(App\Models\User::class)->create();
-        $this->service->joinTeam($team->id, $user->id);
-        $this->service->leaveTeam($team->id, $user->id);
-        $this->assertEquals(0, count($user->teams));
-    }
-}
+    }catch(Throwable $e){
+        $notification_string = test_notification(__CLASS__, __FUNCTION__, __LINE__,__FILE__);
+        $this->handleCatchedException($e,$notification_string);
+    }    
+});

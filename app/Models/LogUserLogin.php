@@ -47,8 +47,8 @@ class LogUserLogin extends Model
 
     public static function recordLoginData($user, $cfp_hash)
     {
-        $userAgent = $_SERVER['HTTP_USER_AGENT'];
-        $ip = $_SERVER['REMOTE_ADDR'];
+        $userAgent = ($_SERVER['HTTP_USER_AGENT']??'');
+        $ip = ($_SERVER['REMOTE_ADDR']??'');
         $now_time = Carbon::now();
 
         //更新最後登入時間

@@ -15,9 +15,13 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use YlsIdeas\FeatureFlags\Facades\Features;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Factories\Factory;
+use Database\Factories\MessagesFactory;
 
 class Message_new extends Model
 {
+    use HasFactory;
     /**
      * The database table used by the model.
      *
@@ -649,7 +653,7 @@ class Message_new extends Model
             $user = User::find($uid);
         }
         foreach ($messages as $key => &$message) {		
-			if (!$message['sender'] || !$message['receiver']) {
+			if (!($message['sender']??null) || !($message['receiver']??null)) {
                 logger('message sender or receiver is null: ' . json_encode($message));
                 unset($message);
                 continue;
@@ -1073,5 +1077,10 @@ class Message_new extends Model
     {
         return $q->where($alias.'.created_at', '>', Message::implicitLimitDate());
     }
+    
+    protected static function newFactory(): Factory
+    {
+        return MessagesFactory::new();
+    }    
 
 }

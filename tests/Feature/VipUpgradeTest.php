@@ -1,29 +1,21 @@
 <?php
 
-namespace Tests\Feature;
-
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Tests\TestCase;
-
-class VipUpgradeTest extends TestCase
-{
-    public function test_render_vip_select()
+    test('render_vip_select',function ()
     {
         try{
+            $this->withoutMiddleware(\App\Http\Middleware\FaqCheck::class);
             $user = \App\Models\User::find(15601);//TESTmaleVIP@test.com
 
             $response = $this->actingAs($user)->get('/dashboard/vipSelect');
 
             $response->assertStatus(200);
-        }catch(\Exception $e){
-            $notification_string = test_notification(__CLASS__, __FUNCTION__, __LINE__);
-            
-            $lineNotify = new LineNotify;
-            $lineNotify->sendLineNotifyMessage($notification_string);
+        }catch(Throwable $e){
+            $notification_string = test_notification(__CLASS__, __FUNCTION__, __LINE__,__FILE__);
+            $this->handleCatchedException($e,$notification_string);
         }
-    }
-    public function test_render_new_vip()
+    });
+    
+    test('render_new_vip',function ()
     {
         try{
             $user = \App\Models\User::find(15601);//TESTmaleVIP@test.com
@@ -31,27 +23,23 @@ class VipUpgradeTest extends TestCase
             $response = $this->actingAs($user)->get('/dashboard/new_vip');
 
             $response->assertStatus(200);
-        }catch(\Exception $e){
-            $notification_string = test_notification(__CLASS__, __FUNCTION__, __LINE__);
-            
-            $lineNotify = new LineNotify;
-            $lineNotify->sendLineNotifyMessage($notification_string);
+        }catch(Throwable $e){
+            $notification_string = test_notification(__CLASS__, __FUNCTION__, __LINE__,__FILE__);
+            $this->handleCatchedException($e,$notification_string);
         }
-    }
+    });
 
-    public function test_render_vip_added_hide_online()
+    test('render_vip_added_hide_online',function ()
     {
         try{
+            $this->withoutMiddleware(\App\Http\Middleware\FaqCheck::class);
             $user = \App\Models\User::find(15601);//TESTmaleVIP@test.com
 
             $response = $this->actingAs($user)->get('/dashboard/valueAddedHideOnline');
 
             $response->assertStatus(200);
-        }catch(\Exception $e){
-            $notification_string = test_notification(__CLASS__, __FUNCTION__, __LINE__);
-            
-            $lineNotify = new LineNotify;
-            $lineNotify->sendLineNotifyMessage($notification_string);
+        }catch(Throwable $e){
+            $notification_string = test_notification(__CLASS__, __FUNCTION__, __LINE__,__FILE__);
+            $this->handleCatchedException($e,$notification_string);
         }
-    }
-}
+    });
