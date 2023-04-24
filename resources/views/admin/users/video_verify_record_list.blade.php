@@ -43,18 +43,24 @@
                         @if($record->user->video_verify_auth_status == 1)
                             已完成視訊驗證
                         @else
-                            <form action="{{route('users/video_verify_record_pass')}}" method="POST">
-                                {!! csrf_field() !!}
-                                <input type="hidden" name="user_id" value="{{$record->user_id}}" />
-                                <input type="submit" value="通過">
-                            </form>
-                            <br>
-                            <form action="{{route('users/video_verify_record_fail')}}" method="POST">
-                                {!! csrf_field() !!}
-                                <input type="hidden" name="user_id" value="{{$record->user_id}}" />
-                                <input type="submit" value="不通過">
-                            </form>
+                            @if(($record->user->backend_user_details->first()->has_upload_video_verify ?? false) == 1)
+                                <form action="{{route('users/video_verify_record_pass')}}" method="POST">
+                                    {!! csrf_field() !!}
+                                    <input type="hidden" name="user_id" value="{{$record->user_id}}" />
+                                    <input type="submit" class="btn btn-primary" value="通過">
+                                </form>
+                                <br>
+                                <form action="{{route('users/video_verify_record_fail')}}" method="POST">
+                                    {!! csrf_field() !!}
+                                    <input type="hidden" name="user_id" value="{{$record->user_id}}" />
+                                    <input type="submit" class="btn btn-danger" value="不通過">
+                                </form>
+                            @else
+                                等待會員重錄
+                            @endif
                         @endif
+                        <br>
+                        <a href="/admin/users/message/to/{{$record->user_id}}" target="_blank" class="btn btn-dark">發送站長訊息</a>
                     </td>
                 </tr>
             @endforeach

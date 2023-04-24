@@ -979,7 +979,7 @@ class VideoChatController extends BaseController
         BackendUserDetails::reset_cancel_video_verify($request->user_id);
         BackendUserDetails::upload_record_fail($request->user_id);
 
-        return redirect('/admin/users/message/to/' . $request->user_id);
+        return redirect()->back()->with('message', '已不通過');
     }
 
     public function restart_video_verify_record(Request $request)
