@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\CfpController;
+use App\Http\Controllers\DeployController;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,6 +21,8 @@ Route::get('/fingerprint', 'PagesController@fingerprint');
 Route::post('/saveFingerprint', 'PagesController@saveFingerprint')->name('saveFingerprint');
 Route::get('Fingerprint2', 'Fingerprint@index');
 Route::post('Fingerprint2/addFingerprint', 'Fingerprint@addFingerprint');
+Route::post('deploy', 'DeployController@deploy');
+Route::post('staging', 'DeployController@staging');
 
 /*
 |--------------------------------------------------------------------------
@@ -233,7 +236,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
     Route::post('addBlock', 'PagesController@addBlock');
 
     /*會員驗證*/
-    Route::get('member_auth', 'PagesController@member_auth');
+    Route::get('member_auth', 'PagesController@member_auth')->name('member_auth');
     Route::get('goto_member_auth', 'PagesController@goto_member_auth');
     Route::get('goto_advance_auth_email', 'PagesController@goto_advance_auth_email');    
     Route::post('member_auth_phone_process', 'PagesController@member_auth_phone_process');
@@ -269,6 +272,15 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
     Route::get('user_video_chat_verify', 'VideoChatController@user_video_chat_verify');
 
     Route::get('user_video_chat_verify_allow_check', 'VideoChatController@user_video_chat_verify_allow_check')->name('user_video_chat_verify_allow_check');
+
+    //錄影驗證頁面
+    Route::get('video_record_verify', 'VideoChatController@video_record_verify')->name('video_record_verify');
+    Route::post('video_record_verify_upload', 'VideoChatController@video_record_verify_upload')->name('video_record_verify_upload');
+    Route::get('apply_video_record_verify', 'VideoChatController@apply_video_record_verify')->name('apply_video_record_verify');
+    Route::get('hint_to_video_record_verify', 'VideoChatController@hint_to_video_record_verify')->name('hint_to_video_record_verify');
+    Route::post('reset_cancel_video_verify', 'VideoChatController@reset_cancel_video_verify')->name('reset_cancel_video_verify');
+    Route::post('video_record_verify_reverify', 'VideoChatController@video_record_verify_reverify')->name('video_record_verify_reverify');
+    Route::post('video_record_verify_reverify_success', 'VideoChatController@video_record_verify_reverify_success')->name('video_record_verify_reverify_success');
 
     //視訊功能測試
     Route::get('/video-chat-test', 'VideoChatController@videoChatTest');
@@ -754,6 +766,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         */
         //Route::get('manualSQL', 'UserController@manualSQL');
         //Route::get('querier', 'UserController@querier')->name('querier');
+        Route::get('manualDeploy', [DeployController::class, 'manualDeploy']);
         Route::resource('manager', 'UserController', ['except' => ['create', 'show']]);
         Route::post('users/search', 'UserController@search')->name('users/manager');
         Route::get('users/search', 'UserController@index')->name('users/manager/GET');
@@ -1182,6 +1195,10 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('users/video_chat_get_users', 'VideoChatController@video_chat_get_users')->name('users/video_chat_get_users');
         
         Route::post('users/video_chat_verify_record_save', 'VideoChatController@video_chat_verify_record_save')->name('users/video_chat_verify_record_save');
+
+        //視訊錄影影片紀錄
+        Route::get('users/video_verify_record_list', 'VideoChatController@video_verify_record_list')->name('users/video_verify_record_list');
+        Route::get('users/video_verify_record', 'VideoChatController@video_verify_record')->name('users/video_verify_record');
         
         Route::post('users/video_chat_memo_save', 'VideoChatController@video_chat_memo_save')->name('users/video_chat_memo_save');
         Route::post('users/user_question_into_chat_time_save', 'VideoChatController@user_question_into_chat_time_save')->name('users/user_question_into_chat_time_save');

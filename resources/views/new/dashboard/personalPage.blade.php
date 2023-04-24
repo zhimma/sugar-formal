@@ -76,7 +76,7 @@
     .sl_bllbut01:hover{color:#fff;background: #8a9ff0;box-shadow:inset 0px 15px 10px -10px #4c6ded,inset 0px -10px 10px -20px #4c6ded;}
 
     #vip_state_block .tu_dfont,#self_auth_state_block .tu_dfont  {width:auto;max-height:unset; -webkit-box-orient: vertical; -webkit-line-clamp:none; -webkit-line-clamp:unset;}
-    #vip_state_block .tabbox_new_dt a.zs_buttonn,#self_auth_state_block  .tabbox_new_dt a.zs_buttonn,#adv_auth_state_block .tabbox_new_dt a.zs_buttonn{font-size: 15px; line-height: 30px;font-weight:normal;margin-right:2%; }
+    #vip_state_block .tabbox_new_dt a.zs_buttonn,#self_auth_state_block  .tabbox_new_dt a.zs_buttonn,#adv_auth_state_block .tabbox_new_dt a.zs_buttonn,#apply_video_record_block .tabbox_new_dt a.zs_buttonn{font-size: 15px; line-height: 30px;font-weight:normal;margin-right:2%; }
 
     span.main_word {color:#fd5678;font-weight:bolder;}
     div.one_row_sys_aa {overflow:hidden;}
@@ -169,7 +169,7 @@
                                 @foreach($admin_msgs as $amsg)
                                     <h2 class="tabbox_h2 ta_l"  data-recordtype="admin_msgs" data-rowid="{{$amsg->id}}" >
 								<span class="tu_dfont">
-								{!! $amsg->content !!}
+								{!! $amsg->addFirstLoginTimeAfterLogined()->content !!}
 								</span>
                                     </h2>
                                 @endforeach
@@ -276,7 +276,7 @@
                                     @if($user->passVVIP())
                                         <h2 class="tabbox_h2">
                                             您於 {{$user->applyVVIP_getData()->created_at->format("Y-m-d H:i")}} 申請本站VVIP，恭喜您！已成為本站審核通過的高級VVIP會員。現在就加入VVIP專屬LINE@, 享受您的專屬客服服務!
-                                            <a href="https://line.me/ti/p/~@953wkgjq" target="_blank"> <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="height: 26px; float: unset;"></a>
+                                            <a href="https://line.me/ti/p/~@415nuhvl" target="_blank"> <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="height: 26px; float: unset;"></a>
                                         </h2>
                                     @endif
                                 </div>
@@ -327,16 +327,43 @@
                         </div>         
                     @endif
 
+                    @if((!($user->warned_users->adv_auth ?? false) && !($user->warned_users->video_auth ?? false)) || $user->backend_user_details->first()->video_verify_fail_count>=3)
+                        <div class="sys_aa" id="apply_video_record_block">
+                            <div class="tabbox_new_dt"><span>視訊錄影驗證</span>
+                                @if((!($user->backend_user_details->first()->is_need_video_verify ?? false)) && $user->video_verify_auth_status == 0)
+                                    <a id="apply_video_record_verify" class="zs_buttonn">申請驗證</a>
+                                @endif
+                            </div>
+                            <div class="tabbox_new_dd">
+                                @if($user->backend_user_details->first()->is_need_video_verify ?? false)
+                                    @if($user->backend_user_details->first()->video_verify_fail_count>=3)
+                                        <h2 class="tabbox_h2">您連續三次視訊驗證失敗，暫時停止視訊驗證，若有問題請與站長聯絡 <a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="all: initial;all: unset;height: 26px; float: unset;vertical-align:middle !important;"></a></h2>
+                                    @elseif($user->warned_users->video_auth ?? false)
+                                        <h2 class="tabbox_h2">你好，您目前被站方警示，站方會再跟您約視訊驗證時間，再請注意來訊。</h2>
+                                    @else
+                                        <h2 class="tabbox_h2">您好，您於 {{Carbon\Carbon::parse($user->backend_user_details->first()->need_video_verify_date)->format('Y-m-d')}} 時於本站申請 視訊錄影認證站方會再跟您約驗證時間，再請注意來訊。</h2>
+                                    @endif
+                                @else
+                                    @if($user->video_verify_auth_status == 0)
+                                        <h2 class="tabbox_h2"><span class="tu_dfont">尚未申請</span></h2>
+                                    @else
+                                        <h2 class="tabbox_h2"><span class="tu_dfont">已通過</span></h2>
+                                    @endif
+                                @endif
+                            </div>
+                        </div> 
+                    @endif
+
                    <div class="sys_aa" id="vip_state_block">
                         <div class="tabbox_new_dt"><span>隱藏狀態</span>
-                            @if($user->valueAddedServiceStatus('hideOnline') == 1)
+                            @if($user->valueAddedServiceStatus('hideOnline') == 1 && $user->is_hide_online == 1)
                                 <a class="zs_buttonn right" href="/dashboard/account_hide_online">變更隱藏狀態</a>
                             @else
                                 <a class="zs_buttonn" href="{{url('/dashboard/valueAddedHideOnline')}}" style="font-size: 12px;">立即購買隱藏功能</a>
                             @endif
                         </div>
                         <div class="tabbox_new_dd">
-                            @if($user->valueAddedServiceStatus('hideOnline') == 1)
+                            @if($user->valueAddedServiceStatus('hideOnline') == 1 && $user->is_hide_online == 1)
                                 <h2 class="tabbox_h2">{!! $vasStatus !!}</h2>
                             @else
                                 <h2 class="tabbox_h2"><span class="tu_dfont">您尚未購買隱藏付費功能</span></h2>
@@ -865,6 +892,21 @@
         }
     </script>
 <script type="text/javascript">
+    $('#apply_video_record_verify').click(function(){   
+        $.ajax({
+            url: '{{ route("apply_video_record_verify") }}',
+            type: 'GET',
+            data: {
+                '_token': '{{ csrf_token() }}',
+            },
+            success: function(data) {
+                if(data.status == 'success'){
+                    c5('已申請，站方會再跟您約驗證時間，再請注意來訊。');
+                    location.reload();
+                }
+            }
+        });
+    });
 
     $(document).ready(function() {
 

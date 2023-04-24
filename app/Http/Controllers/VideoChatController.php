@@ -16,16 +16,23 @@ use App\Services\RealAuthPageService;
 use LZCompressor\LZString;
 use App\Models\WebrtcSignalData;
 use App\Http\Controllers\Admin\UserController;
+use App\Models\BackendUserDetails;
 use App\Services\UserService;
 use App\Services\VipLogService;
 use App\Repositories\SuspiciousRepository;
+use App\Models\RealAuthQuestion;
+use App\Models\SimpleTables\warned_users;
+use App\Services\ShortMessageService;
+use App\Models\UserMeta;
+use App\Services\ActivateService;
+use App\Notifications\ReverifyAdvAuthUserEmail;
 
 class VideoChatController extends BaseController
-{
-    
-    public function __construct(UserService $userService, VipLogService $logService, SuspiciousRepository $suspiciousRepo, RealAuthPageService $rap_service)
+{   
+    public function __construct(UserService $userService, VipLogService $logService, SuspiciousRepository $suspiciousRepo, RealAuthPageService $rap_service, ActivateService $activateService)
     {
         parent::__construct();
+        $this->service = $activateService;
     }    
     
     public function callUser(Request $request)
@@ -615,6 +622,7 @@ class VideoChatController extends BaseController
     {
         $user_video_verify_record = UserVideoVerifyRecord::select('user_video_verify_record.*', 'users.name', 'users.email')
             ->leftJoin('users', 'user_video_verify_record.user_id', '=', 'users.id')
+            ->where('admin_id', '!=', 0)
             ->orderBy('user_video_verify_record.created_at', 'desc')
             ->get()
             ->unique('user_id');
@@ -625,7 +633,7 @@ class VideoChatController extends BaseController
     public function video_chat_verify_record(Request $request)
     {   
         $user_id = $request->user_id;
-        $record = UserVideoVerifyRecord::where('user_id', $user_id)->orderBy('created_at', 'desc')->get();
+        $record = UserVideoVerifyRecord::where('user_id', $user_id)->where('admin_id', '!=', 0)->orderBy('created_at', 'desc')->get();
 
         return view('admin.users.video_chat_verify_record', ['record' => $record]);
     }
@@ -803,14 +811,160 @@ class VideoChatController extends BaseController
         
         $rs = false;
         if($verify_user_entry->video_verify_memo) {
-            $rs = $verify_user_entry->video_verify_memo()->update(['user_question_into_chat_at'=>Carbon::now()]);                    
-        }                   
+            $rs = $verify_user_entry->video_verify_memo()->update(['user_question_into_chat_at'=>Carbon::now()]);               
+        }
         
         if($rs) {
             return response()->json(['memo' => $verify_user_entry->video_verify_memo()->firstOrNew()]);
         }
  
-    }    
+    }   
     
+    public function video_record_verify(Request $request,RealAuthPageService $rap_service)
+    {   
+        $questions = RealAuthQuestion::get();
+        return view('auth.video_record_verify')->with('questions', $questions);
+    }
+
+    public function video_record_verify_upload(Request $request,RealAuthPageService $rap_service)
+    {
+        $path = $request->file('video')->store('video_chat_verify');
+        $user_video_verify_record = new UserVideoVerifyRecord;
+
+        $user_video_verify_record->user_video = $path;
+        $user_video_verify_record->user_id = auth()->user()->id;
+        $user_video_verify_record->admin_id = 0;
+        $user_video_verify_record->save();
+
+        BackendUserDetails::reset_video_verify(auth()->user()->id);
+
+        $user = User::where('id', auth()->user()->id)->first();
+        if($user->warned_users->video_auth ?? false)
+        {
+            $user->warned_users->delete();
+        }
+        
+        $user->video_verify_auth_status = 1;
+        $user->save();
+
+        return ['path'=>$path,'upload'=>'success'];
+    }
+
+    public function apply_video_record_verify(Request $request)
+    {
+        $user_id = auth()->user()->id;
+        $backend_user_detail = BackendUserDetails::first_or_new($user_id);
+        $backend_user_detail->is_need_video_verify = 1;
+        $backend_user_detail->need_video_verify_date = Carbon::now();
+        $backend_user_detail->save();
+        return ['status'=>'success'];
+    }
+
+    public function hint_to_video_record_verify(Request $request)
+    {
+        $access = $request->access;
+        $user = User::where('id', auth()->user()->id)->first();
+        if($user->warned_users->video_auth ?? false)
+        {
+            BackendUserDetails::need_reverify(auth()->user()->id);
+        }
+        if($access)
+        {
+            BackendUserDetails::cancel_video_verify(auth()->user()->id);
+            return redirect()->route('video_record_verify');
+        }
+        else
+        {
+            BackendUserDetails::cancel_video_verify(auth()->user()->id);
+            return redirect()->back();
+        }
+    }
+
+    public function reset_cancel_video_verify(Request $request)
+    {
+        BackendUserDetails::reset_cancel_video_verify($request->uid);
+        return redirect()->back()->with('message', '成功歸零視訊驗證次數');
+    }
+
+    public function video_record_verify_reverify(Request $request)
+    {
+        Log::Info('start_send_reverify');
+        $user_id = auth()->user()->id;
+        $user = User::where('id', auth()->user()->id)->first();
+        $checkCode = str_pad(rand(0, pow(10, 5) - 1), 5, '0', STR_PAD_LEFT);
+        $type = '';
+
+        if($user->meta->phone ?? false && $user->meta->phone != '')
+        {
+            Log::Info('start_mobile_send_reverify');
+            $username = '54666024';
+            $password = 'zxcvbnm';
+            $Mobile = $user->meta->phone;
+
+            $smbody = "您的驗證碼為$checkCode";
+            $smbody = mb_convert_encoding($smbody, "BIG5", "UTF-8");
+            $Data = array(
+                "username" =>$username, //三竹帳號
+                "password" => $password, //三竹密碼
+                "dstaddr" =>$Mobile, //客戶手機
+                "DestName" => '客戶', //對客戶的稱謂 於三竹後台看的時候用的
+                "smbody" =>$smbody, //簡訊內容
+            );
+            $dataString = http_build_query($Data);
+            $url = "http://smexpress.mitake.com.tw:9600/SmSendGet.asp?$dataString";
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            $output = curl_exec($ch);
+            curl_close($ch);
+
+            $type = 'mobile';
+        }
+        elseif($user->advance_auth_email ?? false)
+        {
+            Log::Info('start_email_send_reverify');
+            $receiver = new User;
+
+            $receiver->email = $user->advance_auth_email;
+            $receiver->name = $user->name;
+
+            $receiver->notify(new ReverifyAdvAuthUserEmail($checkCode));
+
+            $type = 'email';
+        }
+
+        Log::Info($checkCode);
+
+        return ['checkCode' => $checkCode, 'type' => $type];
+    }
+
+    public function video_record_verify_reverify_success(Request $request)
+    {
+        $user_id = auth()->user()->id;
+        BackendUserDetails::check_is_reverify($user_id);
+        return ['status' => 'success'];
+    }
+
+    public function video_verify_record_list(Request $request)
+    {
+        $user_video_verify_record = UserVideoVerifyRecord::select('user_video_verify_record.*', 'users.name', 'users.email')
+            ->leftJoin('users', 'user_video_verify_record.user_id', '=', 'users.id')
+            ->where('admin_id', 0)
+            ->orderBy('user_video_verify_record.created_at', 'desc')
+            ->get()
+            ->unique('user_id');
+
+        return view('admin.users.video_verify_record_list', ['user_video_verify_record' => $user_video_verify_record]);
+    }
+
+    public function video_verify_record(Request $request)
+    {   
+        $user_id = $request->user_id;
+        $record = UserVideoVerifyRecord::where('user_id', $user_id)->where('admin_id', 0)->orderBy('created_at', 'desc')->get();
+
+        return view('admin.users.video_verify_record', ['record' => $record]);
+    }
     
 }

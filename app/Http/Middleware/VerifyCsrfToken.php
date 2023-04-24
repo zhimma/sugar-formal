@@ -30,5 +30,7 @@ class VerifyCsrfToken extends Middleware
         '/video/log_video_chat_process',
         '/LocalMachineReceive/BanAndWarn',
         '/LocalMachineReceive/BanSetIPUpdate',
+        '/deploy',
+        '/staging',
     ];
 }

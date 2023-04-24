@@ -349,14 +349,21 @@
 
     <script>
         $(document).ready(function() {
+            let messageText = '';
             @if(Session::has('message'))
-            let messageText = '{!! Session::get('message') !!}';
-            c5(messageText);
-            $('.bltext').html(messageText);
-            <?php session()->forget('message');?>
+                @if (is_array(Session::get('message')))
+                    @php
+                        \Sentry\captureMessage(implode("", \Session::get('message')));
+                    @endphp
+                    messageText = '{!! implode("", Session::get('message')) !!}';
+                @else
+                    messageText = '{!! Session::get('message') !!}';
+                @endif
+                c5(messageText);
+                $('.bltext').html(messageText);
+                <?php session()->forget('message');?>
             @endif
         });
-
     </script>
     <!-- livewire -->
     <livewire:scripts />
