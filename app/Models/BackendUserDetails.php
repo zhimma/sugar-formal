@@ -148,6 +148,7 @@ class BackendUserDetails extends Model
     {
         $backend_user_detail = BackendUserDetails::first_or_new($user_id);
         $backend_user_detail->has_upload_video_verify = 1;
+        $backend_user_detail->temp_stop_video_verify = 1;
         $backend_user_detail->save();
     }
 
@@ -155,6 +156,13 @@ class BackendUserDetails extends Model
     {
         $backend_user_detail = BackendUserDetails::first_or_new($user_id);
         $backend_user_detail->has_upload_video_verify = 0;
+        $backend_user_detail->save();
+    }
+
+    public static function restart_video_verify($user_id)
+    {
+        $backend_user_detail = BackendUserDetails::first_or_new($user_id);
+        $backend_user_detail->temp_stop_video_verify = 0;
         $backend_user_detail->save();
     }
 }

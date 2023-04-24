@@ -111,9 +111,16 @@
                         </div>
                     </div>
                     <div id="question_field" style="display:none">
+                        {{--
                         @foreach($questions as $question)
                             <div>{{$question->question}}</div>
                         @endforeach
+                        --}}
+                        <div>1. 車馬費是什麼？有什麼好處？在那邊可以點選？</div>
+                        <div>2. 妳認為什麼樣背景男生，會是比較穩定的 SugarDaddy？</div>
+                        <div>3. 為什麼網站會比較推薦 大方指數 高的會員？</div> 
+                        <div>4. 包養關係要特別談好哪些重點？</div>
+                        <div>5. 第一次與 SugarDaddy 見面，要注意哪些？</div>
                     </div>
                 </div>
             </div>

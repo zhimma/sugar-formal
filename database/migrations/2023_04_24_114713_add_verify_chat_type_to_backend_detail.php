@@ -16,6 +16,7 @@ class AddVerifyChatTypeToBackendDetail extends Migration
         Schema::table('backend_user_details', function (Blueprint $table) {
             $table->after('is_need_reverify', function (Blueprint $table) {
                 $table->boolean('has_upload_video_verify')->default(0);
+                $table->boolean('temp_stop_video_verify')->default(0);
             });
         });
     }
@@ -29,6 +30,7 @@ class AddVerifyChatTypeToBackendDetail extends Migration
     {
         Schema::table('backend_user_details', function (Blueprint $table) {
             $table->dropColumn('has_upload_video_verify');
+            $table->dropColumn('temp_stop_video_verify');
         });
     }
 }
