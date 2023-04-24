@@ -43,6 +43,7 @@ use App\Models\MessageBoardPic;
 use App\Models\MessageErrorLog;
 use App\Models\MessageUserNote;
 use App\Models\Order;
+use App\Models\OrderPayFailNotify;
 use App\Models\Posts;
 use App\Models\PostsMood;
 use App\Models\PostsVvip;
@@ -8948,6 +8949,11 @@ class PagesController extends BaseController
             })
             ->get();
 
+        //取購買項目當前資料不分狀態
+        $VIP_info = Vip::findByIdWithDateDesc($user->id);
+        $VVIP_info = ValueAddedService::findByIdAndServiceNameWithDateDesc($user->id, 'VVIP');
+        $hideOnline_info = ValueAddedService::findByIdAndServiceNameWithDateDesc($user->id, 'hideOnline');
+
         if (isset($user)) {
             $data = array(
                 'vipStatus' => $vipStatus,
@@ -8979,7 +8985,10 @@ class PagesController extends BaseController
                 'faqCountDownSeconds'=>$faqCountDownSeconds,
                 'vvip_selection_reward' => $vvip_selection_reward,
                 'vvip_selection_reward_notice' => $vvip_selection_reward_notice,
-                'vvip_selection_reward_apply_self' => $vvip_selection_reward_apply_self
+                'vvip_selection_reward_apply_self' => $vvip_selection_reward_apply_self,
+                'VIP_info' => $VIP_info,
+                'VVIP_info' => $VVIP_info,
+                'hideOnline_info' => $hideOnline_info
             );
             $allMessage = \App\Models\Message::allMessage($user->id);
             $forum = Forum::withTrashed()->where('user_id',$user->id)->orderby('id','desc')->first();
@@ -8994,6 +9003,19 @@ class PagesController extends BaseController
                 ->with('rap_service', $rap_service)
                 ->with('users', $users);
         }
+    }
+
+    public function orderPayFailNotifyIgnore(Request $request)
+    {
+        if ($request->ajax()) {
+            if ($request->id != ""){
+                $update = OrderPayFailNotify::where('id', $request->id)->update(['status' => 0]);
+                if ($update){
+                    return response()->json(['success' => true]);
+                }
+            }
+        }
+        return response()->json(['success' => false]);
     }
 
     public function report_delete(Request $request)

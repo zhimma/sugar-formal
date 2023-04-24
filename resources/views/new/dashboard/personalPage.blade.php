@@ -873,6 +873,19 @@
             </div>
         </div>
     @endif
+
+    <div class="bl bl_tab" id="show_overduePayAlert" style="display: none;">
+        <div class="bltitle">提示</div>
+        <div class="n_blnr01">
+            <div class="blnr bltext overduePayAlert_content">{{$user->name}}您好<br></div>
+            <div class="n_bbutton">
+                <span><a href="javascript:" class="n_left overduePayAlert_close" data-id="999">不再提醒</a></span>
+                <span><a href="javascript:" onclick="gmBtnNoReload();" class="n_right" >關閉</a></span>
+            </div>
+        </div>
+        <a onclick="gmBtnNoReload();" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+    </div>
+
 @stop
 
 @section('javascript')
@@ -1431,6 +1444,119 @@
     }
 
 </script>
+
+<script>
+        // 付款失敗通知
+        // 不再提醒
+
+        $(".overduePayAlert_close").on('click', function() {
+            let this_id = $(this).data('id');
+            $.ajax({
+                type: 'POST',
+                url: '{{ route('orderPayFailNotifyIgnore') }}',
+                data: {
+                    _token: '{{csrf_token()}}',
+                    id: this_id,
+                },
+                success: function(xhr, status, error){
+                    console.log();
+                    gmBtnNoReload();
+                },
+            });
+        });
+        @php
+            //VIP
+            $show_vip_pay_fail = '';
+            if(isset($VIP_info)){
+                $orderPayFailNotify_VIP = \App\Models\OrderPayFailNotify::where('order_id', $VIP_info->order_id)->where('status', 1)->first();
+                if($orderPayFailNotify_VIP){
+                    $show_vip_pay_fail = 1;
+                }
+            }
+            //VVIP
+            $show_vvip_pay_fail = '';
+            if(isset($VVIP_info)){
+                $orderPayFailNotify_VVIP = \App\Models\OrderPayFailNotify::where('order_id', $VVIP_info->order_id)->where('status', 1)->first();
+                if(isset($orderPayFailNotify_VVIP)){
+                    $show_vvip_pay_fail = 1;
+                }
+            }
+            //hideOnline
+            if(isset($hideOnline_info)){
+                if(isset($hideOnline_info)){
+                $orderPayFailNotify_hideOnline = \App\Models\OrderPayFailNotify::where('order_id', $hideOnline_info->order_id)->where('status', 1)->first();
+                if(isset($orderPayFailNotify_hideOnline)){
+                    $show_hideOnline_pay_fail = 1;
+                }
+            }
+            }
+        @endphp
+
+        @if (isset($orderPayFailNotify_VIP))
+        @php
+            $payment = '';
+            if ($VIP_info->payment=='cc_quarterly_payment'){
+                $payment = '季費';
+            }
+            elseif ($VIP_info->payment=='cc_monthly_payment'){
+                $payment = '月費';
+            }
+        @endphp
+        let id = {{$orderPayFailNotify_VIP->id}};
+        let show_vip_pay_fail = {{$show_vip_pay_fail}};
+        if(show_vip_pay_fail==1 && !$(".bl_tab").is(":visible")){
+            let str = '{{$user->name}} 您好<br>您的 VIP {{$payment}}扣款失敗<br><a href="/dashboard/new_vip">請點此</a>選擇新的繳費方式';
+            $(".overduePayAlert_content").html(str);
+            $(".overduePayAlert_close").data("id", id);
+            $("#show_overduePayAlert").show();
+            $(".announce_bg").show();
+        }
+        @endif
+
+        @if(isset($orderPayFailNotify_VVIP))
+        @php
+            $payment = '';
+            if ($VVIP_info->payment=='cc_quarterly_payment'){
+                $payment = '季費';
+            }
+            elseif ($VVIP_info->payment=='cc_monthly_payment'){
+                $payment = '月費';
+            }
+        @endphp
+        let id = {{$orderPayFailNotify_VVIP->id}};
+        let show_vvip_pay_fail = {{$show_vvip_pay_fail}};
+        if(show_vvip_pay_fail==1 && !$(".bl_tab").is(":visible")){
+            let str = '{{$user->name}} 您好<br>您的 VVIP {{$payment}}扣款失敗<br><a href="/dashboard/vvipPassPay">請點此</a>選擇新的繳費方式';
+            $(".overduePayAlert_content").html(str);
+            $(".overduePayAlert_close").data("id", id);
+            $("#show_overduePayAlert").show();
+            $(".announce_bg").show();
+        }
+        @endif
+
+        @if(isset($orderPayFailNotify_hideOnline))
+        @php
+            $payment = '';
+            if ($hideOnline_info->payment=='cc_quarterly_payment'){
+                $payment = '季費';
+            }
+            elseif ($hideOnline_info->payment=='cc_monthly_payment'){
+                $payment = '月費';
+            }
+        @endphp
+        let id = {{$orderPayFailNotify_hideOnline->id}};
+        let show_hideOnline_pay_fail = {{$show_hideOnline_pay_fail}};
+        if(show_hideOnline_pay_fail==1 && !$(".bl_tab").is(":visible")){
+            let str = '{{$user->name}} 您好<br>您的 隱藏付費 {{$payment}}扣款失敗<br><a href="/dashboard/dashboard/valueAddedHideOnline">請點此</a>選擇新的繳費方式';
+            $(".overduePayAlert_content").html(str);
+            $(".overduePayAlert_close").data("id", id);
+            $("#show_overduePayAlert").show();
+            $(".announce_bg").show();
+        }
+        @endif
+        //付款失敗通知 end
+    </script>
+
 <script type="text/javascript">
     $(function() {
 		@if(isset($admin_msgs) && count($admin_msgs))

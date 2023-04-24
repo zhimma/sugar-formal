@@ -51,6 +51,7 @@ class Order extends Model
             else{
                 $envStr = '';
             }
+            $envStr = '';
             
             $ecpay = new \App\Services\ECPay_AllInOne();
             $ecpay->MerchantID = Config::get('ecpay.payment' . $envStr . '.MerchantID');
@@ -83,6 +84,7 @@ class Order extends Model
                 $order = new Order;
                 $order->order_id = $order_id;
                 $order->user_id = $paymentData['CustomField1'];
+                $order->business_id = $paymentData['MerchantID'];
                 $order->order_date = $paymentData['PaymentDate'];
 
                 $order->service_name = $service_name;
@@ -90,6 +92,7 @@ class Order extends Model
                 $order->payment = $payment;
                 $order->payment_type = $paymentData['PaymentType'];
                 $dateArray = array();
+                $dateFailArray = array();
                 if($paymentPeriodInfo['ExecLog']==''){
                     $dd = str_replace('%20', ' ', $paymentData['PaymentDate']);
                     $dd = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $dd)->toDateTimeString();
@@ -97,17 +100,23 @@ class Order extends Model
 
                 }else{
                     foreach($paymentPeriodInfo['ExecLog'] as $data){
+                        $dd = str_replace('%20', ' ', $data['process_date']);
+                        $dd = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $dd)->toDateTimeString();
                         if($data['RtnCode']==1) {
-                            $dd = str_replace('%20', ' ', $data['process_date']);
-                            $dd = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $dd)->toDateTimeString();
                             array_push($dateArray, array($dd));
+                        }else{
+                            array_push($dateFailArray, array($dd));
                         }
                     }
 
-                    $last = last($paymentPeriodInfo['ExecLog']);
-                    $lastProcessDate = str_replace('%20', ' ', $last['process_date']);
-                    $lastProcessDate = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $lastProcessDate);
-                    $lastProcessDateDiffDays = $lastProcessDate->diffInDays(Carbon::now());
+                    if(count($dateFailArray)==0){
+                        $dateFailArray = null;
+                    }else{
+                        $dateFailArray = json_encode($dateFailArray);
+                    }
+
+                    $temp = end($dateArray);
+                    $lastProcessDate = Carbon::parse($temp[0]);
 
                     if($paymentPeriodInfo['card4no']) {
                         $order->card4no = $paymentPeriodInfo['card4no'];
@@ -116,8 +125,7 @@ class Order extends Model
 
                 }
                 $order->pay_date = json_encode($dateArray);
-
-
+                $order->pay_fail = $dateFailArray;
 
                 $PaymentDate =str_replace('%20', ' ', $paymentData['PaymentDate']);
                 $PaymentDate = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $PaymentDate);
@@ -130,6 +138,7 @@ class Order extends Model
                     } elseif ($payment == 'cc_quarterly_payment' && $lastProcessDate != '' && $paymentPeriodInfo['ExecStatus'] == 0) {
                         //ExecStatus=0 定期定額取消直接補上到期日
                         $order->order_expire_date = $lastProcessDate->addMonthsNoOverflow(3);
+                        //到期日加上剩餘天數
                         if($paymentData['CustomField2'] != '' && $paymentData['CustomField2']>0 && ($service_name == 'VIP' || $service_name == 'hideOnline')){
                             $temp_day = $order->order_expire_date;
                             $order->order_expire_date = $temp_day->addDays($paymentData['CustomField2']);
@@ -137,6 +146,7 @@ class Order extends Model
                     } elseif ($payment == 'cc_monthly_payment' && $lastProcessDate != '' && $paymentPeriodInfo['ExecStatus'] == 0) {
                         //ExecStatus=0 定期定額取消直接補上到期日
                         $order->order_expire_date = $lastProcessDate->addMonthsNoOverflow(1);
+                        //到期日加上剩餘天數
                         if($paymentData['CustomField2'] != '' && $paymentData['CustomField2']>0 && ($service_name == 'VIP' || $service_name == 'hideOnline')){
                             $temp_day = $order->order_expire_date;
                             $order->order_expire_date = $temp_day->addDays($paymentData['CustomField2']);
@@ -151,11 +161,15 @@ class Order extends Model
                 }
 
                 $order->amount = $paymentData['TradeAmt'];
+                $order->ExecStatus = $paymentPeriodInfo['ExecStatus']??null;
                 $order->created_at = Carbon::now();
                 if($paymentData['CustomField2'] != '' && ($paymentData['CustomField4'] == 'VIP' || $paymentData['CustomField4'] == 'hideOnline')) {
                     $order->remain_days = $paymentData['CustomField2'];
                 }
-                $order->save();
+                $saved = $order->save();
+                if($saved) {
+                    OrderLog::addToLog($paymentData['CustomField1'], $order_id, '新增訂單');
+                }
 
                 return true;
             }
@@ -179,7 +193,10 @@ class Order extends Model
             $order->payment_type = 'Credit_CreditCard';
             $order->amount = 888;
             $order->created_at = Carbon::now();
-            $order->save();
+            $saved = $order->save();
+            if($saved) {
+                OrderLog::addToLog($user_id, $order_id, '新增訂單');
+            }
             return true;
         }
 
@@ -190,18 +207,25 @@ class Order extends Model
 
         if($order_id != '' && substr($order_id,0,2) == 'SG') {
             //正式訂單查詢
+            if(EnvironmentService::isLocalOrTestMachine()){
+                $envStr = '_test';
+            }
+            else{
+                $envStr = '';
+            }
+            $envStr = '';
             $ecpay = new \App\Services\ECPay_AllInOne();
-            $ecpay->MerchantID = '1010336';
-            $ecpay->ServiceURL = 'https://payment.funpoint.com.tw/Cashier/QueryTradeInfo/V5';
-            $ecpay->HashIV = '7h5B9EIcEWEFIkPW';
-            $ecpay->HashKey = 'xcmzAyKJM7I8gssu';
+            $ecpay->MerchantID = Config::get('funpoint.payment'.$envStr.'.MerchantID');
+            $ecpay->ServiceURL = Config::get('funpoint.payment'.$envStr.'.OrderQueryURL');
+            $ecpay->HashIV = Config::get('funpoint.payment'.$envStr.'.HashIV');
+            $ecpay->HashKey = Config::get('funpoint.payment'.$envStr.'.HashKey');
             $ecpay->Query = [
                 'MerchantTradeNo' => $order_id,
                 'TimeStamp' => time()
             ];
             $paymentData = $ecpay->QueryTradeInfo();
 
-            $ecpay->ServiceURL = 'https://payment.funpoint.com.tw/Cashier/QueryCreditCardPeriodInfo';//定期定額查詢
+            $ecpay->ServiceURL = Config::get('funpoint.payment'.$envStr.'.ServiceURL');//定期定額查詢
             $paymentPeriodInfo = $ecpay->QueryPeriodCreditCardTradeInfo();
 
             //check order exist
@@ -221,6 +245,7 @@ class Order extends Model
                 $order = new Order;
                 $order->order_id = $order_id;
                 $order->user_id = $paymentData['CustomField1'];
+                $order->business_id = $paymentData['MerchantID'];
                 $order->order_date = $paymentData['PaymentDate'];
 
                 $order->service_name = $service_name;
@@ -228,6 +253,7 @@ class Order extends Model
                 $order->payment = $payment;
                 $order->payment_type = $paymentData['PaymentType'];
                 $dateArray = array();
+                $dateFailArray = array();
                 if($paymentPeriodInfo['ExecLog']==''){
                     $dd = str_replace('%20', ' ', $paymentData['PaymentDate']);
                     $dd = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $dd)->toDateTimeString();
@@ -235,17 +261,23 @@ class Order extends Model
 
                 }else{
                     foreach($paymentPeriodInfo['ExecLog'] as $data){
+                        $dd = str_replace('%20', ' ', $data['process_date']);
+                        $dd = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $dd)->toDateTimeString();
                         if($data['RtnCode']==1) {
-                            $dd = str_replace('%20', ' ', $data['process_date']);
-                            $dd = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $dd)->toDateTimeString();
                             array_push($dateArray, array($dd));
+                        }else{
+                            array_push($dateFailArray, array($dd));
                         }
                     }
 
-                    $last = last($paymentPeriodInfo['ExecLog']);
-                    $lastProcessDate = str_replace('%20', ' ', $last['process_date']);
-                    $lastProcessDate = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $lastProcessDate);
-                    $lastProcessDateDiffDays = $lastProcessDate->diffInDays(Carbon::now());
+                    if(count($dateFailArray)==0){
+                        $dateFailArray = null;
+                    }else{
+                        $dateFailArray = json_encode($dateFailArray);
+                    }
+
+                    $temp = end($dateArray);
+                    $lastProcessDate = Carbon::parse($temp[0]);
 
                     if($paymentPeriodInfo['card4no']) {
                         $order->card4no = $paymentPeriodInfo['card4no'];
@@ -254,6 +286,7 @@ class Order extends Model
 
                 }
                 $order->pay_date = json_encode($dateArray);
+                $order->pay_fail = $dateFailArray;
 
                 $PaymentDate =str_replace('%20', ' ', $paymentData['PaymentDate']);
                 $PaymentDate = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $PaymentDate);
@@ -266,6 +299,7 @@ class Order extends Model
                     } elseif ($payment == 'cc_quarterly_payment' && $lastProcessDate != '' && $paymentPeriodInfo['ExecStatus'] == 0) {
                         //ExecStatus=0 定期定額取消直接補上到期日
                         $order->order_expire_date = $lastProcessDate->addMonthsNoOverflow(3);
+                        //到期日加上剩餘天數
                         if($paymentData['CustomField2'] != '' && $paymentData['CustomField2']>0 && ($service_name == 'VIP' || $service_name == 'hideOnline')){
                             $temp_day = $order->order_expire_date;
                             $order->order_expire_date = $temp_day->addDays($paymentData['CustomField2']);
@@ -273,6 +307,7 @@ class Order extends Model
                     } elseif ($payment == 'cc_monthly_payment' && $lastProcessDate != '' && $paymentPeriodInfo['ExecStatus'] == 0) {
                         //ExecStatus=0 定期定額取消直接補上到期日
                         $order->order_expire_date = $lastProcessDate->addMonthsNoOverflow(1);
+                        //到期日加上剩餘天數
                         if($paymentData['CustomField2'] != '' && $paymentData['CustomField2']>0 && ($service_name == 'VIP' || $service_name == 'hideOnline')){
                             $temp_day = $order->order_expire_date;
                             $order->order_expire_date = $temp_day->addDays($paymentData['CustomField2']);
@@ -287,11 +322,15 @@ class Order extends Model
                 }
 
                 $order->amount = $paymentData['TradeAmt'];
+                $order->ExecStatus = $paymentPeriodInfo['ExecStatus']??null;
                 $order->created_at = Carbon::now();
                 if($paymentData['CustomField2'] != '' && ($paymentData['CustomField4'] == 'VIP' || $paymentData['CustomField4'] == 'hideOnline')) {
                     $order->remain_days = $paymentData['CustomField2'];
                 }
-                $order->save();
+                $saved = $order->save();
+                if($saved) {
+                    OrderLog::addToLog($paymentData['CustomField1'], $order_id, '新增訂單');
+                }
 
                 return true;
             }
@@ -306,17 +345,17 @@ class Order extends Model
         if($order_id != '' && substr($order_id,0,2) == 'SG') {
             //正式綠界訂單查詢
             $ecpay = new \App\Services\ECPay_AllInOne();
-            $ecpay->MerchantID = '3137610';
-            $ecpay->ServiceURL = 'https://payment.ecpay.com.tw/Cashier/QueryTradeInfo/V5';
-            $ecpay->HashIV = 'KOBKiDuvxIvjCSBz';
-            $ecpay->HashKey = 'BOerb1FcOOjccN8o';
+            $ecpay->MerchantID = Config::get('ecpay.payment.MerchantID');
+            $ecpay->ServiceURL = Config::get('ecpay.payment.OrderQueryURL');
+            $ecpay->HashIV = Config::get('ecpay.payment.HashIV');
+            $ecpay->HashKey = Config::get('ecpay.payment.HashKey');
             $ecpay->Query = [
                 'MerchantTradeNo' => $order_id,
                 'TimeStamp' => time()
             ];
             $paymentData = $ecpay->QueryTradeInfo();
 
-            $ecpay->ServiceURL = 'https://payment.ecpay.com.tw/Cashier/QueryCreditCardPeriodInfo';//定期定額查詢
+            $ecpay->ServiceURL = Config::get('ecpay.payment.ServiceURL');//定期定額查詢
             $paymentPeriodInfo = $ecpay->QueryPeriodCreditCardTradeInfo();
 
             //check order exist
@@ -329,8 +368,8 @@ class Order extends Model
                 }
                 //更新扣款日
                 $dateArray = array();
+                $dateFailArray = array();
                 $lastProcessDate = '';
-                $lastProcessDateDiffDays = '';
                 $card4no = '';
                 $card6no = '';
                 if($paymentPeriodInfo['ExecLog']==''){
@@ -340,17 +379,37 @@ class Order extends Model
 
                 }else{
                     foreach($paymentPeriodInfo['ExecLog'] as $data){
+                        $dd = str_replace('%20', ' ', $data['process_date']);
+                        $dd = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $dd)->toDateTimeString();
                         if($data['RtnCode']==1) {
-                            $dd = str_replace('%20', ' ', $data['process_date']);
-                            $dd = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $dd)->toDateTimeString();
                             array_push($dateArray, array($dd));
+                        }else{
+                            array_push($dateFailArray, array($dd));
                         }
                     }
 
-                    $last = last($paymentPeriodInfo['ExecLog']);
-                    $lastProcessDate = str_replace('%20', ' ', $last['process_date']);
-                    $lastProcessDate = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $lastProcessDate);
-                    $lastProcessDateDiffDays = $lastProcessDate->diffInDays(Carbon::now());
+                    if ($paymentPeriodInfo['ExecStatus'] == 1) {
+                        $last = last($paymentPeriodInfo['ExecLog']);
+                        //最後一次扣款失敗
+                        if ($last['RtnCode'] != 1 && $paymentData['CustomField4'] == 'VVIP') {
+                            //寫入訂單付款失敗通知紀錄 OrderPayFailNotify for VVIP
+                            $lastPayFailDate = str_replace('%20', ' ', $last['process_date']);
+                            $lastPayFailDate = Carbon::createFromFormat('Y/m/d H:i:s', $lastPayFailDate);
+                            if (!OrderPayFailNotify::isExists($paymentData['CustomField1'], $order_id, $lastPayFailDate)) {
+                                OrderPayFailNotify::addToData($paymentData['CustomField1'], $order_id, $lastPayFailDate);
+                                OrderLog::addToLog($paymentData['CustomField1'], $order_id, '經由訂單更新檢查 VVIP 扣款失敗，加入提醒通知');
+                            }
+                        }
+                    }
+
+                    if(count($dateFailArray)==0){
+                        $dateFailArray = null;
+                    }else{
+                        $dateFailArray = json_encode($dateFailArray);
+                    }
+
+                    $temp = end($dateArray);
+                    $lastProcessDate = Carbon::parse($temp[0]);
 
                     if($paymentPeriodInfo['card4no']) {
                         $card4no = $paymentPeriodInfo['card4no'];
@@ -369,13 +428,15 @@ class Order extends Model
                 }elseif($payment=='cc_quarterly_payment' && $lastProcessDate != '' && $paymentPeriodInfo['ExecStatus'] == 0){
                     //ExecStatus=0 定期定額取消直接補上到期日
                     $order_expire_date = $lastProcessDate->addMonthsNoOverflow(3);
-                    if($paymentData['CustomField2'] != '' && ($paymentData['CustomField4'] == 'VIP' || $paymentData['CustomField4'] == 'hideOnline')){
+                    //到期日加上剩餘天數
+                    if($paymentData['CustomField2'] != '' && $paymentData['CustomField2'] >0 && ($paymentData['CustomField4'] == 'VIP' || $paymentData['CustomField4'] == 'hideOnline')){
                         $order_expire_date = $order_expire_date->addDays($paymentData['CustomField2']);
                     }
                 }elseif($payment=='cc_monthly_payment' && $lastProcessDate != '' && $paymentPeriodInfo['ExecStatus'] == 0){
                     //ExecStatus=0 定期定額取消直接補上到期日
                     $order_expire_date = $lastProcessDate->addMonthsNoOverflow(1);
-                    if($paymentData['CustomField2'] != '' && ($paymentData['CustomField4'] == 'VIP' || $paymentData['CustomField4'] == 'hideOnline')){
+                    //到期日加上剩餘天數
+                    if($paymentData['CustomField2'] != '' && $paymentData['CustomField2'] >0 && ($paymentData['CustomField4'] == 'VIP' || $paymentData['CustomField4'] == 'hideOnline')){
                         $order_expire_date = $order_expire_date->addDays($paymentData['CustomField2']);
                     }
                 }elseif($payment=='' && $paymentPeriodInfo['ExecStatus'] == 0){
@@ -384,7 +445,18 @@ class Order extends Model
                     $order_expire_date = $lastProcessDate->addMonthsNoOverflow(1);
                 }
 
-                Order::where('order_id', $order_id)->update(['order_expire_date' => $order_expire_date, 'pay_date' => json_encode($dateArray), 'card4no' => $card4no, 'card6no' => $card6no]);
+                $update = Order::where('order_id', $order_id)->update([
+                    'business_id' => $paymentData['MerchantID'],
+                    'order_expire_date' => $order_expire_date,
+                    'pay_date' => json_encode($dateArray),
+                    'pay_fail' => $dateFailArray,
+                    'card4no' => $card4no,
+                    'card6no' => $card6no,
+                    'ExecStatus' => $paymentPeriodInfo['ExecStatus']??null
+                ]);
+                if($update) {
+                    OrderLog::addToLog($paymentData['CustomField1'], $order_id, '更新訂單');
+                }
 
             }
 
@@ -398,17 +470,17 @@ class Order extends Model
         if($order_id != '' && substr($order_id,0,2) == 'SG') {
             //正式訂單查詢
             $ecpay = new \App\Services\ECPay_AllInOne();
-            $ecpay->MerchantID = '1010336';
-            $ecpay->ServiceURL = 'https://payment.funpoint.com.tw/Cashier/QueryTradeInfo/V5';
-            $ecpay->HashIV = '7h5B9EIcEWEFIkPW';
-            $ecpay->HashKey = 'xcmzAyKJM7I8gssu';
+            $ecpay->MerchantID = Config::get('funpoint.payment.MerchantID');
+            $ecpay->ServiceURL = Config::get('funpoint.payment.OrderQueryURL');
+            $ecpay->HashIV = Config::get('funpoint.payment.HashIV');
+            $ecpay->HashKey = Config::get('funpoint.payment.HashKey');
             $ecpay->Query = [
                 'MerchantTradeNo' => $order_id,
                 'TimeStamp' => time()
             ];
             $paymentData = $ecpay->QueryTradeInfo();
 
-            $ecpay->ServiceURL = 'https://payment.funpoint.com.tw/Cashier/QueryCreditCardPeriodInfo';//定期定額查詢
+            $ecpay->ServiceURL = Config::get('funpoint.payment.ServiceURL');//定期定額查詢
             $paymentPeriodInfo = $ecpay->QueryPeriodCreditCardTradeInfo();
 
             //check order exist
@@ -421,8 +493,8 @@ class Order extends Model
                 }
                 //更新扣款日
                 $dateArray = array();
+                $dateFailArray = array();
                 $lastProcessDate = '';
-                $lastProcessDateDiffDays = '';
                 $card4no = '';
                 $card6no = '';
                 if($paymentPeriodInfo['ExecLog']==''){
@@ -432,17 +504,37 @@ class Order extends Model
 
                 }else{
                     foreach($paymentPeriodInfo['ExecLog'] as $data){
+                        $dd = str_replace('%20', ' ', $data['process_date']);
+                        $dd = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $dd)->toDateTimeString();
                         if($data['RtnCode']==1) {
-                            $dd = str_replace('%20', ' ', $data['process_date']);
-                            $dd = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $dd)->toDateTimeString();
                             array_push($dateArray, array($dd));
+                        }else{
+                            array_push($dateFailArray, array($dd));
                         }
                     }
 
-                    $last = last($paymentPeriodInfo['ExecLog']);
-                    $lastProcessDate = str_replace('%20', ' ', $last['process_date']);
-                    $lastProcessDate = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $lastProcessDate);
-                    $lastProcessDateDiffDays = $lastProcessDate->diffInDays(Carbon::now());
+                    if ($paymentPeriodInfo['ExecStatus'] == 1) {
+                        $last = last($paymentPeriodInfo['ExecLog']);
+                        //最後一次扣款失敗
+                        if ($last['RtnCode'] != 1 && $paymentData['CustomField4'] == 'VVIP') {
+                            //寫入訂單付款失敗通知紀錄 OrderPayFailNotify for VVIP
+                            $lastPayFailDate = str_replace('%20', ' ', $last['process_date']);
+                            $lastPayFailDate = Carbon::createFromFormat('Y/m/d H:i:s', $lastPayFailDate);
+                            if (!OrderPayFailNotify::isExists($paymentData['CustomField1'], $order_id, $lastPayFailDate)) {
+                                OrderPayFailNotify::addToData($paymentData['CustomField1'], $order_id, $lastPayFailDate);
+                                OrderLog::addToLog($paymentData['CustomField1'], $order_id, '經由訂單更新檢查 VVIP 扣款失敗，加入提醒通知');
+                            }
+                        }
+                    }
+
+                    if(count($dateFailArray)==0){
+                        $dateFailArray = null;
+                    }else{
+                        $dateFailArray = json_encode($dateFailArray);
+                    }
+
+                    $temp = end($dateArray);
+                    $lastProcessDate = Carbon::parse($temp[0]);
 
                     if($paymentPeriodInfo['card4no']) {
                         $card4no = $paymentPeriodInfo['card4no'];
@@ -476,8 +568,18 @@ class Order extends Model
                     $order_expire_date = $lastProcessDate->addMonthsNoOverflow(1);
                 }
 
-                Order::where('order_id', $order_id)->update(['order_expire_date' => $order_expire_date, 'pay_date' => json_encode($dateArray), 'card4no' => $card4no, 'card6no' => $card6no]);
-
+                $update = Order::where('order_id', $order_id)->update([
+                    'business_id' => $paymentData['MerchantID'],
+                    'order_expire_date' => $order_expire_date,
+                    'pay_date' => json_encode($dateArray),
+                    'pay_fail' => $dateFailArray,
+                    'card4no' => $card4no,
+                    'card6no' => $card6no,
+                    'ExecStatus' => $paymentPeriodInfo['ExecStatus']??null
+                ]);
+                if($update) {
+                    OrderLog::addToLog($paymentData['CustomField1'], $order_id, '更新訂單');
+                }
             }
 
         }
@@ -488,6 +590,77 @@ class Order extends Model
     public static function findByOrderId($order_id)
     {
         return Order::where('order_id', $order_id)->first();
+    }
+
+    public static function orderCheckByUserIdAndServiceName($user_id, $service_name)
+    {
+        //此功能只檢查需要更新的訂單
+        $order = '';
+        if($user_id != '' && $service_name != '') {
+            $order = Order::where('service_name', $service_name)
+                ->where('user_id', $user_id)
+                ->where('payment', 'like', 'cc_%')
+                ->whereRaw('LENGTH(order_id) = 12')
+                ->get();
+        }
+        if($order && count($order)>0){
+            $now = Carbon::now();
+            foreach ($order as $row){
+                $update = false;
+
+                if($row->ExecStatus==''){
+                    $update = true;
+                }
+
+                if ($row->payment == 'cc_quarterly_payment') {
+                    $periodRemained = 92;
+                } else {
+                    $periodRemained = 30;
+                }
+                //取本機訂單最後扣款日
+                $lastProcessDate = last(json_decode($row->pay_date));
+                $theActualLastProcessDate = is_string($lastProcessDate[0]) ? Carbon::parse($lastProcessDate[0]) : $lastProcessDate[0];
+
+                $lastPayFailDate = '';
+                $theActualLastPayFailDateDate = '';
+                if($row->pay_fail != '') {
+                    $lastPayFailDate = last(json_decode($row->pay_fail));
+                    $theActualLastPayFailDateDate = is_string($lastPayFailDate[0]) ? Carbon::parse($lastPayFailDate[0]) : $lastPayFailDate[0];
+                }
+                if ( (($now->diffInDays($theActualLastProcessDate) > $periodRemained && ($now->diffInDays($theActualLastPayFailDateDate) > $periodRemained && $row->pay_fail != '')) ||
+                        ($now->diffInDays($theActualLastProcessDate) > $periodRemained && $row->pay_fail == '')) &&
+                    $row->ExecStatus == 1) {
+                    $update = true;
+                }
+
+                //執行更新動作
+                if ($update == true && $row->payment_flow == 'ecpay'){
+                    Order::updateEcPayOrder($row->order_id);
+                }
+                elseif ($update == true && $row->payment_flow == 'funpoint'){
+                    Order::updateFunPointPayOrder($row->order_id);
+                }
+            }
+        }
+        return false;
+    }
+
+    public static function isOverduePayOrder($order_id)
+    {
+        $now = Carbon::now();
+        $order = Order::where('order_id', $order_id)->first();
+        if ($order->payment == 'cc_quarterly_payment') {
+            $periodRemained = 92;
+        } else {
+            $periodRemained = 30;
+        }
+        //取本機訂單最後扣款日
+        $lastProcessDate = last(json_decode($order->pay_date));
+        $theActualLastProcessDate = is_string($lastProcessDate[0]) ? Carbon::parse($lastProcessDate[0]) : $lastProcessDate[0];
+        if ($now->diffInDays($theActualLastProcessDate) > $periodRemained && $order->ExecStatus == 1) {
+            return true;
+        }
+        return false;
     }
 
     /**

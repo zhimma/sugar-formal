@@ -92,7 +92,7 @@ class CheckECpay implements ShouldQueue
                     $nextProcessDate = substr($theActualLastProcessDate->addDays($periodRemained), 0, 10);
 
                     //本機訂單最後扣款日至今天數已超過下次扣款天數 && 扣款日期已過
-                    if( $now->diffInDays($theActualLastProcessDate) > $periodRemained ) {
+                    if( $now->diffInDays($theActualLastProcessDate) > $periodRemained || $OrderData->ExecStatus == '') {
                         if(!(EnvironmentService::isLocalOrTestMachine())) {
                             try {
                                 //更新訂單 by payment_flow
@@ -121,7 +121,43 @@ class CheckECpay implements ShouldQueue
                 //定期定額 有到期日訂單
                 elseif(($this->vipData->payment=='' || substr($this->vipData->payment,0,3)=='cc_') &&
                     $OrderData->order_expire_date != '') {
-                    $OrderDataCheck = $OrderData;
+                    //檢查到期日日否正確
+                    $order_expire_date = Carbon::parse($OrderData->order_expire_date);
+                    //取本機訂單最後扣款日
+                    $lastProcessDate = last(json_decode($OrderData->pay_date));
+                    $theActualLastProcessDate = is_string($lastProcessDate[0]) ? Carbon::parse($lastProcessDate[0]) : $lastProcessDate[0];
+                    $periodDays = $theActualLastProcessDate->diffInDays($order_expire_date);
+                    if ($this->vipData->payment == 'cc_quarterly_payment') {
+                        $periodRemained = 92;
+                    } else {
+                        $periodRemained = 30;
+                    }
+
+                    if($periodDays > $periodRemained || $OrderData->ExecStatus == ''){
+                        if (!(EnvironmentService::isLocalOrTestMachine())) {
+                            try {
+                                //更新訂單 by payment_flow
+                                if ($OrderData->payment_flow == 'ecpay') {
+                                    $updateEcPayOrder = Order::updateEcPayOrder($this->vipData->order_id);
+                                    if ($updateEcPayOrder) {
+                                        //重新查詢訂單並檢查
+                                        $OrderDataCheck = Order::findByOrderId($this->vipData->order_id);
+                                    }
+                                } elseif ($OrderData->payment_flow == 'funpoint') {
+                                    $updateFunPointPayOrder = Order::updateFunPointPayOrder($this->vipData->order_id);
+                                    if ($updateFunPointPayOrder) {
+                                        //重新查詢訂單並檢查
+                                        $OrderDataCheck = Order::findByOrderId($this->vipData->order_id);
+                                    }
+                                }
+                            } catch (\Exception $exception) {
+                                Log::info("valueAddedService id: " . $this->vipData->id . "；order_id: " . $this->vipData->order_id . "：訂單更新失敗");
+                                Log::error($exception);
+                            }
+                        }
+                    }else {
+                        $OrderDataCheck = $OrderData;
+                    }
                 }
                 ///預先給予權限訂單判斷 有訂單
                 elseif($this->vipData->payment_method=='BARCODE' || $this->vipData->payment_method=='CVS' || $this->vipData->payment_method=='ATM') {
@@ -282,7 +318,7 @@ class CheckECpay implements ShouldQueue
                         \App\Models\VipLog::addToLog($user->id, 'Background auto upgrade, order expire date: ' . $OrderDataCheck->order_expire_date, '尚未到期，自動回復', 0, 0);
                     }
                 }
-                //訂單尚未到期
+                //訂單尚未有到期日
                 else{
                     if ($OrderDataCheck->payment == 'cc_quarterly_payment') {
                         $periodRemained = 92;
