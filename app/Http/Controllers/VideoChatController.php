@@ -836,16 +836,7 @@ class VideoChatController extends BaseController
         $user_video_verify_record->admin_id = 0;
         $user_video_verify_record->save();
 
-        BackendUserDetails::reset_video_verify(auth()->user()->id);
-
-        $user = User::where('id', auth()->user()->id)->first();
-        if($user->warned_users->video_auth ?? false)
-        {
-            $user->warned_users->delete();
-        }
-        
-        $user->video_verify_auth_status = 1;
-        $user->save();
+        BackendUserDetails::upload_finish(auth()->user()->id);
 
         return ['path'=>$path,'upload'=>'success'];
     }
@@ -949,7 +940,7 @@ class VideoChatController extends BaseController
 
     public function video_verify_record_list(Request $request)
     {
-        $user_video_verify_record = UserVideoVerifyRecord::select('user_video_verify_record.*', 'users.name', 'users.email')
+        $user_video_verify_record = UserVideoVerifyRecord::select('user_video_verify_record.*', 'users.name', 'users.email','users.engroup')
             ->leftJoin('users', 'user_video_verify_record.user_id', '=', 'users.id')
             ->where('admin_id', 0)
             ->orderBy('user_video_verify_record.created_at', 'desc')
@@ -967,4 +958,27 @@ class VideoChatController extends BaseController
         return view('admin.users.video_verify_record', ['record' => $record]);
     }
     
+    public function video_verify_record_pass(Request $request)
+    {
+        BackendUserDetails::reset_video_verify($request->user_id);
+
+        $user = User::where('id', $request->user_id)->first();
+        if($user->warned_users->video_auth ?? false)
+        {
+            $user->warned_users->delete();
+        }
+        
+        $user->video_verify_auth_status = 1;
+        $user->save();
+
+        return redirect()->back()->with('message', '已通過');
+    }
+
+    public function video_verify_record_fail(Request $request)
+    {
+        BackendUserDetails::reset_cancel_video_verify($request->user_id);
+        BackendUserDetails::upload_record_fail($request->user_id);
+
+        return redirect()->route('AdminMessengerWithMessageId');
+    }
 }
