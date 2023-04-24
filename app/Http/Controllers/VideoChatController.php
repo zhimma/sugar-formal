@@ -987,6 +987,6 @@ class VideoChatController extends BaseController
         $user_id = auth()->user()->id;
         BackendUserDetails::restart_video_verify($user_id);
 
-        return redirect()->back()->with('message', '已重新開啟驗證');
+        return redirect()->back()->with('message', '已重新開啟驗證，站方會再跟您約驗證時間，再請注意來訊。');
     }
 }

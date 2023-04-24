@@ -82,6 +82,7 @@
                         <div>{{$question->question}}</div>
                     @endforeach
                     --}}
+                    <div>基礎問答題</div>
                     <div>1. 車馬費是什麼？有什麼好處？在那邊可以點選？</div>
                     <div>2. 妳認為什麼樣背景男生，會是比較穩定的 SugarDaddy？</div>
                     <div>3. 為什麼網站會比較推薦 大方指數 高的會員？</div> 
@@ -148,7 +149,7 @@
         });
 
         $('#end_button').click(function(){
-            $('#start_record').show();
+            //$('#start_record').show();
             $('#vedio_field').hide();
             $('#question_field').hide();
             end_record();
@@ -157,7 +158,7 @@
         async function start_record() {
             await checkDevices();
             if(!deviceReady){
-                $('#start_record').show();
+                //$('#start_record').show();
                 $('#vedio_field').hide();
                 $('#question_field').hide();
                 alert('未搜尋到鏡頭或麥克風裝置');
@@ -165,7 +166,7 @@
             }
             await getMediaPermission();
             if(getUserMediaError){    
-                $('#start_record').show();
+                //$('#start_record').show();
                 $('#vedio_field').hide();
                 $('#question_field').hide(); 
                 alert('未取得鏡頭或麥克風裝置權限');
