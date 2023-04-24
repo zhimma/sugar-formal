@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Models\Order;
+use App\Models\OrderPayFailNotify;
 use App\Models\ValueAddedService;
 use App\Models\ValueAddedServiceLog;
 use Carbon\Carbon;
@@ -51,7 +52,8 @@ class CheckECpayForValueAddedService implements ShouldQueue
             $envStr = '';
         }
 
-         if($this->valueAddedServiceData->business_id == Config::get('ecpay.payment'.$envStr.'.MerchantID') && substr($this->valueAddedServiceData->order_id,0,2) == 'SG') {
+         if( ($this->valueAddedServiceData->business_id == Config::get('ecpay.payment'.$envStr.'.MerchantID') || $this->valueAddedServiceData->business_id == Config::get('funpoint.payment'.$envStr.'.MerchantID'))
+             && substr($this->valueAddedServiceData->order_id,0,2) == 'SG') {
 
              $user = User::findById($this->valueAddedServiceData->member_id);
              if (!$user) {
@@ -77,11 +79,9 @@ class CheckECpayForValueAddedService implements ShouldQueue
                      //取本機訂單最後扣款日
                      $lastProcessDate = last(json_decode($OrderData->pay_date));
                      $theActualLastProcessDate = is_string($lastProcessDate[0]) ? Carbon::parse($lastProcessDate[0]) : $lastProcessDate[0];
-                     //計算下次扣款日
-                     $nextProcessDate = substr($theActualLastProcessDate->addDays($periodRemained), 0, 10);
 
                      //本機訂單最後扣款日至今天數已超過下次扣款天數 && 扣款日期已過
-                     if ($now->diffInDays($theActualLastProcessDate) > $periodRemained) {
+                     if ($now->diffInDays($theActualLastProcessDate) > $periodRemained || $OrderData->ExecStatus == '') {
                          if (!(EnvironmentService::isLocalOrTestMachine())) {
                              try {
                                  //更新訂單 by payment_flow
@@ -104,9 +104,46 @@ class CheckECpayForValueAddedService implements ShouldQueue
                              }
                          }
                      }
-                 } //定期定額 有到期日訂單
+                 }
+                 //定期定額 有到期日訂單
                  elseif (substr($this->valueAddedServiceData->payment, 0, 3) == 'cc_' && $OrderData->order_expire_date != '') {
-                     $OrderDataCheck = $OrderData;
+                     //檢查到期日日否正確
+                     $order_expire_date = Carbon::parse($OrderData->order_expire_date);
+                     //取本機訂單最後扣款日
+                     $lastProcessDate = last(json_decode($OrderData->pay_date));
+                     $theActualLastProcessDate = is_string($lastProcessDate[0]) ? Carbon::parse($lastProcessDate[0]) : $lastProcessDate[0];
+                     $periodDays = $theActualLastProcessDate->diffInDays($order_expire_date);
+                     if ($this->valueAddedServiceData->payment == 'cc_quarterly_payment') {
+                         $periodRemained = 92;
+                     } else {
+                         $periodRemained = 30;
+                     }
+
+                     if($periodDays > $periodRemained || $OrderData->ExecStatus == ''){
+                         if (!(EnvironmentService::isLocalOrTestMachine())) {
+                             try {
+                                 //更新訂單 by payment_flow
+                                 if ($OrderData->payment_flow == 'ecpay') {
+                                     $updateEcPayOrder = Order::updateEcPayOrder($this->valueAddedServiceData->order_id);
+                                     if ($updateEcPayOrder) {
+                                         //重新查詢訂單並檢查
+                                         $OrderDataCheck = Order::findByOrderId($this->valueAddedServiceData->order_id);
+                                     }
+                                 } elseif ($OrderData->payment_flow == 'funpoint') {
+                                     $updateFunPointPayOrder = Order::updateFunPointPayOrder($this->valueAddedServiceData->order_id);
+                                     if ($updateFunPointPayOrder) {
+                                         //重新查詢訂單並檢查
+                                         $OrderDataCheck = Order::findByOrderId($this->valueAddedServiceData->order_id);
+                                     }
+                                 }
+                             } catch (\Exception $exception) {
+                                 Log::info("valueAddedService id: " . $this->valueAddedServiceData->id . "；order_id: " . $this->valueAddedServiceData->order_id . "：訂單更新失敗");
+                                 Log::error($exception);
+                             }
+                         }
+                     }else {
+                         $OrderDataCheck = $OrderData;
+                     }
                  }
              } //Order無訂單資料時 從金流新增訂單
              else {
@@ -132,49 +169,44 @@ class CheckECpayForValueAddedService implements ShouldQueue
 
              //依到期日與否進行檢查 OrderDataCheck
              if ($OrderDataCheck) {
+                 $valueAddedServiceData = ValueAddedService::where('service_name', $OrderDataCheck->service_name)
+                     ->where('member_id', $this->valueAddedServiceData->member_id)
+                     ->where('active', 1)
+                     ->orderBy('created_at', 'desc')
+                     ->first();
                  //有到期日
                  if ($OrderDataCheck->order_expire_date != '') {
-                     $valueAddedServiceData = ValueAddedService::where('service_name', $OrderDataCheck->service_name)
-                        ->where('member_id', $this->valueAddedServiceData->member_id)
-                        ->where('active', 1)
-                        ->orderBy('created_at', 'desc')
-                        ->first();
                      //檢查過期
                      if ($now->gt($OrderDataCheck->order_expire_date) && $now->gt($this->valueAddedServiceData->expiry)) {
                          //取消 [service_name] 防呆處理
                          if ($valueAddedServiceData) {
-                             $valueAddedServiceData->removeValueAddedService($valueAddedServiceData->member_id, $valueAddedServiceData->service_name);
+                             ValueAddedService::removeValueAddedService($valueAddedServiceData->member_id, $valueAddedServiceData->service_name);
                              ValueAddedServiceLog::addToLog($user->id, $this->valueAddedServiceData->service_name, 'Auto cancel, order expire date: ' . $OrderDataCheck->order_expire_date, $this->valueAddedServiceData->order_id, $this->valueAddedServiceData->txn_id, 0);
                          }
 
                      } //檢查尚未過期
-                     elseif (Carbon::parse($OrderDataCheck->order_expire_date)->gte($now)) {
-
-                         $isTrue = false;
-                         if ($OrderDataCheck->service_name == 'hideOnline' && !view()->shared('valueAddedServices')['hideOnline'] == 0) {
+                     elseif (!$valueAddedServiceData && Carbon::parse($OrderDataCheck->order_expire_date)->gte($now)) {
+                         if ($OrderDataCheck->service_name == 'hideOnline') {
                              Log::info('隱藏付費 hideOnline 回復');
-                             $isTrue = true;
                          }
 
-                         if ($OrderDataCheck->service_name == 'VVIP' && !$user->isVVIP()) {
+                         if ($OrderDataCheck->service_name == 'VVIP') {
                              Log::info('VVIP 回復');
-                             $isTrue = true;
                          }
 
-                         if ($isTrue == true) {
-                             $expiryDate = $OrderDataCheck->order_expire_date;
-                             if (Carbon::parse($this->valueAddedServiceData->expiry)->gt($OrderDataCheck->order_expire_date)) {
-                                 $expiryDate = $this->valueAddedServiceData->expiry;
-                             }
-
-                             ValueAddedServiceLog::addToLog($user->id, $this->valueAddedServiceData->service_name, 'Auto upgrade, order expire date: ' . $OrderDataCheck->order_expire_date . ' 尚未到期，自動回復', $this->valueAddedServiceData->order_id, $this->valueAddedServiceData->txn_id, 0);
-                             ValueAddedService::where('member_id', $this->valueAddedServiceData->member_id)
-                                 ->where('servive_name', $this->valueAddedServiceData->service_name)
-                                 ->update(array('active' => 1, 'expiry' => $expiryDate));
+                         $expiryDate = $OrderDataCheck->order_expire_date;
+                         if (Carbon::parse($this->valueAddedServiceData->expiry)->gt($OrderDataCheck->order_expire_date)) {
+                             $expiryDate = $this->valueAddedServiceData->expiry;
                          }
+
+                         ValueAddedServiceLog::addToLog($user->id, $this->valueAddedServiceData->service_name, 'Auto upgrade, order expire date: ' . $OrderDataCheck->order_expire_date . ' 尚未到期，自動回復', $this->valueAddedServiceData->order_id, $this->valueAddedServiceData->txn_id, 0);
+                         ValueAddedService::where('member_id', $this->valueAddedServiceData->member_id)
+                             ->where('servive_name', $this->valueAddedServiceData->service_name)
+                             ->update(array('active' => 1, 'expiry' => $expiryDate));
 
                      }
-                 } //訂單尚未到期
+                 }
+                 //訂單尚無到期日
                  else {
                      if ($OrderDataCheck->payment == 'cc_quarterly_payment') {
                          $periodRemained = 92;
@@ -188,14 +220,10 @@ class CheckECpayForValueAddedService implements ShouldQueue
                      //最後一次付款成功，但已過期
                      //等同金流最後一次扣款失敗 但訂單不會抓失敗的日期 故一併判斷為扣款失敗
                      //檢查付款日 應付日但未付時判斷
-                     if ($theActualLastProcessDate->diffInDays($now) > $periodRemained) {
+                     if ($valueAddedServiceData && $theActualLastProcessDate->diffInDays($now) > $periodRemained) {
                          Log::info($OrderDataCheck->payment->service_name . ' 付費失敗');
                          Log::info($OrderDataCheck);
-
-                         $valueAddedServiceData = ValueAddedService::where('service_name', $OrderDataCheck->service_name)->where('member_id ', $this->valueAddedServiceData->member_id)->where('active ', 1)->orderBy('created_at', 'desc')->first();
-                         if ($valueAddedServiceData) {
-                             $valueAddedServiceData->removeValueAddedService($valueAddedServiceData->member_id, $valueAddedServiceData->service_name);
-                         }
+                         ValueAddedService::removeValueAddedService($valueAddedServiceData->member_id, $valueAddedServiceData->service_name);
                          ValueAddedServiceLog::addToLog($user->id, $this->valueAddedServiceData->service_name, 'Auto cancel, last process date: ' . $theActualLastProcessDate->format('Y-m-d') . ' 自動取消', $this->valueAddedServiceData->order_id, $this->valueAddedServiceData->txn_id, 0);
 
                          if ($this->valueAddedServiceData->service_name == 'hideOnline') {
@@ -216,44 +244,47 @@ class CheckECpayForValueAddedService implements ShouldQueue
                              $message->to('admin@sugar-garden.org');
                              $message->subject($service_name . '扣款失敗通知');
                          });
-                     } //未到期
-                     elseif ($theActualLastProcessDate->diffInDays($now) < $periodRemained) {
 
-                         $isTrue = false;
-                         if ($OrderDataCheck->service_name == 'hideOnline' && !view()->shared('valueAddedServices')['hideOnline'] == 0) {
-                             Log::info('隱藏付費 hideOnline 回復');
-                             $isTrue = true;
-                         }
-
-                         if ($OrderDataCheck->service_name == 'VVIP' && !$user->isVVIP()) {
-                             Log::info('VVIP 回復');
-                             $isTrue = true;
-                         }
-
-                         if ($isTrue == true) {
-                             Log::info($OrderDataCheck);
-                             ValueAddedService::where('member_id', $this->valueAddedServiceData->member_id)
-                                 ->where('servive_name', $this->valueAddedServiceData->service_name)
-                                 ->update(array('active' => 1, 'expiry' => '0000-00-00 00:00:00'));
-                             ValueAddedServiceLog::addToLog($user->id, $this->valueAddedServiceData->service_name, 'Auto upgrade, last process date:: ' . $theActualLastProcessDate->format('Y-m-d') . ' 尚未到期，自動回復', $this->valueAddedServiceData->order_id, $this->valueAddedServiceData->txn_id, 0);
-
-                             if ($this->valueAddedServiceData->service_name == 'hideOnline') {
-                                 $service_name = '隱藏付費';
-                             } else {
-                                 $service_name = $this->valueAddedServiceData->service_name;
+                         //寫入訂單付款失敗通知紀錄 OrderPayFailNotify for VVIP
+                         if($service_name == 'VVIP' && $OrderDataCheck->pay_fail != ''){
+                             $lastPayFailDate = last(json_decode($OrderDataCheck->pay_fail));
+                             $theActualLastPayFailDate = is_string($lastPayFailDate[0]) ? Carbon::parse($lastPayFailDate[0]) : $lastPayFailDate[0];
+                             if(!OrderPayFailNotify::isExists($this->valueAddedServiceData->member_id, $this->valueAddedServiceData->order_id, $theActualLastPayFailDate)){
+                                 OrderPayFailNotify::addToData($this->valueAddedServiceData->member_id, $this->valueAddedServiceData->order_id, $theActualLastPayFailDate);
                              }
-                             $message = $user->name . "您好，由於您的 '.$service_name.' 付費(卡號後四碼 " . $OrderDataCheck->card4no . ")曾因扣款失敗被停止 '.$service_name.' 權限，但最近一次又再次付費成功，月份為 " . $theActualLastProcessDate->format('Y 年 m 月') . "，故回復您的 '.$service_name.' 權限。若有疑問請點右下聯絡我們連絡站長。";
-                             \App\Models\Message_new::post($admin->id, $user->id, $message);
-                             $str = '末四碼：' . $OrderDataCheck->card4no . "<br>" .
-                                 "會員 ID：" . $this->valueAddedServiceData->member_id . "<br>" .
-                                 "服務項目：" . $service_name . "<br>" .
-                                 "訂單編號：" . $this->valueAddedServiceData->order_id;
-                             \Mail::raw($str, function ($message, $service_name) {
-                                 $message->from('admin@sugar-garden.org', 'Sugar-garden');
-                                 $message->to('admin@sugar-garden.org');
-                                 $message->subject($service_name . ' 回復通知');
-                             });
                          }
+                     }
+                     //最後扣款日尚未到期
+                     elseif (!$valueAddedServiceData && $theActualLastProcessDate->diffInDays($now) < $periodRemained) {
+                         if ($OrderDataCheck->service_name == 'hideOnline') {
+                             Log::info('隱藏付費 hideOnline 回復');
+                         }
+                         if ($OrderDataCheck->service_name == 'VVIP') {
+                             Log::info('VVIP 回復');
+                         }
+
+                         Log::info($OrderDataCheck);
+                         ValueAddedService::where('member_id', $this->valueAddedServiceData->member_id)
+                             ->where('servive_name', $this->valueAddedServiceData->service_name)
+                             ->update(array('active' => 1, 'expiry' => '0000-00-00 00:00:00'));
+                         ValueAddedServiceLog::addToLog($user->id, $this->valueAddedServiceData->service_name, 'Auto upgrade, last process date:: ' . $theActualLastProcessDate->format('Y-m-d') . ' 尚未到期，自動回復', $this->valueAddedServiceData->order_id, $this->valueAddedServiceData->txn_id, 0);
+
+                         if ($this->valueAddedServiceData->service_name == 'hideOnline') {
+                             $service_name = '隱藏付費';
+                         } else {
+                             $service_name = $this->valueAddedServiceData->service_name;
+                         }
+                         $message = $user->name . "您好，由於您的 '.$service_name.' 付費(卡號後四碼 " . $OrderDataCheck->card4no . ")曾因扣款失敗被停止 '.$service_name.' 權限，但最近一次又再次付費成功，月份為 " . $theActualLastProcessDate->format('Y 年 m 月') . "，故回復您的 '.$service_name.' 權限。若有疑問請點右下聯絡我們連絡站長。";
+                         \App\Models\Message_new::post($admin->id, $user->id, $message);
+                         $str = '末四碼：' . $OrderDataCheck->card4no . "<br>" .
+                             "會員 ID：" . $this->valueAddedServiceData->member_id . "<br>" .
+                             "服務項目：" . $service_name . "<br>" .
+                             "訂單編號：" . $this->valueAddedServiceData->order_id;
+                         \Mail::raw($str, function ($message, $service_name) {
+                             $message->from('admin@sugar-garden.org', 'Sugar-garden');
+                             $message->to('admin@sugar-garden.org');
+                             $message->subject($service_name . ' 回復通知');
+                         });
                      }
 
                  }

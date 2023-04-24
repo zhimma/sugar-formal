@@ -607,6 +607,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('/dashboard/personalPageHideRecordLog', 'PagesController@personalPageHideRecordLog')->name('personalPageHideRecordLog');
         Route::get('/dashboard/adminMsgPage', 'PagesController@adminMsgPage')->name('adminMsgPage');
         Route::post('/dashboard/adminMsgRead/{msgid}', 'PagesController@adminMsgRead');
+        Route::post('/dashboard/orderPayFailNotifyIgnore', 'PagesController@orderPayFailNotifyIgnore')->name('orderPayFailNotifyIgnore');
 
 
         Route::get('/dashboard/board', 'PagesController@board');
@@ -1072,10 +1073,12 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         //訂單
         Route::get('order', 'OrderController@index')->name('order');
         Route::get('order/list', 'OrderController@getOrderData')->name('order/list');
-        Route::post('order/orderGeneratorById', 'OrderController@orderGeneratorById')->name('order/orderGeneratorById');
+//        Route::post('order/orderGeneratorById', 'OrderController@orderGeneratorById')->name('order/orderGeneratorById');
         Route::get('order/orderEcPayCheck', 'OrderController@orderEcPayCheck')->name('order/orderEcPayCheck');
         Route::get('order/orderFunPointPayCheck', 'OrderController@orderFunPointPayCheck')->name('order/orderFunPointPayCheck');
-
+        Route::post('order/order_log/list', 'OrderController@getOrderLogListByOrderId')->name('order/order_log/list');
+        Route::get('order/orderCheckByServiceNameOrOrderId', 'OrderController@orderCheckByServiceNameOrOrderId')->name('order/orderCheckByServiceNameOrOrderId');
+        Route::get('order/list/{user_id}', 'OrderController@getOrderDataByUserId');
 
         /*新增、編輯訊息*/
         Route::post('users/getmsglib', 'UserController@getMessageLib');
