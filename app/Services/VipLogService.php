@@ -60,6 +60,16 @@ class VipLogService {
         $this->mode = 0;
     }
 
+    public function cancelLogForOrder($user) {
+        $this->user_id = $user->user_id;
+        $this->business_id = $user->business_id;
+        $this->order_id = $user->order_id;
+        $this->amount = $user->amount;
+        $this->action = 'Delete';
+        $this->status = '01';
+        $this->mode = 0;
+    }
+
     public function writeLogToFile() {
         if(Carbon::now()->format('d') <= 28){
             $today = Carbon::now()->format('d');

@@ -50,6 +50,7 @@ class Message extends Model
         'room_id',
         'is_truth',
         'chat_with_admin',
+        'first_login_at'
     ];
 
     public function __construct(array $attributes = [])
@@ -1501,5 +1502,29 @@ class Message extends Model
         foreach ($pic_arr as $k => $v) {
             ImagesCompareService::addIfNotEncodedByPic($v['file_path'], 'message', $encode_by);
         }
-    } 
+    }
+    
+    public function addFirstLoginTimeAfterLogined()
+    {
+        if(!$this->first_login_at) {
+            if(str_contains(url()->previous(),'/login'))
+            {
+                $this->first_login_at = Carbon::now();
+                $this->save();
+            }
+        
+        }
+        
+        return $this;
+    }
+    
+    public function deleteIfExpiredAfterFirstLoginAt()
+    {
+        
+        if($this->first_login_at && Carbon::parse($this->first_login_at)->diffInDays(Carbon::now())>=3) {
+            return $this->delete();
+        }
+        
+        return false;
+    }
 }

@@ -60,7 +60,8 @@
                 @endif
             </div>
             @php
-            $w1 = \App\Models\UserMeta::where('user_id', $user->id)->where('isWarned', 1)->first() ?? false;
+            //$w1 = \App\Models\UserMeta::where('user_id', $user->id)->where('isWarned', 1)->first() ?? false;
+            $w1 = $user->meta->isWarned==1 && !$user->isVipOrIsVvip();
             $w2 = DB::table('warned_users')->where('member_id', $user->id)->first() ?? false;
             $b1 = DB::table('banned_users')->where('member_id', $user->id)->first() ?? false;
             $b2 = \App\Models\BannedUsersImplicitly::where('target', $user->id)->first() ?? false;

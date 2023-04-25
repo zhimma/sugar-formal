@@ -6,17 +6,17 @@
         </div>
       </div>
       <!--Placing Video Call-->
-      <div class="row mt-5" id="video-row">
-        <div class="col-12 video-container" v-if="callPlaced">
+      <div id="video-row" class="row mt-5">
+        <div v-if="callPlaced" class="col-12 video-container">
           <video
-            id="user_video_screen"
-            ref="userVideo"
-            muted
-            playsinline
-            autoplay
-            class="cursor-pointer"
-            :class="isFocusMyself === true ? 'user-video' : 'partner-video'"
-            @click=""
+              id="user_video_screen"
+              ref="userVideo"
+              :class="isFocusMyself === true ? 'user-video' : 'partner-video'"
+              autoplay
+              class="cursor-pointer"
+              muted
+              playsinline
+              @click=""
           />
 
           <img 
@@ -26,18 +26,18 @@
           />
 
           <video
-            id="partner_video_screen"
-            ref="partnerVideo"
-            playsinline
-            autoplay
-            class="cursor-pointer"
-            :class="isFocusMyself === true ? 'partner-video' : 'user-video'"
-            @click=""
-            v-if="videoCallParams.callAccepted"
+              v-if="videoCallParams.callAccepted"
+              id="partner_video_screen"
+              ref="partnerVideo"
+              :class="isFocusMyself === true ? 'partner-video' : 'user-video'"
+              autoplay
+              class="cursor-pointer"
+              playsinline
+              @click=""
           />
 
           <div class="action-btns">
-            <button type="button" class="btn btn-danger" @click="endCall">
+            <button class="btn btn-danger" type="button" @click="endCall">
               結束視訊通話
             </button>
           </div>
@@ -49,24 +49,25 @@
       <!-- End of Placing Video Call  -->
 
       <!-- Incoming Call  -->
-      <div class="row" v-if="incomingCallDialog">
+      <div v-if="incomingCallDialog" class="row">
         <div class="col">
           <p style="margin-bottom:10px;">
-            {{authuser.name}}您好，您在{{authuser.self_auth_unchecked_apply.created_at.substr(0,10)}}時於本站申請 本人認證。現站方人員將與您進行視訊驗證，約需時3 分鐘。謝謝。
+            {{ authuser.name }}您好，您在{{ authuser.self_auth_unchecked_apply.created_at.substr(0, 10) }}時於本站申請
+            本人認證。現站方人員將與您進行視訊驗證，約需時3 分鐘。謝謝。
           </p>
           <div class="btn-group" role="group">
             <button
-              type="button"
-              class="btn btn-danger"
-              data-dismiss="modal"
-              @click="declineCall"
+                class="btn btn-danger"
+                data-dismiss="modal"
+                type="button"
+                @click="declineCall"
             >
               拒絕
             </button>
             <button
-              type="button"
-              class="btn btn-success ml-5"
-              @click="acceptCall"
+                class="btn btn-success ml-5"
+                type="button"
+                @click="acceptCall"
             >
               接受
             </button>
@@ -75,39 +76,37 @@
       </div>
       <!-- End of Incoming Call  -->
     </div>
-    <div class="mask_bg real_auth_video_entire_site_bg" ></div>
-    <div class="mask_bg" id="connecting_msg_block">
-        <div class="loading"><span class="loading_text">正在嘗試連線視訊<br><br>請勿重新整理<br>或離開本頁面</span></div>
-    </div> 
-    <div class="mask_bg" id="video_only_reload_msg_block">
-        <div class="loading"><span class="loading_text">更新視訊狀態中<br>請稍等</span></div>
-    </div> 
-    <div class="mask_bg" id="mnger_leave_page_msg_block">
-        <div class="loading"><span class="loading_text">視訊連線已中斷</span></div>
-    </div>     
-    <div class="mask_bg" id="video_error_msg_block">
-        <div class="loading"><span class="loading_text"></span></div>
-    </div>  
+    <div class="mask_bg real_auth_video_entire_site_bg"></div>
+    <div id="connecting_msg_block" class="mask_bg">
+      <div class="loading"><span class="loading_text">正在嘗試連線視訊<br><br>請勿重新整理<br>或離開本頁面</span></div>
+    </div>
+    <div id="video_only_reload_msg_block" class="mask_bg">
+      <div class="loading"><span class="loading_text">更新視訊狀態中<br>請稍等</span></div>
+    </div>
+    <div id="mnger_leave_page_msg_block" class="mask_bg">
+      <div class="loading"><span class="loading_text">視訊連線已中斷</span></div>
+    </div>
+    <div id="video_error_msg_block" class="mask_bg">
+      <div class="loading"><span class="loading_text"></span></div>
+    </div>
   </div>
 </template>
 <script  type="application/javascript">
 
-    function log_video_chat_process_entire_site(log_arr)
-    {
-        log_arr['url'] = location.href;
+function log_video_chat_process_entire_site(log_arr) {
+  log_arr['url'] = location.href;
 
-        fetch('/video/log_video_chat_process', {
-              method: 'POST',
-              headers: {'Content-Type': 'application/json'},
-              body: JSON.stringify(log_arr)
-              });              
-    }       
-                
+  fetch('/video/log_video_chat_process', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(log_arr)
+  });
+}
+
 
 import Peer from "simple-peer";
 //import { getPermissions } from "../helpers";
-import LZString from "../lz-string.js";
-      
+
 export default {
   props: [
     "allusers",
@@ -1873,29 +1872,39 @@ export default {
             ,title:'start checkDevices()@methods@export default@VideoVerifyUserEntireSite.vue'
             ,method:'checkDevices()@methods@export default'
             ,step:'start'
-            ,act:'navigator.mediaDevices.enumerateDevices().then( dev => this.gotDevices(dev)).catch( err => console.warn(err));'
-            ,act_step:'before'
-            ,data:{navigator_mediaDevices:navigator.mediaDevices}
-        };
-        log_video_chat_process_entire_site(cd_log_arr);  
-      
+        ,
+        act: 'navigator.mediaDevices.enumerateDevices().then( dev => this.gotDevices(dev)).catch( err => console.warn(err));'
+        ,
+        act_step: 'before'
+        ,
+        data: {navigator_mediaDevices: navigator.mediaDevices}
+      };
+      log_video_chat_process_entire_site(cd_log_arr);
+
       return navigator.mediaDevices.enumerateDevices()
-        .then( dev => {this.gotDevices(dev);cd_log_arr.act_step='then';cd_log_arr.data={dev:dev};log_video_chat_process_entire_site(cd_log_arr); } )  
-        .catch( err => console.warn(err));
+          .then(dev => {
+            this.gotDevices(dev);
+            cd_log_arr.act_step = 'then';
+            cd_log_arr.data = {dev: dev};
+            log_video_chat_process_entire_site(cd_log_arr);
+          })
+          .catch(err => console.warn(err));
     },
-    
-    gotDevices(deviceInfos) {
+
+    sleep(milliseconds) {
+      return new Promise((resolve) => setTimeout(resolve, milliseconds));
+    },
+
+    async gotDevices(deviceInfos) {
       //console.log(deviceInfos)
+      await sleep(1000);
       this.audioSet = false;
       this.videoSet = false;
       for (let i = 0; i !== deviceInfos.length; ++i) {
         const deviceInfo = deviceInfos[i];
-        if (deviceInfo.kind === 'audioinput')
-        {
+        if (deviceInfo.kind === 'audioinput') {
           this.audioSet = true;
-        }
-        else if (deviceInfo.kind === 'videoinput')
-        {
+        } else if (deviceInfo.kind === 'videoinput') {
           this.videoSet = true;
         }
       }
@@ -1909,7 +1918,7 @@ export default {
     getPermissions() {
       // Older browsers might not implement mediaDevices at all, so we set an empty object first
       if (navigator.mediaDevices === undefined) {
-          navigator.mediaDevices = {};
+        navigator.mediaDevices = {};
       }
 
       // Some browsers partially implement mediaDevices. We can't just assign an object

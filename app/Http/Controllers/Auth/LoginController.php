@@ -2,27 +2,23 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Http\Controllers\Controller;
 use App\Models\BackendUserDetails;
-use App\Models\LogUserLogin;
+use App\Models\Role;
+use App\Models\SetAutoBan;
+use App\Models\SimpleTables\banned_users;
 use App\Models\SimpleTables\member_vip;
-use App\Models\Vip;
+use App\Models\User;
+use App\Models\UserMeta;
+use App\Models\UserProvisionalVariables;
+use App\Observer\BadUserCommon;
+use App\Services\AdminService;
+use Auth;
 use Carbon\Carbon;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
-use App\Models\User;
-use App\Models\UserMeta;
-use App\Models\Role;
-use App\Models\SetAutoBan;
-use Auth;
-use App\Models\SimpleTables\banned_users;
-use App\Models\UserProvisionalVariables;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Session;
-use App\Observer\BadUserCommon;
-use App\Services\AdminService;
-use Illuminate\Support\Facades\Log;
 
 class LoginController extends \App\Http\Controllers\BaseController
 {
@@ -284,6 +280,47 @@ class LoginController extends \App\Http\Controllers\BaseController
         return $this->sendFailedLoginResponse($request);
     }
 
+    public function decrypt_string($simple_string){
+
+        // Store the cipher method
+        $ciphering = "AES-128-CTR";
+
+        // Use OpenSSl Encryption method
+        $iv_length = openssl_cipher_iv_length($ciphering);
+        $options = 0;
+
+        // Non-NULL Initialization Vector for decryption
+        $decryption_iv = '1234567891011121';
+
+        // Store the decryption key
+        $decryption_key = "GeeksforGeeks";
+
+        // Use openssl_decrypt() function to decrypt the data
+        $decryption=openssl_decrypt ($simple_string, $ciphering, $decryption_key, $options, $decryption_iv);
+
+        return $decryption;
+    }
+
+    public function encrypt_string($simple_string){
+        // Store the cipher method
+        $ciphering = "AES-128-CTR";
+
+        // Use OpenSSl Encryption method
+        $iv_length = openssl_cipher_iv_length($ciphering);
+        $options = 0;
+
+        // Non-NULL Initialization Vector for encryption
+        $encryption_iv = '1234567891011121';
+
+        // Store the encryption key
+        $encryption_key = "GeeksforGeeks";
+
+        // Use openssl_encrypt() function to encrypt the data
+        $encryption = openssl_encrypt($simple_string, $ciphering, $encryption_key, $options, $encryption_iv);
+
+        return $encryption;
+    }
+
     public function handle_other_events_after_login($request, $user){
         //Log::Info('handle_other_events_after_login');
         $email = $user->email;
@@ -390,18 +427,6 @@ class LoginController extends \App\Http\Controllers\BaseController
         }
         */
     }
-    public function get_mac_address(){
-        $string=exec('getmac');
-        $mac=substr($string, 0, 17); 
-        return $mac;
-    }
-
-    public function logout(Request $request) {
-        Session::flush();
-        $request->session()->forget('announceClose');
-        Auth::logout();
-        return redirect('/login');
-    }
 
     public function findAccountAndRollbackToUsers($request){
 
@@ -436,45 +461,20 @@ class LoginController extends \App\Http\Controllers\BaseController
         }
     }
 
-    public function encrypt_string($simple_string){
-        // Store the cipher method
-        $ciphering = "AES-128-CTR";
-
-        // Use OpenSSl Encryption method
-        $iv_length = openssl_cipher_iv_length($ciphering);
-        $options = 0;
-
-        // Non-NULL Initialization Vector for encryption
-        $encryption_iv = '1234567891011121';
-
-        // Store the encryption key
-        $encryption_key = "GeeksforGeeks";
-
-        // Use openssl_encrypt() function to encrypt the data
-        $encryption = openssl_encrypt($simple_string, $ciphering, $encryption_key, $options, $encryption_iv);
-
-        return $encryption;
+    public function get_mac_address(){
+        $string=exec('getmac');
+        $mac=substr($string, 0, 17);
+        return $mac;
     }
 
-    public function decrypt_string($simple_string){
-
-        // Store the cipher method
-        $ciphering = "AES-128-CTR";
-
-        // Use OpenSSl Encryption method
-        $iv_length = openssl_cipher_iv_length($ciphering);
-        $options = 0;
-
-        // Non-NULL Initialization Vector for decryption
-        $decryption_iv = '1234567891011121';
-
-        // Store the decryption key
-        $decryption_key = "GeeksforGeeks";
-
-        // Use openssl_decrypt() function to decrypt the data
-        $decryption=openssl_decrypt ($simple_string, $ciphering, $decryption_key, $options, $decryption_iv);
-
-        return $decryption;
+    public function logout(Request $request)
+    {
+        Session::flush();
+        $request->session()->forget('announceClose');
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return redirect('/login');
     }
 
 }

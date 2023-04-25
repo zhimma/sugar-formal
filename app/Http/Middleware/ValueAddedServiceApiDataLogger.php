@@ -2,8 +2,10 @@
 namespace App\Http\Middleware;
 
 use App\Models\Order;
+use App\Models\OrderLog;
 use App\Models\ValueAddedService;
 use App\Models\VvipApplication;
+use App\Services\VipLogService;
 use Carbon\Carbon;
 use Closure;
 use Illuminate\Support\Facades\Log;
@@ -11,6 +13,10 @@ use App\Services\EnvironmentService;
 
 class ValueAddedServiceApiDataLogger{
     private $startTime;
+
+    public function __construct(VipLogService $logService){
+        $this->logService = $logService;
+    }
 
     /**
      * Handle an incoming request.
@@ -176,8 +182,35 @@ class ValueAddedServiceApiDataLogger{
                         }
 
                         if(!(EnvironmentService::isLocalOrTestMachine())) {
-                            //產生訂單 --正式綠界
-                            Order::addEcPayOrder($payload['MerchantTradeNo'], null);
+                            //產生訂單 --正式環境訂單
+                            if(str_contains($_SERVER["HTTP_REFERER"], 'ecpay')) {
+                                Order::addEcPayOrder($payload['MerchantTradeNo'], null);
+                            }elseif(str_contains($_SERVER["HTTP_REFERER"], 'funpoint')){
+                                Order::addFunPointPayOrder($payload['MerchantTradeNo'], null);
+                            }
+
+                            //正式環境用
+                            //抓重複付費訂單 寫入取消訂單列表
+                            //檢查歷史 service_name 訂單
+                            Order::orderCheckByUserIdAndServiceName($user->id, $payload['CustomField4']);
+                            $needCancelOrder = Order::where('order_id', '<>', $payload['MerchantTradeNo'])
+                                ->where('ExecStatus', 1)
+                                ->where('service_name', $payload['CustomField4'])
+                                ->get();
+
+                            if($needCancelOrder && count($needCancelOrder)>0){
+                                foreach ($needCancelOrder as $row){
+                                    logger($row->order_id. '定期定額繳費中，但 user: ' . $row->user_id . ' 已對'.$row->service_name.' 重新訂購完成，故此筆寫入取消列表。');
+                                    $order = Order::findByOrderId($row->order_id);
+                                    $this->logService->cancelLogForOrder($order);
+                                    $this->logService->writeLogToDB();
+                                    $file = $this->logService->writeLogToFile();
+                                    if( strpos(\Storage::disk('local')->get($file[0]), $file[1]) !== false) {
+                                        logger($row->order_id. '定期定額繳費中，但 user: ' . $row->user_id . ' 已對'.$row->service_name.' 重新訂購完成，故此筆寫入取消列表完成。');
+                                    }
+                                    OrderLog::addToLog($row->user_id, $row->order_id, '定期定額繳費中，但使用者已對 '.$row->service_name.' 重新訂購完成，故此筆寫入取消訂單列表。');
+                                }
+                            }
                         }
 
                         return '1|OK';

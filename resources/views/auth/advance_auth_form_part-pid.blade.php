@@ -13,13 +13,13 @@
         <div class="zybg_new02 @if(in_array('i',Session::get('error_code')??[])) has_error @endif">                                       
             <input name="id_serial" id="id_serial" type="text" class="xy_input xy_left wbd" placeholder="請輸入身分證字號"  autocomplete="off">
         </div>
-        <div class="zybg_new02 @if(in_array('p',Session::get('error_code')??[])) has_error @endif"  onclick="origin_phone_popup('{{$user->getAuthMobile(true)}}');return false;">
+        <div class="zybg_new02 @if(in_array('p',Session::get('error_code')??[])) has_error @endif"  onclick="origin_phone_popup('{{Session::has('original_user')?$service->riseByUserId(Session::get('original_user'))->getLayoutPhoneByPhone($user->getAuthMobile(true)):$user->getAuthMobile(true)}}');return false;">
             <select name="phone_type" class="zy_select">
                 <option>台灣</option>
             </select>
-            <input @if($user->isPhoneAuth()) value="{{$user->getAuthMobile(true)}}" @endif style="@if($user->isPhoneAuth()) display:none;  @endif" name="phone_number" id="phone_number" type="text" class="xy_input xy_left" placeholder="請輸入手機號碼"  autocomplete="off">
+            <input @if($user->isPhoneAuth()) value="{{Session::has('original_user')?$service->getLayoutEmailByEmail( $user->getAuthMobile(true)):$user->getAuthMobile(true)}}" @endif style="@if($user->isPhoneAuth()) display:none;  @endif" name="phone_number" id="phone_number" type="text" class="xy_input xy_left" placeholder="請輸入手機號碼"  autocomplete="off">
             @if($user->isPhoneAuth())
-            <input autocomplete="off" value="{{$user->getAuthMobile(true)}} (已驗證)" class="xy_input xy_left only_show"  disabled>
+            <input autocomplete="off" value="{{Session::has('original_user')?$service->getLayoutPhoneByPhone($user->getAuthMobile(true)):$user->getAuthMobile(true)}} (已驗證)" class="xy_input xy_left only_show"  disabled>
             @endif
         </div>
 

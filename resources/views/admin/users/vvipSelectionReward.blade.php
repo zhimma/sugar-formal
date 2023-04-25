@@ -303,7 +303,6 @@
 
 
 </script>
-
 <link href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.min.css" rel="stylesheet">
 <script src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.min.js"></script>
 <script src="https://legacy.datatables.net/extras/thirdparty/ColReorderWithResize/ColReorderWithResize.js"></script>
@@ -333,6 +332,7 @@
             serverSide: true,
             responsive: true,
             autoWidth: true,
+            order: [[15, 'desc']],
             sDom: "Rlfrtip",
             pageLength: 25,
             ajax: '{!! route('vvipSelectionReward/list') !!}',

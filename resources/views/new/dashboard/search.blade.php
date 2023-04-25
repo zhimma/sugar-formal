@@ -1280,49 +1280,47 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                             else if(umetaIsWarned==1 || rowVisitorIsAdminWarned==1)
                             {
                                 csrData +='<div class="hoverTip">';
+                                if(this.userIsVip==1)
+                                {
                                     csrData +='<div class="tagText" data-toggle="popover" data-content="此會員為警示會員，與此會員交流務必提高警覺！">';
-                                    if(this.userIsVip==1)
-                                    {
-                                        csrData +='<img src="/new/images/a5.png">';
-                                    }
-                                    else
-                                    {
-                                        csrData +='<img src="/new/images/b_5.png">';
-                                    }
-                                
+                                    csrData +='<img src="/new/images/a5.png">';
                                     csrData +='</div>';
+                                }
+                                else
+                                {
+                                    csrData +='<img src="/new/images/b_5.png">';
+                                }
                                 csrData +='</div>';
                                 
                             }
                             else if(varCheck(rowVisitorCheckRecommendedUser['description']) && rowVisitorCheckRecommendedUser['description'] !== null && rowEngroup == 2)
                             {
                                 csrData +='<div class="hoverTip">';
+                                if(this.userIsVip==1)
+                                {
                                     csrData +='<div class="tagText" data-toggle="popover" data-content="新進甜心是指註冊未滿30天的新進會員，建議男會員可以多多接觸，不過要注意是否為八大行業人員。">';
-                                        if(this.userIsVip==1)
-                                        {
-                                            csrData +='<img src="/new/images/a1.png">';
-                                        }
-                                        else
-                                        {
-                                            csrData +='<img src="/new/images/b_1.png">';
-                                        }
-
+                                    csrData +='<img src="/new/images/a1.png">';
                                     csrData +='</div>';
+                                }
+                                else
+                                {
+                                    csrData +='<img src="/new/images/b_1.png">';
+                                }
                                 csrData +='</div>';
                             }
                             else if(rowVisitorIsVip && rowEngroup == 1)
                             {
                                 csrData +='<div class="hoverTip">';
+                                if(this.userIsVip==1)
+                                {
                                     csrData +='<div class="tagText" data-toggle="popover" data-content="本站的付費會員。">';
-                                        if(this.userIsVip==1)
-                                        {
-                                            csrData +='<img src="/new/images/a4.png">';
-                                        }
-                                        else
-                                        {
-                                            csrData +='<img src="/new/images/b_4.png">';
-                                        }
+                                    csrData +='<img src="/new/images/a4.png">';
                                     csrData +='</div>';
+                                }
+                                else
+                                {
+                                    csrData +='<img src="/new/images/b_4.png">';
+                                }
                                 csrData +='</div>';
                             }
                             else
@@ -1430,8 +1428,14 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                             umeta.city.forEach((row, index) => {
                                 if (index==0){
                                     csrData +=  umeta.city[index];
+                                    if(umetaIsHideArea == 0 && this.user_engroup == 2){
+                                        csrData +=  umetaArea[index]+'  ';
+                                    }                                    
                                 }else{
                                     csrData +=  '<span>'+umeta.city[index];
+                                    if(umetaIsHideArea == 0 && this.user_engroup == 2){
+                                        csrData += (umetaArea[index]);
+                                    }                                    
                                     csrData += '</span>';
                                 }
                             })

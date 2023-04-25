@@ -560,7 +560,7 @@
                 <a class="fa_adbut1 left" href="{{ $backUrl }}"><img class="fa_backicon" src="{{ asset('/new/images/back_icon.png') }}">返回</a>
                 <span class="se_rea">
                     @if($toUserIsBanned)
-                        <a type="button" style="color: #fd5678;" onclick="c5('{{'此人已被站方封鎖'}}'),setTimeout(function(){window.location.href = ' {{ !empty(session()->get	('goBackPage_chat2')) ? session()->get('goBackPage_chat2') : \Illuminate\Support\Facades\URL::previous() }} '},3000)">{{$to->name}}</a>
+                        <a type="button" style="color: #fd5678;" onclick="c5('{{'此人已被站方封鎖'}}'),setTimeout(function(){window.location.href = ' {{ !empty(session()->get  ('goBackPage_chat2')) ? session()->get('goBackPage_chat2') : \Illuminate\Support\Facades\URL::previous() }} '},3000)">{{$to->name}}</a>
                     @else
                         @if($to->isVVIP() && $to->VvipInfoStatus())
                             <a href="/dashboard/viewuser_vvip/{{$to->id}}" style="color: #fd5678;">
@@ -828,11 +828,27 @@
                         </div>
                         <div class="xin_left">
                             <a class="xin_nleft" onclick="tab_uploadPic();"><img src="/new/images/moren_pic.png"></a>
-                            <textarea id="msg" name="msg" rows="1" class="xin_input" placeholder="請輸入"></textarea>
+                            <textarea id="msg" name="msg" rows="1" class="xin_input" placeholder="請輸入" onclick="if(this.value=='') this.value=' ';" onblur="if(this.value=='') this.value=' ';"></textarea>
                         </div>
                         <a onclick="chatForm_submit();" class="xin_right" style="border: none;"><img
                                 src="/new/images/fasong.png" style="margin-top:6px;"></a>
                     </form>
+                    <script>
+                        
+                        
+                        //if(navigator.platform == 'iPad' || navigator.platform == 'iPhone' || navigator.platform == 'iPod'){
+                        if( navigator.platform == 'iPad' || navigator.platform == 'iPhone' || navigator.platform == 'iPod' ||
+                            navigator.userAgent.match(/(iPad|iPhone|iPod)/ig) || 
+                            (navigator.userAgent.match(/(Macintosh|Mac OS)/ig) && 
+                                (   ( 'ontouchstart' in window ) ||
+                                    ( navigator.maxTouchPoints > 0 ) ||
+                                    ( navigator.msMaxTouchPoints > 0 )
+                                )
+                            )
+                         ) {
+                            $('#msg').val(' ');
+                        }
+                    </script>
                     @endif
                 </div>
                 @if($to->engroup==2 && $to->exchange_period == 1 && !($messages->first()??false))
@@ -998,10 +1014,10 @@
 <div class="bl bl_tab " id="tab_truth" style="display: none;">
 <div class="bltitle"><font>真心話說明</font></div>
 <div class="new_poptk">
-	<div class="n_heighnn">
-		 <div class="n_gd"><div class="n_gd_t"></div></div>
-			<div class="yidy_tk">
-				<div class="giti">
+    <div class="n_heighnn">
+         <div class="n_gd"><div class="n_gd_t"></div></div>
+            <div class="yidy_tk">
+                <div class="giti">
                     <div class="t_iphoto" style="margin-top: 10px;"><img src="{{asset('new/images/zz_pt.jpg')}}"></div>
                     <h2 class="t_list"><img src="{{asset('new/images/ciicon_h.png')}}"><font>真心話會在女會員對話欄中置頂，如上圖</font></h2>
                     <h2 class="t_list">
@@ -1013,14 +1029,14 @@
                     <h2 class="t_list"><img src="{{asset('new/images/ciicon_h.png')}}"><font>成為VIP即可發送真心話</font></h2>    
                     @endif
                 </div>
-			</div>
-			
-	</div>
-	
-		
-		<div class="n_bbutton" >
-				<span><a class="n_left" onclick="gmBtn1_truth();" style="@if(!$isVip) display:block;float:none; @endif">確認</a></span>
-				@if($isVip)
+            </div>
+            
+    </div>
+    
+        
+        <div class="n_bbutton" >
+                <span><a class="n_left" onclick="gmBtn1_truth();" style="@if(!$isVip) display:block;float:none; @endif">確認</a></span>
+                @if($isVip)
                 <span><a class="n_right" onclick="gmBtn1_truth();not_show_is_truth_popup();">不再顯示</a></span>
                 @endif
         </div>
@@ -1555,6 +1571,14 @@
             @if($to_forbid_msg_data??null)
                 return;
             @endif
+
+        if($('#tab05').css('display')=='none') {
+            $('#msg').focus();
+        }
+        else {
+            $('#msg').blur();
+        }            
+            
                 $('#chatForm').submit();
 
                 setTimeout(function() {
@@ -1564,16 +1588,6 @@
             }else{
                 $('.xin_input').css('height', '38px');
                 $('.xin_nleft, .xin_right').css('margin-top', '0px');
-            }
-        }
-    });
-    
-    $(document).keyup(function(e) {
-        if(e.keyCode == 13){
-            if($('#tab05').css('display')!='none') {
-                $('#msg').focus();
-                $('#tab05').hide();
-                $('.announce_bg').hide();
             }
         }
     });
@@ -1601,7 +1615,12 @@
         @if($to_forbid_msg_data??null)
             return;
         @endif
-        $('#msg').focus();
+        if($('#tab05').css('display')=='none') {
+            $('#msg').focus();
+        }
+        else {
+            $('#msg').blur();
+        }
         let content = $('#msg').val(), msgsnd = $('.msgsnd');
         var msg_str = $("#msg").val().replace(/\r\n|\n/g,"").replace(/\s+/g, "");
 
@@ -2240,7 +2259,7 @@
                         }
                         else {
                             c5(rentry.content);
-                            $('.n_bllbut').focus();
+                            $('#msg').blur();
                         }
                     }
                     @if($isVip)
@@ -2254,7 +2273,7 @@
                 formData.append('error','傳送失敗!'+xhr.statusText);
                 formData.append('error_return_data',JSON.stringify(e));
                 $.post( "{{route('logChatWithError')}}", formData);                 
-                $('.n_bllbut').focus();
+                $('#msg').blur();
             }
             if(formData.get('is_truth')==1) {
                 add_adbut_on(document.getElementById('truth_actor'));
@@ -2562,17 +2581,17 @@
         notShowButton.setAttribute('href', "{{ route('viewChatNotice') }}");
         $('.introjs-tooltipbuttons').append(notShowButton);
     }
-	function c_truth() {
-		 $(".blbg").show();
+    function c_truth() {
+         $(".blbg").show();
          $("#tab_truth").show();
-		 $('body').css("overflow", "hidden");
+         $('body').css("overflow", "hidden");
     }
     function gmBtn1(){
         $(".blbg").hide();
         //$(".bl").hide()
         $("#tab_truth").hide();
         $('body').css("overflow", "");        
-			
+            
     } 
     function gmBtn1_truth() {
         $('#msg').focus();

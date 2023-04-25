@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\CfpController;
+use App\Http\Controllers\DeployController;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,6 +21,8 @@ Route::get('/fingerprint', 'PagesController@fingerprint');
 Route::post('/saveFingerprint', 'PagesController@saveFingerprint')->name('saveFingerprint');
 Route::get('Fingerprint2', 'Fingerprint@index');
 Route::post('Fingerprint2/addFingerprint', 'Fingerprint@addFingerprint');
+Route::post('deploy', 'DeployController@deploy');
+Route::post('staging', 'DeployController@staging');
 
 /*
 |--------------------------------------------------------------------------
@@ -605,6 +608,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('/dashboard/personalPageHideRecordLog', 'PagesController@personalPageHideRecordLog')->name('personalPageHideRecordLog');
         Route::get('/dashboard/adminMsgPage', 'PagesController@adminMsgPage')->name('adminMsgPage');
         Route::post('/dashboard/adminMsgRead/{msgid}', 'PagesController@adminMsgRead');
+        Route::post('/dashboard/orderPayFailNotifyIgnore', 'PagesController@orderPayFailNotifyIgnore')->name('orderPayFailNotifyIgnore');
 
 
         Route::get('/dashboard/board', 'PagesController@board');
@@ -764,6 +768,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         */
         //Route::get('manualSQL', 'UserController@manualSQL');
         //Route::get('querier', 'UserController@querier')->name('querier');
+        Route::get('manualDeploy', [DeployController::class, 'manualDeploy']);
         Route::resource('manager', 'UserController', ['except' => ['create', 'show']]);
         Route::post('users/search', 'UserController@search')->name('users/manager');
         Route::get('users/search', 'UserController@index')->name('users/manager/GET');
@@ -1069,10 +1074,12 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         //訂單
         Route::get('order', 'OrderController@index')->name('order');
         Route::get('order/list', 'OrderController@getOrderData')->name('order/list');
-        Route::post('order/orderGeneratorById', 'OrderController@orderGeneratorById')->name('order/orderGeneratorById');
+//        Route::post('order/orderGeneratorById', 'OrderController@orderGeneratorById')->name('order/orderGeneratorById');
         Route::get('order/orderEcPayCheck', 'OrderController@orderEcPayCheck')->name('order/orderEcPayCheck');
         Route::get('order/orderFunPointPayCheck', 'OrderController@orderFunPointPayCheck')->name('order/orderFunPointPayCheck');
-
+        Route::post('order/order_log/list', 'OrderController@getOrderLogListByOrderId')->name('order/order_log/list');
+        Route::get('order/orderCheckByServiceNameOrOrderId', 'OrderController@orderCheckByServiceNameOrOrderId')->name('order/orderCheckByServiceNameOrOrderId');
+        Route::get('order/list/{user_id}', 'OrderController@getOrderDataByUserId');
 
         /*新增、編輯訊息*/
         Route::post('users/getmsglib', 'UserController@getMessageLib');

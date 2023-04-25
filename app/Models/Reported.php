@@ -103,4 +103,9 @@ class Reported extends Model
             return false;
         }
     }
+    
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'member_id', 'id');
+    }     
 }

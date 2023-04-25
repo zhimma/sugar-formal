@@ -10,6 +10,7 @@ use App\Models\Reported;
 use App\Models\ReportedAvatar;
 use App\Models\ReportedPic;
 use App\Models\SetAutoBan;
+use App\Models\ValueAddedService;
 use App\Models\ValueAddedServiceLog;
 use Illuminate\Http\Request;
 use App\Services\UserService;
@@ -102,18 +103,25 @@ class StatController extends \App\Http\Controllers\BaseController
     public function vipLog($id)
     {
         $results = VipLog::where('member_id', $id)->get();
-        $name = User::where('id', $id)->get()->first()->name;
+        $user = User::where('id', $id)->get()->first();
         $expiry = Vip::where('member_id', $id)->orderBy('created_at', 'asc')->get()->first();
         $order = order::where('user_id', $id)->orderBy('order_date','desc')->get();
         $vvip_log_data = ValueAddedServiceLog::where('member_id', $id)->where('service_name', 'like', '%VVIP%')->get();
         $hideOnline_log_data = ValueAddedServiceLog::where('member_id', $id)->where('service_name', 'hideOnline')->get();
+        $VIP = Vip::findByIdWithDateDesc($id);
+        $VVIP = ValueAddedService::findByIdAndServiceNameWithDateDesc($id, 'VVIP');
+        $hideOnline = ValueAddedService::findByIdAndServiceNameWithDateDesc($id, 'hideOnline');
         return view('admin.stats.vipLog', [
             'results' => $results,
-            'name' => $name,
+            'name' => $user->name,
+            'user_id' => $user->id,
             'expiry' => isset($expiry)?substr($expiry->expiry, 0, 10):'',
             'order' => $order,
             'vvip_log_data' => $vvip_log_data,
-            'hideOnline_log_data' => $hideOnline_log_data
+            'hideOnline_log_data' => $hideOnline_log_data,
+            'VIP' => $VIP,
+            'VVIP' => $VVIP,
+            'hideOnline' => $hideOnline
         ]);
     }
     public function cronLog(){

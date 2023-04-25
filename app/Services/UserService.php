@@ -73,7 +73,7 @@ class UserService
         }
         $setting = $to->self_auth_tags_display;
         $show = false;
-        if($user->meta->isWarned == 1 || $user->aw_relation){
+        if($user->meta->isWarned() == 1 || $user->aw_relation){
             $show = false;
         } else{
             $getPr  =   $user->pr_log?$user->pr_log->pr:0;
@@ -116,7 +116,7 @@ class UserService
         
         $blurryAvatar = isset($to->meta->blurryAvatar)? $to->meta->blurryAvatar : "";
         $blurryAvatar = explode(',', $blurryAvatar);
-        if($user->meta->isWarned == 1 || $user->aw_relation){
+        if($user->meta->isWarned() == 1 || $user->aw_relation){
             $isBlurAvatar = true;
         } else{
             if(sizeof($blurryAvatar)>1){
@@ -160,7 +160,7 @@ class UserService
         
         $blurryLifePhoto = isset($to->meta->blurryLifePhoto)? $to->meta->blurryLifePhoto : "";
         $blurryLifePhoto = explode(',', $blurryLifePhoto);
-        if($user->meta->isWarned == 1 || $user->aw_relation ){
+        if($user->meta->isWarned() == 1 || $user->aw_relation ){
             $isBlurLifePhoto = true;
         } else{
             if(sizeof($blurryLifePhoto)>1){
@@ -214,7 +214,7 @@ class UserService
         $new_sugar_no_msg_days = 7;
         $new_sugar_error_user_type = '普通';
 
-        if(($maleUser->user_meta->isWarned??false) || ($maleUser->aw_relation??false)) {
+        if(($maleUser->user_meta->isWarned()??false) || ($maleUser->aw_relation??false)) {
             $new_sugar_no_msg_days = 20;
             $new_sugar_error_user_type = '警示';
         }
@@ -381,7 +381,7 @@ class UserService
             $w_vip_pass_count = 0;
             $b_count = 0;
             $w_count = 0;
-            if($logEntry->user->user_meta->isWarned??null) return false;
+            if($logEntry->user && $logEntry->user->user_meta && ($logEntry->user->user_meta->isWarned()??null)) return false;
 
             if(($logEntry->user->aw_relation??null) && $logEntry->user->aw_relation()->where('vip_pass',0)->count()) {
                 return false;
@@ -694,7 +694,7 @@ class UserService
         //        $median = $query?->median_recipients_count_of_vip_male_senders;
         //        $greeting_rate = max($avg ?? 999, $median ?? 999) * 1.75;
         // 招手比後台調整，測試 OK 再使用下面2行，並刪除或註解上面 4行
-        $postfix = DB::table('greeting_rate_calculations')->first()->postfix;
+        $postfix = DB::table('greeting_rate_calculations')->first()?->postfix;
         $greeting_rate = UserService::computeGreetingRate($postfix);
         $recipients_count = UserMeta::where('user_id', $from_id)->pluck('recipients_count')->first();
 
@@ -1821,4 +1821,90 @@ class UserService
         $this->userMeta = $userEntry->meta;
         return $this;
     }
+    
+    public function riseByUserId($user_id)
+    {
+        if(!$user_id) {
+            $this->model = new User;
+            $this->userMeta = new UserMeta;
+            return $this;
+        }
+        
+        $user = $this->find($user_id);
+        
+        if(!$user) {
+            $this->model = new User;
+            $this->userMeta = new UserMeta;
+            return $this;
+        }        
+
+        return $this->riseByUserEntry($user);
+    }    
+    
+    public function isJuniorAdminOrUnder() {
+        $roles = $this->model->roles;
+        
+        if($roles->where('id',3)->count() && !$roles->where('id',1)->count())
+            return true; 
+        
+        if(!$roles->where('id',3)->count() && !$roles->where('id',1)->count())
+            return true; 
+    }
+    
+    public function getLayoutEmailByEmail($email) 
+    {
+        if($this->isJuniorAdminOrUnder()) {
+            return $this->getPartialMaskFullEmail($email);
+        }
+        
+        return $email;
+    }
+    
+    public function getLayoutPhoneByPhone($phone) 
+    {
+        if($this->isJuniorAdminOrUnder()) {
+            return $this->getPartialMaskFullPhone($phone);
+        }
+        
+        return $phone;
+    }    
+    
+    public static function getPartialMaskFullPhone($phone) 
+    {
+        if($phone) {
+            $show_code = substr($phone,0,4);
+            if($show_code) return $show_code.'******';
+        }
+    }      
+    
+    public static function getPartialMaskFullEmail($email) 
+    {
+        $except_domain = [
+            'icloud.com',
+            'me.com',
+            'mac.com',
+            'yahoo.com',
+            'yahoo.com.tw',
+            'gmail.com',
+            'gmail.com.tw',
+            'hotmail.com',
+            'proton.me',
+            'kimo.com',
+            'msa.hinet.net',
+            'msn.com',
+            'livemail.tw',
+            'outlook.com',
+            'pchome.com.tw',
+            'live.com',
+            'live.jp',
+            'protonmail.com',
+        ];
+        
+        $email_domain = substr($email,strpos($email, '@')+1);
+    
+        if(!in_array($email_domain,$except_domain)) {
+            return str_replace($email_domain,'********',$email);
+        }
+        else return $email;
+    }    
 }

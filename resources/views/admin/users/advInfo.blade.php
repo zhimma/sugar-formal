@@ -566,7 +566,7 @@
         <td>@if($user->engroup==1) 男 @else 女 @endif</td>
         <td>
 {{--            <a href="/admin/stats/vip_log/{{ $user->id }}" target="_blank">--}}
-                {{ $user->email }}
+                {{ $service->getLayoutEmailByEmail($user->email) }}
 {{--            </a>--}}
         </td>
         <td>{{ $user_record->cost_time_of_first_dataprofile ?? '未紀錄' }}</td>
@@ -791,7 +791,7 @@
                             $showPhoneDate = $phoneAuth->createdate;
                             }
                         else{
-                            $showPhone = $phoneAuth->mobile;
+                            $showPhone = $service->getLayoutPhoneByPhone($phoneAuth->mobile);
                             $showPhoneDate = $phoneAuth->createdate;
                             }
                     }
@@ -1037,7 +1037,7 @@
                 <form action="{{ route('emailModify') }}" method='POST'>
                     {!! csrf_field() !!}
                     <input type="hidden" name="user_id" value="{{ $user->id }}">
-                    <input class="form-control m-input emailInput" type=text name="email" value="{{ $user->advance_auth_status && $user->advance_auth_email ? $user->advance_auth_email : ($user->advance_auth_status ? '已認證,尚未填寫 Email' : '尚未認證 Email') }}" readonly="readonly" autocomplete="off">
+                    <input class="form-control m-input emailInput" type=text name="email" value="{{ $user->advance_auth_status && $user->advance_auth_email ? $service->getLayoutEmailByEmail($user->advance_auth_email) : ($user->advance_auth_status ? '已認證,尚未填寫 Email' : '尚未認證 Email') }}" readonly="readonly" autocomplete="off">
                     <div id="emailKeyInAlert"></div>
                     <div>@if($userMeta->isWarnedTime !='')警示用戶時間：{{ $userMeta->isWarnedTime }}@endif</div>
                     <div>@if($user->advance_auth_status && $user->advance_auth_email_at)Email驗證時間：{{ $user->advance_auth_email_at }}@endif</div>
@@ -1070,7 +1070,7 @@
         <th>會員ID</th>
         <td>{{ $userMeta->user_id }}</td>
         <th>手機</th>
-        <td>{{ $userMeta->phone }}</td>
+        <td>{{ $service->getLayoutPhoneByPhone($userMeta->phone) }}</td>
         <th>是否已啟動</th>
         <td>@if($userMeta->is_active == 1) 是 @else 否 @endif</td>
     </tr>
@@ -1947,7 +1947,7 @@
                 </td>
                 <td>
                     <a href="{{ route('users/advInfo', $row['reporter_id']) }}" target='_blank'>
-                        {{ $row['email'] }}
+                        {{ $service->getLayoutEmailByEmail( $row['email']) }}
                     </a>
                     @if($r_count[$r_id] > 1)
                         (
@@ -2018,7 +2018,7 @@
             </td>
             <td>
                 <a href="{{ route('users/advInfo', $row['reporter_id']) }}" target='_blank'>
-                    {{ $row['email'] }}
+                    {{ $service->getLayoutEmailByEmail($row['email']) }}
                 </a>
             </td>
             <td>{{ $row['created_at'] }}</td>
@@ -2077,7 +2077,7 @@
                     )
                 @endif
             </td>
-            <td><a href="{{ route('users/advInfo', $row['to_id']) }}" target='_blank'>{{ $row['to_email'] }}</a></td>
+            <td><a href="{{ route('users/advInfo', $row['to_id']) }}" target='_blank'>{{ $service->getLayoutEmailByEmail( $row['to_email']) }}</a></td>
             <td>{{ $row['created_at'] }}</td>
             <td>@if($row['to_isvip']==1) VIP @endif</td>
             <td>@if($row['to_auth_status']==1) 已認證 @else N/A @endif</td>
@@ -2164,7 +2164,7 @@
                     )
                 @endif                
             </td>
-            <td><a href="{{ route('users/advInfo', $row['to_id']) }}" target='_blank'>{{ $row['to_email'] }}</a></td>
+            <td><a href="{{ route('users/advInfo', $row['to_id']) }}" target='_blank'>{{ $service->getLayoutEmailByEmail( $row['to_email']) }}</a></td>
             <td>{{ $row['created_at'] }}</td>
             <td>@if($row['to_isvip']==1) VIP @endif</td>
             <td>@if($row['to_auth_status']==1) 已認證 @else N/A @endif</td>
@@ -2534,6 +2534,9 @@
     <tr>
         <th width="5%"></th>
         <th width="10%">發送給</th>
+        @if($user->engroup==2)
+            <th width="10%">縣市</th>
+        @endif
         <th>最新內容</th>
         <th>上傳照片</th>
         <th width="15%">發送時間</th>
@@ -2555,6 +2558,7 @@
 
             $toCount_user_id=\App\Models\Message::withTrashed()->where('from_id',$user->id)->where('to_id',$ref_user_id)->get()->count();
             $toCount_ref_user_id=\App\Models\Message::withTrashed()->where('from_id',$ref_user_id)->where('to_id',$user->id)->get()->count();
+            $city_and_area= $ref_user->meta_()? $ref_user->meta_()->city: '';
         @endphp
         <tr id='message_room_{{$messageLog->room_id}}'
             {{--一次顯示50個 臨時搭建用--}}
@@ -2565,7 +2569,15 @@
             <td style="text-align: center;">
                 <button data-toggle="collapse" data-target="#msgLog{{$ref_user_id}}" class="accordion-toggle btn btn-primary message_toggle" value="{{$messageLog->room_id}}">+</button>
             </td>
-            <td>@if(!empty($ref_user->name))<a href="{{ route('admin/showMessagesBetween', [$user->id, $ref_user_id]) }}" target="_blank">{{ $ref_user->name }}</a>@else 會員資料已刪除@endif</td>
+            <td>@if(!empty($ref_user->name))
+                    <a href="{{ route('admin/showMessagesBetween', [$user->id, $ref_user_id]) }}" target="_blank">{{ $ref_user->name }}</a>
+                @else
+                    會員資料已刪除
+                @endif
+            </td>
+            @if($user->engroup==2)
+                <td>{{ $city_and_area }}</td>
+            @endif
             <td id="new{{$messageLog->to_id}}">
                 @if($message_log)
                     {{($message_log->from_id==$message_1st->from_id ? '(發)' :'(回)') .$message_log->content}}

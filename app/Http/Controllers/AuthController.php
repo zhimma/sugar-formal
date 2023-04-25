@@ -1683,6 +1683,7 @@ class AuthController extends Controller
         }
  
         $user_isBannedOrWarned = User::select(
+            'u.id',
             'm.isWarned',
             'm.isWarnedType',
             'b.id as banned_id',
@@ -1762,18 +1763,22 @@ class AuthController extends Controller
         }
 
         $isWarnedStatus = '';
-        if ($user_isBannedOrWarned->isWarned == 1) {
-            if ($user_isBannedOrWarned->isWarnedType!='adv_auth') {
-                $isWarnedAuthStr = '手機驗證';
-                $isWarnedAuthUrl = '../member_auth';
-                $ps_str = 'PS:此對系統針對八大行業的自動警示機制，帶來不便敬請見諒。';
+        
+        if(!$user->isVipOrIsVvip()) {
+            //if ($user_isBannedOrWarned->isWarned == 1) {
+            if ($user_isBannedOrWarned->user && $user_isBannedOrWarned->user->meta && $user_isBannedOrWarned->user->meta->isWarned() == 1) {
+                if ($user_isBannedOrWarned->isWarnedType!='adv_auth') {
+                    $isWarnedAuthStr = '手機驗證';
+                    $isWarnedAuthUrl = '../member_auth';
+                    $ps_str = 'PS:此對系統針對八大行業的自動警示機制，帶來不便敬請見諒。';
+                }
+                else {
+                    $isWarnedAuthStr = '進階驗證';
+                    $isWarnedAuthUrl = url('advance_auth');
+                    $ps_str = '';
+                }
+                $isWarnedStatus = '您目前<span class="main_word">已被系統自動警示</span>，做完'.$isWarnedAuthStr.'即可解除<a class="red" href="'.$isWarnedAuthUrl.'">[請點我進行認證]</a>。'.$ps_str;
             }
-            else {
-                $isWarnedAuthStr = '進階驗證';
-                $isWarnedAuthUrl = url('advance_auth');
-                $ps_str = '';
-            }
-            $isWarnedStatus = '您目前<span class="main_word">已被系統自動警示</span>，做完'.$isWarnedAuthStr.'即可解除<a class="red" href="'.$isWarnedAuthUrl.'">[請點我進行認證]</a>。'.$ps_str;
         }
 
         // 本月封鎖數
@@ -1861,7 +1866,9 @@ class AuthController extends Controller
                     }
 
                     $reporter_isWarnedStatus = 0;
-                    if ($row->isWarned == 1) {
+                    if (($row->user && $row->user->meta && $row->user->meta->isWarned() == 1)
+                      ||  ($row->receiver && $row->receiver->meta && $row->receiver->meta->isWarned() == 1)     
+                    ) { 
                         $reporter_isWarnedStatus = 1;
                     }
 

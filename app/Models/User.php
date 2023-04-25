@@ -1431,7 +1431,7 @@ class User extends Authenticatable implements JWTSubject
         }
         $data['auth_status'] = 0;
         if (isset($userMeta)) {
-            $data['isWarned'] = $userMeta->isWarned;
+            $data['isWarned'] = $userMeta->isWarned();
         } else {
             $data['isWarned'] = null;
         }
@@ -1949,7 +1949,7 @@ class User extends Authenticatable implements JWTSubject
         $userBanned = $this->getBannedOfAdvAuthQuery()->count(); 
         $user_meta = $this->meta;
         $userWarned = $this->getWarnedOfAdvAuthQuery()->count();                
-        $isWarnedUser = $user_meta->isWarnedType=='adv_auth'?$user_meta->isWarned:0;        
+        $isWarnedUser = $user_meta->isWarnedType=='adv_auth'?$user_meta->isWarned():0;        
         return ($userBanned || $userWarned || $isWarnedUser);
     }
     //將國際碼轉成09格式
@@ -2014,6 +2014,12 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasMany(SearchIgnore::class, 'member_id', 'id');
     }
+    
+    //搜尋條件記錄
+    public function search_filter_remember()
+    {
+        return $this->hasOne(SearchFilterRemember::class, 'user_id', 'id');
+    }    
 
     //刺青
     public function tattoo() {
@@ -2136,6 +2142,15 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasMany(ValueAddedService::class, 'member_id', 'id')->where('service_name','VVIP')->where('active', 1)->orderBy('id', 'desc');
     }
+    
+    public function unexpired_VVIP_vas_list()
+    {
+        return $this->VVIP()->where(function($query) {
+                    $query->where('expiry', '0000-00-00 00:00:00')
+                        ->orWhere('expiry', '>=', Carbon::now());}
+                );
+    }    
+
 
     public function is3MonthsVip()
     {
@@ -2247,6 +2262,11 @@ class User extends Authenticatable implements JWTSubject
         $cancelVVIP = VvipApplication::where('user_id', $this->id)->where('status',4)->orderBy('created_at', 'desc')->first();
         if(isset($cancelVVIP)){ return 1;}
         return 0;
+    }
+    
+    public function working_VvipApplication_list()
+    {
+        return $this->VvipApplication()->where('status',1);
     }
 
     public function isVVIP()

@@ -301,50 +301,39 @@ class Message_newController extends BaseController {
         //$user = Auth::user();
         // 非 VIP: 一律限 8 秒發一次。
         // 女會員: 無論是否 VIP，一律限 8 秒發一次。
-        if( !$user->isVIP() && !$user->isVVIP() ){
-            $m_time = Message::select('created_at')->
+        $m_period = 0;
+        $target_str = '';
+        if($user->engroup == 2 || !$user->isVipOrIsVvip()) {
+            $m_time = Message::select('created_at','to_id')->
             where('from_id', $user->id)->
             orderBy('created_at', 'desc')->first();
             if(isset($m_time)) {
-                $diffInSecs = abs(strtotime(date("Y-m-d H:i:s")) - strtotime($m_time->created_at));
-                if ($diffInSecs < 8) {
+                if($m_time->to_id==$payload['to']) {
+                    $target_str = '同一會員';
+                    $m_period = 1;
+                    $diffInSecs = abs(strtotime(date("Y-m-d H:i:s")) - strtotime($m_time->created_at));
+                } 
+                else {
+                    $target_str = '不同會員';
+                    $m_period = 5;
+                    $diffInSecs = abs(strtotime(date("Y-m-d H:i:s")) - strtotime($m_time->created_at)); 
+                }
+                
+                if ($diffInSecs < $m_period) {
                     if($isCalledByEvent){
                         MessageErrorLog::create(array_merge([
-                            'error'=>'您好，由於系統偵測到您的發訊頻率太高(每 8 秒限一則訊息)。為維護系統運作效率，請降低發訊頻率。'
-                            ,'error_return_data'=>json_encode(array('error' => 1, 'content' => '您好，由於系統偵測到您的發訊頻率太高(每 8 秒限一則訊息)。為維護系統運作效率，請降低發訊頻率。'))
+                            'error'=>'您好，由於系統偵測到您的發訊頻率太高('.$target_str .'每 '.$m_period.' 秒限一則訊息)。為維護系統運作效率，請降低發訊頻率。'
+                            ,'error_return_data'=>json_encode(array('error' => 1, 'content' => '您好，由於系統偵測到您的發訊頻率太高('.$target_str .'每 '.$m_period.' 秒限一則訊息)。為維護系統運作效率，請降低發訊頻率。'))
                         ],$error_log_arr));                                                
                         return array('error' => 1,
-                                    'content' => '您好，由於系統偵測到您的發訊頻率太高(每 8 秒限一則訊息)。為維護系統運作效率，請降低發訊頻率。');
+                                    'content' => '您好，由於系統偵測到您的發訊頻率太高('.$target_str .'每  '.$m_period.'  秒限一則訊息)。為維護系統運作效率，請降低發訊頻率。');
                     }
                     MessageErrorLog::create(array_merge([
-                        'error'=>'您好，由於系統偵測到您的發訊頻率太高(每 8 秒限一則訊息)。為維護系統運作效率，請降低發訊頻率。'
+                        'error'=>'您好，由於系統偵測到您的發訊頻率太高('.$target_str .'每  '.$m_period.'  秒限一則訊息)。為維護系統運作效率，請降低發訊頻率。'
                         ,'error_back_url'=>url()->previous()
                     ],$error_log_arr));                     
-                    return back()->withErrors(['您好，由於系統偵測到您的發訊頻率太高(每 8 秒限一則訊息)。為維護系統運作效率，請降低發訊頻率。']);
-                }
-            }
-        }
-        else if($user->engroup == 2) {
-            $m_time = Message::select('created_at')->
-            where('from_id', $user->id)->
-            orderBy('created_at', 'desc')->first();
-            if(isset($m_time)) {
-                $diffInSecs = abs(strtotime(date("Y-m-d H:i:s")) - strtotime($m_time->created_at));
-                if ($diffInSecs < 8) {
-                    if($isCalledByEvent){
-                        MessageErrorLog::create(array_merge([
-                            'error'=>'您好，由於系統偵測到您的發訊頻率太高(每 8 秒限一則訊息)。為維護系統運作效率，請降低發訊頻率。'
-                            ,'error_return_data'=>json_encode(array('error' => 1, 'content' => '您好，由於系統偵測到您的發訊頻率太高(每 8 秒限一則訊息)。為維護系統運作效率，請降低發訊頻率。'))
-                        ],$error_log_arr));                        
-                        return array('error' => 1,
-                            'content' => '您好，由於系統偵測到您的發訊頻率太高(每 8 秒限一則訊息)。為維護系統運作效率，請降低發訊頻率。');
-                    }  
-                    MessageErrorLog::create(array_merge([
-                        'error'=>'您好，由於系統偵測到您的發訊頻率太高(每 8 秒限一則訊息)。為維護系統運作效率，請降低發訊頻率。'
-                        ,'error_back_url'=>url()->previous()
-                    ],$error_log_arr));                     
-                    return back()->withErrors(['您好，由於系統偵測到您的發訊頻率太高(每 8 秒限一則訊息)。為維護系統運作效率，請降低發訊頻率。']);
-                }
+                    return back()->withErrors(['您好，由於系統偵測到您的發訊頻率太高('.$target_str .'每  '.$m_period.'  秒限一則訊息)。為維護系統運作效率，請降低發訊頻率。']);
+                }                
             }
         }
 
@@ -746,9 +735,16 @@ class Message_newController extends BaseController {
         $data = Message_new::allSendersAJAX($user_id, $request->isVip,$request->date);
         if(is_array($data) && $data != ['No data'])
         {
+            $isUserVip = false; 
+            if($user->isVipOrIsVvip()) {
+                $isUserVip = true; 
+            }
             foreach($data as $key => $item) {
                 $visitor = User::find($item['user_id']);
                 $data[$key]['isblur'] = \App\Services\UserService::isBlurAvatar($visitor, $user);
+                if($isUserVip)
+                    $data[$key]['isOnline'] = $visitor->isOnline();
+                else $data[$key]['isOnline'] = -1;
             }
             //過濾篩選條件
             $inbox_refuse_set = InboxRefuseSet::where('user_id', $user->id)->first();

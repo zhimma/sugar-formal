@@ -43,6 +43,7 @@ use App\Models\MessageBoardPic;
 use App\Models\MessageErrorLog;
 use App\Models\MessageUserNote;
 use App\Models\Order;
+use App\Models\OrderPayFailNotify;
 use App\Models\Posts;
 use App\Models\PostsMood;
 use App\Models\PostsVvip;
@@ -3254,12 +3255,16 @@ class PagesController extends BaseController
                     $temp_array['visitorExchangePeriodName'] = DB::table('exchange_period_name')->where('id', $visitor->exchange_period)->first();
                     $temp_array['visitorValueAddedServiceStatusHideOnline'] = $visitor->valueAddedServiceStatus('hideOnline') && $visitor->is_hide_online == 1;
                     $temp_array['new_occupation'] = UserOptionsXref::where('user_id', $visitor->id)->where('option_type', 1)->first()->occupation->option_name ?? '';
+                    $visitor->user_meta->isWarned = 0;
                     $dataList_vvip[] = $temp_array;
                 } else {
                     $temp_array = [];
                     $temp_array['rawData'] = $visitor;
                     $temp_array['visitorCheckRecommendedUser'] = \App\Services\UserService::checkRecommendedUser($visitor);
                     $temp_array['visitorIsVip'] = $visitor->isVip();
+                    if($temp_array['visitorIsVip']) {
+                        $visitor->user_meta->isWarned = 0;
+                    }
                     $temp_array['visitorIsVVIP'] = $visitor->isVVIP();
                     $temp_array['visitorVvipInfoStatus'] = $visitor->VvipInfoStatus();
                     $temp_array['visitorIsAdminWarned'] = $visitor->isAdminWarned();
@@ -3368,7 +3373,7 @@ class PagesController extends BaseController
             $isBlockList = \App\Models\Blocked::select('member_id')->where('blocked_id', $uid)->get();
             $bannedUsers = \App\Services\UserService::getBannedId();
             $isAdminWarnedList = warned_users::select('member_id')->where('expire_date','>=',Carbon::now())->orWhere('expire_date',null)->get();
-            $isWarnedList = UserMeta::select('user_id')->where('isWarned',1)->get();
+            $isWarnedList = UserMeta::select('user_id')->where('isWarned',1)->whereDoesntHave('vip')->whereDoesntHave('user',function($q){$q->where('is_vvip',1);})->get();
 
             $evaluation_data = DB::table('evaluation')->where('to_id',$uid)
                 ->whereNotIn('from_id',$userBlockList)
@@ -4241,6 +4246,12 @@ class PagesController extends BaseController
     {
         $input = $request->input();
         $search_page_key=session()->get('search_page_key',[]);
+        if(!$search_page_key && !$input) {
+            if(auth()->user()->search_filter_remember) {
+                $search_page_key = $input = json_decode(auth()->user()->search_filter_remember?->filter,true);
+                if(!$search_page_key) $search_page_key = $input  = [];
+            }
+        }
         $rap_service = $this->rap_service;
 
         $county_array = ['county', 'county2', 'county3', 'county4', 'county5'];
@@ -4279,6 +4290,16 @@ class PagesController extends BaseController
                     session()->put('search_page_key.' . $key, array_get($input, $key, null));
                 }
             }
+            
+            if(auth()->user()->search_filter_remember) {
+                auth()->user()->search_filter_remember->filter = json_encode(session()->get('search_page_key',[]));
+                auth()->user()->search_filter_remember->save();
+            }
+            else {
+                auth()->user()->search_filter_remember()->create(['filter'=>json_encode(session()->get('search_page_key',[]))]);            
+            }
+                
+            
         }
 
         $user = $request->user();
@@ -5127,7 +5148,8 @@ class PagesController extends BaseController
             ->with('init_check_msg', $init_check_msg ?? null)
             ->with('user_pause_during_msg', $this->advance_auth_get_msg('user_pause2'))
             ->with('rap_service', $rap_service)
-            ->with('users', $users);
+            ->with('users', $users)
+            ->with('service',$this->service);
     }
 
     public function clear_advance_auth_email_entrance()
@@ -5740,7 +5762,8 @@ class PagesController extends BaseController
         $user_meta = $user->meta;
 
         $userWarned = $user->getWarnedOfAdvAuthQuery()->orderBy('created_at', 'DESC')->get()->first();
-        $isWarnedUser = $user_meta->isWarnedType == 'adv_auth' ? $user_meta->isWarned : 0;
+        $isWarnedUser = $user_meta->isWarnedType == 'adv_auth' ? $user_meta->isWarned() : 0;
+        if($user->isVipOrIsVvip()) $isWarnedUser=0;
         $banOrWarnCanceledMsg = [];
         $banOrWarnCanceledStr = '';
         if ($userBanned || $userWarned || $isWarnedUser) {
@@ -8475,7 +8498,8 @@ class PagesController extends BaseController
             $vasStatus = '您尚未購買隱藏付費功能';
         }
 
-        $user_isBannedOrWarned = User::select(
+        $user_isBannedOrWarned = User::with('meta')->select(
+            'u.id',
             'm.isWarned',
             'm.isWarnedType',
             'b.id as banned_id',
@@ -8507,6 +8531,7 @@ class PagesController extends BaseController
             ->orderBy('w.id', 'desc')
             ->where('u.id',$user->id)
             ->get()->first();
+
         //封鎖
         $isBannedStatus = '';
         if($user_isBannedOrWarned->banned_expire_date != null){
@@ -8580,7 +8605,7 @@ class PagesController extends BaseController
         }
 
         $isWarnedStatus = '';
-        if($user_isBannedOrWarned->isWarned==1){
+        if($user_isBannedOrWarned->meta->isWarned()==1){
             if ($user_isBannedOrWarned->isWarnedType != 'adv_auth') {
                 $isWarnedAuthStr = '手機驗證';
                 $isWarnedAuthUrl = '../member_auth';
@@ -8693,7 +8718,9 @@ class PagesController extends BaseController
                 }
 
                 $reporter_isWarnedStatus = 0;
-                if ($row->isWarned == 1) {
+                if (($row->user && $row->user->meta && $row->user->meta->isWarned()== 1)
+                  ||  ($row->receiver && $row->receiver->meta && $row->receiver->meta->isWarned() == 1)     
+                ) {    
                     $reporter_isWarnedStatus = 1;
                 }
 
@@ -8815,6 +8842,7 @@ class PagesController extends BaseController
         $admin_msgs_sys = [];
 
         foreach($admin_msg_entrys->where('sys_notice',0)->where('chat_with_admin', 0) as $admin_msg_entry) {
+            if($admin_msg_entry->deleteIfExpiredAfterFirstLoginAt())  continue;
             $admin_msg_entry->content = str_replace('NAME', $user->name, $admin_msg_entry->content);
             $admin_msg_entry->content = str_replace('|$report|', $user->name, $admin_msg_entry->content);
             $admin_msg_entry->content = str_replace('LINE_ICON', AdminService::$line_icon_html, $admin_msg_entry->content);
@@ -8921,6 +8949,11 @@ class PagesController extends BaseController
             })
             ->get();
 
+        //取購買項目當前資料不分狀態
+        $VIP_info = Vip::findByIdWithDateDesc($user->id);
+        $VVIP_info = ValueAddedService::findByIdAndServiceNameWithDateDesc($user->id, 'VVIP');
+        $hideOnline_info = ValueAddedService::findByIdAndServiceNameWithDateDesc($user->id, 'hideOnline');
+
         if (isset($user)) {
             $data = array(
                 'vipStatus' => $vipStatus,
@@ -8952,7 +8985,10 @@ class PagesController extends BaseController
                 'faqCountDownSeconds'=>$faqCountDownSeconds,
                 'vvip_selection_reward' => $vvip_selection_reward,
                 'vvip_selection_reward_notice' => $vvip_selection_reward_notice,
-                'vvip_selection_reward_apply_self' => $vvip_selection_reward_apply_self
+                'vvip_selection_reward_apply_self' => $vvip_selection_reward_apply_self,
+                'VIP_info' => $VIP_info,
+                'VVIP_info' => $VVIP_info,
+                'hideOnline_info' => $hideOnline_info
             );
             $allMessage = \App\Models\Message::allMessage($user->id);
             $forum = Forum::withTrashed()->where('user_id',$user->id)->orderby('id','desc')->first();
@@ -8967,6 +9003,19 @@ class PagesController extends BaseController
                 ->with('rap_service', $rap_service)
                 ->with('users', $users);
         }
+    }
+
+    public function orderPayFailNotifyIgnore(Request $request)
+    {
+        if ($request->ajax()) {
+            if ($request->id != ""){
+                $update = OrderPayFailNotify::where('id', $request->id)->update(['status' => 0]);
+                if ($update){
+                    return response()->json(['success' => true]);
+                }
+            }
+        }
+        return response()->json(['success' => false]);
     }
 
     public function report_delete(Request $request)
@@ -9269,10 +9318,10 @@ class PagesController extends BaseController
 
         $userMeta=UserMeta::findByMemberId($user->id);
         $type='';
-        if($data['isAdminWarned'] || $data['isBanned'] || $userMeta->isWarned==1){
+        if($data['isAdminWarned'] || $data['isBanned'] || $userMeta->isWarned()==1){
             if($data['isAdminWarned'] && $data['isBanned'])
                 $type='警示/封鎖';
-            elseif ($data['isAdminWarned'] || $userMeta->isWarned==1)
+            elseif ($data['isAdminWarned'] || $userMeta->isWarned()==1)
                 $type='警示';
             elseif ($data['isBanned'])
                 $type='封鎖';
@@ -9333,10 +9382,10 @@ class PagesController extends BaseController
 
         $userMeta=UserMeta::findByMemberId($user->id);
         $type='';
-        if($data['isAdminWarned'] || $data['isBanned'] || $userMeta->isWarned==1){
+        if($data['isAdminWarned'] || $data['isBanned'] || $userMeta->isWarned()==1){
             if($data['isAdminWarned'] && $data['isBanned'])
                 $type='警示/封鎖';
-            elseif ($data['isAdminWarned'] || $userMeta->isWarned==1)
+            elseif ($data['isAdminWarned'] || $userMeta->isWarned()==1)
                 $type='警示';
             elseif ($data['isBanned'])
                 $type='封鎖';
@@ -9462,10 +9511,10 @@ class PagesController extends BaseController
 
         $userMeta=UserMeta::findByMemberId($user->id);
         $type='';
-        if($data['isAdminWarned'] || $data['isBanned'] || $userMeta->isWarned==1){
+        if($data['isAdminWarned'] || $data['isBanned'] || $userMeta->isWarned()==1){
             if($data['isAdminWarned'] && $data['isBanned'])
                 $type='警示/封鎖';
-            elseif ($data['isAdminWarned'] || $userMeta->isWarned==1)
+            elseif ($data['isAdminWarned'] || $userMeta->isWarned()==1)
                 $type='警示';
             elseif ($data['isBanned'])
                 $type='封鎖';

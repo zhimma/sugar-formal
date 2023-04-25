@@ -409,7 +409,7 @@ class ImagesCompareService {
     
     public static function getStateStrByUser($userEntry) {
         if(($userEntry->banned??null) || $userEntry->implicitlyBanned??null) return 'banned';
-        if(($userEntry->user_meta->isWarned??null) || $userEntry->aw_relation??null) return 'warned';
+        if(($userEntry->user_meta->isWarned()??null) || $userEntry->aw_relation??null) return 'warned';
         if($userEntry->account_status_admin===0) return 'aclosed ';
         if($userEntry->accountStatus===0) return 'closed ';
 
