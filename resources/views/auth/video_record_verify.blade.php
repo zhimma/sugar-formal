@@ -90,7 +90,7 @@
                     <div>5. 第一次與 SugarDaddy 見面，要注意哪些？</div>
                 </div>
                 <div style="position:relative;" id="video_app_container">
-                    <button id="start_record" type="button" class="btn btn-success">
+                    <button id="start_record" type="button" class="btn btn-success" style="display:none">
                         開始驗證
                     </button>
                     <div id="vedio_field" style="display:none">
