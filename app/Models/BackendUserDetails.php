@@ -130,6 +130,7 @@ class BackendUserDetails extends Model
         $backend_user_detail->login_times_after_need_video_verify_date = 0;
         $backend_user_detail->is_need_reverify = 0;
         $backend_user_detail->has_upload_video_verify = 0;
+        $backend_user_detail->temp_stop_video_verify = 0;
         $backend_user_detail->save();
     }
 
