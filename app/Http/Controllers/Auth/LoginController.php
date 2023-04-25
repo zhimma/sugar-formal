@@ -353,6 +353,9 @@ class LoginController extends \App\Http\Controllers\BaseController
         //更新後台紀錄登入次數
         BackendUserDetails::login_update($uid);
 
+        //建立紀錄資料
+        UserRecord::first_or_new($user->id);
+
         //確認是否挑轉至其他頁面
         if($user->video_verify_auth_status == 1 && $user->user_record->first_login_after_video_record_verify == 0)
         {
