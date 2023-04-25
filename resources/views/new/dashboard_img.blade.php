@@ -1335,6 +1335,7 @@ function requestBlurryAvatarDefault() {
         });
 
         $('#faq_submit').on( "click", function() {
+            $('#faq_tab').hide(); 
             if($("[name='reply']:checked").val() ==5){
                 c5('正確');
             }
