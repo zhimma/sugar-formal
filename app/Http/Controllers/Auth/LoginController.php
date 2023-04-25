@@ -183,6 +183,11 @@ class LoginController extends \App\Http\Controllers\BaseController
             $request->session()->flash('banned_reason', $reason);
         }
 
+        $redirct_determine = $this->redirct_determine($user);
+        if($redirct_determine)
+        {
+            return redirect($redirct_determine);
+        }
         return redirect('/dashboard/personalPage');
     }
 
@@ -256,6 +261,11 @@ class LoginController extends \App\Http\Controllers\BaseController
             //自動登入
             \Auth::login($user, true);
             $this->handle_other_events_after_login($request, $user);
+            $redirct_determine = $this->redirct_determine($user);
+            if($redirct_determine)
+            {
+                return redirect($redirct_determine);
+            }
             return redirect('/dashboard/personalPage');
         }else{
             //自動登入帳號驗證失敗
@@ -353,19 +363,6 @@ class LoginController extends \App\Http\Controllers\BaseController
 
         //更新後台紀錄登入次數
         BackendUserDetails::login_update($uid);
-
-        //建立紀錄資料
-        $user_record = UserRecord::first_or_new($user->id);
-
-        $this_user = User::where('id',$user->id)->first();
-
-        //確認是否挑轉至其他頁面
-        if(($this_user->video_verify_auth_status == 1) && ($user_record->first_login_after_video_record_verify == 0))
-        {
-            $user_record->first_login_after_video_record_verify = 1;
-            $user_record->save();
-            return redirect('/dashboard_img');
-        }
 
         //移至LogSuccessfulLoginListener
         /*
@@ -490,6 +487,24 @@ class LoginController extends \App\Http\Controllers\BaseController
         $request->session()->invalidate();
         $request->session()->regenerateToken();
         return redirect('/login');
+    }
+
+    public function redirct_determine($user)
+    {
+        //建立紀錄資料
+        $user_record = UserRecord::first_or_new($user->id);
+
+        $this_user = User::where('id',$user->id)->first();
+
+        //確認是否挑轉至其他頁面
+        if(($this_user->video_verify_auth_status == 1) && ($user_record->first_login_after_video_record_verify == 0))
+        {
+            $user_record->first_login_after_video_record_verify = 1;
+            $user_record->save();
+            return '/dashboard_img';
+        }
+
+        return false;
     }
 
 }
