@@ -356,7 +356,7 @@ class LoginController extends \App\Http\Controllers\BaseController
         //確認是否挑轉至其他頁面
         if($user->video_verify_auth_status == 1 && $user->user_record->first_login_after_video_record_verify == 0)
         {
-            $user_record = UserRecord::where('user_id', $uid)->first();
+            $user_record = UserRecord::first_or_new($user->id);
             $user_record->first_login_after_video_record_verify == 1;
             $user_record->save();
             return redirect('/dashboard_img');
