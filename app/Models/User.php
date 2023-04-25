@@ -2561,4 +2561,9 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasOne(warned_users::class, 'member_id', 'id');
     }
+
+    public function user_record()
+    {
+        return $this->hasOne(user_record::class, 'user_id', 'id');
+    }
 }

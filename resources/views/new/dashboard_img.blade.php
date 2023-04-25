@@ -1227,4 +1227,24 @@ function requestBlurryAvatarDefault() {
     }
 </script>
 @endif
+
+<script>
+
+    @if($user->video_verify_auth_status == 1)
+        $(document).ready(function() {
+            if(window.localStorage.getItem('first_login_after_video_record_verify')){
+    
+            }
+            else{
+                //window.localStorage.setItem('first_login_after_video_record_verify', true)
+                $('#faq_tab').show();
+
+                $('#faq_tab .gub_cld').on('click',function(){
+                });  
+            }
+        });
+    @endif
+    
+</script>
+
 @stop

@@ -19,6 +19,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Session;
+use App\Models\UserRecord;
 
 class LoginController extends \App\Http\Controllers\BaseController
 {
@@ -351,6 +352,15 @@ class LoginController extends \App\Http\Controllers\BaseController
 
         //更新後台紀錄登入次數
         BackendUserDetails::login_update($uid);
+
+        //確認是否挑轉至其他頁面
+        if($user->video_verify_auth_status == 1 && $user->user_record->first_login_after_video_record_verify == 0)
+        {
+            $user_record = UserRecord::where('user_id', $uid)->first();
+            $user_record->first_login_after_video_record_verify == 1;
+            $user_record->save();
+            return redirect('/dashboard_img');
+        }
 
         //移至LogSuccessfulLoginListener
         /*
