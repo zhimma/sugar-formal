@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Session;
 use App\Models\UserRecord;
+use Illuminate\Support\Facades\Log;
 
 class LoginController extends \App\Http\Controllers\BaseController
 {
@@ -356,11 +357,12 @@ class LoginController extends \App\Http\Controllers\BaseController
         //建立紀錄資料
         $user_record = UserRecord::first_or_new($user->id);
 
+        $this_user = User::where('id',$user->id)->first();
+
         //確認是否挑轉至其他頁面
-        if($user->video_verify_auth_status == 1 && $user_record->first_login_after_video_record_verify == 0)
+        if(($this_user->video_verify_auth_status == 1) && ($user_record->first_login_after_video_record_verify == 0))
         {
-            $user_record = UserRecord::first_or_new($user->id);
-            $user_record->first_login_after_video_record_verify == 1;
+            $user_record->first_login_after_video_record_verify = 1;
             $user_record->save();
             return redirect('/dashboard_img');
         }
