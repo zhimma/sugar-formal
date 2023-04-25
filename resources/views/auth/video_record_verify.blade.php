@@ -76,8 +76,21 @@
                         <div class="btn_back"></div>
                     </a>                
                 </div>
+                <div id="question_field" style="display:none">
+                    {{--
+                    @foreach($questions as $question)
+                        <div>{{$question->question}}</div>
+                    @endforeach
+                    --}}
+                    <div>基礎問答題</div>
+                    <div>1. 車馬費是什麼？有什麼好處？在那邊可以點選？</div>
+                    <div>2. 妳認為什麼樣背景男生，會是比較穩定的 SugarDaddy？</div>
+                    <div>3. 為什麼網站會比較推薦 大方指數 高的會員？</div> 
+                    <div>4. 包養關係要特別談好哪些重點？</div>
+                    <div>5. 第一次與 SugarDaddy 見面，要注意哪些？</div>
+                </div>
                 <div style="position:relative;" id="video_app_container">
-                    <button id="start_record" type="button" class="btn btn-success">
+                    <button id="start_record" type="button" class="btn btn-success" style="display:none">
                         開始驗證
                     </button>
                     <div id="vedio_field" style="display:none">
@@ -110,11 +123,6 @@
                             </div>
                         </div>
                     </div>
-                    <div id="question_field" style="display:none">
-                        @foreach($questions as $question)
-                            <div>{{$question->question}}</div>
-                        @endforeach
-                    </div>
                 </div>
             </div>
         </div>
@@ -141,7 +149,7 @@
         });
 
         $('#end_button').click(function(){
-            $('#start_record').show();
+            //$('#start_record').show();
             $('#vedio_field').hide();
             $('#question_field').hide();
             end_record();
@@ -150,7 +158,7 @@
         async function start_record() {
             await checkDevices();
             if(!deviceReady){
-                $('#start_record').show();
+                //$('#start_record').show();
                 $('#vedio_field').hide();
                 $('#question_field').hide();
                 alert('未搜尋到鏡頭或麥克風裝置');
@@ -158,7 +166,7 @@
             }
             await getMediaPermission();
             if(getUserMediaError){    
-                $('#start_record').show();
+                //$('#start_record').show();
                 $('#vedio_field').hide();
                 $('#question_field').hide(); 
                 alert('未取得鏡頭或麥克風裝置權限');
