@@ -626,10 +626,9 @@ function requestBlurryAvatarDefault() {
                     <div class="dati_font">
                         <div>
                             <form id="question_form">
-                                <div><input type="text" class="faq_replace_required_elt" required oninvalid="this.setCustomValidity('請選取選項')"  oninput="this.setCustomValidity('')" inputmode="none" ></div>
                                 <ul class="dowebok answer_item" style="overflow:scroll; height:200px;">
-                                    <div class="dati_text">
-                                        <input type="radio" class="labelauty" style="display: none;">
+                                    <div class="dati_text" style="width:110%">
+                                        <input type="checkbox" class="labelauty" style="display: none;">
                                         <label style="padding-right: 0px;">
                                             <span>
                                                 ⬤恭喜您，您的照片已通過我們的驗證程序，官方認證為真實帳號。
@@ -642,6 +641,7 @@ function requestBlurryAvatarDefault() {
                                             </span>
                                         </label>
                                     </div>
+                                    <div><input type="text" class="faq_replace_required_elt" required oninvalid="this.setCustomValidity('請選取選項')"  oninput="this.setCustomValidity('')" inputmode="none" ></div>
                                     <h2>簡單小測驗: 以下哪個的相片可以上傳?(多選)</h2>
                                     @php
                                         $choice_array = ['A.FB','B.PTT','C.Dcard','D.IG','E.Twitter','F.手機相冊']
