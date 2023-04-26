@@ -1356,7 +1356,7 @@ function requestBlurryAvatarDefault() {
                 $('body').css("overflow", "auto");
 
                 if(JSON.stringify(answer_array) == JSON.stringify(['0', '1', '2', '3', '4'])){
-                    c5('正確');
+                    c5('恭喜答對');
                 }
                 else{
                     c5('答錯');
