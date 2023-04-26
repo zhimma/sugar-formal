@@ -51,7 +51,6 @@ background:#fe92a8; border:#fe92a8 1px solid;}
     #faq_tab *::-webkit-scrollbar {width: 0;height: 0;}
     #faq_tab .swiper-button-next,#faq_tab .swiper-button-prev,#faq_tab .swiper-pagination {display:table-cell;} 
     .faq_blbg,.faq_announce_bg {width:100% !important; height:100% !important;width: 100%;height: 100%;position: fixed;top: 0px;left: 0;background: rgba(0,0,0,0.5);z-index: 19;display:none;}
-    #faq_tab .dati_font div form {display:none;}
     #faq_tab .dati_font > div > p {font-size:16px;}
     #faq_count_down_block {display:none;text-align:right;margin-top:10px;}
     #faq_tab .force_show {display:flex !important;}
@@ -60,6 +59,8 @@ background:#fe92a8; border:#fe92a8 1px solid;}
     #faq_announce_bg,#faq_msg_tab {z-index:19;display:none;}
 </style>
 <link rel="stylesheet" href="{{asset('new/css/jquery-labelauty.css')}}">
+<script src="{{asset('new/js/jquery-labelauty.js')}}"></script>
+<script src="{{asset('new/js/swiper.min.4.4.6.js')}}"></script>
 <script src="{{asset('new/js/jquery-labelauty.js')}}"></script>
 @if($rap_service->isInRealAuthProcess())
 <script>
@@ -612,6 +613,8 @@ function requestBlurryAvatarDefault() {
         </div>
     </div>
 </div>
+<div class="faq_announce_bg" id="faq_announce_bg" onclick="leave_faq_msg()"></div>
+<div class="faq_blbg"></div>
 <div class="bl_tab dati" id="faq_tab" style=" display: none;">
     <div class="dati_tit">溫馨提示</div>
     <a id="" class="gub_cld"><img src="{{asset('new/images/cc_02.png')}}"></a>
@@ -631,17 +634,14 @@ function requestBlurryAvatarDefault() {
     </div>
     <div class="gudont">
         <div class="ga_d"><span>&nbsp;</span></div>
-        <div class="swiper-container swiper-container-horizontal">
-            <div class="swiper-wrapper" style="transform: translate3d(0px, 0px, 0px);">
-                <div class="swiper-slide checking swiper-slide-active" style="width: 466px; margin-right: 30px;">
+        <div class="swiper-container">
+            <div class="swiper-wrapper">
+                <div class="swiper-slide">
                     <div class="dati_font">
-                        <h2>簡單小測驗</h2>
-                        <h2>以下哪個的相片可以上傳?</h2>
+                        <h2>簡單小測驗: 以下哪個的相片可以上傳?</h2>
                         <div>
-                            <form style="display: block;">
-                                <div><input type="text" class="faq_replace_required_elt" required oninvalid="this.setCustomValidity('請選取選項')"  oninput="this.setCustomValidity('')" inputmode="none" ></div>
-                                <input type="hidden" name="question_id" value="" />                               
-                                <ul class="dowebok answer_item">
+                            <form>                             
+                                <ul class="dowebok answer_item" style="overflow:scroll; height:120px;">
                                     @php
                                         $choice_array = ['FB','PTT','Dcard','IG','Twitter','手機相冊']
                                     @endphp
@@ -1329,13 +1329,20 @@ function requestBlurryAvatarDefault() {
     
             }
             else{
-                window.localStorage.setItem('first_login_after_video_record_verify', true)
-                $('#faq_tab').show(); 
+                //window.localStorage.setItem('first_login_after_video_record_verify', true)
+
+                $('#faq_tab,#faq_announce_bg').show(); 
+                $('body').css("overflow", "hidden");
+                $(".faq_blbg").show(); 
             }
         });
 
         $('#faq_submit').on( "click", function() {
-            $('#faq_tab').hide(); 
+
+            $('#faq_tab,#faq_announce_bg').hide(); 
+            $(".faq_blbg").hide();
+            $('body').css("overflow", "auto");
+
             if($("[name='reply']:checked").val() ==5){
                 c5('正確');
             }
