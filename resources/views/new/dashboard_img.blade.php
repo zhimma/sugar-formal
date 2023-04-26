@@ -618,36 +618,37 @@ function requestBlurryAvatarDefault() {
 <div class="bl_tab dati" id="faq_tab" style=" display: none;">
     <div class="dati_tit">溫馨提示</div>
     <a id="" class="gub_cld"><img src="{{asset('new/images/cc_02.png')}}"></a>
-    <div class="dati_text">
-        <input type="radio" class="labelauty" style="display: none;">
-        <label>
-            <span>
-                ◼恭喜您，您的照片已通過我們的驗證程序，官方認證為真實帳號。
-                <br> 
-                ◼提醒您，由於官方認證並確認是本人照片，請注意是否需要更換照片。
-                <br> 
-                ◼您也可以調整照片的清晰度，讓其他會員更容易識別您。
-                <br> 
-                ◼上傳的照片，要注意是否曾經公開過喔！(ex. FB/iG/PTT/DCARD等)
-            </span>
-        </label>
-    </div>
     <div class="gudont">
         <div class="ga_d"><span>&nbsp;</span></div>
         <div class="swiper-container">
             <div class="swiper-wrapper">
                 <div class="swiper-slide">
                     <div class="dati_font">
-                        <h2>簡單小測驗: 以下哪個的相片可以上傳?</h2>
                         <div>
-                            <form>                             
-                                <ul class="dowebok answer_item" style="overflow:scroll; height:120px;">
+                            <form id="question_form">
+                                <div><input type="text" class="faq_replace_required_elt" required oninvalid="this.setCustomValidity('請選取選項')"  oninput="this.setCustomValidity('')" inputmode="none" ></div>
+                                <ul class="dowebok answer_item" style="overflow:scroll; height:200px;">
+                                    <div class="dati_text">
+                                        <input type="radio" class="labelauty" style="display: none;">
+                                        <label style="padding-right: 0px;">
+                                            <span>
+                                                ⬤恭喜您，您的照片已通過我們的驗證程序，官方認證為真實帳號。
+                                                <br> 
+                                                ⬤提醒您，由於官方認證並確認是本人照片，請注意是否需要更換照片。
+                                                <br> 
+                                                ⬤您也可以調整照片的清晰度，讓其他會員更容易識別您。
+                                                <br> 
+                                                ⬤上傳的照片，要注意是否曾經公開過喔！(ex. FB/iG/PTT/DCARD等)
+                                            </span>
+                                        </label>
+                                    </div>
+                                    <h2>簡單小測驗: 以下哪個的相片可以上傳?(多選)</h2>
                                     @php
-                                        $choice_array = ['FB','PTT','Dcard','IG','Twitter','手機相冊']
+                                        $choice_array = ['A.FB','B.PTT','C.Dcard','D.IG','E.Twitter','F.手機相冊']
                                     @endphp
                                     @foreach($choice_array as $key => $choice)
                                     <li>
-                                        <input type="radio" name="reply" required="" value="{{$key}}" class="labelauty" id="labelauty-{{$key}}" style="display: none;">
+                                        <input type="checkbox" name="reply[]" value="{{$key}}" class="labelauty" id="labelauty-{{$key}}" style="display: none;">
                                         <label for="labelauty-{{$key}}">
                                             <span class="ylabelaut-unchecked">
                                                 {{$choice}}
@@ -662,7 +663,8 @@ function requestBlurryAvatarDefault() {
                                     </li>
                                     @endforeach
                                 </ul>
-                                <input id="faq_submit" class="se_but1 vipbut upload_btn abtn" value="送出" style="border-style: none;float:unset;width:250px !important;">
+                                <input type="submit" id="faq_submit" class="se_but1 vipbut upload_btn abtn" value="送出" style="border-style: none;float:unset;width:250px !important;">
+                                <div id="question_hint"></div>
                             </form>
                         </div>
                     </div>
@@ -1338,17 +1340,30 @@ function requestBlurryAvatarDefault() {
         });
 
         $('#faq_submit').on( "click", function() {
-
-            $('#faq_tab,#faq_announce_bg').hide(); 
-            $(".faq_blbg").hide();
-            $('body').css("overflow", "auto");
-
-            if($("[name='reply']:checked").val() ==5){
-                c5('正確');
+            answer_array = [];
+            $("input[name='reply[]']").each(function() {
+                if($(this).prop("checked")){
+                    answer_array.push($(this).val());
+                }
+            });
+            
+            if(JSON.stringify(answer_array) == JSON.stringify([])){
+                
             }
             else{
-                c5('答錯');
+                $('#faq_tab,#faq_announce_bg').hide(); 
+                $(".faq_blbg").hide();
+                $('body').css("overflow", "auto");
+
+                if(JSON.stringify(answer_array) == JSON.stringify(['0', '1', '2', '3', '4'])){
+                    c5('正確');
+                }
+                else{
+                    c5('答錯');
+                }
             }
+            
+            
         });
     @endif
     
