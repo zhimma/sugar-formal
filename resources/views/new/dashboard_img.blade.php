@@ -57,6 +57,8 @@ background:#fe92a8; border:#fe92a8 1px solid;}
     .faq_replace_required_elt {width:0;height:0;position:relative;top:45px;color:transparent;border:0px transparent;background-color:transparent;}    
     #faq_tab ul li input[type=radio]:focus, #faq_tab ul li input[type=radio]:focus-visible,.faq_replace_required_elt:focus,.faq_replace_required_elt:focus-visible {outline:none;}
     #faq_announce_bg,#faq_msg_tab {z-index:19;display:none;}
+    .wifontext{font-size: 16px;/* background: #fff100; */ background:rgba(253,79,119,0.5);  color: #fff; font-size: 20px; font-weight: bold; border-radius: 10px;padding: 10px 15px;
+        text-align: left;margin-top: 20px; }
 </style>
 <link rel="stylesheet" href="{{asset('new/css/jquery-labelauty.css')}}">
 <script src="{{asset('new/js/jquery-labelauty.js')}}"></script>
@@ -622,7 +624,7 @@ function requestBlurryAvatarDefault() {
         <div class="ga_d"><span>&nbsp;</span></div>
         <div class="swiper-container">
             <div class="swiper-wrapper">
-                <div class="swiper-slide">
+                <div id="slide_div" class="swiper-slide">
                     <div class="dati_font">
                         <div>
                             <form id="question_form">
@@ -666,6 +668,28 @@ function requestBlurryAvatarDefault() {
                                 <input type="submit" id="faq_submit" class="se_but1 vipbut upload_btn abtn" value="送出" style="border-style: none;float:unset;width:250px !important;">
                                 <div id="question_hint"></div>
                             </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="swiper-slide" id="correct_answer_block" style="display:none">
+                    <div class="dati_font">
+                        <div>
+                            <div class="wifontext">
+                                @php
+                                    $answer_array = ['FB','PTT','Dcard','IG','Twitter']
+                                @endphp
+                                正確答案：
+                                <br>
+                                @foreach($answer_array as $key => $answer)
+                                ●{{$answer}}
+                                <br>
+                                @endforeach
+                            </div>
+                            <br>
+                            <div id="faq_count_down_block" class="cjwt" style="font-size: 14px;color: #333333;text-align:center;">
+                                <span></span>
+                                秒後自動離開
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1351,20 +1375,42 @@ function requestBlurryAvatarDefault() {
                 
             }
             else{
-                $('#faq_tab,#faq_announce_bg').hide(); 
-                $(".faq_blbg").hide();
-                $('body').css("overflow", "auto");
 
                 if(JSON.stringify(answer_array) == JSON.stringify(['0', '1', '2', '3', '4'])){
+                    $('#faq_tab,#faq_announce_bg').hide(); 
+                    $(".faq_blbg").hide();
+                    $('body').css("overflow", "auto");
                     c5('恭喜答對');
                 }
                 else{
-                    c5('答錯');
+                    faq_count_down(10);
                 }
             }
             
             
         });
+
+        function faq_count_down(sec) {
+            $('#slide_div').hide();
+            $('#faq_count_down_block').show();
+            $('#correct_answer_block').show();
+            var count_down_elt = $('#faq_count_down_block').find('span');
+            var sec_text = sec;
+            count_down_elt.html(sec_text);
+            var countInterval = setInterval(function () {
+                sec_text = sec_text - 1;
+                count_down_elt.html(sec_text); 
+
+                
+                if (sec_text < 0) { 
+                    $('#faq_tab,#faq_announce_bg').hide(); 
+                    $(".faq_blbg").hide();
+                    $('body').css("overflow", "auto");
+                    clearInterval(countInterval);
+                };
+
+            }, 1000);
+        }
     @endif
     
 </script>
