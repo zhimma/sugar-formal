@@ -85,10 +85,10 @@
 							if(isset($_SERVER['HTTP_REFERER']) && str_contains($_SERVER['HTTP_REFERER'], 'from_message_board')){
 								$previous_url='/dashboard/viewuser/'.$postDetail->uid;
 							}
-							if(isset($_SERVER['REQUEST_URI']) && str_contains($_SERVER['REQUEST_URI'], 'from_viewuser_vvip_page')){
+							if(isset($_SERVER['REQUEST_URI']) && str_contains(($_SERVER['REQUEST_URI']??''), 'from_viewuser_vvip_page')){
 								$previous_url='/dashboard/viewuser_vvip/'.$postDetail->uid.'#messageBoard_'.$postDetail->mid;
 							}
-							if(isset($_SERVER['REQUEST_URI']) && str_contains($_SERVER['REQUEST_URI'], 'from_viewuser_page')){
+							if(isset($_SERVER['REQUEST_URI']) && str_contains(($_SERVER['REQUEST_URI']??''), 'from_viewuser_page')){
 								$previous_url='/dashboard/viewuser/'.$postDetail->uid.'#messageBoard_'.$postDetail->mid;
 							}
 							if(isset($_SERVER['HTTP_REFERER']) && str_contains($_SERVER['HTTP_REFERER'], 'back_message_board_list')){

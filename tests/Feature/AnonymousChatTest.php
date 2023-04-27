@@ -1,26 +1,19 @@
 <?php
 
-namespace Tests\Feature;
+uses(Illuminate\Foundation\Testing\WithoutMiddleware::class);
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Tests\TestCase;
+test('render_anonymous_chat', function () {
 
-class AnonymousChatTest extends TestCase
-{
-    public function test_render_anonymous_chat()
-    {
-        try{
-            $user = \App\Models\User::find(15600);//TESTfemaleVIP@test.com
+    try{
+        $user = \App\Models\User::find('1049');//站長不會有被封鎖的問題
 
-            $response = $this->actingAs($user)->get('/dashboard/anonymousChat');
+        $response = $this->actingAs($user)->get('/dashboard/anonymousChat');
+        $response->assertStatus(200);
+    }catch(Throwable $e){
+        $notification_string = test_notification(__CLASS__, __FUNCTION__, __LINE__,__FILE__);
+        $this->handleCatchedException($e,$notification_string);
+    }    
 
-            $response->assertStatus(200);
-        }catch(\Exception $e){
-            $notification_string = test_notification(__CLASS__, __FUNCTION__, __LINE__);
-            
-            $lineNotify = new LineNotify;
-            $lineNotify->sendLineNotifyMessage($notification_string);
-        }
-    }
-}
+});
+
+

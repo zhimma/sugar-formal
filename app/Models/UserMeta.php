@@ -731,7 +731,7 @@ class UserMeta extends Model
                             // 設定封鎖城市地區
                             ->orWhere(
                                 function ($query) use ($city, $user_area, $key){
-                                    $query->whereRaw('(blockarea not LIKE "%' . $city .$user_area[$key]  .'%"  AND blockarea not LIKE "%'.$city.'全區%")')
+                                    $query->whereRaw('(blockarea not LIKE "%' . $city .($user_area[$key]??'')  .'%"  AND blockarea not LIKE "%'.$city.'全區%")')
                                     ->whereRaw('LENGTH(blockarea) <> 0');
                                 });
                     });

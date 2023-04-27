@@ -882,7 +882,7 @@ class UserService
         $users = $this->model->all();
 
         foreach ($users as $user) {
-            if ($user->roles->first()->id == $id) {
+            if ($user->roles->first()?->id == $id) {
                 $usersWithRepo[] = $user;
             }
         }
