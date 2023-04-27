@@ -1356,8 +1356,7 @@ function requestBlurryAvatarDefault() {
     
             }
             else{
-                //window.localStorage.setItem('first_login_after_video_record_verify', true)
-
+                window.localStorage.setItem('first_login_after_video_record_verify', true);
                 $('#faq_tab,#faq_announce_bg').show(); 
                 $('body').css("overflow", "hidden");
                 $(".faq_blbg").show(); 
