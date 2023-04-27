@@ -628,7 +628,7 @@ function requestBlurryAvatarDefault() {
                     <div class="dati_font">
                         <div>
                             <form id="question_form">
-                                <ul class="dowebok answer_item" style="overflow-y:scroll; height:200px;">
+                                <ul class="dowebok answer_item" style="overflow-y:scroll; height:300px;">
                                     <div class="dati_text" style="width:100%">
                                         <input type="checkbox" class="labelauty" style="display: none;">
                                         <label style="padding-right: 0px;">
