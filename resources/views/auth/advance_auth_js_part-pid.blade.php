@@ -8,7 +8,7 @@
             +'<div>手機號碼：'+$('#phone_number').val()+'</div>'
             +'<div>生日：'+$('#year').val()+'/'+$('#month').val()+'/'+$('#day').val()+'</div>'
             +'<div class="bloder red">每個人只能申請3次驗證，這次您第{{$user->getEffectFaultAdvAuthApiQuery()->count()+1}}次申請驗證，請確認資料正確！</div>'
-        ).parent().find('.n_left').blur().html('確定送出').attr('onclick','$("body").attr("onbeforeunload","");document.advance_auth_form.submit();this.setAttribute("onclick", "return false;");return false;')
+        ).parent().find('.n_left').blur().html('確定送出').attr('onclick','$("body").attr("onbeforeunload","");document.advance_auth_form.submit();$(this).closest("#tab_confirm").find("a").attr("onclick", "return false;");return false;')
         .parent().parent().find('.n_right').html('返回修改');        
     }
     
