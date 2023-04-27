@@ -129,6 +129,8 @@ class BackendUserDetails extends Model
         $backend_user_detail->video_verify_fail_count = 0;
         $backend_user_detail->login_times_after_need_video_verify_date = 0;
         $backend_user_detail->is_need_reverify = 0;
+        $backend_user_detail->has_upload_video_verify = 0;
+        $backend_user_detail->temp_stop_video_verify = 0;
         $backend_user_detail->save();
     }
 
@@ -140,6 +142,28 @@ class BackendUserDetails extends Model
         $backend_user_detail->is_need_reverify = 0;
         $backend_user_detail->login_times_after_need_video_verify_date = 0;
         $backend_user_detail->need_video_verify_date = Carbon::now();
+        $backend_user_detail->save();
+    }
+
+    public static function upload_finish($user_id)
+    {
+        $backend_user_detail = BackendUserDetails::first_or_new($user_id);
+        $backend_user_detail->has_upload_video_verify = 1;
+        $backend_user_detail->temp_stop_video_verify = 1;
+        $backend_user_detail->save();
+    }
+
+    public static function upload_record_fail($user_id)
+    {
+        $backend_user_detail = BackendUserDetails::first_or_new($user_id);
+        $backend_user_detail->has_upload_video_verify = 0;
+        $backend_user_detail->save();
+    }
+
+    public static function restart_video_verify($user_id)
+    {
+        $backend_user_detail = BackendUserDetails::first_or_new($user_id);
+        $backend_user_detail->temp_stop_video_verify = 0;
         $backend_user_detail->save();
     }
 }
