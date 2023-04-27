@@ -628,8 +628,8 @@ function requestBlurryAvatarDefault() {
                     <div class="dati_font">
                         <div>
                             <form id="question_form">
-                                <ul class="dowebok answer_item" style="overflow:scroll; height:200px;">
-                                    <div class="dati_text" style="width:110%">
+                                <ul class="dowebok answer_item" style="overflow-y:scroll; height:200px;">
+                                    <div class="dati_text" style="width:100%">
                                         <input type="checkbox" class="labelauty" style="display: none;">
                                         <label style="padding-right: 0px;">
                                             <span>
@@ -643,7 +643,7 @@ function requestBlurryAvatarDefault() {
                                             </span>
                                         </label>
                                     </div>
-                                    <h2>簡單小測驗: 以下哪個的相片可以上傳?(多選)</h2>
+                                    <div style="margin-top: 10px;"><h2>簡單小測驗: 以下哪個的相片可以上傳?(多選)</h2></div>
                                     <div style="font-size: 0px;"><input type="text" class="faq_replace_required_elt" required oninvalid="this.setCustomValidity('請選取選項')"  oninput="this.setCustomValidity('')" inputmode="none" ></div>
                                     @php
                                         $choice_array = ['A.FB','B.PTT','C.Dcard','D.IG','E.Twitter','F.手機相冊']
@@ -673,6 +673,7 @@ function requestBlurryAvatarDefault() {
                 </div>
                 <div class="swiper-slide" id="correct_answer_block" style="display:none">
                     <div class="dati_font">
+                        <div><h2>簡單小測驗: 以下哪個的相片可以上傳?(多選)</h2></div>
                         <div>
                             <div class="wifontext">
                                 @php
