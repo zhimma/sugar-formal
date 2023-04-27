@@ -643,8 +643,8 @@ function requestBlurryAvatarDefault() {
                                             </span>
                                         </label>
                                     </div>
-                                    <div><input type="text" class="faq_replace_required_elt" required oninvalid="this.setCustomValidity('請選取選項')"  oninput="this.setCustomValidity('')" inputmode="none" ></div>
                                     <h2>簡單小測驗: 以下哪個的相片可以上傳?(多選)</h2>
+                                    <div style="font-size: 0px;"><input type="text" class="faq_replace_required_elt" required oninvalid="this.setCustomValidity('請選取選項')"  oninput="this.setCustomValidity('')" inputmode="none" ></div>
                                     @php
                                         $choice_array = ['A.FB','B.PTT','C.Dcard','D.IG','E.Twitter','F.手機相冊']
                                     @endphp
