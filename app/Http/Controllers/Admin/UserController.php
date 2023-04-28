@@ -2358,7 +2358,36 @@ class UserController extends \App\Http\Controllers\BaseController
     {
         $list = banned_users::join('users', 'users.id', '=', 'banned_users.member_id')
             ->select('banned_users.*', 'users.name', 'users.email', 'banned_users.reason')->orderBy('banned_users.created_at', 'desc')->paginate(100);
-        return view('admin.users.bannedList')->with('list', $list);
+
+        //以reason回推出原本自動封鎖id
+        $set_auto_ban_id_list = [];
+        foreach($list as $banned_user)
+        {
+            $reason = $banned_user->reason;
+            if(strpos($reason, '系統原因(') !== false)
+            {
+                $temp_str = str_replace('系統原因(', '', $reason);
+                if(strpos($temp_str, ')') !== false)
+                {
+                    $set_auto_ban_id_list[] = $banned_user->set_auto_ban_id =  intval(str_replace(')', '', $temp_str));
+                }
+                else
+                {
+                    $banned_user->set_auto_ban_id = 0;
+                }
+            }
+            else
+            {
+                $banned_user->set_auto_ban_id = 0;
+            }
+        }
+        $set_auto_ban_id_list = array_unique($set_auto_ban_id_list);
+        $set_auto_ban_list = SetAutoBan::whereIn('id', $set_auto_ban_id_list)->get()->keyBy('id')->toArray();
+
+        return view('admin.users.bannedList')
+                ->with('list', $list)
+                ->with('set_auto_ban_list', $set_auto_ban_list)
+                ;
     }
 
     /**
