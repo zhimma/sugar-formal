@@ -26,7 +26,7 @@
 	@forelse($list as $user)
     <tr>
         <td>{{ $user->member_id }}</td>
-        <td><a href="{!!route('users/advInfo',$user->id)!!}"  target="_blank">{{ $user->email }}</a></td>
+        <td><a href="{!!route('users/advInfo',$user->member_id)!!}"  target="_blank">{{ $user->email }}</a></td>
         <td>{{ $user->name }}</td>
         <td>{{ $user->created_at }}</td>
         <td>{{ $user->recipient_name }}</td>
