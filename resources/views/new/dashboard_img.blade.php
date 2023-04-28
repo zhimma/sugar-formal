@@ -51,15 +51,18 @@ background:#fe92a8; border:#fe92a8 1px solid;}
     #faq_tab *::-webkit-scrollbar {width: 0;height: 0;}
     #faq_tab .swiper-button-next,#faq_tab .swiper-button-prev,#faq_tab .swiper-pagination {display:table-cell;} 
     .faq_blbg,.faq_announce_bg {width:100% !important; height:100% !important;width: 100%;height: 100%;position: fixed;top: 0px;left: 0;background: rgba(0,0,0,0.5);z-index: 19;display:none;}
-    #faq_tab .dati_font div form {display:none;}
     #faq_tab .dati_font > div > p {font-size:16px;}
     #faq_count_down_block {display:none;text-align:right;margin-top:10px;}
     #faq_tab .force_show {display:flex !important;}
     .faq_replace_required_elt {width:0;height:0;position:relative;top:45px;color:transparent;border:0px transparent;background-color:transparent;}    
     #faq_tab ul li input[type=radio]:focus, #faq_tab ul li input[type=radio]:focus-visible,.faq_replace_required_elt:focus,.faq_replace_required_elt:focus-visible {outline:none;}
     #faq_announce_bg,#faq_msg_tab {z-index:19;display:none;}
+    .wifontext{font-size: 16px;/* background: #fff100; */ background:rgba(253,79,119,0.5);  color: #fff; font-size: 20px; font-weight: bold; border-radius: 10px;padding: 10px 15px;
+        text-align: left;margin-top: 20px; }
 </style>
 <link rel="stylesheet" href="{{asset('new/css/jquery-labelauty.css')}}">
+<script src="{{asset('new/js/jquery-labelauty.js')}}"></script>
+<script src="{{asset('new/js/swiper.min.4.4.6.js')}}"></script>
 <script src="{{asset('new/js/jquery-labelauty.js')}}"></script>
 @if($rap_service->isInRealAuthProcess())
 <script>
@@ -612,42 +615,42 @@ function requestBlurryAvatarDefault() {
         </div>
     </div>
 </div>
+<div class="faq_announce_bg" id="faq_announce_bg" onclick="leave_faq_msg()"></div>
+<div class="faq_blbg"></div>
 <div class="bl_tab dati" id="faq_tab" style=" display: none;">
     <div class="dati_tit">溫馨提示</div>
     <a id="" class="gub_cld"><img src="{{asset('new/images/cc_02.png')}}"></a>
-    <div class="dati_text">
-        <input type="radio" class="labelauty" style="display: none;">
-        <label>
-            <span>
-                ◼恭喜您，您的照片已通過我們的驗證程序，官方認證為真實帳號。
-                <br> 
-                ◼提醒您，由於官方認證並確認是本人照片，請注意是否需要更換照片。
-                <br> 
-                ◼您也可以調整照片的清晰度，讓其他會員更容易識別您。
-                <br> 
-                ◼上傳的照片，要注意是否曾經公開過喔！(ex. FB/iG/PTT/DCARD等)
-            </span>
-        </label>
-    </div>
     <div class="gudont">
         <div class="ga_d"><span>&nbsp;</span></div>
-        <div class="swiper-container swiper-container-horizontal">
-            <div class="swiper-wrapper" style="transform: translate3d(0px, 0px, 0px);">
-                <div class="swiper-slide checking swiper-slide-active" style="width: 466px; margin-right: 30px;">
+        <div class="swiper-container">
+            <div class="swiper-wrapper">
+                <div id="slide_div" class="swiper-slide">
                     <div class="dati_font">
-                        <h2>簡單小測驗</h2>
-                        <h2>以下哪個的相片可以上傳?</h2>
                         <div>
-                            <form style="display: block;">
-                                <div><input type="text" class="faq_replace_required_elt" required oninvalid="this.setCustomValidity('請選取選項')"  oninput="this.setCustomValidity('')" inputmode="none" ></div>
-                                <input type="hidden" name="question_id" value="" />                               
-                                <ul class="dowebok answer_item">
+                            <form id="question_form">
+                                <ul class="dowebok answer_item" style="overflow-y:scroll; height:300px;">
+                                    <div class="dati_text" style="width:100%">
+                                        <input type="checkbox" class="labelauty" style="display: none;">
+                                        <label style="padding-right: 0px;">
+                                            <span>
+                                                ⬤恭喜您，您的照片已通過我們的驗證程序，官方認證為真實帳號。
+                                                <br> 
+                                                ⬤提醒您，由於官方認證並確認是本人照片，請注意是否需要更換照片。
+                                                <br> 
+                                                ⬤您也可以調整照片的清晰度，讓其他會員更容易識別您。
+                                                <br> 
+                                                ⬤上傳的照片，要注意是否曾經公開過喔！(ex. FB/iG/PTT/DCARD等)
+                                            </span>
+                                        </label>
+                                    </div>
+                                    <div style="margin-top: 10px;"><h2>簡單小測驗: 以下哪個的相片可以上傳?(多選)</h2></div>
+                                    <div style="font-size: 0px;"><input type="text" class="faq_replace_required_elt" required oninvalid="this.setCustomValidity('請選取選項')"  oninput="this.setCustomValidity('')" inputmode="none" ></div>
                                     @php
-                                        $choice_array = ['FB','PTT','Dcard','IG','Twitter','手機相冊']
+                                        $choice_array = ['A.FB','B.PTT','C.Dcard','D.IG','E.Twitter','F.手機相冊']
                                     @endphp
                                     @foreach($choice_array as $key => $choice)
                                     <li>
-                                        <input type="radio" name="reply" required="" value="{{$key}}" class="labelauty" id="labelauty-{{$key}}" style="display: none;">
+                                        <input type="checkbox" name="reply[]" value="{{$key}}" class="labelauty" id="labelauty-{{$key}}" style="display: none;">
                                         <label for="labelauty-{{$key}}">
                                             <span class="ylabelaut-unchecked">
                                                 {{$choice}}
@@ -662,8 +665,32 @@ function requestBlurryAvatarDefault() {
                                     </li>
                                     @endforeach
                                 </ul>
-                                <input id="faq_submit" class="se_but1 vipbut upload_btn abtn" value="送出" style="border-style: none;float:unset;width:250px !important;">
+                                <input type="submit" id="faq_submit" class="se_but1 vipbut upload_btn abtn" value="送出" style="border-style: none;float:unset;width:250px !important;">
+                                <div id="question_hint"></div>
                             </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="swiper-slide" id="correct_answer_block" style="display:none">
+                    <div class="dati_font">
+                        <div><h2>簡單小測驗: 以下哪個的相片可以上傳?(多選)</h2></div>
+                        <div>
+                            <div class="wifontext">
+                                @php
+                                    $answer_array = ['FB','PTT','Dcard','IG','Twitter']
+                                @endphp
+                                正確答案：
+                                <br>
+                                @foreach($answer_array as $key => $answer)
+                                ●{{$answer}}
+                                <br>
+                                @endforeach
+                            </div>
+                            <br>
+                            <div id="faq_count_down_block" class="cjwt" style="font-size: 14px;color: #333333;text-align:center;">
+                                <span></span>
+                                秒後自動離開
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1329,20 +1356,61 @@ function requestBlurryAvatarDefault() {
     
             }
             else{
-                window.localStorage.setItem('first_login_after_video_record_verify', true)
-                $('#faq_tab').show(); 
+                window.localStorage.setItem('first_login_after_video_record_verify', true);
+                $('#faq_tab,#faq_announce_bg').show(); 
+                $('body').css("overflow", "hidden");
+                $(".faq_blbg").show(); 
             }
         });
 
         $('#faq_submit').on( "click", function() {
-            $('#faq_tab').hide(); 
-            if($("[name='reply']:checked").val() ==5){
-                c5('正確');
+            answer_array = [];
+            $("input[name='reply[]']").each(function() {
+                if($(this).prop("checked")){
+                    answer_array.push($(this).val());
+                }
+            });
+            
+            if(JSON.stringify(answer_array) == JSON.stringify([])){
+                
             }
             else{
-                c5('答錯');
+
+                if(JSON.stringify(answer_array) == JSON.stringify(['0', '1', '2', '3', '4'])){
+                    $('#faq_tab,#faq_announce_bg').hide(); 
+                    $(".faq_blbg").hide();
+                    $('body').css("overflow", "auto");
+                    c5('恭喜答對');
+                }
+                else{
+                    faq_count_down(10);
+                }
             }
+            
+            
         });
+
+        function faq_count_down(sec) {
+            $('#slide_div').hide();
+            $('#faq_count_down_block').show();
+            $('#correct_answer_block').show();
+            var count_down_elt = $('#faq_count_down_block').find('span');
+            var sec_text = sec;
+            count_down_elt.html(sec_text);
+            var countInterval = setInterval(function () {
+                sec_text = sec_text - 1;
+                count_down_elt.html(sec_text); 
+
+                
+                if (sec_text < 0) { 
+                    $('#faq_tab,#faq_announce_bg').hide(); 
+                    $(".faq_blbg").hide();
+                    $('body').css("overflow", "auto");
+                    clearInterval(countInterval);
+                };
+
+            }, 1000);
+        }
     @endif
     
 </script>
