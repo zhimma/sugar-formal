@@ -6237,7 +6237,10 @@ class PagesController extends BaseController
     public function posts_delete(Request $request)
     {
         $posts = Posts::where('id',$request->get('pid'))->first();
-        if($posts->user_id!== auth()->user()->id && auth()->user()->id != 1049){
+        if (!$posts) {
+            return response()->json(['msg'=>'留言不存在']);
+        }
+        else if($posts->user_id!== auth()->user()->id && auth()->user()->id != 1049){
             return response()->json(['msg'=>'留言刪除失敗 不可刪除別人的留言!']);
         }else{
             $postsType = $posts->type;
