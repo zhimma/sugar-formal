@@ -171,7 +171,7 @@ class Order extends Model
                 try {
                     $saved = $order->save();
                 } catch (\Exception $e) {
-                    Log::error($e);
+                    \Log::error($e);
                     \Sentry::captureMessage("綠界訂單異常。" . $e->getMessage());
                     $lineNotify = new LineNotify;
                     $lineNotify->sendLineNotifyMessage("綠界訂單異常。" . $e->getMessage());
@@ -341,7 +341,7 @@ class Order extends Model
                 try {
                     $saved = $order->save();
                 } catch (\Exception $e) {
-                    Log::error($e);
+                    \Log::error($e);
                     \Sentry::captureMessage("FunPoint 訂單異常。" . $e->getMessage());
                     $lineNotify = new LineNotify;
                     $lineNotify->sendLineNotifyMessage("FunPoint 訂單異常。" . $e->getMessage());
