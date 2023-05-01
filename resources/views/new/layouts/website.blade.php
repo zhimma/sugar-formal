@@ -11,8 +11,8 @@
     @if(!str_contains(url()->current(), 'post_detail'))
         @include('new.partials.footer')
     @endif
-    @include('new.partials.message')
     @include('new.partials.scripts')
+    @include('new.partials.message')
     @include('new.partials.video_verify_user_entire_site')
     
 
