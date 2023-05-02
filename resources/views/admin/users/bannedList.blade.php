@@ -82,7 +82,11 @@
                 @endif
             @endif
         </td>
-        <td>{{ $user->created_at }}</td>
+        <td>
+            @if($user->set_auto_ban_id != 0 && isset($set_auto_ban_list[$user->set_auto_ban_id]))
+                {{$set_auto_ban_list[$user->set_auto_ban_id]['created_at']}}
+            @endif
+        </td>
         <td>
             <form action="userUnblock" method="POST">{!! csrf_field() !!}
                 <input type="hidden" value="{{ $user->member_id }}" name="user_id">
