@@ -1882,6 +1882,7 @@ class PagesController extends BaseController
             $expiry = Carbon::parse($expiry_time);
             $days = $expiry->diffInDays(Carbon::now());
         }
+        $currentVipData = Vip::where('member_id', $user->id)->orderBy('created_at', 'desc')->first();
 
         return view('new.dashboard.vipForNewebPay')
             ->with('user', $user)->with('cur', $user)
@@ -1889,7 +1890,8 @@ class PagesController extends BaseController
             ->with('upgrade_vip', $upgrade_vip->content)
             ->with('cancel_vip', $cancel_vip->content)
             ->with('expiry_time', $expiry_time)
-            ->with('days',$days);
+            ->with('days', $days)
+            ->with('currentVipData', $currentVipData);
     }
 
     public function view_vip(Request $request)

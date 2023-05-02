@@ -50,7 +50,7 @@
                             </div>
                             <div class="gvip_input">
                                 <span>
-                                    @if(isset($vipData) && $vipData->business_id == "761404")
+                                    @if(isset($currentVipData) && $currentVipData->amount == 888)
                                         <form class="m-form m-form--fit" action="{{ route('upgradepay_ec') }}" method=post>
                                         <input type="hidden" name="_token" value="{{ csrf_token() }}" >
                                         <input type="hidden" name="userId" value="{{$user->id}}">
@@ -114,7 +114,7 @@
         }
 
         {{--alert({{$days}});--}}
-        @if(isset($vipData) && $vipData->business_id == "761404")
+        @if(isset($currentVipData) && $currentVipData->amount == 888)
 
         @else
             c5('此為舊會員專屬優惠頁');
