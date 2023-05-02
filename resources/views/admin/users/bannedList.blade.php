@@ -71,10 +71,10 @@
                 @if(isset($set_auto_ban_list[$user->set_auto_ban_id]['cuz_user_set']) && ($set_auto_ban_list[$user->set_auto_ban_id]['host'] == '' || $set_auto_ban_list[$user->set_auto_ban_id]['host'] == request()->getHttpHost() ))
                     <a href="{{ route('users/advInfo', $set_auto_ban_list[$user->set_auto_ban_id]['cuz_user_set']) }}" target='_blank'>
                         @php
-                            $user = \App\Models\User::findById($set_auto_ban_list[$user->set_auto_ban_id]['cuz_user_set']);
+                            $cuz_user_set = \App\Models\User::findById($set_auto_ban_list[$user->set_auto_ban_id]['cuz_user_set']);
                         @endphp
-                        @if($user)
-                            {{ $user->email }}
+                        @if($cuz_user_set)
+                            {{ $cuz_user_set->email }}
                         @else
                             會員資料已刪除
                         @endif
