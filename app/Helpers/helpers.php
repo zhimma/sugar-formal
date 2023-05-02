@@ -27,8 +27,8 @@ if (! function_exists('search_variable')){
 }
 
 if (! function_exists('test_notification')){
-    function test_notification($className, $functionName, $line){
-        return "【TEST SCHEDULER ERROR】: className:$className, functionName: $functionName, line: $line";
+    function test_notification($className, $functionName, $line,$file){
+        return "【TEST SCHEDULER ERROR】: className:$className, functionName: $functionName, line: $line, file:$file";
     }
 }
 

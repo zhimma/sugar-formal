@@ -1,7 +1,7 @@
 <div class="head_3 head hetop">
 	<div class="container">
 		<div class="col-sm-12 col-xs-12 col-md-12">
-			@if($_SERVER['REQUEST_URI'] =='/')
+			@if(($_SERVER['REQUEST_URI']??'') =='/')
 				<a href="{!! url('') !!}" >
 					<img src="/new/images/icon_41.png" class="logo" />
 				</a>
@@ -40,7 +40,7 @@
 		<div class="col-sm-12 col-xs-12 col-md-12">
 			<div class="commonMenu">
 				<div class="menuTop">
-					@if($_SERVER['REQUEST_URI'] =='/')
+					@if(($_SERVER['REQUEST_URI']??null) =='/')
 						<a href="{!! url('') !!}" >
 							<img src="/new/images/icon_41.png" class="logo" />
 						</a>

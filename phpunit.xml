@@ -27,7 +27,12 @@
         <env name="CACHE_DRIVER" value="array"/>
         <env name="SESSION_DRIVER" value="array"/>
         <env name="DB_CONNECTION" value="mysql"/>
-        <env name="DB_DATABASE" value="admin_sgtest"/>
+        <env name="DB_HOST" value="test-database-serverless-v1.cluster-cmrjqslfreie.ap-southeast-1.rds.amazonaws.com"/>
+        <env name="DB_DATABASE" value="sugar_garden"/>
+        <env name="DB_USERNAME" value="sg_user"/>
+        <env name="DB_PASSWORD" value="mt%cF.49/jesU6yG"/>
 		<env name="MAIL_DRIVER" value="log"/>
+        <env name="INBOX_NO_VALUE_RESULT" value="No data" />
+        <env name="ADV_AUTH_LINE_TOKEN" value="請輸入測試用的line token，以免傳送到正式的進階驗證Line Notify" />
     </php>
 </phpunit>

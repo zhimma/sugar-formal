@@ -1,14 +1,23 @@
 <?php
 
-/*
- * --------------------------------------------------------------------------
- * Role Factory
- * --------------------------------------------------------------------------
-*/
+namespace Database\Factories;
 
-$factory->define(App\Models\Role::class, function (Faker\Generator $faker) {
-    return [
-        'name' => 'member',
-        'label' => 'Member',
-    ];
-});
+use App\Models\Role;
+use Illuminate\Database\Eloquent\Factories\Factory;
+
+class RoleFactory extends Factory
+{
+    protected $model = Role::class;
+    /**
+     * Define the model's default state.
+     *
+     * @return array
+     */
+    public function definition()
+    {
+        return [
+            'name' => 'member',
+            'label' => 'Member',
+        ];
+    }
+}

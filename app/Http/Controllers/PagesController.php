@@ -5286,6 +5286,10 @@ class PagesController extends BaseController
         $api_check_cfg = config('memadvauth.api.check');
         $user = Auth::user();
         $rap_service = $this->rap_service;
+        
+        if($user->refresh()->isAdvanceAuth()) {
+            return back();
+        }
 
         $prechase_redirect = $this->advance_auth_prechase_redirect($rap_service->riseByUserEntry($user));
         if ($prechase_redirect) return $prechase_redirect;
@@ -5312,8 +5316,9 @@ class PagesController extends BaseController
             return back()->with('error_code', explode('_', $check_rs))
                 ->with('error_code_msg', ['s' => '僅供女會員驗證', 'i' => '身分證字號', 'p' => '門號', 'b' => '生日', 'b18' => '年齡未滿18歲，不得進行驗證', 'pf' => '無法使用此手機號碼進行驗證', 'phack' => '非通過驗證的手機號碼']);
         }
-        $precheck_duplicate_user =  User::where('advance_auth_identity_encode',$old_encode_id_serial)->where('advance_auth_status',1)->where('advance_auth_phone',$phone_number)->where('advance_auth_birth',$format_birth)->orderByDesc('advance_auth_time')->first();
-        if($precheck_duplicate_user ) {
+        //真正驗證前先只針對資料庫已有的相同生日、電話資料檢查身分證字號(舊編碼)
+        $precheck_duplicate_user =  User::where('id','!=',$user->id)->where('advance_auth_identity_encode',$old_encode_id_serial)->where('advance_auth_status',1)->where('advance_auth_phone',$phone_number)->where('advance_auth_birth',$format_birth)->orderByDesc('advance_auth_time')->first();
+        if($precheck_duplicate_user) {
             $user->log_adv_auth_api()->create([
                 'birth' => $data['birth']
                 , 'phone' => $data['phone_number']
@@ -5323,8 +5328,8 @@ class PagesController extends BaseController
             ]);
             return back()->with('message', [$this->advance_auth_get_msg('have_wrong')]);
         }
-
-        $precheck_hash_users = User::where('advance_auth_identity_hash','!=','')->whereNotNull('advance_auth_identity_hash')->where('advance_auth_status',1)->where('advance_auth_phone',$phone_number)->where('advance_auth_birth',$format_birth)->orderByDesc('advance_auth_time')->get();
+        //真正驗證前先只針對資料庫已有的相同生日、電話資料檢查身分證字號(新編碼)
+        $precheck_hash_users = User::where('id','!=',$user->id)->where('advance_auth_identity_hash','!=','')->whereNotNull('advance_auth_identity_hash')->where('advance_auth_status',1)->where('advance_auth_phone',$phone_number)->where('advance_auth_birth',$format_birth)->orderByDesc('advance_auth_time')->get();
 
         if($precheck_hash_users->count()) {
             foreach($precheck_hash_users as $ph_user) {
@@ -5444,15 +5449,16 @@ class PagesController extends BaseController
         ) $test_auth_fail_mode = true;
 
         if ($MIDOutputParams["code"] == "0000" && !$test_auth_fail_mode) {
-            $check_duplicate_user = User::where('advance_auth_identity_encode', $old_encode_id_serial)->where('advance_auth_identity_encode', '!=', '')->whereNotNull('advance_auth_identity_encode')->where('advance_auth_status', 1)->orderByDesc('advance_auth_time')->first();
+            //真正驗證後，如果存在相同身分證舊編碼的已通過帳號，則標記為重複驗證
+            $check_duplicate_user = User::where('id','!=',$user->id)->where('advance_auth_identity_encode', $old_encode_id_serial)->where('advance_auth_identity_encode', '!=', '')->whereNotNull('advance_auth_identity_encode')->where('advance_auth_status', 1)->orderByDesc('advance_auth_time')->first();
             if ($check_duplicate_user) {
                 $logAdvAuthApi->is_duplicate = 1;
                 $logAdvAuthApi->duplicate_user_id = $check_duplicate_user->id;
                 $logAdvAuthApi->save();
                 return back()->with('message', [$this->advance_auth_get_msg('have_wrong')]);
             }
-
-            $hash_users = User::where('advance_auth_identity_hash','!=','')->whereNotNull('advance_auth_identity_hash')->where('advance_auth_status',1)->orderByDesc('advance_auth_time')->get();
+            //真正驗證後，如果存在相同身分證新編碼的已通過帳號，則標記為重複驗證
+            $hash_users = User::where('id','!=',$user->id)->where('advance_auth_birth',$format_birth)->where('advance_auth_identity_hash','!=','')->whereNotNull('advance_auth_identity_hash')->where('advance_auth_status',1)->orderByDesc('advance_auth_time')->get();
 
             if($hash_users->count()) {
                 foreach($hash_users as $h_user) {
@@ -6231,7 +6237,10 @@ class PagesController extends BaseController
     public function posts_delete(Request $request)
     {
         $posts = Posts::where('id',$request->get('pid'))->first();
-        if($posts->user_id!== auth()->user()->id && auth()->user()->id != 1049){
+        if (!$posts) {
+            return response()->json(['msg'=>'留言不存在']);
+        }
+        else if($posts->user_id!== auth()->user()->id && auth()->user()->id != 1049){
             return response()->json(['msg'=>'留言刪除失敗 不可刪除別人的留言!']);
         }else{
             $postsType = $posts->type;
@@ -8594,6 +8603,10 @@ class PagesController extends BaseController
             $adminWarnedStatus = '您目前<span class="main_word">已被站方警示</span>，原因是<span class="main_word"> ' . $user_isBannedOrWarned->warned_reason . '</span>，若要解鎖請升級VIP解除，並同意如有再犯，站方有權不退費並永久警示。同意[<a href="../dashboard/new_vip" class="red">請點我</a>]';
         } else if ($user_isBannedOrWarned->warned_vip_pass == 1 && $user_isBannedOrWarned->warned_expire_date > now()) {
             $adminWarnedStatus .= '您從 ' . substr($user_isBannedOrWarned->warned_created_at, 0, 10) . ' <span class="main_word">被站方警示 ' . $diffDays . '天</span>，預計至 ' . substr($user_isBannedOrWarned->warned_expire_date, 0, 16) . ' 日解除，原因是<span class="main_word"> ' . $user_isBannedOrWarned->warned_reason . '</span>，若要解鎖請升級VIP解除，並同意如有再犯，站方有權不退費並永久警示。同意[<a href="../dashboard/new_vip" class="red">請點我</a>]';
+        } else if (($user->backend_user_details->first()->has_upload_video_verify ?? false) == 1 && $user_isBannedOrWarned->warned_expire_date == null) {
+            $adminWarnedStatus = '您目前<span class="main_word">已被站方警示</span>，原因是<span class="main_word"> ' . $user_isBannedOrWarned->warned_reason . '</span>，目前已完成視訊錄影，待站方審核通知。';
+        } else if (($user->backend_user_details->first()->has_upload_video_verify ?? false) == 1 && $user_isBannedOrWarned->warned_expire_date > now()) {
+            $adminWarnedStatus .= '您從 ' . substr($user_isBannedOrWarned->warned_created_at, 0, 10) . ' <span class="main_word">被站方警示 ' . $diffDays . '天</span>，預計至 ' . substr($user_isBannedOrWarned->warned_expire_date, 0, 16) . ' 日解除，原因是<span class="main_word"> ' . $user_isBannedOrWarned->warned_reason . '</span>，目前已完成視訊錄影，待站方審核通知。';
         } else if (($user->warned_users->video_auth ?? false) == 1 && $user_isBannedOrWarned->warned_expire_date == null) {
             $adminWarnedStatus = '您目前<span class="main_word">已被站方警示</span>，原因是<span class="main_word"> ' . $user_isBannedOrWarned->warned_reason . '</span>，站方會再跟您約視訊驗證時間，再請注意來訊。';
         } else if (($user->warned_users->video_auth ?? false) == 1 && $user_isBannedOrWarned->warned_expire_date > now()) {

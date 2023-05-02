@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Config;
 use App\Services\EnvironmentService;
+use App\Services\LineNotifyService as LineNotify;
 
 class Order extends Model
 {
@@ -166,7 +167,16 @@ class Order extends Model
                 if($paymentData['CustomField2'] != '' && ($paymentData['CustomField4'] == 'VIP' || $paymentData['CustomField4'] == 'hideOnline')) {
                     $order->remain_days = $paymentData['CustomField2'];
                 }
-                $saved = $order->save();
+
+                try {
+                    $saved = $order->save();
+                } catch (\Exception $e) {
+                    \Log::error($e);
+                    \Sentry::captureMessage("綠界訂單異常。" . $e->getMessage());
+                    $lineNotify = new LineNotify;
+                    $lineNotify->sendLineNotifyMessage("綠界訂單異常。" . $e->getMessage());
+                }
+
                 if($saved) {
                     OrderLog::addToLog($paymentData['CustomField1'], $order_id, '新增訂單');
                 }
@@ -327,7 +337,16 @@ class Order extends Model
                 if($paymentData['CustomField2'] != '' && ($paymentData['CustomField4'] == 'VIP' || $paymentData['CustomField4'] == 'hideOnline')) {
                     $order->remain_days = $paymentData['CustomField2'];
                 }
-                $saved = $order->save();
+
+                try {
+                    $saved = $order->save();
+                } catch (\Exception $e) {
+                    \Log::error($e);
+                    \Sentry::captureMessage("FunPoint 訂單異常。" . $e->getMessage());
+                    $lineNotify = new LineNotify;
+                    $lineNotify->sendLineNotifyMessage("FunPoint 訂單異常。" . $e->getMessage());
+                }
+
                 if($saved) {
                     OrderLog::addToLog($paymentData['CustomField1'], $order_id, '新增訂單');
                 }

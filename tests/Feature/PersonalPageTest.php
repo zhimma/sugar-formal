@@ -1,14 +1,6 @@
 <?php
 
-namespace Tests\Feature;
-
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Tests\TestCase;
-
-class PersonalPageTest extends TestCase
-{
-    public function test_render_personalPage()
+    test('render_personalPage' ,function ()
     {
         try{
             $user = \App\Models\User::find(15600);//TESTfemaleVIP@test.com
@@ -16,11 +8,10 @@ class PersonalPageTest extends TestCase
             $response = $this->actingAs($user)->get('/dashboard/personalPage');
 
             $response->assertStatus(200);
-        }catch(\Exception $e){
-            $notification_string = test_notification(__CLASS__, __FUNCTION__, __LINE__);
+        }catch(Throwable $e){
             
-            $lineNotify = new LineNotify;
-            $lineNotify->sendLineNotifyMessage($notification_string);
+            $notification_string = test_notification(__CLASS__, __FUNCTION__, __LINE__,__FILE__);
+            $this->handleCatchedException($e,$notification_string);
         }
-    }
-}
+    });
+

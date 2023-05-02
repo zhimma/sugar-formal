@@ -132,7 +132,14 @@
     </div>
     <a id="" onclick="$('.blbg').click();" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
 </div>
-
+<script>
+    if (!(typeof(c5_gmBtnNoReload) == 'function')) {
+        function c5_gmBtnNoReload(){
+            $("#announce_bg").hide();
+            $("#tab05").hide();
+        }
+    }
+</script>
 <div class="announce_bg" id="announce_bg" onclick="c5_gmBtnNoReload()" style="display:none;"></div>
 <div class="bl bl_tab" id="tab05">
     <div class="bltitle">提示</div>

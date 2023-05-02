@@ -3219,7 +3219,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
         }
 
     $(function() {
-        @if($user->backend_user_details->first()->is_need_video_verify ?? false)
+        @if(($user->backend_user_details->first()->is_need_video_verify ?? false) && !($user->backend_user_details->first()->temp_stop_video_verify ?? false))
             @if($user->warned_users->video_auth ?? false)
                 @if(($user->backend_user_details->first()->is_need_reverify ?? false) && $user->backend_user_details->first()->video_verify_fail_count <= 2)
                     @if($user->meta->phone ?? false && $user->meta->phone != '')

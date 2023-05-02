@@ -1,16 +1,8 @@
 <?php
 
-namespace Tests\Feature;
+    use Illuminate\Support\Facades\Http;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Tests\TestCase;
-use Illuminate\Support\Facades\Http;
-use App\Services\LineNotifyService as LineNotify;
-
-class HideOnlinePaymentTest extends TestCase
-{
-    public function testEcpayCheckoutHideOnlineSingleMonthATM()
+    test('EcpayCheckoutHideOnlineSingleMonthATM', function ()
     {
         try{
             $url = "https://payment-stage.ecpay.com.tw/Cashier/AioCheckOut/V5";
@@ -46,16 +38,15 @@ class HideOnlinePaymentTest extends TestCase
                 );
 
             $response = Http::post($url);
-            $this->assertEquals(200, $response->status());
-        }catch(\Exception $e){
-            $notification_string = test_notification(__CLASS__, __FUNCTION__, __LINE__);
+            expect($response)->status()->toBe(200);
+        }catch(Throwable $e){
             
-            $lineNotify = new LineNotify;
-            $lineNotify->sendLineNotifyMessage($notification_string);
+            $notification_string = test_notification(__CLASS__, __FUNCTION__, __LINE__,__FILE__);
+            $this->handleCatchedException($e,$notification_string);
         }
-    }
+    });
 
-    public function testEcpayCheckoutHideOnlineSingleMonthCreditCard()
+    test('EcpayCheckoutHideOnlineSingleMonthCreditCard', function ()
     {
         try{
             $url = "https://payment-stage.ecpay.com.tw/Cashier/AioCheckOut/V5";
@@ -91,16 +82,15 @@ class HideOnlinePaymentTest extends TestCase
                 );
 
             $response = Http::post($url);
-            $this->assertEquals(200, $response->status());
-        }catch(\Exception $e){
-            $notification_string = test_notification(__CLASS__, __FUNCTION__, __LINE__);
+            expect($response)->status()->toBe(200);
+        }catch(Throwable $e){
             
-            $lineNotify = new LineNotify;
-            $lineNotify->sendLineNotifyMessage($notification_string);
+            $notification_string = test_notification(__CLASS__, __FUNCTION__, __LINE__,__FILE__);
+            $this->handleCatchedException($e,$notification_string);
         }
-    }
+    });
 
-    public function testEcpayCheckoutHideOnlineSingleMonthCVSorBarCode()
+    test('EcpayCheckoutHideOnlineSingleMonthCVSorBarCode', function ()
     {
         try{
             $url = "https://payment-stage.ecpay.com.tw/Cashier/AioCheckOut/V5";
@@ -136,16 +126,15 @@ class HideOnlinePaymentTest extends TestCase
                 );
 
             $response = Http::post($url);
-            $this->assertEquals(200, $response->status());
-        }catch(\Exception $e){
-            $notification_string = test_notification(__CLASS__, __FUNCTION__, __LINE__);
+            expect($response)->status()->toBe(200);
+        }catch(Throwable $e){
             
-            $lineNotify = new LineNotify;
-            $lineNotify->sendLineNotifyMessage($notification_string);
+            $notification_string = test_notification(__CLASS__, __FUNCTION__, __LINE__,__FILE__);
+            $this->handleCatchedException($e,$notification_string);
         }
-    }
+    });
 
-    public function testEcpayCheckoutHideOnlineSingleQuarterATM()
+    test('EcpayCheckoutHideOnlineSingleQuarterATM', function ()
     {
         try{
             $url = "https://payment-stage.ecpay.com.tw/Cashier/AioCheckOut/V5";
@@ -181,16 +170,15 @@ class HideOnlinePaymentTest extends TestCase
                 );
 
             $response = Http::post($url);
-            $this->assertEquals(200, $response->status());
-        }catch(\Exception $e){
-            $notification_string = test_notification(__CLASS__, __FUNCTION__, __LINE__);
+            expect($response)->status()->toBe(200);
+        }catch(Throwable $e){
             
-            $lineNotify = new LineNotify;
-            $lineNotify->sendLineNotifyMessage($notification_string);
+            $notification_string = test_notification(__CLASS__, __FUNCTION__, __LINE__,__FILE__);
+            $this->handleCatchedException($e,$notification_string);
         }
-    }
+    });
 
-    public function testEcpayCheckoutHideOnlineSingleQuarterCreditCard()
+    test('EcpayCheckoutHideOnlineSingleQuarterCreditCard', function ()
     {
         try{
             $url = "https://payment-stage.ecpay.com.tw/Cashier/AioCheckOut/V5";
@@ -226,16 +214,15 @@ class HideOnlinePaymentTest extends TestCase
                 );
 
             $response = Http::post($url);
-            $this->assertEquals(200, $response->status());
-        }catch(\Exception $e){
-            $notification_string = test_notification(__CLASS__, __FUNCTION__, __LINE__);
+            expect($response)->status()->toBe(200);
+        }catch(Throwable $e){
             
-            $lineNotify = new LineNotify;
-            $lineNotify->sendLineNotifyMessage($notification_string);
+            $notification_string = test_notification(__CLASS__, __FUNCTION__, __LINE__,__FILE__);
+            $this->handleCatchedException($e,$notification_string);
         }
-    }
+    });
 
-    public function testEcpayCheckoutHideOnlineSingleCVSorBarCode()
+    test('EcpayCheckoutHideOnlineSingleCVSorBarCode', function ()
     {
         try{
             $url = "https://payment-stage.ecpay.com.tw/Cashier/AioCheckOut/V5";
@@ -271,16 +258,15 @@ class HideOnlinePaymentTest extends TestCase
                 );
 
             $response = Http::post($url);
-            $this->assertEquals(200, $response->status());
-        }catch(\Exception $e){
-            $notification_string = test_notification(__CLASS__, __FUNCTION__, __LINE__);
+            expect($response)->status()->toBe(200);
+        }catch(Throwable $e){
             
-            $lineNotify = new LineNotify;
-            $lineNotify->sendLineNotifyMessage($notification_string);
+            $notification_string = test_notification(__CLASS__, __FUNCTION__, __LINE__,__FILE__);
+            $this->handleCatchedException($e,$notification_string);
         }
-    }
+    });
 
-    public function testEcpayCheckoutHideOnlineEveryMonth()
+    test('EcpayCheckoutHideOnlineEveryMonth', function ()
     {
         try{
             $url = "https://payment-stage.ecpay.com.tw/Cashier/AioCheckOut/V5";
@@ -327,17 +313,16 @@ class HideOnlinePaymentTest extends TestCase
                 );
 
             $response = Http::post($url);
-            $this->assertEquals(200, $response->status());
-        }catch(\Exception $e){
-            $notification_string = test_notification(__CLASS__, __FUNCTION__, __LINE__);
+            expect($response)->status()->toBe(200);
+        }catch(Throwable $e){
             
-            $lineNotify = new LineNotify;
-            $lineNotify->sendLineNotifyMessage($notification_string);
+            $notification_string = test_notification(__CLASS__, __FUNCTION__, __LINE__,__FILE__);
+            $this->handleCatchedException($e,$notification_string);
         }
         
-    }
+    });
 
-    public function testEcpayCheckoutHideOnlineEveryQuarter()
+    test('EcpayCheckoutHideOnlineEveryQuarter', function ()
     {
         try{
             $url = "https://payment-stage.ecpay.com.tw/Cashier/AioCheckOut/V5";
@@ -384,12 +369,11 @@ class HideOnlinePaymentTest extends TestCase
                 );
 
             $response = Http::post($url);
-            $this->assertEquals(200, $response->status());
-        }catch(\Exception $e){
-            $notification_string = test_notification(__CLASS__, __FUNCTION__, __LINE__);
+            expect($response)->status()->toBe(200);
+        }catch(Throwable $e){
             
-            $lineNotify = new LineNotify;
-            $lineNotify->sendLineNotifyMessage($notification_string);
+            $notification_string = test_notification(__CLASS__, __FUNCTION__, __LINE__,__FILE__);
+            $this->handleCatchedException($e,$notification_string);
         }
-    }
-}
+    });
+

@@ -1087,11 +1087,24 @@
 
         @if (Session::has('message') && Session::get('message')=="此用戶已關閉資料。")
         // ccc('{{Session::get('message')}}');
+            @php
+                session()->forget('message');
+            @endphp
         @elseif(Session::has('message') && Session::get('message')!="此用戶已關閉資料。")
-        c5('{{Session::get('message')}}');
-        @if(Session::get('message') == '評價已完成')
-        popEvaluation()
-        @endif
+            @if (is_array(Session::get('message')))
+                c5('{{ implode("", Session::get('message')) }}');
+                @php
+                    \Sentry\captureMessage(implode("", \Session::get('message')));
+                @endphp
+            @else
+                c5('{{Session::get('message')}}');
+            @endif
+            @if(Session::get('message') == '評價已完成')
+            popEvaluation()
+            @endif
+            @php
+                session()->forget('message');
+            @endphp
         @endif
 
         $(".n_bllbut_tab_other").on('click', function () {

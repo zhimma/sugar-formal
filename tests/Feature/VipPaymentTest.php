@@ -1,16 +1,7 @@
 <?php
+    use Illuminate\Support\Facades\Http;
 
-namespace Tests\Feature;
-
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Tests\TestCase;
-use Illuminate\Support\Facades\Http;
-use App\Services\LineNotifyService as LineNotify;
-
-class VipPaymentTest extends TestCase
-{   
-    public function testEcpayCheckoutSingleMonthATM()
+    test('EcpayCheckoutSingleMonthATM',function ()
     {
         try{
             $url = "https://payment-stage.ecpay.com.tw/Cashier/AioCheckOut/V5";
@@ -46,16 +37,15 @@ class VipPaymentTest extends TestCase
                 );
 
             $response = Http::post($url);
-            $this->assertEquals(200, $response->status());
-        }catch(\Exception $e){
-            $notification_string = test_notification(__CLASS__, __FUNCTION__, __LINE__);
+            expect($response->status())->toBe(200);
+        }catch(Throwable $e){
             
-            $lineNotify = new LineNotify;
-            $lineNotify->sendLineNotifyMessage($notification_string);
+            $notification_string = test_notification(__CLASS__, __FUNCTION__, __LINE__,__FILE__);
+            $this->handleCatchedException($e,$notification_string);
         }
-    }
+    });
 
-    public function testEcpayCheckoutUpgradeSingleMonthCreditCard()
+    test('EcpayCheckoutUpgradeSingleMonthCreditCard',function ()
     {
         try{
             $url = "https://payment-stage.ecpay.com.tw/Cashier/AioCheckOut/V5";
@@ -91,16 +81,15 @@ class VipPaymentTest extends TestCase
                 );
 
             $response = Http::post($url);
-            $this->assertEquals(200, $response->status());
-        }catch(\Exception $e){
-            $notification_string = test_notification(__CLASS__, __FUNCTION__, __LINE__);
+            expect($response->status())->toBe(200);
+        }catch(Throwable $e){
             
-            $lineNotify = new LineNotify;
-            $lineNotify->sendLineNotifyMessage($notification_string);
+            $notification_string = test_notification(__CLASS__, __FUNCTION__, __LINE__,__FILE__);
+            $this->handleCatchedException($e,$notification_string);
         }
-    }
+    });
 
-    public function testEcpayCheckoutUpgradeSingleMonthCVSorBarCode()
+    test('EcpayCheckoutUpgradeSingleMonthCVSorBarCode',function ()
     {
         try{
             $url = "https://payment-stage.ecpay.com.tw/Cashier/AioCheckOut/V5";
@@ -136,16 +125,15 @@ class VipPaymentTest extends TestCase
                 );
 
             $response = Http::post($url);
-            $this->assertEquals(200, $response->status());
-        }catch(\Exception $e){
-            $notification_string = test_notification(__CLASS__, __FUNCTION__, __LINE__);
+            expect($response->status())->toBe(200);
+        }catch(Throwable $e){
             
-            $lineNotify = new LineNotify;
-            $lineNotify->sendLineNotifyMessage($notification_string);
+            $notification_string = test_notification(__CLASS__, __FUNCTION__, __LINE__,__FILE__);
+            $this->handleCatchedException($e,$notification_string);
         }
-    }
+    });
 
-    public function testEcpayCheckoutUpgradeSingleQuarterATM()
+    test('EcpayCheckoutUpgradeSingleQuarterATM',function ()
     {
         try{
             $url = "https://payment-stage.ecpay.com.tw/Cashier/AioCheckOut/V5";
@@ -181,16 +169,15 @@ class VipPaymentTest extends TestCase
                 );
 
             $response = Http::post($url);
-            $this->assertEquals(200, $response->status());
-        }catch(\Exception $e){
-            $notification_string = test_notification(__CLASS__, __FUNCTION__, __LINE__);
+            expect($response->status())->toBe(200);
+        }catch(Throwable $e){
             
-            $lineNotify = new LineNotify;
-            $lineNotify->sendLineNotifyMessage($notification_string);
+            $notification_string = test_notification(__CLASS__, __FUNCTION__, __LINE__,__FILE__);
+            $this->handleCatchedException($e,$notification_string);
         }
-    }
+    });
 
-    public function testEcpayCheckoutUpgradeSingleQuarterCreditCard()
+    test('EcpayCheckoutUpgradeSingleQuarterCreditCard',function ()
     {
         try{
             $url = "https://payment-stage.ecpay.com.tw/Cashier/AioCheckOut/V5";
@@ -226,16 +213,15 @@ class VipPaymentTest extends TestCase
                 );
 
             $response = Http::post($url);
-            $this->assertEquals(200, $response->status());
-        }catch(\Exception $e){
-            $notification_string = test_notification(__CLASS__, __FUNCTION__, __LINE__);
+            expect($response->status())->toBe(200);
+        }catch(Throwable $e){
             
-            $lineNotify = new LineNotify;
-            $lineNotify->sendLineNotifyMessage($notification_string);
+            $notification_string = test_notification(__CLASS__, __FUNCTION__, __LINE__,__FILE__);
+            $this->handleCatchedException($e,$notification_string);
         }
-    }
+    });
 
-    public function testEcpayCheckoutUpgradeSingleQuarterCVSorBarCode()
+    test('EcpayCheckoutUpgradeSingleQuarterCVSorBarCode',function ()
     {
         try{
             $url = "https://payment-stage.ecpay.com.tw/Cashier/AioCheckOut/V5";
@@ -271,16 +257,15 @@ class VipPaymentTest extends TestCase
                 );
 
             $response = Http::post($url);
-            $this->assertEquals(200, $response->status());
-        }catch(\Exception $e){
-            $notification_string = test_notification(__CLASS__, __FUNCTION__, __LINE__);
+            expect($response->status())->toBe(200);
+        }catch(Throwable $e){
             
-            $lineNotify = new LineNotify;
-            $lineNotify->sendLineNotifyMessage($notification_string);
+            $notification_string = test_notification(__CLASS__, __FUNCTION__, __LINE__,__FILE__);
+            $this->handleCatchedException($e,$notification_string);
         }
-    }
+    });
 
-    public function testEcpayCheckoutUpgradeEveryMonth()
+    test('EcpayCheckoutUpgradeEveryMonth',function ()
     {
         try{
             $url = "https://payment-stage.ecpay.com.tw/Cashier/AioCheckOut/V5";
@@ -327,16 +312,14 @@ class VipPaymentTest extends TestCase
                 );
 
             $response = Http::post($url);
-            $this->assertEquals(200, $response->status());
-        }catch(\Exception $e){
-            $notification_string = test_notification(__CLASS__, __FUNCTION__, __LINE__);
-            
-            $lineNotify = new LineNotify;
-            $lineNotify->sendLineNotifyMessage($notification_string);
+            expect($response->status())->toBe(200);
+        }catch(Throwable $e){
+            $notification_string = test_notification(__CLASS__, __FUNCTION__, __LINE__,__FILE__);
+            $this->handleCatchedException($e,$notification_string);
         }
-    }
+    });
 
-    public function testEcpayCheckoutUpgradeEveryQuarter()
+    test('EcpayCheckoutUpgradeEveryQuarter',function ()
     {
         try{
             $url = "https://payment-stage.ecpay.com.tw/Cashier/AioCheckOut/V5";
@@ -383,12 +366,10 @@ class VipPaymentTest extends TestCase
                 );
 
             $response = Http::post($url);
-            $this->assertEquals(200, $response->status());
-        }catch(\Exception $e){
-            $notification_string = test_notification(__CLASS__, __FUNCTION__, __LINE__);
-            
-            $lineNotify = new LineNotify;
-            $lineNotify->sendLineNotifyMessage($notification_string);
+            expect($response->status())->toBe(200);
+        }catch(Throwable $e){
+            $notification_string = test_notification(__CLASS__, __FUNCTION__, __LINE__,__FILE__);
+            $this->handleCatchedException($e,$notification_string);
         }
-    }
-}
+    });
+
