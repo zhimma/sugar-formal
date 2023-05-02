@@ -126,7 +126,7 @@ class Order extends Model
 
                 }
                 $order->pay_date = json_encode($dateArray);
-                $order->pay_fail = $dateFailArray;
+                $order->pay_fail = json_encode($dateFailArray);
 
                 $PaymentDate =str_replace('%20', ' ', $paymentData['PaymentDate']);
                 $PaymentDate = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $PaymentDate);
@@ -296,7 +296,7 @@ class Order extends Model
 
                 }
                 $order->pay_date = json_encode($dateArray);
-                $order->pay_fail = $dateFailArray;
+                $order->pay_fail = json_encode($dateFailArray);
 
                 $PaymentDate =str_replace('%20', ' ', $paymentData['PaymentDate']);
                 $PaymentDate = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $PaymentDate);
