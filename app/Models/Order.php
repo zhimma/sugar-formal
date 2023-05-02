@@ -167,21 +167,21 @@ class Order extends Model
                 if($paymentData['CustomField2'] != '' && ($paymentData['CustomField4'] == 'VIP' || $paymentData['CustomField4'] == 'hideOnline')) {
                     $order->remain_days = $paymentData['CustomField2'];
                 }
-
+                
                 try {
                     $saved = $order->save();
+
+                    if($saved) {
+                        OrderLog::addToLog($paymentData['CustomField1'], $order_id, '新增訂單');
+                    }
+                    return true;
                 } catch (\Exception $e) {
                     \Log::error($e);
-                    \Sentry::captureMessage("綠界訂單異常。" . $e->getMessage());
+                    \Sentry::captureMessage("綠界訂單異常。" . $e->getMessage() . "，訂單編號：" . $order_id . "，資料：" . json_encode($paymentData));
                     $lineNotify = new LineNotify;
-                    $lineNotify->sendLineNotifyMessage("綠界訂單異常。" . $e->getMessage());
+                    $lineNotify->sendLineNotifyMessage("綠界訂單異常。" . $e->getMessage() . "，訂單編號：" . $order_id);
+                    return false;
                 }
-
-                if($saved) {
-                    OrderLog::addToLog($paymentData['CustomField1'], $order_id, '新增訂單');
-                }
-
-                return true;
             }
 
         }
@@ -340,18 +340,18 @@ class Order extends Model
 
                 try {
                     $saved = $order->save();
+
+                    if($saved) {
+                        OrderLog::addToLog($paymentData['CustomField1'], $order_id, '新增訂單');
+                    }
+                    return true;
                 } catch (\Exception $e) {
                     \Log::error($e);
-                    \Sentry::captureMessage("FunPoint 訂單異常。" . $e->getMessage());
+                    \Sentry::captureMessage("FunPoint 訂單異常。" . $e->getMessage() . "，訂單編號：" . $order_id . "，資料：" . json_encode($paymentData));
                     $lineNotify = new LineNotify;
-                    $lineNotify->sendLineNotifyMessage("FunPoint 訂單異常。" . $e->getMessage());
+                    $lineNotify->sendLineNotifyMessage("FunPoint 訂單異常。" . $e->getMessage() . "，訂單編號：" . $order_id);
+                    return false;
                 }
-
-                if($saved) {
-                    OrderLog::addToLog($paymentData['CustomField1'], $order_id, '新增訂單');
-                }
-
-                return true;
             }
 
         }
