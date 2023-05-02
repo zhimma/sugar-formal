@@ -167,7 +167,7 @@ class Order extends Model
                 if($paymentData['CustomField2'] != '' && ($paymentData['CustomField4'] == 'VIP' || $paymentData['CustomField4'] == 'hideOnline')) {
                     $order->remain_days = $paymentData['CustomField2'];
                 }
-                
+
                 try {
                     $saved = $order->save();
 
@@ -177,7 +177,7 @@ class Order extends Model
                     return true;
                 } catch (\Exception $e) {
                     \Log::error($e);
-                    \Sentry::captureMessage("綠界訂單異常。" . $e->getMessage() . "，訂單編號：" . $order_id . "，資料：" . json_encode($paymentData));
+                    \Sentry::captureMessage("綠界訂單異常。" . $e->getMessage() . "，訂單編號：" . $order_id . "，資料：" . json_encode($paymentData) . "，資料 2：" . json_encode($paymentPeriodInfo) . "，order object：" . print_r($order));
                     $lineNotify = new LineNotify;
                     $lineNotify->sendLineNotifyMessage("綠界訂單異常。" . $e->getMessage() . "，訂單編號：" . $order_id);
                     return false;
@@ -347,7 +347,7 @@ class Order extends Model
                     return true;
                 } catch (\Exception $e) {
                     \Log::error($e);
-                    \Sentry::captureMessage("FunPoint 訂單異常。" . $e->getMessage() . "，訂單編號：" . $order_id . "，資料：" . json_encode($paymentData));
+                    \Sentry::captureMessage("FunPoint 訂單異常。" . $e->getMessage() . "，訂單編號：" . $order_id . "，資料：" . json_encode($paymentData) . "，資料 2：" . json_encode($paymentPeriodInfo) . "，order object：" . print_r($order));
                     $lineNotify = new LineNotify;
                     $lineNotify->sendLineNotifyMessage("FunPoint 訂單異常。" . $e->getMessage() . "，訂單編號：" . $order_id);
                     return false;
