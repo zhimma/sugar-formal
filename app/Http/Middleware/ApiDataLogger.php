@@ -278,11 +278,13 @@ class ApiDataLogger{
                             //防呆檢查
                             //預防綠界重複回傳產生重複資料
                             if($payload['CustomField4'] == 'VIP'){
-                                $getCurrentData = Vip::where('order_id', $payload['MerchantTradeNo'])
+                                $getCurrentData = Vip::where('member_id', $user->id)
+                                    ->where('order_id', $payload['MerchantTradeNo'])
                                     ->where('active', 1)
                                     ->first();
                             }else if($payload['CustomField4'] == 'hideOnline' || $payload['CustomField4'] == 'VVIP'){
-                                $getCurrentData = ValueAddedService::where('order_id', $payload['MerchantTradeNo'])
+                                $getCurrentData = ValueAddedService::where('member_id', $user->id)
+                                    ->where('order_id', $payload['MerchantTradeNo'])
                                     ->where('service_name', $payload['CustomField4'])
                                     ->where('active', 1)
                                     ->first();

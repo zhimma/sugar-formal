@@ -197,7 +197,8 @@ class ValueAddedServiceApiDataLogger{
                                 //檢查歷史 service_name 訂單
                                 Order::orderCheckByUserIdAndServiceName($user->id, $payload['CustomField4']);
                                 if($payload['CustomField4'] == 'hideOnline' || $payload['CustomField4'] == 'VVIP'){
-                                    $getCurrentData = ValueAddedService::where('order_id', $payload['MerchantTradeNo'])
+                                    $getCurrentData = ValueAddedService::where('member_id', $user->id)
+                                        ->where('order_id', $payload['MerchantTradeNo'])
                                         ->where('service_name', $payload['CustomField4'])
                                         ->where('active', 1)
                                         ->first();
