@@ -60,15 +60,15 @@
                         <a href="/member_auth/" class="gg_zh_li"><span><img src="/new/images/zh09.png"></span>
                             <font>手機驗證</font>
                         </a>
+                        
                         @if($user->engroup==2)
                             <a @if($isAdvAuthUsable??false) href="/advance_auth/" @endif class="gg_zh_li" onclick="checkAdvAuth()"><span><img src="/new/images/zh10.png"></span>
                                 <font>進階驗證</font>
                             </a>
+                            <a id="apply_video_record_verify" class="gg_zh_li"><span><img src="/new/images/zh11.png"></span>
+                                <font>申請視訊錄影驗證</font>
+                            </a>
                         @endif
-
-                        <a id="apply_video_record_verify" class="gg_zh_li"><span><img src="/new/images/zh11.png"></span>
-                            <font>申請視訊錄影驗證</font>
-                        </a>
 
                         @if($user->engroup==2)
                             <a href="{{route('real_auth')}}" class="gg_zh_li"><span><img src="/new/images/zh11.png"></span>
