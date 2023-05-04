@@ -1625,6 +1625,12 @@
                 $('#chatForm').submit();
 
                 setTimeout(function() {
+                    if (!typeof(messageContentToEnd) == 'function') {
+                        function messageContentToEnd(){
+                            var objDiv = document.getElementById("message_content_show");
+                            objDiv.scrollTop = objDiv.scrollHeight;
+                        }
+                    }
                     messageContentToEnd();
                 }, 3200);
 
@@ -1868,6 +1874,12 @@
         }else{
             $('#form_uploadPic').submit();
             setTimeout(function() {
+                if (!typeof(messageContentToEnd) == 'function') {
+                    function messageContentToEnd(){
+                        var objDiv = document.getElementById("message_content_show");
+                        objDiv.scrollTop = objDiv.scrollHeight;
+                    }
+                }
                 messageContentToEnd();
             }, 3200);
         }
