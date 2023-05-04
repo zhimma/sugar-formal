@@ -297,8 +297,12 @@
     <link href="{{ asset('new/css/fileupload.css') }}" media="all" rel="stylesheet">
     <link href="{{ asset('css/font/font-fileuploader.css') }}" media="all" rel="stylesheet">
     <script src="{{ asset('js/jquery.fileuploader.js') }}" type="text/javascript"></script>
-<script>
-
+<script>    
+    //Layouts
+    function messageContentToEnd(){
+        var objDiv = document.getElementById("chat_show_area");
+        objDiv.scrollTop = objDiv.scrollHeight;
+    }
     $(document).ready(function() {
 
         messageContentToEnd();
@@ -655,11 +659,6 @@
         $("#show_banned_ele").hide();
     });
 
-    //Layouts
-    function messageContentToEnd(){
-        var objDiv = document.getElementById("chat_show_area");
-        objDiv.scrollTop = objDiv.scrollHeight;
-    }
 
     var message_max_height;
     var message_height = $(window).height() - $('.se_text_bot').height() - $('.shouxq').height();
