@@ -221,7 +221,11 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                                         @endif
                                     @endif
                                 @elseif($user->video_verify_auth_status == 0)
-                                    尚未申請<a id="apply_video_record_verify" class="btn btn-success">申請驗證</a>
+                                    @if($user->isAdvanceAuth())
+                                        尚未申請<a id="apply_video_record_verify" class="btn btn-success">申請驗證</a>
+                                    @else
+                                        尚未通過進階驗證
+                                    @endif
                                 @elseif($user->video_verify_auth_status == 1)
                                     已通過
                                 @endif

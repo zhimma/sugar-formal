@@ -331,7 +331,9 @@
                         <div class="sys_aa" id="apply_video_record_block">
                             <div class="tabbox_new_dt"><span>視訊錄影驗證</span>
                                 @if((!($user->backend_user_details->first()->is_need_video_verify ?? false)) && $user->video_verify_auth_status == 0)
-                                    <a id="apply_video_record_verify" class="zs_buttonn">申請驗證</a>
+                                    @if($user->isAdvanceAuth())
+                                        <a id="apply_video_record_verify" class="zs_buttonn">申請驗證</a>
+                                    @endif
                                 @endif
                             </div>
                             <div class="tabbox_new_dd">
@@ -349,7 +351,11 @@
                                     @endif
                                 @else
                                     @if($user->video_verify_auth_status == 0)
-                                        <h2 class="tabbox_h2"><span class="tu_dfont">尚未申請</span></h2>
+                                        @if($user->isAdvanceAuth())
+                                            <h2 class="tabbox_h2"><span class="tu_dfont">尚未申請</span></h2>
+                                        @else
+                                            <h2 class="tabbox_h2"><span class="tu_dfont">尚未通過進階驗證</span></h2>
+                                        @endif
                                     @else
                                         <h2 class="tabbox_h2"><span class="tu_dfont">已通過</span></h2>
                                     @endif
