@@ -924,6 +924,38 @@
                             <a class="xin_nleft" onclick="tab_uploadPic();"><img src="/new/images/moren_pic.png"></a>
                             <textarea id="msg" name="msg" rows="1" class="xin_input" placeholder="請輸入"></textarea>
                         </div>
+                        <scrip>
+                            if (!typeof(chatForm_submit) == 'function') {
+                                function chatForm_submit() {
+                                    @if($to_forbid_msg_data??null)
+                                        return;
+                                    @endif
+                                    $('#msg').focus();
+                                    let content = $('#msg').val(), msgsnd = $('.msgsnd');
+                                    var msg_str = $("#msg").val().replace(/\r\n|\n/g,"").replace(/\s+/g, "");
+
+                                    if(msg_str.length>400) {
+                                    c5('訊息輸入至多400個字');
+                                    return false;
+                                    }else{
+                                    $('#chatForm').submit();
+                                    }
+
+                                    if($.trim(content) == "" ){
+                                        $('.alert').remove();
+                                        // $("<a style='color: red; font-weight: bold;' class='alert'>請勿僅輸入空白！</a>").insertAfter($('.msg'));
+                                        $( ".message_fixed" ).html();
+                                        $( ".message_fixed" ).append( "<div><a style='color: red; font-weight: bold;' class='alert'>請勿僅輸入空白！</a></div>" );
+                                        msgsnd.prop('disabled', true);
+                                        return checkForm;
+                                    }
+                                    else {
+                                        $('.alert').remove();
+                                        return checkForm;
+                                    }
+                                }
+                            }
+                        </scrip>
                         <a onclick="chatForm_submit();" class="xin_right" style="border: none;"><img
                                 src="/new/images/fasong.png" style="margin-top:6px;"></a>
                     </form>
