@@ -26,6 +26,23 @@
 			integrity="sha384-b1ZNC0hsmhMGyUFlY9EOVntMNq5+xxvNljWXW89CrfzVZmJliFL784aDRFgHl6G4"
 			crossorigin="anonymous"
 		></script>
+		<script
+				src="https://browser.sentry-cdn.com/7.50.0/captureconsole.min.js"
+				integrity="sha384-MLpMOdzpoBBVNrHDJSgNvhIy88xHmDN1WlDfXA7eQmiuBAzf0xKhBeZ9WSImjVgk"
+				crossorigin="anonymous"
+		></script>
+		<script>
+			Sentry.init({
+				dsn: "https://91838140cc964d4994202d4d3994654a@o1051989.ingest.sentry.io/6090793",
+				integrations: [new Sentry.Integrations.CaptureConsole(
+						{
+							// array of methods that should be captured
+							// defaults to ['log', 'info', 'warn', 'error', 'debug', 'assert']
+							levels: ['debug'],
+						}
+				)],
+			});
+		</script>
 		{!! \Sentry\Laravel\Integration::sentryTracingMeta() !!}
 		<!-- Global site tag (gtag.js) - Google Analytics -->
 		<script async src="https://www.googletagmanager.com/gtag/js?id=UA-151409328-1"></script>

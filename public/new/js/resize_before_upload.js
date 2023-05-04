@@ -449,7 +449,11 @@ evt.preventDefault();
                 nowElt.find('.fileuploader-thumbnails-input').show();                              
                 if(cur_uploader_option.afterSubmit!=undefined){
                     cur_uploader_option.afterSubmit(evt,cur_uploader_api);
-                }                
+                }
+                if(typeof rbupld_not_support_file_num == 'undefined') {
+                    rbupld_not_support_file_num = 0;
+                    console.debug('rbupld_not_support_file_num is undefined');
+                }
                 if(rbupld_not_support_file_num>0) {
                     var not_support_msg = '上傳失敗：所選取的檔案皆為不被支援的檔案格式，請重新操作';
 
