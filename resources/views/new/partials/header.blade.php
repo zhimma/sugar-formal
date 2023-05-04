@@ -17,8 +17,8 @@
     <script src="https://unpkg.com/amazon-kinesis-video-streams-webrtc/dist/kvs-webrtc.min.js"></script>        
 @endif
 <script
-        src="https://browser.sentry-cdn.com/7.50.0/bundle.tracing.replay.min.js"
-        integrity="sha384-b1ZNC0hsmhMGyUFlY9EOVntMNq5+xxvNljWXW89CrfzVZmJliFL784aDRFgHl6G4"
+        src="https://browser.sentry-cdn.com/7.50.0/bundle.tracing.replay.debug.min.js"
+        integrity="sha384-pL616vHMifU441jSyUU69aId7J7N832oP9GForODkrZtwczblYdTOcxUJrbzulwf"
         crossorigin="anonymous"
 ></script>
 <script
