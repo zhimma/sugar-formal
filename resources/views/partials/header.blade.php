@@ -22,13 +22,8 @@
           }); */
 		</script>
 		<script
-			src="https://browser.sentry-cdn.com/6.17.4/bundle.min.js"
-			integrity="sha384-b8AsyZZuCfveCM8XQGBncVPihJcaG//cLVfziPjfE1RLhc++ZJ8x3BIS0Izv9Iey"
-			crossorigin="anonymous"
-		></script>
-		<script
-			src="https://browser.sentry-cdn.com/6.17.4/bundle.tracing.min.js"
-			integrity="sha384-eIliztiJMgTUGzEQjjcCty1MN9hIqsz8GtzP/UTAHo6yxQgA6ZogOH2YNSlJRYWO"
+			src="https://browser.sentry-cdn.com/7.50.0/bundle.tracing.replay.min.js"
+			integrity="sha384-b1ZNC0hsmhMGyUFlY9EOVntMNq5+xxvNljWXW89CrfzVZmJliFL784aDRFgHl6G4"
 			crossorigin="anonymous"
 		></script>
 		{!! \Sentry\Laravel\Integration::sentryTracingMeta() !!}
