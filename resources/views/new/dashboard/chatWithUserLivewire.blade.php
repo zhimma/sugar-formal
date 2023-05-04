@@ -654,10 +654,6 @@
                     <a onclick="gmBtn1_not_blurry();" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
                 </div>
                 <script>
-                function messageContentToEnd(){
-                    var objDiv = document.getElementById("message_content_show");
-                    objDiv.scrollTop = objDiv.scrollHeight;
-                }
                 @if($user_tiny_setting_to_blurry->value==1)
                     $('#xs').hide();
                     $('#bxs').show();
@@ -856,13 +852,7 @@
 
                                         $('#chatForm').submit();
 
-                                        setTimeout(function() {                                            
-                                            if (!typeof(messageContentToEnd) == 'function') {
-                                                function messageContentToEnd(){
-                                                    var objDiv = document.getElementById("message_content_show");
-                                                    objDiv.scrollTop = objDiv.scrollHeight;
-                                                }
-                                            }
+                                        setTimeout(function() {
                                             messageContentToEnd();
                                         }, 3200);
 
@@ -1544,6 +1534,10 @@
         setTimeout("window.location.href = ' {{ !empty(session()->get('goBackPage_chat2')) ? session()->get('goBackPage_chat2') : \Illuminate\Support\Facades\URL::previous() }} '", 3000);
     @endif
 
+    function messageContentToEnd(){
+        var objDiv = document.getElementById("message_content_show");
+        objDiv.scrollTop = objDiv.scrollHeight;
+    }
     function readyNumber() {
 
         $('textarea').each(function () {
@@ -1631,12 +1625,6 @@
                 $('#chatForm').submit();
 
                 setTimeout(function() {
-                    if (!typeof(messageContentToEnd) == 'function') {
-                        function messageContentToEnd(){
-                            var objDiv = document.getElementById("message_content_show");
-                            objDiv.scrollTop = objDiv.scrollHeight;
-                        }
-                    }
                     messageContentToEnd();
                 }, 3200);
 
@@ -1686,13 +1674,7 @@
 
             $('#chatForm').submit();
 
-            setTimeout(function() {                
-                if (!typeof(messageContentToEnd) == 'function') {
-                    function messageContentToEnd(){
-                        var objDiv = document.getElementById("message_content_show");
-                        objDiv.scrollTop = objDiv.scrollHeight;
-                    }
-                }
+            setTimeout(function() {
                 messageContentToEnd();
             }, 3200);
 
@@ -1799,20 +1781,8 @@
     }
 
 
-    if (!typeof(messageContentToEnd) == 'function') {
-        function messageContentToEnd(){
-            var objDiv = document.getElementById("message_content_show");
-            objDiv.scrollTop = objDiv.scrollHeight;
-        }
-    }
     messageContentToEnd();
-    $(document).ready(function () {        
-        if (!typeof(messageContentToEnd) == 'function') {
-            function messageContentToEnd(){
-                var objDiv = document.getElementById("message_content_show");
-                objDiv.scrollTop = objDiv.scrollHeight;
-            }
-        }
+    $(document).ready(function () {
         messageContentToEnd();
         var objDiv = document.getElementById("message_content_show");
 
@@ -1898,12 +1868,6 @@
         }else{
             $('#form_uploadPic').submit();
             setTimeout(function() {
-                if (!typeof(messageContentToEnd) == 'function') {
-                    function messageContentToEnd(){
-                        var objDiv = document.getElementById("message_content_show");
-                        objDiv.scrollTop = objDiv.scrollHeight;
-                    }
-                }
                 messageContentToEnd();
             }, 3200);
         }
