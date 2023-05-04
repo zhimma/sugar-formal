@@ -856,7 +856,13 @@
 
                                         $('#chatForm').submit();
 
-                                        setTimeout(function() {
+                                        setTimeout(function() {                                            
+                                            if (!typeof(messageContentToEnd) == 'function') {
+                                                function messageContentToEnd(){
+                                                    var objDiv = document.getElementById("message_content_show");
+                                                    objDiv.scrollTop = objDiv.scrollHeight;
+                                                }
+                                            }
                                             messageContentToEnd();
                                         }, 3200);
 
@@ -1680,7 +1686,13 @@
 
             $('#chatForm').submit();
 
-            setTimeout(function() {
+            setTimeout(function() {                
+                if (!typeof(messageContentToEnd) == 'function') {
+                    function messageContentToEnd(){
+                        var objDiv = document.getElementById("message_content_show");
+                        objDiv.scrollTop = objDiv.scrollHeight;
+                    }
+                }
                 messageContentToEnd();
             }, 3200);
 
@@ -1787,8 +1799,20 @@
     }
 
 
+    if (!typeof(messageContentToEnd) == 'function') {
+        function messageContentToEnd(){
+            var objDiv = document.getElementById("message_content_show");
+            objDiv.scrollTop = objDiv.scrollHeight;
+        }
+    }
     messageContentToEnd();
-    $(document).ready(function () {
+    $(document).ready(function () {        
+        if (!typeof(messageContentToEnd) == 'function') {
+            function messageContentToEnd(){
+                var objDiv = document.getElementById("message_content_show");
+                objDiv.scrollTop = objDiv.scrollHeight;
+            }
+        }
         messageContentToEnd();
         var objDiv = document.getElementById("message_content_show");
 
