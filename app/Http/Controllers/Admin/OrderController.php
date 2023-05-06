@@ -356,10 +356,10 @@ class OrderController extends \App\Http\Controllers\BaseController
                     }
 
                     if($updateHideOnline == 1){
-                        if($hideOnline) {
+                        if(!$hideOnline || $hideOnline->active==0) {
                             ValueAddedService::upgrade($paymentData['CustomField1'], $paymentData['CustomField4'], $paymentData['MerchantID'], $paymentData['MerchantTradeNo'], $paymentData['TradeAmt'], '', 1, $paymentData['CustomField3'], $paymentData['CustomField2']);
                             $result .= '升級HideOnline<br>';
-                            OrderLog::addToLog($paymentData['CustomField1'], $order_id, '升級HideOnline');
+                            OrderLog::addToLog($paymentData['CustomField1'], $order_id, '升級HideOnline，此為經由後台反查升級');
                         }else{
                             //多重付費訂單
                             $result .= '此為效期內訂單，但非使用者當前使用訂單，請檢查是否重複下單<br>';
@@ -419,10 +419,10 @@ class OrderController extends \App\Http\Controllers\BaseController
                     }
 
                     if($updateVVIP == 1){
-                        if($VVIP) {
+                        if(!$VVIP || $VVIP->active==0) {
                             ValueAddedService::upgrade($paymentData['CustomField1'], $paymentData['CustomField4'], $paymentData['MerchantID'], $paymentData['MerchantTradeNo'], $paymentData['TradeAmt'], '', 1, $paymentData['CustomField3'], $paymentData['CustomField2']);
                             $result .= '升級VVIP<br>';
-                            OrderLog::addToLog($paymentData['CustomField1'], $order_id, '升級VVIP');
+                            OrderLog::addToLog($paymentData['CustomField1'], $order_id, '升級VVIP，此為經由後台反查升級');
                         }else{
                             //多重付費訂單
                             $result .= '此為效期內訂單，但非使用者當前使用訂單，請檢查是否重複下單<br>';
@@ -497,12 +497,12 @@ class OrderController extends \App\Http\Controllers\BaseController
                     }
 
                     if($updateVip == 1){
-                        if($vip) {
+                        if(!$vip || $vip->active ==0) {
                             $user = User::findById($paymentData['CustomField1']);
                             if ($user && !$user->isVVIP()) {
                                 Vip::upgrade($paymentData['CustomField1'], $paymentData['MerchantID'], $paymentData['MerchantTradeNo'], $paymentData['TradeAmt'], '', 1, 0, $paymentData['CustomField3'], $transactionType, $paymentData['CustomField2']);
                                 $result .= '升級VIP<br>';
-                                OrderLog::addToLog($paymentData['CustomField1'], $order_id, '升級VIP');
+                                OrderLog::addToLog($paymentData['CustomField1'], $order_id, '升級VIP，此為經由後台反查升級');
                             }
                         }else{
                             //多重付費訂單
@@ -743,10 +743,10 @@ class OrderController extends \App\Http\Controllers\BaseController
                     }
 
                     if($updateHideOnline == 1){
-                        if($hideOnline) {
+                        if(!$hideOnline || $hideOnline->active==0) {
                             ValueAddedService::upgrade($paymentData['CustomField1'], $paymentData['CustomField4'], $paymentData['MerchantID'], $paymentData['MerchantTradeNo'], $paymentData['TradeAmt'], '', 1, $paymentData['CustomField3'], $paymentData['CustomField2']);
                             $result .= '升級HideOnline<br>';
-                            OrderLog::addToLog($paymentData['CustomField1'], $order_id, '升級HideOnline');
+                            OrderLog::addToLog($paymentData['CustomField1'], $order_id, '升級HideOnline，此為經由後台反查升級');
                         }else{
                             //多重付費訂單
                             $result .= '此為效期內訂單，但非使用者當前使用訂單，請檢查是否重複下單<br>';
@@ -805,10 +805,10 @@ class OrderController extends \App\Http\Controllers\BaseController
                     }
 
                     if($updateVVIP == 1){
-                        if($VVIP) {
+                        if(!$VVIP || $VVIP->active==0) {
                             ValueAddedService::upgrade($paymentData['CustomField1'], $paymentData['CustomField4'], $paymentData['MerchantID'], $paymentData['MerchantTradeNo'], $paymentData['TradeAmt'], '', 1, $paymentData['CustomField3'], $paymentData['CustomField2']);
                             $result .= '升級VVIP<br>';
-                            OrderLog::addToLog($paymentData['CustomField1'], $order_id, '升級VVIP');
+                            OrderLog::addToLog($paymentData['CustomField1'], $order_id, '升級VVIP，此為經由後台反查升級');
                         }else{
                             //多重付費訂單
                             $result .= '此為效期內訂單，但非使用者當前使用訂單，請檢查是否重複下單<br>';
@@ -882,12 +882,13 @@ class OrderController extends \App\Http\Controllers\BaseController
                     }
 
                     if($updateVip == 1){
-                        if($vip) {
+                        if(!$vip || $vip->active ==0) {
+                            $result .= '升級VIP<br>';
                             $user = User::findById($paymentData['CustomField1']);
                             if ($user && !$user->isVVIP()) {
                                 Vip::upgrade($paymentData['CustomField1'], $paymentData['MerchantID'], $paymentData['MerchantTradeNo'], $paymentData['TradeAmt'], '', 1, 0, $paymentData['CustomField3'], $transactionType, $paymentData['CustomField2']);
                                 $result .= '升級VIP<br>';
-                                OrderLog::addToLog($paymentData['CustomField1'], $order_id, '升級VIP');
+                                OrderLog::addToLog($paymentData['CustomField1'], $order_id, '升級VIP，此為經由後台反查升級');
                             }
                         }else{
                             //多重付費訂單
