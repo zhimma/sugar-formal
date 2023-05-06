@@ -914,9 +914,6 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             //     content: function () { return '<h4' + $(this).data('content') + '</h4>'; }
             // });
         });
-        $("img.lazy").lazyload({
-            effect : "fadeIn"
-        });
     </script>
     <script>
     let perPageCount = 12 //每頁顯示筆數

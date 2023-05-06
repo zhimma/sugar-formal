@@ -22,15 +22,27 @@
           }); */
 		</script>
 		<script
-			src="https://browser.sentry-cdn.com/6.17.4/bundle.min.js"
-			integrity="sha384-b8AsyZZuCfveCM8XQGBncVPihJcaG//cLVfziPjfE1RLhc++ZJ8x3BIS0Izv9Iey"
-			crossorigin="anonymous"
+				src="https://browser.sentry-cdn.com/7.50.0/bundle.tracing.replay.debug.min.js"
+				integrity="sha384-pL616vHMifU441jSyUU69aId7J7N832oP9GForODkrZtwczblYdTOcxUJrbzulwf"
+				crossorigin="anonymous"
 		></script>
 		<script
-			src="https://browser.sentry-cdn.com/6.17.4/bundle.tracing.min.js"
-			integrity="sha384-eIliztiJMgTUGzEQjjcCty1MN9hIqsz8GtzP/UTAHo6yxQgA6ZogOH2YNSlJRYWO"
-			crossorigin="anonymous"
+				src="https://browser.sentry-cdn.com/7.50.0/captureconsole.min.js"
+				integrity="sha384-MLpMOdzpoBBVNrHDJSgNvhIy88xHmDN1WlDfXA7eQmiuBAzf0xKhBeZ9WSImjVgk"
+				crossorigin="anonymous"
 		></script>
+		<script>
+			Sentry.init({
+				dsn: "https://91838140cc964d4994202d4d3994654a@o1051989.ingest.sentry.io/6090793",
+				integrations: [new Sentry.Integrations.CaptureConsole(
+						{
+							// array of methods that should be captured
+							// defaults to ['log', 'info', 'warn', 'error', 'debug', 'assert']
+							levels: ['debug'],
+						}
+				)],
+			});
+		</script>
 		{!! \Sentry\Laravel\Integration::sentryTracingMeta() !!}
 		<!-- Global site tag (gtag.js) - Google Analytics -->
 		<script async src="https://www.googletagmanager.com/gtag/js?id=UA-151409328-1"></script>
