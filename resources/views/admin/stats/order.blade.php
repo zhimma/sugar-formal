@@ -192,7 +192,7 @@ td.text-center {
             serverSide: true,
             responsive: true,
             autoWidth: true,
-            order: [[4, 'desc']],
+            order: [[5, 'desc']],
             sDom: "Rlfrtip",
             pageLength: 100,
             ajax: '{!! route('order/list') !!}',
