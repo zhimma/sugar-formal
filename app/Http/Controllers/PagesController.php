@@ -8632,7 +8632,7 @@ class PagesController extends BaseController
             }
             else
             {
-                $adminWarnedStatus = $adminWarnedStatus . '</span><a href="/advance_auth" style="color:#fd5678">請點此</a>先完成進階驗證後，站方會再跟您約視訊驗證時間，再請注意來訊。';
+                $adminWarnedStatus = $adminWarnedStatus . '</span>，<a href="/advance_auth" style="color:#fd5678">請點此</a>先完成進階驗證後，站方會再跟您約視訊驗證時間，再請注意來訊。';
             }
         } 
         else if (($user->warned_users->video_auth ?? false) == 1 && $user_isBannedOrWarned->warned_expire_date > now()) 
@@ -8644,7 +8644,7 @@ class PagesController extends BaseController
             }
             else
             {
-                $adminWarnedStatus = $adminWarnedStatus . '</span><a href="/advance_auth" style="color:#fd5678">請點此</a>先完成進階驗證後，站方會再跟您約視訊驗證時間，再請注意來訊。';
+                $adminWarnedStatus = $adminWarnedStatus . '</span>，<a href="/advance_auth" style="color:#fd5678">請點此</a>先完成進階驗證後，站方會再跟您約視訊驗證時間，再請注意來訊。';
             }
         } 
         else if (!empty($user_isBannedOrWarned->warned_id) && $user_isBannedOrWarned->warned_expire_date == null) 
