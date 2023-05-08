@@ -5188,7 +5188,7 @@ class PagesController extends BaseController
                 if ($rap_service && $rap_service->isInRealAuthProcess()) {
                     $real_auth_onclick_attr = $rap_service->getOnClickAttrForNoUnloadConfirm();
                 }
-                $init_check_msg = '請先通過 <a href="' . url('goto_member_auth') . $url_query_str . '" ' . $real_auth_onclick_attr . '>手機驗證(<span class="obvious" style="color: #fd5678">點此前往</span>)</a>';
+                $init_check_msg = '請先通過 <a href="' . url('goto_member_auth') . $url_query_str . '" ' . $real_auth_onclick_attr . '>手機驗證(<span class="obvious" style="color: #fd5678!important">點此前往</span>)</a>';
                 $init_check_msg .= '<div class="i_am_student"><a href="' . url('goto_advance_auth_email') . $url_query_str . '" ' . $real_auth_onclick_attr . ' >我是學生未滿20歲，沒有辦個人門號，<span class="remind-regular">請點我</span></a></div>';
             } else if ($user->isDuplicateAdvAuth()) {
                 $init_check_msg = $this->advance_auth_get_msg('have_wrong');
