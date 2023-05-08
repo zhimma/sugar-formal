@@ -5,6 +5,13 @@ if (! function_exists("db_config")) {
     }
 }
 
+if (! function_exists("user_allow_feature")) {
+    function user_allow_feature($user) {
+        $allowList = config('app.newFeatureAllowList');
+        return in_array($user->email, $allowList, true);
+    }
+}
+
 
 if (! function_exists('search_variable')){
     function search_variable($variable, $default=null){
