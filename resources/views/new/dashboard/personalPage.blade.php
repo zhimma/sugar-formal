@@ -328,13 +328,13 @@
                     @endif
                     @if($user->engroup == 2)
                         @if((!($user->warned_users->adv_auth ?? false) && !($user->warned_users->video_auth ?? false)) || $user->backend_user_details->first()?->video_verify_fail_count>=3)
-                            <div class="sys_aa" id="apply_video_record_block">
-                                <div class="tabbox_new_dt"><span>視訊錄影驗證</span>
-                                    @if((!($user->backend_user_details->first()->is_need_video_verify ?? false)) && $user->video_verify_auth_status == 0)
-                                        <a id="apply_video_record_verify" class="zs_buttonn">申請驗證</a>
-                                    @endif
-                                </div>
-                                @if(user_allow_feature($user))
+                            @if(user_allow_feature($user))
+                                <div class="sys_aa" id="apply_video_record_block">
+                                    <div class="tabbox_new_dt"><span>視訊錄影驗證</span>
+                                        @if((!($user->backend_user_details->first()->is_need_video_verify ?? false)) && $user->video_verify_auth_status == 0)
+                                            <a id="apply_video_record_verify" class="zs_buttonn">申請驗證</a>
+                                        @endif
+                                    </div>
                                     <div class="tabbox_new_dd">
                                         @if($user->backend_user_details->first()->is_need_video_verify ?? false)
                                             @if($user->backend_user_details->first()->has_upload_video_verify ?? false)
@@ -360,8 +360,8 @@
                                             @endif
                                         @endif
                                     </div>
-                                @endif
-                            </div> 
+                                </div>
+                            @endif
                         @endif
                     @endif
 
