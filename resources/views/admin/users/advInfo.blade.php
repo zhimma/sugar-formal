@@ -171,24 +171,26 @@
         @if($user->engroup == 2)
         <a class="btn @if($user['advance_auth_status']==1 ) btn-secondary @else btn-danger @endif warned-user warned_adv_auth" title="站方警示與自動封鎖的警示，只能經後台解除" id="adv_auth_warned_user" href="#" @if($user['advance_auth_status']==1 ) onclick="return false;"  @else data-toggle="modal" data-target="#warned_modal" data-vip_pass="0" data-vip_pass="0" data-adv_auth="1"  data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}" @endif >驗證警示</a>
         @endif
-        <a class="btn @if($user->video_verify_auth_status == 1 || ($user->backend_user_details->first()->is_need_video_verify ?? false)) btn-secondary @else btn-danger @endif warned-user warned_video_auth"
-            @if(!($user->warned_users->video_auth ?? false) && ($user->backend_user_details->first()->is_need_video_verify ?? false))
-                title="{{$user->backend_user_details->first()->need_video_verify_date}} 申請"
-            @else
-                title="站方警示與自動封鎖的警示，只能經後台解除" 
+        @if($user->engroup == 2)
+            <a class="btn @if($user->video_verify_auth_status == 1 || ($user->backend_user_details->first()->is_need_video_verify ?? false)) btn-secondary @else btn-danger @endif warned-user warned_video_auth"
+                @if(!($user->warned_users->video_auth ?? false) && ($user->backend_user_details->first()->is_need_video_verify ?? false))
+                    title="{{$user->backend_user_details->first()->need_video_verify_date}} 申請"
+                @else
+                    title="站方警示與自動封鎖的警示，只能經後台解除" 
+                @endif
+                id="video_auth_warned_user" href="#" 
+                @if($user->video_verify_auth_status == 1 || ($user->backend_user_details->first()->is_need_video_verify ?? false)) 
+                    onclick="return false;" style="color: #fff; background-color: #C0C0C0; border-color: #C0C0C0;" 
+                @else 
+                    data-toggle="modal" data-target="#warned_modal" data-vip_pass="0" data-vip_pass="0" data-adv_auth="0"  data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}" 
+                @endif >視訊驗證警示</a>
+            @if($user->backend_user_details->first()->is_need_video_verify ?? false)
+                <form method="POST" action="{{route('reset_cancel_video_verify')}}" style="margin:0px;display:inline;">
+                    {!! csrf_field() !!}
+                    <input type="hidden" name='uid' value="{{ $user->id }}">
+                    <button type="submit" class="btn btn-dark">重設視訊驗證次數</button>
+                </form>
             @endif
-            id="video_auth_warned_user" href="#" 
-            @if($user->video_verify_auth_status == 1 || ($user->backend_user_details->first()->is_need_video_verify ?? false)) 
-                onclick="return false;" style="color: #fff; background-color: #C0C0C0; border-color: #C0C0C0;" 
-            @else 
-                data-toggle="modal" data-target="#warned_modal" data-vip_pass="0" data-vip_pass="0" data-adv_auth="0"  data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}" 
-            @endif >視訊驗證警示</a>
-        @if($user->backend_user_details->first()->is_need_video_verify ?? false)
-            <form method="POST" action="{{route('reset_cancel_video_verify')}}" style="margin:0px;display:inline;">
-                {!! csrf_field() !!}
-                <input type="hidden" name='uid' value="{{ $user->id }}">
-                <button type="submit" class="btn btn-dark">重設視訊驗證次數</button>
-            </form>
         @endif
     @endif
     @if($userMeta->isWarned==0)

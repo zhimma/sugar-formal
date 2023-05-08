@@ -707,7 +707,7 @@
                                 @php
                                     $blue_tick = 0;
                                     if($to->isAdvanceAuth()){$blue_tick = $blue_tick + 1;}
-                                    if($rap_service->riseByUserEntry($to)->isPassedByAuthTypeId(1) && $isPersonalTagShow){$blue_tick = $blue_tick + 1;}
+                                    if(($rap_service->riseByUserEntry($to)->isPassedByAuthTypeId(1) && $isPersonalTagShow) || $to->video_verify_auth_status == 1){$blue_tick = $blue_tick + 1;}
                                 @endphp
                                 @if($blue_tick == 2)
                                     <img src="/new/images/zz_zss.png" style="border-radius: 100px; box-shadow:1px 2px 10px rgba(77,152,252,1); height:20px; margin-top:6px;">
