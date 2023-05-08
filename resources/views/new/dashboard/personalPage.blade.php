@@ -331,9 +331,7 @@
                             <div class="sys_aa" id="apply_video_record_block">
                                 <div class="tabbox_new_dt"><span>視訊錄影驗證</span>
                                     @if((!($user->backend_user_details->first()->is_need_video_verify ?? false)) && $user->video_verify_auth_status == 0)
-                                        @if($user->isAdvanceAuth())
-                                            <a id="apply_video_record_verify" class="zs_buttonn">申請驗證</a>
-                                        @endif
+                                        <a id="apply_video_record_verify" class="zs_buttonn">申請驗證</a>
                                     @endif
                                 </div>
                                 <div class="tabbox_new_dd">
@@ -354,7 +352,7 @@
                                             @if($user->isAdvanceAuth())
                                                 <h2 class="tabbox_h2"><span class="tu_dfont">尚未申請</span></h2>
                                             @else
-                                                <h2 class="tabbox_h2"><span class="tu_dfont">尚未通過進階驗證</span></h2>
+                                                <h2 class="tabbox_h2"><span class="tu_dfont">尚未申請(須先完成進階驗證)</span></h2>
                                             @endif
                                         @else
                                             <h2 class="tabbox_h2"><span class="tu_dfont">已通過</span></h2>
@@ -916,20 +914,24 @@
         }
     </script>
 <script type="text/javascript">
-    $('#apply_video_record_verify').click(function(){   
-        $.ajax({
-            url: '{{ route("apply_video_record_verify") }}',
-            type: 'GET',
-            data: {
-                '_token': '{{ csrf_token() }}',
-            },
-            success: function(data) {
-                if(data.status == 'success'){
-                    c5('已申請，站方會再跟您約驗證時間，再請注意來訊。');
-                    location.reload();
+    $('#apply_video_record_verify').click(function(){  
+        @if($user->isAdvanceAuth()) 
+            $.ajax({
+                url: '{{ route("apply_video_record_verify") }}',
+                type: 'GET',
+                data: {
+                    '_token': '{{ csrf_token() }}',
+                },
+                success: function(data) {
+                    if(data.status == 'success'){
+                        c5('已申請，站方會再跟您約驗證時間，再請注意來訊。');
+                        location.reload();
+                    }
                 }
-            }
-        });
+            });
+        @else
+            c5html("請先通過 進階驗證(<a href='/advance_auth'>點此前往</a>)");
+        @endif
     });
 
     $(document).ready(function() {
