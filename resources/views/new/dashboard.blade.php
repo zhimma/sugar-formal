@@ -2710,7 +2710,7 @@ function real_auth_input_new_weight_handle()
                 }
             });
         @else
-            c5html("請先通過 進階驗證(<a href='/advance_auth'>點此前往</a>)");
+            c5html("請先通過 進階驗證(<a href='/advance_auth'><span class='obvious'>點此前往</span></a>)");
         @endif
     });
 </script>
