@@ -7,7 +7,7 @@ if (! function_exists("db_config")) {
 
 if (! function_exists("user_allow_feature")) {
     function user_allow_feature($user) {
-        if (\App::environment("production")) {
+        if (!\App::environment("production")) {
             return true;
         }
         $allowList = config('app.newFeatureAllowList') ?? [];
