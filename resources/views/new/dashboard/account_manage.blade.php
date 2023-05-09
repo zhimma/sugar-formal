@@ -189,7 +189,7 @@
                     @elseif($user->warned_users->video_auth ?? false)
                         c5('你好，您目前被站方警示，站方會再跟您約視訊驗證時間，再請注意來訊。');
                     @elseif($user->warned_users->adv_auth ?? false)
-                        c5('你好，您目前被站方警示，請進行進階驗證(<a href="/advance_auth"><span class="obvious">點此前往</span></a>)。');
+                        c5('你好，您目前被站方警示，請進行進階驗證(<a href="/advance_auth"><span style="color:red">點此前往</span></a>)。');
                     @else
                         c5('已申請，站方會再跟您約驗證時間，再請注意來訊。');
                     @endif
