@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Facade;
 class UserAllowFeature extends Facade
 {
     public static function get($user) {
-        if (env("APP_ENV") != "production") {
+        if (\App::environment("production")) {
             return true;
         }
         $allowList = config('app.newFeatureAllowList') ?? [];
