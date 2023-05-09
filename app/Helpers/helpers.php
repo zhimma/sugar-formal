@@ -7,6 +7,9 @@ if (! function_exists("db_config")) {
 
 if (! function_exists("user_allow_feature")) {
     function user_allow_feature($user) {
+        if (env("APP_ENV") != "production") {
+            return true;
+        }
         $allowList = config('app.newFeatureAllowList') ?? [];
         return in_array($user->email, $allowList, true);
     }
