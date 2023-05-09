@@ -224,9 +224,11 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                                             @endif
                                         @elseif($user->video_verify_auth_status == 0)
                                             @if($user->isAdvanceAuth())
-                                                <h2 class="tabbox_h2"><span class="tu_dfont">尚未申請(須先完成進階驗證)<a id="apply_video_record_verify" class="btn btn-success">申請驗證</a></span></h2>
+                                                尚未申請
+                                                <a id="apply_video_record_verify" class="btn btn-success">申請驗證</a>
                                             @else
-                                                <h2 class="tabbox_h2"><span class="tu_dfont">尚未通過進階驗證</span></h2>
+                                                尚未申請(須先完成進階驗證)
+                                                <a id="apply_video_record_verify" class="btn btn-success">申請驗證</a>
                                             @endif
                                         @elseif($user->video_verify_auth_status == 1)
                                             已通過
