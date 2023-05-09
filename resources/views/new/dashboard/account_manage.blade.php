@@ -176,7 +176,7 @@
                         }
                     });
                 @else
-                    c5html("請先通過 進階驗證(<a href='/advance_auth'>點此前往</a>)");
+                    c5html("請先通過 進階驗證(<a href='/advance_auth'><span style='color:red'>點此前往</span></a>)");
                 @endif
             @else
                 @if($user->video_verify_auth_status)
