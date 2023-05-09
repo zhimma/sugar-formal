@@ -351,7 +351,7 @@
                                         @else
                                             @if($user->video_verify_auth_status == 0)
                                                 @if($user->isAdvanceAuth())
-                                                    <h2 class="tabbox_h2"><span class="tu_dfont">尚未申請(須先完成進階驗證)</span></h2>
+                                                    <h2 class="tabbox_h2"><span class="tu_dfont">尚未申請</span></h2>
                                                 @else
                                                     <h2 class="tabbox_h2"><span class="tu_dfont">尚未申請(須先完成進階驗證)</span></h2>
                                                 @endif
