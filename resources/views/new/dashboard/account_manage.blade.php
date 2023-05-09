@@ -65,9 +65,11 @@
                             <a @if($isAdvAuthUsable??false) href="/advance_auth/" @endif class="gg_zh_li" onclick="checkAdvAuth()"><span><img src="/new/images/zh10.png"></span>
                                 <font>進階驗證</font>
                             </a>
-                            <a id="apply_video_record_verify" class="gg_zh_li"><span><img src="/new/images/zh11.png"></span>
-                                <font>申請視訊錄影驗證</font>
-                            </a>
+                            @if (user_allow_feature($user))
+                                <a id="apply_video_record_verify" class="gg_zh_li"><span><img src="/new/images/zh11.png"></span>
+                                    <font>申請視訊錄影驗證</font>
+                                </a>
+                            @endif
                         @endif
 
                         @if($user->engroup==2)
@@ -182,16 +184,18 @@
                 @if($user->video_verify_auth_status)
                     c5('已通過');
                 @else
-                    @if($user->backend_user_details->first()->has_upload_video_verify ?? false)
-                        c5('您好，您於 {{Carbon\Carbon::parse($user->backend_user_details->first()->need_video_verify_date)->format('Y-m-d')}} 時於本站申請 視訊錄影認證，目前已完成視訊錄影，待站方審核通知。');
-                    @elseif($user->backend_user_details->first()->video_verify_fail_count>=3)
-                        c5html('您連續三次視訊驗證失敗，暫時停止視訊驗證，若有問題請與站長聯絡 <a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="all: initial;all: unset;height: 26px; float: unset;vertical-align:middle !important;"></a>');
-                    @elseif($user->warned_users->video_auth ?? false)
-                        c5('你好，您目前被站方警示，站方會再跟您約視訊驗證時間，再請注意來訊。');
-                    @elseif($user->warned_users->adv_auth ?? false)
-                        c5('你好，您目前被站方警示，請進行進階驗證(<a href="/advance_auth"><span style="color:red">點此前往</span></a>)。');
-                    @else
-                        c5('已申請，站方會再跟您約驗證時間，再請注意來訊。');
+                    @if (user_allow_feature($user))
+                        @if($user->backend_user_details->first()->has_upload_video_verify ?? false)
+                            c5('您好，您於 {{Carbon\Carbon::parse($user->backend_user_details->first()->need_video_verify_date)->format('Y-m-d')}} 時於本站申請 視訊錄影認證，目前已完成視訊錄影，待站方審核通知。');
+                        @elseif($user->backend_user_details->first()->video_verify_fail_count>=3)
+                            c5html('您連續三次視訊驗證失敗，暫時停止視訊驗證，若有問題請與站長聯絡 <a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="all: initial;all: unset;height: 26px; float: unset;vertical-align:middle !important;"></a>');
+                        @elseif($user->warned_users->video_auth ?? false)
+                            c5('你好，您目前被站方警示，站方會再跟您約視訊驗證時間，再請注意來訊。');
+                        @elseif($user->warned_users->adv_auth ?? false)
+                            c5('你好，您目前被站方警示，請進行進階驗證(<a href="/advance_auth"><span style="color:red">點此前往</span></a>)。');
+                        @else
+                            c5('已申請，站方會再跟您約驗證時間，再請注意來訊。');
+                        @endif
                     @endif
                 @endif
             @endif

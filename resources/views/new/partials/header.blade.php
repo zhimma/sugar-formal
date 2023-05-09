@@ -5,17 +5,6 @@
 <meta name="Description" content="甜心花園網是台灣最大，人數最多的包養媒合網站，本站管理嚴謹，制度完善，遠離詐騙。擁有最多上線人數的甜心與最優質的糖爹，是優秀男女約會交友的第一選擇。">
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <meta name="turbo-cache-control" content="no-cache">
-<script
-    src="https://browser.sentry-cdn.com/6.17.4/bundle.min.js"
-    integrity="sha384-b8AsyZZuCfveCM8XQGBncVPihJcaG//cLVfziPjfE1RLhc++ZJ8x3BIS0Izv9Iey"
-    crossorigin="anonymous"
-></script>
-<script
-    src="https://browser.sentry-cdn.com/6.17.4/bundle.tracing.min.js"
-    integrity="sha384-eIliztiJMgTUGzEQjjcCty1MN9hIqsz8GtzP/UTAHo6yxQgA6ZogOH2YNSlJRYWO"
-    crossorigin="anonymous"
-></script>
-{!! \Sentry\Laravel\Integration::sentryTracingMeta() !!}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/webfont/1.6.28/webfontloader.js"></script>
 <!-- livewire -->
 <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.8.2/dist/alpine.min.js" defer></script>
@@ -27,6 +16,29 @@
     <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1155.0.min.js"></script>
     <script src="https://unpkg.com/amazon-kinesis-video-streams-webrtc/dist/kvs-webrtc.min.js"></script>        
 @endif
+<script
+        src="https://browser.sentry-cdn.com/7.50.0/bundle.tracing.replay.debug.min.js"
+        integrity="sha384-pL616vHMifU441jSyUU69aId7J7N832oP9GForODkrZtwczblYdTOcxUJrbzulwf"
+        crossorigin="anonymous"
+></script>
+<script
+        src="https://browser.sentry-cdn.com/7.50.0/captureconsole.min.js"
+        integrity="sha384-MLpMOdzpoBBVNrHDJSgNvhIy88xHmDN1WlDfXA7eQmiuBAzf0xKhBeZ9WSImjVgk"
+        crossorigin="anonymous"
+></script>
+<script>
+    Sentry.init({
+        dsn: "https://91838140cc964d4994202d4d3994654a@o1051989.ingest.sentry.io/6090793",
+        integrations: [new Sentry.Integrations.CaptureConsole(
+            {
+                // array of methods that should be captured
+                // defaults to ['log', 'info', 'warn', 'error', 'debug', 'assert']
+                levels: ['debug'],
+            }
+        )],
+    });
+</script>
+{!! \Sentry\Laravel\Integration::sentryTracingMeta() !!}
 <?php //新樣板css?>
 <link href="/new/css/bootstrap.min.css" rel="stylesheet">
 <link href="/new/css/bootstrap-theme.min.css" rel="stylesheet">
