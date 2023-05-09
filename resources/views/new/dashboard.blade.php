@@ -223,11 +223,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                                                 @endif
                                             @endif
                                         @elseif($user->video_verify_auth_status == 0)
-                                            @if($user->isAdvanceAuth())
-                                                尚未申請<a id="apply_video_record_verify" class="btn btn-success">申請驗證</a>
-                                            @else
-                                                尚未通過進階驗證
-                                            @endif
+                                            尚未申請<a id="apply_video_record_verify" class="btn btn-success">申請驗證</a>
                                         @elseif($user->video_verify_auth_status == 1)
                                             已通過
                                         @endif
@@ -2701,19 +2697,23 @@ function real_auth_input_new_weight_handle()
     });
 
     $('#apply_video_record_verify').click(function(){   
-        $.ajax({
-            url: '{{ route("apply_video_record_verify") }}',
-            type: 'GET',
-            data: {
-                '_token': '{{ csrf_token() }}',
-            },
-            success: function(data) {
-                if(data.status == 'success'){
-                    c5('已申請，站方會再跟您約驗證時間，再請注意來訊。');
-                    location.reload();
+        @if($user->isAdvanceAuth())
+            $.ajax({
+                url: '{{ route("apply_video_record_verify") }}',
+                type: 'GET',
+                data: {
+                    '_token': '{{ csrf_token() }}',
+                },
+                success: function(data) {
+                    if(data.status == 'success'){
+                        c5('已申請，站方會再跟您約驗證時間，再請注意來訊。');
+                        location.reload();
+                    }
                 }
-            }
-        });
+            });
+        @else
+            c5html("請先通過 進階驗證(<a href='/advance_auth'><span style='color:red'>點此前往</span></a>)");
+        @endif
     });
 </script>
 
