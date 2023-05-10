@@ -206,7 +206,6 @@ return [
     */
 
     'aliases' => [
-
         'App' => Illuminate\Support\Facades\App::class,
         'Artisan' => Illuminate\Support\Facades\Artisan::class,
         'Auth' => Illuminate\Support\Facades\Auth::class,
@@ -244,7 +243,16 @@ return [
         'Curl' => Ixudra\Curl\Facades\Curl::class,
         'JWTAuth' => Tymon\JWTAuth\Facades\JWTAuth::class,
         'JWTFactory' => Tymon\JWTAuth\Facades\JWTFactory::class,
+        'DBConfig' => App\Facades\DBConfig::class,
+        'UserAllowFeature' => App\Facades\UserAllowFeature::class,
+    ],
 
+    "newFeatureAllowList" => [
+        "TESTfemaleVIP@test.com",
+        "TESTfemale@test.com",
+        "sandyh.dlc+4@gmail.com",
+        "sandyh.dlc+6@gmail.com",
+        "sandyh.dlc+9@gmail.com",
     ],
 
 ];

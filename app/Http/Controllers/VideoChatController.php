@@ -843,12 +843,17 @@ class VideoChatController extends BaseController
 
     public function apply_video_record_verify(Request $request)
     {
-        $user_id = auth()->user()->id;
-        $backend_user_detail = BackendUserDetails::first_or_new($user_id);
-        $backend_user_detail->is_need_video_verify = 1;
-        $backend_user_detail->need_video_verify_date = Carbon::now();
-        $backend_user_detail->save();
-        return ['status'=>'success'];
+        if (user_allow_feature(auth()->user()) && auth()->user()->engroup == 2) {
+            $user_id = auth()->user()->id;
+            $backend_user_detail = BackendUserDetails::first_or_new($user_id);
+            $backend_user_detail->is_need_video_verify = 1;
+            $backend_user_detail->need_video_verify_date = Carbon::now();
+            $backend_user_detail->save();
+            return ['status'=>'success'];
+        }
+        else {
+            return ['status'=>'fail'];
+        }
     }
 
     public function hint_to_video_record_verify(Request $request)

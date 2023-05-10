@@ -825,32 +825,34 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
     </div>
     <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
 </div>
-<div id="video_verify_pop_up" class="container" style="display:none;">
-    <div class="row" >
-        <div class="col">
-            <p style="margin-bottom:10px;">
-                您好，是否要進行視訊驗證?
-            </p>
-            <div class="btn-group">
-                <a
-                    id="btn_reject_video_verify" href="/hint_to_video_record_verify?access=0"
-                    type="button"
-                    class="btn btn-danger"
-                >
-                    拒絕視訊
-                </a>
-                <a
-                    id="btn_access_video_verify" href="/hint_to_video_record_verify?access=1" 
-                    type="button"
-                    class="btn btn-success ml-5"
-                >
-                    前往視訊
-                </a>
+@if(user_allow_feature($user) && $user->engroup == 2)
+    <div id="video_verify_pop_up" class="container" style="display:none;">
+        <div class="row" >
+            <div class="col">
+                <p style="margin-bottom:10px;">
+                    您好，是否要進行視訊驗證?
+                </p>
+                <div class="btn-group">
+                    <a
+                        id="btn_reject_video_verify" href="/hint_to_video_record_verify?access=0"
+                        type="button"
+                        class="btn btn-danger"
+                    >
+                        拒絕視訊
+                    </a>
+                    <a
+                        id="btn_access_video_verify" href="/hint_to_video_record_verify?access=1"
+                        type="button"
+                        class="btn btn-success ml-5"
+                    >
+                        前往視訊
+                    </a>
+                </div>
             </div>
         </div>
     </div>
-</div>
-<div id="video_verify_bg" class="mask_bg" ></div>
+    <div id="video_verify_bg" class="mask_bg" ></div>
+@endif
 
 <div class="announce_bg" id="reverify_announce_bg" style="display:none;"></div>
 <div class="bl bl_tab" id="reverify_tab05">
@@ -3218,45 +3220,75 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
             $('#announce_bg').show();
         }
 
-    $(function() {
-        @if(($user->backend_user_details->first()->is_need_video_verify ?? false) && !($user->backend_user_details->first()->temp_stop_video_verify ?? false))
-            @if($user->warned_users->video_auth ?? false)
-                @if(($user->backend_user_details->first()->is_need_reverify ?? false) && $user->backend_user_details->first()->video_verify_fail_count <= 2)
-                    @if($user->meta->phone ?? false && $user->meta->phone != '')
-                        reverify_c5html('您上一次視訊驗證失敗，需要您重新進行進階驗證。您之前是使用手機驗證：{{$user->meta->phone}}，請確認是否重新驗證，按下確定後，即發送驗證碼至您原留手機，若有問題請與站長聯絡');
-                        $('#reverify_button_field').html('<span><a id="reverify_enter" class="n_left">確定</a></span><span><a id="reverify_cancel" class="n_right" onclick="gmBtnNoReload()">取消</a></span>');
-                        $('#reverify_enter').click(function() {
-                            reverify();
-                        });
-                    @elseif($user->advance_auth_email ?? false)
-                        reverify_c5html('您上一次視訊驗證失敗，需要您重新進行進階驗證。您之前是使用 Email 驗證：{{$user->advance_auth_email}}，請確認是否重新驗證，按下確定後，即發送驗證碼至您原驗證信箱，若有問題請與站長聯絡');
-                        $('#reverify_button_field').html('<span><a id="reverify_enter" class="n_left">確定</a></span><span><a id="reverify_cancel" class="n_right" onclick="gmBtnNoReload()">取消</a></span>');
-                        $('#reverify_enter').click(function() {
-                            reverify();
-                        });
+    @if(user_allow_feature($user) && $user->engroup == 2)
+        $(function() {
+            @if(($user->backend_user_details->first()->is_need_video_verify ?? false) && !($user->backend_user_details->first()->temp_stop_video_verify ?? false))
+                @if($user->warned_users->video_auth ?? false)
+                    @if(($user->backend_user_details->first()->is_need_reverify ?? false) && $user->backend_user_details->first()->video_verify_fail_count <= 2)
+                        @if($user->meta->phone ?? false && $user->meta->phone != '')
+                            reverify_c5html('您上一次視訊驗證失敗，需要您重新進行進階驗證。您之前是使用手機驗證：{{$user->meta->phone}}，請確認是否重新驗證，按下確定後，即發送驗證碼至您原留手機，若有問題請與站長聯絡');
+                            $('#reverify_button_field').html('<span><a id="reverify_enter" class="n_left">確定</a></span><span><a id="reverify_cancel" class="n_right" onclick="gmBtnNoReload()">取消</a></span>');
+                            $('#reverify_enter').click(function() {
+                                reverify();
+                            });
+                        @elseif($user->advance_auth_email ?? false)
+                            reverify_c5html('您上一次視訊驗證失敗，需要您重新進行進階驗證。您之前是使用 Email 驗證：{{$user->advance_auth_email}}，請確認是否重新驗證，按下確定後，即發送驗證碼至您原驗證信箱，若有問題請與站長聯絡');
+                            $('#reverify_button_field').html('<span><a id="reverify_enter" class="n_left">確定</a></span><span><a id="reverify_cancel" class="n_right" onclick="gmBtnNoReload()">取消</a></span>');
+                            $('#reverify_enter').click(function() {
+                                reverify();
+                            });
+                        @else
+                            c5html('您上一次視訊驗證失敗，需要您進行進階驗證，若有問題請與站長聯絡');
+                        @endif
                     @else
-                        c5html('您上一次視訊驗證失敗，需要您進行進階驗證，若有問題請與站長聯絡');
+                        @switch($user->backend_user_details->first()->video_verify_fail_count)
+                            @case(0)
+                                @if(Carbon\Carbon::parse($user->backend_user_details->first()->need_video_verify_date) < Carbon\Carbon::now() && $user->backend_user_details->first()->login_times_after_need_video_verify_date > 0)
+                                    video_verify_pop_up();
+                                @endif
+                                @break
+
+                            @case(1)
+                                @if(Carbon\Carbon::parse($user->backend_user_details->first()->need_video_verify_date)->addHours(12) < Carbon\Carbon::now() && $user->backend_user_details->first()->login_times_after_need_video_verify_date > 2)
+                                    video_verify_pop_up();
+                                @endif
+                                @break
+
+                            @case(2)
+                                @if(Carbon\Carbon::parse($user->backend_user_details->first()->need_video_verify_date)->addHours(36) < Carbon\Carbon::now() && $user->backend_user_details->first()->login_times_after_need_video_verify_date > 6)
+                                    video_verify_pop_up();
+                                @endif
+                                @break
+
+                            @default
+                                if(!(sessionStorage.getItem('display_video_record_verify_fail'))){
+                                    sessionStorage.setItem('display_video_record_verify_fail', true);
+                                    c5html('您連續三次視訊驗證失敗，暫時停止視訊驗證，若有問題請與站長聯絡 <a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="all: initial;all: unset;height: 26px; float: unset;vertical-align:middle !important;"></a>');
+                                }
+                                @break
+
+                        @endswitch
                     @endif
                 @else
                     @switch($user->backend_user_details->first()->video_verify_fail_count)
                         @case(0)
-                            @if(Carbon\Carbon::parse($user->backend_user_details->first()->need_video_verify_date) < Carbon\Carbon::now() && $user->backend_user_details->first()->login_times_after_need_video_verify_date > 0)
-                                video_verify_pop_up();
-                            @endif
-                            @break
-                    
-                        @case(1)
                             @if(Carbon\Carbon::parse($user->backend_user_details->first()->need_video_verify_date)->addHours(12) < Carbon\Carbon::now() && $user->backend_user_details->first()->login_times_after_need_video_verify_date > 2)
                                 video_verify_pop_up();
                             @endif
                             @break
 
-                        @case(2)
+                        @case(1)
                             @if(Carbon\Carbon::parse($user->backend_user_details->first()->need_video_verify_date)->addHours(36) < Carbon\Carbon::now() && $user->backend_user_details->first()->login_times_after_need_video_verify_date > 6)
                                 video_verify_pop_up();
                             @endif
                             @break
-                    
+
+                        @case(2)
+                            @if(Carbon\Carbon::parse($user->backend_user_details->first()->need_video_verify_date)->addHours(72) < Carbon\Carbon::now() && $user->backend_user_details->first()->login_times_after_need_video_verify_date > 9)
+                                video_verify_pop_up();
+                            @endif
+                            @break
+
                         @default
                             if(!(sessionStorage.getItem('display_video_record_verify_fail'))){
                                 sessionStorage.setItem('display_video_record_verify_fail', true);
@@ -3266,37 +3298,9 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
 
                     @endswitch
                 @endif
-            @else
-                @switch($user->backend_user_details->first()->video_verify_fail_count)
-                    @case(0)
-                        @if(Carbon\Carbon::parse($user->backend_user_details->first()->need_video_verify_date)->addHours(12) < Carbon\Carbon::now() && $user->backend_user_details->first()->login_times_after_need_video_verify_date > 2)
-                            video_verify_pop_up();
-                        @endif
-                        @break
-                
-                    @case(1)
-                        @if(Carbon\Carbon::parse($user->backend_user_details->first()->need_video_verify_date)->addHours(36) < Carbon\Carbon::now() && $user->backend_user_details->first()->login_times_after_need_video_verify_date > 6)
-                            video_verify_pop_up();
-                        @endif
-                        @break
-
-                    @case(2)
-                        @if(Carbon\Carbon::parse($user->backend_user_details->first()->need_video_verify_date)->addHours(72) < Carbon\Carbon::now() && $user->backend_user_details->first()->login_times_after_need_video_verify_date > 9)
-                            video_verify_pop_up();
-                        @endif
-                        @break
-                
-                    @default
-                        if(!(sessionStorage.getItem('display_video_record_verify_fail'))){
-                            sessionStorage.setItem('display_video_record_verify_fail', true);
-                            c5html('您連續三次視訊驗證失敗，暫時停止視訊驗證，若有問題請與站長聯絡 <a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="all: initial;all: unset;height: 26px; float: unset;vertical-align:middle !important;"></a>');
-                        }
-                        @break
-
-                @endswitch
             @endif
-        @endif
-    });
+        });
+    @endif
 
     function video_verify_pop_up(){
 

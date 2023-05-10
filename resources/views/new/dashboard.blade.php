@@ -204,30 +204,40 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                         </span>
                     </dt>                
                     @endif
-                    <dt>
-                        <span>視訊錄影驗證</span>
-                        <span>
-                            <div class="select_xx03">
-                                @if($user->backend_user_details->first()->is_need_video_verify ?? false)
-                                    @if($user->backend_user_details->first()->has_upload_video_verify ?? false)
-                                        您好，您於 {{Carbon\Carbon::parse($user->backend_user_details->first()->need_video_verify_date)->format('Y-m-d')}} 時於本站申請 視訊錄影認證，目前已完成視訊錄影，待站方審核通知。
-                                    @else
-                                        @if($user->backend_user_details->first()->video_verify_fail_count>=3)
-                                            您連續三次視訊驗證失敗，暫時停止視訊驗證，若有問題請與站長聯絡 <a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="all: initial;all: unset;height: 26px; float: unset;vertical-align:middle !important;"></a>
-                                        @elseif($user->warned_users->video_auth ?? false)
-                                            你好，您目前被站方警示，站方會再跟您約視訊驗證時間，再請注意來訊。
-                                        @else
-                                            已申請，站方會再跟您約驗證時間，再請注意來訊。
+                    @if($user->engroup==2)
+                        @if (user_allow_feature($user))
+                            <dt>
+                                <span>視訊錄影驗證</span>
+                                <span>
+                                    <div class="select_xx03">
+                                        @if($user->backend_user_details->first()->is_need_video_verify ?? false)
+                                            @if($user->backend_user_details->first()->has_upload_video_verify ?? false)
+                                                您好，您於 {{Carbon\Carbon::parse($user->backend_user_details->first()->need_video_verify_date)->format('Y-m-d')}} 時於本站申請 視訊錄影認證，目前已完成視訊錄影，待站方審核通知。
+                                            @else
+                                                @if($user->backend_user_details->first()->video_verify_fail_count>=3)
+                                                    您連續三次視訊驗證失敗，暫時停止視訊驗證，若有問題請與站長聯絡 <a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="all: initial;all: unset;height: 26px; float: unset;vertical-align:middle !important;"></a>
+                                                @elseif($user->warned_users->video_auth ?? false)
+                                                    你好，您目前被站方警示，站方會再跟您約視訊驗證時間，再請注意來訊。
+                                                @else
+                                                    已申請，站方會再跟您約驗證時間，再請注意來訊。
+                                                @endif
+                                            @endif
+                                        @elseif($user->video_verify_auth_status == 0)
+                                            @if($user->isAdvanceAuth())
+                                                尚未申請
+                                                <a id="apply_video_record_verify" class="btn btn-success">申請驗證</a>
+                                            @else
+                                                尚未申請(須先完成進階驗證)
+                                                <a id="apply_video_record_verify" class="btn btn-success">申請驗證</a>
+                                            @endif
+                                        @elseif($user->video_verify_auth_status == 1)
+                                            已通過
                                         @endif
-                                    @endif
-                                @elseif($user->video_verify_auth_status == 0)
-                                    尚未申請<a id="apply_video_record_verify" class="btn btn-success">申請驗證</a>
-                                @elseif($user->video_verify_auth_status == 1)
-                                    已通過
-                                @endif
-                            </div>
-                        </span>
-                    </dt>
+                                    </div>
+                                </span>
+                            </dt>
+                        @endif
+                    @endif
                     <dt>
                         <span>LINE 通知</span>
                         <span>
@@ -2693,19 +2703,23 @@ function real_auth_input_new_weight_handle()
     });
 
     $('#apply_video_record_verify').click(function(){   
-        $.ajax({
-            url: '{{ route("apply_video_record_verify") }}',
-            type: 'GET',
-            data: {
-                '_token': '{{ csrf_token() }}',
-            },
-            success: function(data) {
-                if(data.status == 'success'){
-                    c5('已申請，站方會再跟您約驗證時間，再請注意來訊。');
-                    location.reload();
+        @if($user->isAdvanceAuth())
+            $.ajax({
+                url: '{{ route("apply_video_record_verify") }}',
+                type: 'GET',
+                data: {
+                    '_token': '{{ csrf_token() }}',
+                },
+                success: function(data) {
+                    if(data.status == 'success'){
+                        c5('已申請，站方會再跟您約驗證時間，再請注意來訊。');
+                        location.reload();
+                    }
                 }
-            }
-        });
+            });
+        @else
+            c5html("請先通過 進階驗證(<a href='/advance_auth'><span style='color:red'>點此前往</span></a>)");
+        @endif
     });
 </script>
 
