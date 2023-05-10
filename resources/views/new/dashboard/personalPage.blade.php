@@ -367,14 +367,14 @@
 
                    <div class="sys_aa" id="vip_state_block">
                         <div class="tabbox_new_dt"><span>隱藏狀態</span>
-                            @if($user->valueAddedServiceStatus('hideOnline') == 1 && $user->is_hide_online == 1)
+                            @if($user->valueAddedServiceStatus('hideOnline') == 1 )
                                 <a class="zs_buttonn right" href="/dashboard/account_hide_online">變更隱藏狀態</a>
                             @else
                                 <a class="zs_buttonn" href="{{url('/dashboard/valueAddedHideOnline')}}" style="font-size: 12px;">立即購買隱藏功能</a>
                             @endif
                         </div>
                         <div class="tabbox_new_dd">
-                            @if($user->valueAddedServiceStatus('hideOnline') == 1 && $user->is_hide_online == 1)
+                            @if($user->valueAddedServiceStatus('hideOnline') == 1)
                                 <h2 class="tabbox_h2">{!! $vasStatus !!}</h2>
                             @else
                                 <h2 class="tabbox_h2"><span class="tu_dfont">您尚未購買隱藏付費功能</span></h2>

@@ -1434,7 +1434,8 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                            message_user_note,
                            isVVIP,
                            msg_pic,
-                           isOnline){
+                           isOnline,
+                           is_hide_online){
             showMsg = show;
             var li='';
             var ss =((i+1)>Page.row)?'display:none;':'display:none;';
@@ -1484,7 +1485,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
 
                 li += `<div class="sjpic shanx" id="${user_id}" style="width: 65px; height: 65px;">
                         <img class="${styBlur}" src="${pic}" style="margin-top: 5px;width: 65px; height: 65px;">
-                        <div class="onlineStatusChatView ${isOnline==true?'denglu_nn':(isOnline==-1?'denglu_nn deng_nn':'')}">${isOnline==-1?'<img src="{{asset('images/wsx.png')}}">':''}</div>
+                        <div class="onlineStatusChatView ${(isOnline==true && is_hide_online==0)?'denglu_nn':(isOnline==-1?'denglu_nn deng_nn':'')}">${isOnline==-1?'<img src="{{asset('images/wsx.png')}}">':''}</div>
                        </div>
                         </div>
                         <div style="width: calc(100% - 75px); float: right;">
@@ -1499,7 +1500,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                 }
                 li += `<div class="sjpic shanx" id="${user_id}" style="width: 65px; height: 65px;">
                     <img class="${styBlur}" src="${pic}" style="margin-top: 5px;width: 65px; height: 65px;">
-                    <div class="onlineStatusChatView ${isOnline==true?'denglu_nn':(isOnline==-1?'denglu_nn deng_nn':'')}">${isOnline==-1?'<img src="{{asset('images/wsx.png')}}">':''}</div>
+                    <div class="onlineStatusChatView ${(isOnline==true && is_hide_online==0)?'denglu_nn':(isOnline==-1?'denglu_nn deng_nn':'')}">${isOnline==-1?'<img src="{{asset('images/wsx.png')}}">':''}</div>
                 </div>
                 </div>
                     <div style="width: calc(100% - 75px); float: right;">
@@ -1699,13 +1700,13 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                         if (userIsVip != 1 && i < hide_vip_counts && hide_vip_counts > 0 ) {
                             if(e.user_id == 1049 || e.isBanned==1){
                                 //hide_vip_counts = hide_vip_counts-1;
-                                if (e && e.user_id) li = liContent(pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1,e.isWarned,e.isBanned,e.exchange_period,e.isblur,e.is_truth, e.isCan, e.cityAndArea, e.message_user_note,e.isVVIP, e.isVvipSelectionRewardActive,e.isOnline);
+                                if (e && e.user_id) li = liContent(pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1,e.isWarned,e.isBanned,e.exchange_period,e.isblur,e.is_truth, e.isCan, e.cityAndArea, e.message_user_note,e.isVVIP, e.isVvipSelectionRewardActive,e.isOnline,e.is_hide_online);
                             }else {							
-                                if (e && e.user_id) li = liContent(pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 0,e.isWarned,e.isBanned,e.exchange_period,e.isblur,e.is_truth, e.isCan, e.cityAndArea, e.message_user_note,e.isVVIP, e.isVvipSelectionRewardActive,e.isOnline);
+                                if (e && e.user_id) li = liContent(pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 0,e.isWarned,e.isBanned,e.exchange_period,e.isblur,e.is_truth, e.isCan, e.cityAndArea, e.message_user_note,e.isVVIP, e.isVvipSelectionRewardActive,e.isOnline,e.is_hide_online);
                             }
                         }else {
 							//if(e.isBanned==1) hide_vip_counts = hide_vip_counts+1;
-                            if (e && e.user_id) li = liContent(pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1,e.isWarned,e.isBanned,e.exchange_period,e.isblur,e.is_truth, e.isCan, e.cityAndArea, e.message_user_note,e.isVVIP, e.isVvipSelectionRewardActive,e.isOnline);
+                            if (e && e.user_id) li = liContent(pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1,e.isWarned,e.isBanned,e.exchange_period,e.isblur,e.is_truth, e.isCan, e.cityAndArea, e.message_user_note,e.isVVIP, e.isVvipSelectionRewardActive,e.isOnline,e.is_hide_online);
                         }
 
                         var has_vvip_msg_count=0;
@@ -2876,7 +2877,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                                                 <div style="width: 70px; float: left;">
                                                     <div class="sjpic shanx">
                                                         <img class="${isBlur?'blur_img':''}" src="${v.avatar?v.avatar:`/new/images/${anonymousGender}.png`}">
-                                                        <div class="onlineStatusChatView ${v.isOnline==true?'denglu_nn':(v.isOnline==-1?'denglu_nn deng_nn':'')}">${v.isOnline==-1?'<img src="{{asset('images/wsx.png')}}">':''}</div>
+                                                        <div class="onlineStatusChatView ${(v.isOnline==true && v.is_hide_online==0)?'denglu_nn':(v.isOnline==-1?'denglu_nn deng_nn':'')}">${v.isOnline==-1?'<img src="{{asset('images/wsx.png')}}">':''}</div>
                                                     </div>
                                                 </div>
                                             </a>
