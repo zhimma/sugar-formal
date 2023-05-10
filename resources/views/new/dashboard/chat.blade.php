@@ -3230,12 +3230,14 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                             reverify_c5html('您上一次視訊驗證失敗，需要您重新進行進階驗證。您之前是使用手機驗證：{{$user->meta->phone}}，請確認是否重新驗證，按下確定後，即發送驗證碼至您原留手機，若有問題請與站長聯絡');
                             $('#reverify_button_field').html('<span><a id="reverify_enter" class="n_left">確定</a></span><span><a id="reverify_cancel" class="n_right" onclick="gmBtnNoReload()">取消</a></span>');
                             $('#reverify_enter').click(function() {
+                                this.disabled = true;
                                 reverify();
                             });
                         @elseif($user->advance_auth_email ?? false)
                             reverify_c5html('您上一次視訊驗證失敗，需要您重新進行進階驗證。您之前是使用 Email 驗證：{{$user->advance_auth_email}}，請確認是否重新驗證，按下確定後，即發送驗證碼至您原驗證信箱，若有問題請與站長聯絡');
                             $('#reverify_button_field').html('<span><a id="reverify_enter" class="n_left">確定</a></span><span><a id="reverify_cancel" class="n_right" onclick="gmBtnNoReload()">取消</a></span>');
                             $('#reverify_enter').click(function() {
+                                this.disabled = true;
                                 reverify();
                             });
                         @else
@@ -3348,6 +3350,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                 $('#resend_reverify').click(function() {
                     click_time = new Date();
                     if((click_time - now_time)/1000/60 > 5){
+                        this.disabled = true;
                         reverify();
                         c5html('<br>已重新發送<br><br>');
                     }
