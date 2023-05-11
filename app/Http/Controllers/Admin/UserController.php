@@ -5761,9 +5761,12 @@ class UserController extends \App\Http\Controllers\BaseController
     public function messageBoardList(Request $request)
     {
         $messages = MessageBoard::select('message_board.*', 'users.name', 'users.engroup')
-            ->join('reported_message_board', 'reported_message_board.message_board_id', '=', 'message_board.id')
             ->join('users', 'users.id', '=', 'message_board.user_id');
-        $messages = $messages->whereRaw('reported_message_board.id is not null');
+
+        if($request->reported_message){
+            $messages->join('reported_message_board', 'reported_message_board.message_board_id', '=', 'message_board.id')
+                ->whereRaw('reported_message_board.id is not null');
+        }
         if (isset($request->date_start) || isset($request->date_end) || isset($request->keyword)) {
             $start = isset($request->date_start) ? $request->date_start : '';
             $end = isset($request->date_end) ? $request->date_end : '';
