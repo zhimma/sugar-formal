@@ -1380,10 +1380,10 @@ class User extends Authenticatable implements JWTSubject
                     $start = null;
                     $end = null;
                 }
-                if (str_contains($log->action, 'upgrade')) {
+                if (str_contains($log->member_name, 'upgrade')) {
                     $start = $log->created_at;
                 }
-                if (str_contains($log->action, 'cancel')) {
+                if (str_contains($log->member_name, 'cancel')) {
                     $end = $log->created_at;
                 }
             }
