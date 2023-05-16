@@ -8435,7 +8435,7 @@ class PagesController extends BaseController
 
         $vasStatus = '';
 
-        if($user->valueAddedServiceStatus('hideOnline') == 1 && $user->is_hide_online == 1) {
+        if($user->valueAddedServiceStatus('hideOnline') == 1) {
             $vasStatus = '您目前已購買隱藏功能。';
             $vas = $user->vas->where('service_name','hideOnline')->first();
             if($vas->payment){

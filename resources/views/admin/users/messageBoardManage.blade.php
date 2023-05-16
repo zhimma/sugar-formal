@@ -40,6 +40,11 @@
 </form><br>
 @if(isset($messages))
 共 {{ $messages->total() }} 筆資料
+@if(Request()->get('reported_message')==true)
+	<a id="btnAllMessages" class="text-white btn btn-primary" style="margin-left: 5px;">列出全部留言</a>
+@else
+	<a id="btnReportedMessages" class="text-white btn btn-primary" style="margin-left: 5px;">只列出有被檢舉的留言</a>
+@endif
 <table class='table table-bordered table-hover'>
 	<tr>
 		<th>會員</th>
@@ -68,6 +73,7 @@
 					<button class="text-white btn {{ $m->hide_by_admin ?  'btn-success' : 'btn-primary' }}" style="margin-left: 5px;">{{ $m->hide_by_admin ?  '解除' : '' }}隱藏</button>
 				</form>
 				<div class="text-white btn btn-primary" onclick="showModifyArea()" style="margin-left: 5px;">編輯</div>
+				<a class="text-white btn btn-primary" href="{{ route('AdminMessage', $m->user_id) }}" style="margin-left: 5px;">站長訊息</a>
 			</div>
 			<div class="modifyArea" style="margin-top: 10px;display: none;">
 				<form method="POST" action="/admin/users/messageBoard/edit/{{ $m->id }}">
@@ -191,6 +197,26 @@
 		if(!confirm('確定要刪除該留言?')){
 			e.preventDefault();
 		}
+	});
+
+	$('#btnReportedMessages').on('click',function(){
+		var currentURL = window.location.href;
+		var newURL = currentURL;
+
+		if(!currentURL.includes("reported_message=true")){
+			var separator = currentURL.includes("?") ? "&" : "?";
+			newURL = currentURL + separator + "reported_message=true";
+		}
+		window.location.href = newURL;
+	});
+
+	$('#btnAllMessages').on('click', function() {
+		var currentURL = window.location.href;
+		var newURL = currentURL;
+		if (currentURL.includes("reported_message=true")) {
+			newURL = currentURL.replace("reported_message=true", "");
+		}
+		window.location.href = newURL;
 	});
 </script>
 </html>

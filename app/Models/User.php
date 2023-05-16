@@ -1360,7 +1360,37 @@ class User extends Authenticatable implements JWTSubject
     
     public function getTipCountChangeGood() {
         Tip::TipCount_ChangeGood($this->id);
-    }    
+    }
+
+    public function everBeenVIP()
+    {
+        return $this->hasMany(Vip::class, 'member_id', 'id');
+    }
+
+    public function vipTotalLength()
+    {
+        if ($this->everBeenVIP()) {
+            $logs = $this->hasMany(VipLog::class, 'member_id', 'id')->orderBy('id')->get();
+            $total = 0;
+            $start = null;
+            $end = null;
+            foreach ($logs as $log) {
+                if ($start && $end) {
+                    $total += $end->diffInDays($start);
+                    $start = null;
+                    $end = null;
+                }
+                if (str_contains($log->member_name, 'upgrade')) {
+                    $start = $log->created_at;
+                }
+                if (str_contains($log->member_name, 'cancel')) {
+                    $end = $log->created_at;
+                }
+            }
+            return $total;
+        }
+        return 0;
+    }
 
     public function visitCount()
     {

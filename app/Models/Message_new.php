@@ -758,6 +758,7 @@ class Message_new extends Model
                 }  
                 
                 $messages[$key]['exchange_period']=$msgUser->exchange_period;
+                $messages[$key]['is_hide_online']= $msgUser->valueAddedServiceStatus('hideOnline')==1?$msgUser->is_hide_online:0;
                 $messages[$key]['mCount']=$mCount;
             
                 if(in_array(['to_id' => $message['to_id'], 'from_id' => $message['from_id']],Self::$truthMessages)
