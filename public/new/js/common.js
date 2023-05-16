@@ -189,6 +189,13 @@
 		$("#tab05 .bltext").html(str);
 	}
 
+	function c5html_redirect(str, url) {
+		$("#announce_bg").show();
+		$("#tab05_redirect").show();
+		$("#tab05_redirect .bltext").html(str);
+		$("#c5_redirect_certain_btn").attr("href", url)
+	}
+
 	function c6(str) {	
 		$(".blbg").show();	
 		$("#tab06").show();	

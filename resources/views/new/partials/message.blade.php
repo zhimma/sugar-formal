@@ -150,6 +150,15 @@
     <a id="" onclick="c5_gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
 </div>
 
+<div class="bl bl_tab" id="tab05_redirect">
+    <div class="bltitle">提示</div>
+    <div class="n_blnr01 matop10">
+    <div class="blnr bltext"></div>
+    <a id="c5_redirect_certain_btn" class="n_bllbut matop30">確定</a>
+    </div>
+    <a id="" onclick="c5_gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+</div>
+
 <div class="bl bl_tab" id="tabPopM">
     <div class="bltitle">提示</div>
     <div class="n_blnr01 matop10">
