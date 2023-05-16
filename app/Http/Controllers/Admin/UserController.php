@@ -8372,14 +8372,28 @@ class UserController extends \App\Http\Controllers\BaseController
                     VipExpiryLog::addToLog($user->id, $vipData, $expire_origin, $expire_date, null, null);
                 }
             }
-        }else {
-            $expire_date = date("Y-m-d H:i:s",strtotime("+".$extend." days"));
-            $vip = new Vip();
-            $vip->member_id = $user->id;
-            $vip->expiry = $expire_date;
-            $vip->active = 1;
-            $vip->free = 0;
-            $vip->save();
+        }
+        else {
+            $vipData = Vip::findByIdWithDateDesc($user->id);
+            if($vipData && $vipData->expiry != '0000-00-00 00:00:00'){
+                if($vipData->expiry < Carbon::now()){
+                    $expire_date = date("Y-m-d H:i:s",strtotime("+".$extend." days"));
+                }else{
+                    $expire_date = date("Y-m-d H:i:s",strtotime("+".$extend." days", strtotime($vipData->expiry)));
+                }
+                $vipData->expiry = $expire_date;
+                $vipData->active = 1;
+                $vipData->save();
+            }else if(!$vipData){
+                $expire_date = date("Y-m-d H:i:s",strtotime("+".$extend." days"));
+                $vip = new Vip();
+                $vip->member_id = $user->id;
+                $vip->expiry = $expire_date;
+                $vip->active = 1;
+                $vip->free = 0;
+                $vip->save();
+            }
+
             VipLog::addToLog($user->id, 'backend_extend_expiry_service: +'.$extend.' days', 'Manual Setting', 1, 0);
             VipExpiryLog::addToLog($user->id, $user->getVipData(true), null, $expire_date, null, null);
         }

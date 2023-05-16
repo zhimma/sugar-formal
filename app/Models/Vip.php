@@ -140,6 +140,10 @@ class Vip extends Model
                     }
                 }
             }
+            //防呆同訂單編號時的到期日判斷
+            elseif($vipData->order_id == $order_id){
+                $expiry = $vipData->expiry;
+            }
 
             $vipData->order_id = $order_id;
             $vipData->txn_id = $txn_id;
