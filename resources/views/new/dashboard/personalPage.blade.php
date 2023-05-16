@@ -932,7 +932,7 @@
                 }
             });
         @else
-            c5html("請先通過 進階驗證(<a href='/advance_auth'><span style='color:red'>點此前往</span></a>)");
+            c5html_redirect("請先通過 進階驗證(<a href='/advance_auth'><span style='color:red'>點此前往</span></a>)", "/advance_auth");
         @endif
     });
 
