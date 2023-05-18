@@ -328,40 +328,38 @@
                     @endif
                     @if($user->engroup == 2)
                         @if((!($user->warned_users->adv_auth ?? false) && !($user->warned_users->video_auth ?? false)) || $user->backend_user_details->first()?->video_verify_fail_count>=3)
-                            @if(user_allow_feature($user))
-                                <div class="sys_aa" id="apply_video_record_block">
-                                    <div class="tabbox_new_dt"><span>視訊錄影驗證</span>
-                                        @if((!($user->backend_user_details->first()->is_need_video_verify ?? false)) && $user->video_verify_auth_status == 0)
-                                            <a id="apply_video_record_verify" class="zs_buttonn">申請驗證</a>
-                                        @endif
-                                    </div>
-                                    <div class="tabbox_new_dd">
-                                        @if($user->backend_user_details->first()->is_need_video_verify ?? false)
-                                            @if($user->backend_user_details->first()->has_upload_video_verify ?? false)
-                                                <h2 class="tabbox_h2">您好，您於 {{Carbon\Carbon::parse($user->backend_user_details->first()->need_video_verify_date)->format('Y-m-d')}} 時於本站申請 視訊錄影認證，目前已完成視訊錄影，待站方審核通知。</h2>
+                            <div class="sys_aa" id="apply_video_record_block">
+                                <div class="tabbox_new_dt"><span>視訊錄影驗證</span>
+                                    @if((!($user->backend_user_details->first()->is_need_video_verify ?? false)) && $user->video_verify_auth_status == 0)
+                                        <a id="apply_video_record_verify" class="zs_buttonn">申請驗證</a>
+                                    @endif
+                                </div>
+                                <div class="tabbox_new_dd">
+                                    @if($user->backend_user_details->first()->is_need_video_verify ?? false)
+                                        @if($user->backend_user_details->first()->has_upload_video_verify ?? false)
+                                            <h2 class="tabbox_h2">您好，您於 {{Carbon\Carbon::parse($user->backend_user_details->first()->need_video_verify_date)->format('Y-m-d')}} 時於本站申請 視訊錄影認證，目前已完成視訊錄影，待站方審核通知。</h2>
+                                        @else
+                                            @if($user->backend_user_details->first()->video_verify_fail_count>=3)
+                                                <h2 class="tabbox_h2">您連續三次視訊驗證失敗，暫時停止視訊驗證，若有問題請與站長聯絡 <a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="all: initial;all: unset;height: 26px; float: unset;vertical-align:middle !important;"></a></h2>
+                                            @elseif($user->warned_users->video_auth ?? false)
+                                                <h2 class="tabbox_h2">你好，您目前被站方警示，站方會再跟您約視訊驗證時間，再請注意來訊。</h2>
                                             @else
-                                                @if($user->backend_user_details->first()->video_verify_fail_count>=3)
-                                                    <h2 class="tabbox_h2">您連續三次視訊驗證失敗，暫時停止視訊驗證，若有問題請與站長聯絡 <a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="all: initial;all: unset;height: 26px; float: unset;vertical-align:middle !important;"></a></h2>
-                                                @elseif($user->warned_users->video_auth ?? false)
-                                                    <h2 class="tabbox_h2">你好，您目前被站方警示，站方會再跟您約視訊驗證時間，再請注意來訊。</h2>
-                                                @else
-                                                    <h2 class="tabbox_h2">您好，您於 {{Carbon\Carbon::parse($user->backend_user_details->first()->need_video_verify_date)->format('Y-m-d')}} 時於本站申請 視訊錄影認證站方會再跟您約驗證時間，再請注意來訊。</h2>
-                                                @endif
+                                                <h2 class="tabbox_h2">您好，您於 {{Carbon\Carbon::parse($user->backend_user_details->first()->need_video_verify_date)->format('Y-m-d')}} 時於本站申請 視訊錄影認證站方會再跟您約驗證時間，再請注意來訊。</h2>
+                                            @endif
+                                        @endif
+                                    @else
+                                        @if($user->video_verify_auth_status == 0)
+                                            @if($user->isAdvanceAuth())
+                                                <h2 class="tabbox_h2"><span class="tu_dfont">尚未申請</span></h2>
+                                            @else
+                                                <h2 class="tabbox_h2"><span class="tu_dfont">尚未申請(須先完成進階驗證)</span></h2>
                                             @endif
                                         @else
-                                            @if($user->video_verify_auth_status == 0)
-                                                @if($user->isAdvanceAuth())
-                                                    <h2 class="tabbox_h2"><span class="tu_dfont">尚未申請</span></h2>
-                                                @else
-                                                    <h2 class="tabbox_h2"><span class="tu_dfont">尚未申請(須先完成進階驗證)</span></h2>
-                                                @endif
-                                            @else
-                                                <h2 class="tabbox_h2"><span class="tu_dfont">已通過</span></h2>
-                                            @endif
+                                            <h2 class="tabbox_h2"><span class="tu_dfont">已通過</span></h2>
                                         @endif
-                                    </div>
+                                    @endif
                                 </div>
-                            @endif
+                            </div>
                         @endif
                     @endif
 

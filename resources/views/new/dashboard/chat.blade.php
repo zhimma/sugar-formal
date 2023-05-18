@@ -825,7 +825,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
     </div>
     <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
 </div>
-@if(user_allow_feature($user) && $user->engroup == 2)
+@if($user->engroup == 2)
     <div id="video_verify_pop_up" class="container" style="display:none;">
         <div class="row" >
             <div class="col">
@@ -3221,7 +3221,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
             $('#announce_bg').show();
         }
 
-    @if(user_allow_feature($user) && $user->engroup == 2)
+    @if($user->engroup == 2)
         $(function() {
             @if(($user->backend_user_details->first()->is_need_video_verify ?? false) && !($user->backend_user_details->first()->temp_stop_video_verify ?? false))
                 @if($user->warned_users->video_auth ?? false)

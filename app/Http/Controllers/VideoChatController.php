@@ -843,7 +843,7 @@ class VideoChatController extends BaseController
 
     public function apply_video_record_verify(Request $request)
     {
-        if (user_allow_feature(auth()->user()) && auth()->user()->engroup == 2) {
+        if (auth()->user()->engroup == 2) {
             $user_id = auth()->user()->id;
             $backend_user_detail = BackendUserDetails::first_or_new($user_id);
             $backend_user_detail->is_need_video_verify = 1;
