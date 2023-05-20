@@ -798,7 +798,7 @@
                 @php
                     $isBlurAvatar = \App\Services\UserService::isBlurAvatar($to, $user);
                 @endphp
-                <livewire:chat-show-content :user="$user" :to="$to" :toUserIsBanned="$toUserIsBanned" :isBlurAvatar="$isBlurAvatar" :isVip="$isVip"/>
+                <livewire:chat-show-content :user="$user" :to="$to" :toUserIsBanned="$toUserIsBanned" :isBlurAvatar="$isBlurAvatar" :isVip="$isVip" :messages/>
                 <div id="GoDown" class="GoDown" style="cursor: pointer;">
                     <img src="/new/images/go_to_end.jpg" style="opacity: 0.4;border: 1px solid #9c9c9c;border-radius: 50px; background-color: #c5c2c3; padding-left: 2px; width: 40px; float: right;margin-right: 10px;">
                 </div>
