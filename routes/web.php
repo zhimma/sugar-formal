@@ -1145,6 +1145,12 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         //進階資訊統計工具
         Route::get('users/informationStatistics', 'UserController@informationStatistics')->name('users/informationStatistics');
 
+        //中長期會員管理列表
+        Route::get('users/medium_long_term_without_adv_verification_list', 'UserController@medium_long_term_without_adv_verification_list')->name('users/medium_long_term_without_adv_verification_list');
+        Route::post('users/medium_long_term_without_adv_verification_user_remove', 'UserController@medium_long_term_without_adv_verification_user_remove')->name('medium_long_term_without_adv_verification_user_remove');
+        Route::post('users/medium_long_term_without_adv_verification_communication_count_set_change', 'UserController@medium_long_term_without_adv_verification_communication_count_set_change')->name('medium_long_term_without_adv_verification_communication_count_set_change');
+
+
         //廣告紀錄統計
         Route::get('admin/advertiseStatistics', 'UserController@advertiseStatistics')->name('admin/advertiseStatistics');
 

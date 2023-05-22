@@ -100,6 +100,7 @@ use Intervention\Image\Facades\Image;
 use Session;
 use Yajra\DataTables\Facades\DataTables;
 use App\Http\Controllers\Message_newController;
+use App\Models\SuspiciousUserListTable;
 
 class UserController extends \App\Http\Controllers\BaseController
 {
@@ -8627,4 +8628,29 @@ class UserController extends \App\Http\Controllers\BaseController
         return view('admin.users.trackUserList', compact('trackUserList'));
     }
 
+    public function medium_long_term_without_adv_verification_list(Request $request)
+    {
+        $user_list = SuspiciousUserListTable::where('is_medium_long_term_without_adv_verification', 1)
+                                                ->orderByDesc('medium_long_term_without_adv_verification_created_at')
+                                                ->get();
+
+        $banned_user_list = banned_users::whereIn('member_id', $user_list->pluck('user_id'))->get()->pluck('member_id')->toArray();
+
+        $communication_count = intval(DB::table('queue_global_variables')->where('name','medium_long_term_without_adv_verification_communication_count_set')->first()->value);
+        
+        return view('admin.users.medium_long_term_without_adv_verification_list', compact('user_list', 'banned_user_list', 'communication_count'));
+    }
+
+    public function medium_long_term_without_adv_verification_user_remove(Request $request)
+    {
+        SuspiciousUserListTable::remove_medium_long_term_without_adv_verification($request->user_id);
+        return back()->with('message', '該帳號已移除名單');
+    }
+
+    public function medium_long_term_without_adv_verification_communication_count_set_change(Request $request)
+    {
+        DB::table('queue_global_variables')->where('name','medium_long_term_without_adv_verification_communication_count_set')->update(['value' => $request->communication_count_set]);
+        return back()->with('message', '已修改總通訊人數');
+    }
+    
 }

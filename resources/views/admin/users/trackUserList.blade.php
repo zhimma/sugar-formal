@@ -36,7 +36,21 @@
                 $user['exchange_period'] = $userInfo->exchange_period;
                 $user['warnedicon'] = \App\Models\User::warned_icondata($list->user_id);
             @endphp
-            <tr>
+            <tr
+                @if(!$userInfo->account_status_admin)
+                    bgcolor="#969696"
+                @elseif(!$userInfo->accountStatus)
+                    bgcolor="#C9C9C9"
+                @elseif($userInfo->is_banned())
+                    bgcolor="yellow"
+                @elseif($userInfo->is_warned())
+                    bgcolor="#B0FFB1"
+                @elseif($userInfo->is_waiting_for_more_data())
+                    bgcolor="#DBA5F2"
+                @elseif($userInfo->is_waiting_for_more_data_with_login_time())
+                    bgcolor="#A9D4F5"
+                @endif
+            >
                 <td><a href="/admin/users/advInfo/{{ $list->user_id }}" target="_blank">{{ $list->user_email }}</a></td>
                 <td>
                     <a href="/admin/users/advInfo/{{ $list->user_id }}" target="_blank">
