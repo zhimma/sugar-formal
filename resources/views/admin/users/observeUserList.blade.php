@@ -91,17 +91,17 @@
                 $background_color='';
 
                 if(!$userInfo->account_status_admin)
-                    $background_color="#969696"
+                    $background_color="#969696";
                 else if(!$userInfo->accountStatus)
-                    $background_color="#C9C9C9"
+                    $background_color="#C9C9C9";
                 else if($userInfo->is_banned())
-                    $background_color="#FDFF8C"
+                    $background_color="#FDFF8C";
                 else if($userInfo->is_warned())
-                    $background_color="#B0FFB1"
+                    $background_color="#B0FFB1";
                 else if($userInfo->is_waiting_for_more_data())
-                    $background_color="#DBA5F2"
+                    $background_color="#DBA5F2";
                 else if($userInfo->is_waiting_for_more_data_with_login_time())
-                    $background_color="#A9D4F5"
+                    $background_color="#A9D4F5";
             @endphp
             <tr style="background:{{$background_color}};">
                 <td><a href="/admin/users/advInfo/{{ $list->user_id }}" target="_blank">{{ $list->user_email }}</a></td>
