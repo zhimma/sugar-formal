@@ -26,16 +26,23 @@
                         class="advance_auth_finish"
                     @endif
 
-                    @if(in_array($user->user_id, $banned_user_list))
-                        style="background:yellow;"
-                    @elseif($user->user->account_status_admin)
-                        style="background:darkgray;"
-                    @elseif($user->user->accountStatus) 
-                        style="background:lightgrey;"
+                    @if(!$user->user->account_status_admin)
+                        bgcolor="#969696"
+                    @elseif(!$user->user->accountStatus)
+                        bgcolor="#C9C9C9"
+                    @elseif($user->user->is_banned())
+                        bgcolor="yellow"
+                    @elseif($user->user->is_warned())
+                        bgcolor="#B0FFB1"
+                    @elseif($user->user->is_waiting_for_more_data())
+                        bgcolor="#DBA5F2"
+                    @elseif($user->user->is_waiting_for_more_data_with_login_time())
+                        bgcolor="#A9D4F5"
                     @endif
                 >
-                    <td>
-                        <div class="check_log">
+                    <td>  
+                        <div>
+                            <span class="check_log btn btn-primary">+</span>
                             {{$user->medium_long_term_without_adv_verification_created_at}}
                         </div>
                         <div class="admin_check_log" style="display:none">
@@ -55,9 +62,9 @@
                             </table>
                         </div>
                     </td>
-                    <td>{{$user->user->email}}</td>
+                    <td><a href="/admin/users/advInfo/{{ $user->user_id }}" target="_blank">{{$user->user->email}}</a></td>
                     <td>{{$user->user->name}}</td>
-                    <td>{{$user->is_warned_log->first()->created_at ?? '未要求'}}</td>
+                    <td>{{$user->is_warned_log->where('adv_auth', 1)->sortByDesc('created_at')->first()->created_at ?? '未要求'}}</td>
                     <td>{{$user->user->advance_auth_time == '0000-00-00 00:00:00' ? '未完成' : $user->user->advance_auth_time}}</td>
                     <td>
                         <form method="POST" action="{{ route('medium_long_term_without_adv_verification_user_remove') }}" style="display: inline-flex;max-width: 250px;">
@@ -72,7 +79,7 @@
     </body>
     <script>
         $(".check_log").on("click", function(){
-            $(this).next('.admin_check_log').toggle();
+            $(this).parent().next('.admin_check_log').toggle();
         });
 
         $("#hide_advance_auth_finish").on("click", function(){
