@@ -60,15 +60,15 @@
                         <a href="/member_auth/" class="gg_zh_li"><span><img src="/new/images/zh09.png"></span>
                             <font>手機驗證</font>
                         </a>
+                        
                         @if($user->engroup==2)
                             <a @if($isAdvAuthUsable??false) href="/advance_auth/" @endif class="gg_zh_li" onclick="checkAdvAuth()"><span><img src="/new/images/zh10.png"></span>
                                 <font>進階驗證</font>
                             </a>
+                            <a id="apply_video_record_verify" class="gg_zh_li"><span><img src="/new/images/zh11.png"></span>
+                                <font>申請視訊錄影驗證</font>
+                            </a>
                         @endif
-
-                        <a id="apply_video_record_verify" class="gg_zh_li"><span><img src="/new/images/zh11.png"></span>
-                            <font>申請視訊錄影驗證</font>
-                        </a>
 
                         @if($user->engroup==2)
                             <a href="{{route('real_auth')}}" class="gg_zh_li"><span><img src="/new/images/zh11.png"></span>
@@ -162,18 +162,22 @@
 
         $('#apply_video_record_verify').click(function(){  
             @if((!($user->backend_user_details->first()->is_need_video_verify ?? false)) && $user->video_verify_auth_status == 0 && (!($user->warned_users->adv_auth ?? false)))
-                $.ajax({
-                    url: '{{ route("apply_video_record_verify") }}',
-                    type: 'GET',
-                    data: {
-                        '_token': '{{ csrf_token() }}',
-                    },
-                    success: function(data) {
-                        if(data.status == 'success'){
-                            c5('已申請，站方會再跟您約驗證時間，再請注意來訊。');
+                @if($user->isAdvanceAuth())
+                    $.ajax({
+                        url: '{{ route("apply_video_record_verify") }}',
+                        type: 'GET',
+                        data: {
+                            '_token': '{{ csrf_token() }}',
+                        },
+                        success: function(data) {
+                            if(data.status == 'success'){
+                                c5('已申請，站方會再跟您約驗證時間，再請注意來訊。');
+                            }
                         }
-                    }
-                });
+                    });
+                @else
+                    c5html("請先通過 進階驗證(<a href='/advance_auth'><span style='color:red'>點此前往</span></a>)");
+                @endif
             @else
                 @if($user->video_verify_auth_status)
                     c5('已通過');
@@ -185,7 +189,7 @@
                     @elseif($user->warned_users->video_auth ?? false)
                         c5('你好，您目前被站方警示，站方會再跟您約視訊驗證時間，再請注意來訊。');
                     @elseif($user->warned_users->adv_auth ?? false)
-                        c5('你好，您目前被站方警示，請進行進階驗證。');
+                        c5('你好，您目前被站方警示，請進行進階驗證(<a href="/advance_auth"><span style="color:red">點此前往</span></a>)。');
                     @else
                         c5('已申請，站方會再跟您約驗證時間，再請注意來訊。');
                     @endif

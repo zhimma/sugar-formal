@@ -304,11 +304,14 @@ class OrderController extends \App\Http\Controllers\BaseController
                     $result .= '該會員當前已有hideOnline<br>';
                     if(str_contains($paymentData['CustomField3'], 'cc')) {
                         if ($paymentPeriodInfo['ExecStatus'] == 0) {
-                            $result .= '定期定額取消<br>';
-                            ValueAddedService::removeValueAddedService($paymentData['CustomField1'], $paymentData['CustomField4']);
-                            ValueAddedServiceLog::addToLog($paymentData['CustomField1'], $paymentData['CustomField4'], 'Auto cancel, last process date: ' . Carbon::now() . ' 經由後台反查訂單取消', $order_id, '', 0);
-                            $result .= 'hideOnline 權限移除<br>';
-                            OrderLog::addToLog($paymentData['CustomField1'], $order_id, '定期定額取消, hideOnline 權限移除');
+                            $thisOrder = Order::findByOrderId($order_id);
+                            $order_expire_date = $thisOrder->order_expire_date;
+                            ValueAddedService::where('member_id', $paymentData['CustomField1'])
+                                ->where('service_name', $paymentData['CustomField4'])
+                                ->update(['expiry' => $order_expire_date]);
+                            ValueAddedServiceLog::addToLog($paymentData['CustomField1'], $paymentData['CustomField4'], 'Auto cancel, last process date: ' . Carbon::now() . ' 經由後台反查訂單取消，hideOnline 到期日更新', $order_id, '', 0);
+                            $result .= '定期定額取消，hideOnline 到期日更新<br>';
+                            OrderLog::addToLog($paymentData['CustomField1'], $order_id, '定期定額取消, hideOnline 到期日更新');
                         } else if ($paymentPeriodInfo['ExecStatus'] == 1) {
                             $last = last($paymentPeriodInfo['ExecLog']);
                             //最後一次扣款失敗
@@ -356,10 +359,10 @@ class OrderController extends \App\Http\Controllers\BaseController
                     }
 
                     if($updateHideOnline == 1){
-                        if($hideOnline) {
+                        if(!$hideOnline || $hideOnline->active==0) {
                             ValueAddedService::upgrade($paymentData['CustomField1'], $paymentData['CustomField4'], $paymentData['MerchantID'], $paymentData['MerchantTradeNo'], $paymentData['TradeAmt'], '', 1, $paymentData['CustomField3'], $paymentData['CustomField2']);
                             $result .= '升級HideOnline<br>';
-                            OrderLog::addToLog($paymentData['CustomField1'], $order_id, '升級HideOnline');
+                            OrderLog::addToLog($paymentData['CustomField1'], $order_id, '升級HideOnline，此為經由後台反查升級');
                         }else{
                             //多重付費訂單
                             $result .= '此為效期內訂單，但非使用者當前使用訂單，請檢查是否重複下單<br>';
@@ -381,9 +384,13 @@ class OrderController extends \App\Http\Controllers\BaseController
                     $result .= '該會員當前已有VVIP<br>';
                     if(str_contains($paymentData['CustomField3'], 'cc')) {
                         if ($paymentPeriodInfo['ExecStatus'] == 0) {
-                            ValueAddedService::removeValueAddedService($paymentData['CustomField1'], $paymentData['CustomField4']);
-                            ValueAddedServiceLog::addToLog($paymentData['CustomField1'], $paymentData['CustomField4'], 'Auto cancel, last process date: ' . Carbon::now() . ' 經由後台反查訂單取消', $order_id, '', 0);
-                            $result .= '定期定額取消，VVIP 權限移除<br>';
+                            $thisOrder = Order::findByOrderId($order_id);
+                            $order_expire_date = $thisOrder->order_expire_date;
+                            ValueAddedService::where('member_id', $paymentData['CustomField1'])
+                                ->where('service_name', $paymentData['CustomField4'])
+                                ->update(['expiry' => $order_expire_date]);
+                            ValueAddedServiceLog::addToLog($paymentData['CustomField1'], $paymentData['CustomField4'], 'Auto cancel, last process date: ' . Carbon::now() . ' 經由後台反查訂單取消，VVIP 到期日更新', $order_id, '', 0);
+                            $result .= '定期定額取消，VVIP 到期日更新<br>';
                             OrderLog::addToLog($paymentData['CustomField1'], $order_id, '定期定額取消，VVIP 權限移除');
                         } else if ($paymentPeriodInfo['ExecStatus'] == 1) {
                             $last = last($paymentPeriodInfo['ExecLog']);
@@ -419,10 +426,10 @@ class OrderController extends \App\Http\Controllers\BaseController
                     }
 
                     if($updateVVIP == 1){
-                        if($VVIP) {
+                        if(!$VVIP || $VVIP->active==0) {
                             ValueAddedService::upgrade($paymentData['CustomField1'], $paymentData['CustomField4'], $paymentData['MerchantID'], $paymentData['MerchantTradeNo'], $paymentData['TradeAmt'], '', 1, $paymentData['CustomField3'], $paymentData['CustomField2']);
                             $result .= '升級VVIP<br>';
-                            OrderLog::addToLog($paymentData['CustomField1'], $order_id, '升級VVIP');
+                            OrderLog::addToLog($paymentData['CustomField1'], $order_id, '升級VVIP，此為經由後台反查升級');
                         }else{
                             //多重付費訂單
                             $result .= '此為效期內訂單，但非使用者當前使用訂單，請檢查是否重複下單<br>';
@@ -442,17 +449,20 @@ class OrderController extends \App\Http\Controllers\BaseController
                     $result .= '該會員當前已有VIP<br>';
                     if(str_contains($paymentData['CustomField3'], 'cc') || $paymentData['CustomField3']=='') {
                         if ($paymentPeriodInfo['ExecStatus'] == 0) {
-                            $result .= '定期定額取消<br>';
-                            $vip->removeVIP();
-                            VipLog::addToLog($paymentData['CustomField1'], 'Order ID: '.$order_id.' Auto cancel, last process date: ' . Carbon::now() . ' 經由後台反查訂單取消', '', 1, 0);
-                            $result .= 'VIP 權限移除<br>';
-                            OrderLog::addToLog($paymentData['CustomField1'], $order_id, '定期定額取消, VIP 權限移除');
+                            $thisOrder = Order::findByOrderId($order_id);
+                            $order_expire_date = $thisOrder->order_expire_date;
+                            Vip::where('member_id', $paymentData['CustomField1'])
+                                ->where('order_id', $order_id)
+                                ->update(['expiry' => $order_expire_date]);
+                            VipLog::addToLog($paymentData['CustomField1'], 'Order ID: '.$order_id.' Auto cancel, last process date: ' . Carbon::now() . ' 經由後台反查訂單取消，VIP 到期日更新', '', 1, 0);
+                            $result .= '定期定額取消，VIP 到期日更新<br>';
+                            OrderLog::addToLog($paymentData['CustomField1'], $order_id, '定期定額取消, VIP 到期日更新');
                         } else if ($paymentPeriodInfo['ExecStatus'] == 1) {
                             $last = last($paymentPeriodInfo['ExecLog']);
                             //最後一次扣款失敗
                             if ($last['RtnCode'] != 1) {
                                 $vip->removeVIP();
-                                VipLog::addToLog($paymentData['CustomField1'], 'Order ID: '.$order_id.' Auto cancel, last process date: ' . Carbon::now() . ' 經由後台反查訂單取消', '', 1, 0);
+                                VipLog::addToLog($paymentData['CustomField1'], 'Order ID: '.$order_id.' Auto cancel, last process date: ' . Carbon::now() . ' 經由後台反查訂單扣款失敗，移除VIP權限', '', 1, 0);
                                 $result .= '扣款失敗, VIP 權限移除<br>';
                                 OrderLog::addToLog($paymentData['CustomField1'], $order_id, '扣款失敗, VIP 權限移除');
                             }
@@ -497,12 +507,12 @@ class OrderController extends \App\Http\Controllers\BaseController
                     }
 
                     if($updateVip == 1){
-                        if($vip) {
+                        if(!$vip || $vip->active ==0) {
                             $user = User::findById($paymentData['CustomField1']);
                             if ($user && !$user->isVVIP()) {
                                 Vip::upgrade($paymentData['CustomField1'], $paymentData['MerchantID'], $paymentData['MerchantTradeNo'], $paymentData['TradeAmt'], '', 1, 0, $paymentData['CustomField3'], $transactionType, $paymentData['CustomField2']);
                                 $result .= '升級VIP<br>';
-                                OrderLog::addToLog($paymentData['CustomField1'], $order_id, '升級VIP');
+                                OrderLog::addToLog($paymentData['CustomField1'], $order_id, '升級VIP，此為經由後台反查升級');
                             }
                         }else{
                             //多重付費訂單
@@ -693,10 +703,14 @@ class OrderController extends \App\Http\Controllers\BaseController
                     $result .= '該會員當前已有hideOnline<br>';
                     if(str_contains($paymentData['CustomField3'], 'cc')) {
                         if ($paymentPeriodInfo['ExecStatus'] == 0) {
-                            ValueAddedService::removeValueAddedService($paymentData['CustomField1'], $paymentData['CustomField4']);
-                            ValueAddedServiceLog::addToLog($paymentData['CustomField1'], $paymentData['CustomField4'], 'Auto cancel, last process date: ' . Carbon::now() . ' 經由後台反查訂單取消', $order_id, '', 0);
-                            $result .= '定期定額取消，hideOnline 權限移除<br>';
-                            OrderLog::addToLog($paymentData['CustomField1'], $order_id, '定期定額取消，hideOnline 權限移除');
+                            $thisOrder = Order::findByOrderId($order_id);
+                            $order_expire_date = $thisOrder->order_expire_date;
+                            ValueAddedService::where('member_id', $paymentData['CustomField1'])
+                                ->where('service_name', $paymentData['CustomField4'])
+                                ->update(['expiry' => $order_expire_date]);
+                            ValueAddedServiceLog::addToLog($paymentData['CustomField1'], $paymentData['CustomField4'], 'Auto cancel, last process date: ' . Carbon::now() . ' 經由後台反查訂單取消，hideOnline 到期日更新', $order_id, '', 0);
+                            $result .= '定期定額取消，hideOnline 到期日更新<br>';
+                            OrderLog::addToLog($paymentData['CustomField1'], $order_id, '定期定額取消，hideOnline 到期日更新');
                         } else if ($paymentPeriodInfo['ExecStatus'] == 1) {
                             $last = last($paymentPeriodInfo['ExecLog']);
                             //最後一次扣款失敗
@@ -743,10 +757,10 @@ class OrderController extends \App\Http\Controllers\BaseController
                     }
 
                     if($updateHideOnline == 1){
-                        if($hideOnline) {
+                        if(!$hideOnline || $hideOnline->active==0) {
                             ValueAddedService::upgrade($paymentData['CustomField1'], $paymentData['CustomField4'], $paymentData['MerchantID'], $paymentData['MerchantTradeNo'], $paymentData['TradeAmt'], '', 1, $paymentData['CustomField3'], $paymentData['CustomField2']);
                             $result .= '升級HideOnline<br>';
-                            OrderLog::addToLog($paymentData['CustomField1'], $order_id, '升級HideOnline');
+                            OrderLog::addToLog($paymentData['CustomField1'], $order_id, '升級HideOnline，此為經由後台反查升級');
                         }else{
                             //多重付費訂單
                             $result .= '此為效期內訂單，但非使用者當前使用訂單，請檢查是否重複下單<br>';
@@ -768,10 +782,14 @@ class OrderController extends \App\Http\Controllers\BaseController
                     $result .= '該會員當前已有VVIP<br>';
                     if(str_contains($paymentData['CustomField3'], 'cc')) {
                         if ($paymentPeriodInfo['ExecStatus'] == 0) {
-                            ValueAddedService::removeValueAddedService($paymentData['CustomField1'], $paymentData['CustomField4']);
-                            ValueAddedServiceLog::addToLog($paymentData['CustomField1'], $paymentData['CustomField4'], 'Auto cancel, last process date: ' . Carbon::now() . ' 經由後台反查訂單取消', $order_id, '', 0);
-                            $result .= '定期定額取消，VVIP 權限移除<br>';
-                            OrderLog::addToLog($paymentData['CustomField1'], $order_id, '定期定額取消，VVIP 權限移除');
+                            $thisOrder = Order::findByOrderId($order_id);
+                            $order_expire_date = $thisOrder->order_expire_date;
+                            ValueAddedService::where('member_id', $paymentData['CustomField1'])
+                                ->where('service_name', $paymentData['CustomField4'])
+                                ->update(['expiry' => $order_expire_date]);
+                            ValueAddedServiceLog::addToLog($paymentData['CustomField1'], $paymentData['CustomField4'], 'Auto cancel, last process date: ' . Carbon::now() . ' 經由後台反查訂單取消，VVIP 到期日更新', $order_id, '', 0);
+                            $result .= '定期定額取消，VVIP 到期日更新<br>';
+                            OrderLog::addToLog($paymentData['CustomField1'], $order_id, '定期定額取消，VVIP 到期日更新');
                         } else if ($paymentPeriodInfo['ExecStatus'] == 1) {
                             $last = last($paymentPeriodInfo['ExecLog']);
                             //最後一次扣款失敗
@@ -805,10 +823,10 @@ class OrderController extends \App\Http\Controllers\BaseController
                     }
 
                     if($updateVVIP == 1){
-                        if($VVIP) {
+                        if(!$VVIP || $VVIP->active==0) {
                             ValueAddedService::upgrade($paymentData['CustomField1'], $paymentData['CustomField4'], $paymentData['MerchantID'], $paymentData['MerchantTradeNo'], $paymentData['TradeAmt'], '', 1, $paymentData['CustomField3'], $paymentData['CustomField2']);
                             $result .= '升級VVIP<br>';
-                            OrderLog::addToLog($paymentData['CustomField1'], $order_id, '升級VVIP');
+                            OrderLog::addToLog($paymentData['CustomField1'], $order_id, '升級VVIP，此為經由後台反查升級');
                         }else{
                             //多重付費訂單
                             $result .= '此為效期內訂單，但非使用者當前使用訂單，請檢查是否重複下單<br>';
@@ -828,11 +846,14 @@ class OrderController extends \App\Http\Controllers\BaseController
                     $result .= '該會員當前已有VIP<br>';
                     if(str_contains($paymentData['CustomField3'], 'cc') || $paymentData['CustomField3']=='') {
                         if ($paymentPeriodInfo['ExecStatus'] == 0) {
-                            $result .= '定期定額取消<br>';
-                            $vip->removeVIP();
-                            VipLog::addToLog($paymentData['CustomField1'], 'Order ID: '.$order_id.' Auto cancel, last process date: ' . Carbon::now() . ' 經由後台反查訂單取消，移除VIP權限', '', 1, 0);
-                            $result .= 'VIP 權限移除<br>';
-                            OrderLog::addToLog($paymentData['CustomField1'], $order_id, '定期定額取消，VIP 權限移除');
+                            $thisOrder = Order::findByOrderId($order_id);
+                            $order_expire_date = $thisOrder->order_expire_date;
+                            Vip::where('member_id', $paymentData['CustomField1'])
+                                ->where('order_id', $order_id)
+                                ->update(['expiry' => $order_expire_date]);
+                            VipLog::addToLog($paymentData['CustomField1'], 'Order ID: '.$order_id.' Auto cancel, last process date: ' . Carbon::now() . ' 經由後台反查訂單取消，VIP 到期日更新', '', 1, 0);
+                            $result .= '定期定額取消，VIP 到期日更新<br>';
+                            OrderLog::addToLog($paymentData['CustomField1'], $order_id, '定期定額取消，VIP 到期日更新');
                         } else if ($paymentPeriodInfo['ExecStatus'] == 1) {
                             $last = last($paymentPeriodInfo['ExecLog']);
                             //最後一次扣款失敗
@@ -882,12 +903,13 @@ class OrderController extends \App\Http\Controllers\BaseController
                     }
 
                     if($updateVip == 1){
-                        if($vip) {
+                        if(!$vip || $vip->active ==0) {
+                            $result .= '升級VIP<br>';
                             $user = User::findById($paymentData['CustomField1']);
                             if ($user && !$user->isVVIP()) {
                                 Vip::upgrade($paymentData['CustomField1'], $paymentData['MerchantID'], $paymentData['MerchantTradeNo'], $paymentData['TradeAmt'], '', 1, 0, $paymentData['CustomField3'], $transactionType, $paymentData['CustomField2']);
                                 $result .= '升級VIP<br>';
-                                OrderLog::addToLog($paymentData['CustomField1'], $order_id, '升級VIP');
+                                OrderLog::addToLog($paymentData['CustomField1'], $order_id, '升級VIP，此為經由後台反查升級');
                             }
                         }else{
                             //多重付費訂單

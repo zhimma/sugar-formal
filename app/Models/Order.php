@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Config;
 use App\Services\EnvironmentService;
+use App\Services\LineNotifyService as LineNotify;
 
 class Order extends Model
 {
@@ -125,7 +126,7 @@ class Order extends Model
 
                 }
                 $order->pay_date = json_encode($dateArray);
-                $order->pay_fail = $dateFailArray;
+                $order->pay_fail = json_encode($dateFailArray);
 
                 $PaymentDate =str_replace('%20', ' ', $paymentData['PaymentDate']);
                 $PaymentDate = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $PaymentDate);
@@ -166,12 +167,21 @@ class Order extends Model
                 if($paymentData['CustomField2'] != '' && ($paymentData['CustomField4'] == 'VIP' || $paymentData['CustomField4'] == 'hideOnline')) {
                     $order->remain_days = $paymentData['CustomField2'];
                 }
-                $saved = $order->save();
-                if($saved) {
-                    OrderLog::addToLog($paymentData['CustomField1'], $order_id, '新增訂單');
-                }
 
-                return true;
+                try {
+                    $saved = $order->save();
+
+                    if($saved) {
+                        OrderLog::addToLog($paymentData['CustomField1'], $order_id, '新增訂單');
+                    }
+                    return true;
+                } catch (\Exception $e) {
+                    \Log::error($e);
+                    \Sentry::captureMessage("綠界訂單異常。" . $e->getMessage() . "，訂單編號：" . $order_id . "，資料：" . json_encode($paymentData) . "，資料 2：" . json_encode($paymentPeriodInfo) . "，order object：" . print_r($order));
+                    $lineNotify = new LineNotify;
+                    $lineNotify->sendLineNotifyMessage("綠界訂單異常。" . $e->getMessage() . "，訂單編號：" . $order_id);
+                    return false;
+                }
             }
 
         }
@@ -286,7 +296,7 @@ class Order extends Model
 
                 }
                 $order->pay_date = json_encode($dateArray);
-                $order->pay_fail = $dateFailArray;
+                $order->pay_fail = json_encode($dateFailArray);
 
                 $PaymentDate =str_replace('%20', ' ', $paymentData['PaymentDate']);
                 $PaymentDate = \Carbon\Carbon::createFromFormat('Y/m/d H:i:s', $PaymentDate);
@@ -327,12 +337,21 @@ class Order extends Model
                 if($paymentData['CustomField2'] != '' && ($paymentData['CustomField4'] == 'VIP' || $paymentData['CustomField4'] == 'hideOnline')) {
                     $order->remain_days = $paymentData['CustomField2'];
                 }
-                $saved = $order->save();
-                if($saved) {
-                    OrderLog::addToLog($paymentData['CustomField1'], $order_id, '新增訂單');
-                }
 
-                return true;
+                try {
+                    $saved = $order->save();
+
+                    if($saved) {
+                        OrderLog::addToLog($paymentData['CustomField1'], $order_id, '新增訂單');
+                    }
+                    return true;
+                } catch (\Exception $e) {
+                    \Log::error($e);
+                    \Sentry::captureMessage("FunPoint 訂單異常。" . $e->getMessage() . "，訂單編號：" . $order_id . "，資料：" . json_encode($paymentData) . "，資料 2：" . json_encode($paymentPeriodInfo) . "，order object：" . print_r($order));
+                    $lineNotify = new LineNotify;
+                    $lineNotify->sendLineNotifyMessage("FunPoint 訂單異常。" . $e->getMessage() . "，訂單編號：" . $order_id);
+                    return false;
+                }
             }
 
         }

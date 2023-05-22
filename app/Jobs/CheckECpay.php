@@ -291,12 +291,13 @@ class CheckECpay implements ShouldQueue
 
                     //正常訂單檢查到期日
                     //20天內差異者不異動
-                    if(Carbon::parse($OrderDataCheck->order_expire_date) !=  Carbon::parse($this->vipData->expiry) && Carbon::parse($OrderDataCheck->order_expire_date)->diffInDays(Carbon::parse($this->vipData->expiry))>20) {
-                        \App\Models\Vip::select('member_id', 'active')
-                            ->where('member_id', $this->vipData->member_id)
-                            ->update(array('expiry' => $OrderDataCheck->order_expire_date));
-                        \App\Models\VipLog::addToLog($user->id, 'order_id: ' . $this->vipData->order_id . '; VIP訂單檢查：' . $OrderDataCheck->payment_type, '到期日自動調整', 0, 0);
-                    }
+//                    if(Carbon::parse($OrderDataCheck->order_expire_date) != Carbon::parse($this->vipData->expiry) && Carbon::parse($OrderDataCheck->order_expire_date)->diffInDays(Carbon::parse($this->vipData->expiry))>20) {
+//                        \App\Models\Vip::select('member_id', 'active')
+//                            ->where('member_id', $this->vipData->member_id)
+//                            ->update(array('expiry' => $OrderDataCheck->order_expire_date));
+//                        \App\Models\VipLog::addToLog($user->id, 'order_id: ' . $this->vipData->order_id . '; VIP訂單檢查：' . $OrderDataCheck->payment_type, '到期日自動調整', 0, 0);
+//                    }
+
                     //VIP檢查過期
                     if( $this->userIsVip && $now->gt($OrderDataCheck->order_expire_date) && $now->gt($this->vipData->expiry) ){
                         //取消VIP 防呆處理

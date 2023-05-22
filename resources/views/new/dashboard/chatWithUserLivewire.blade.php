@@ -798,7 +798,7 @@
                 @php
                     $isBlurAvatar = \App\Services\UserService::isBlurAvatar($to, $user);
                 @endphp
-                <livewire:chat-show-content :user="$user" :to="$to" :toUserIsBanned="$toUserIsBanned" :isBlurAvatar="$isBlurAvatar" :isVip="$isVip"/>
+                <livewire:chat-show-content :user="$user" :to="$to" :toUserIsBanned="$toUserIsBanned" :isBlurAvatar="$isBlurAvatar" :isVip="$isVip" :messages/>
                 <div id="GoDown" class="GoDown" style="cursor: pointer;">
                     <img src="/new/images/go_to_end.jpg" style="opacity: 0.4;border: 1px solid #9c9c9c;border-radius: 50px; background-color: #c5c2c3; padding-left: 2px; width: 40px; float: right;margin-right: 10px;">
                 </div>
@@ -830,6 +830,49 @@
                             <a class="xin_nleft" onclick="tab_uploadPic();"><img src="/new/images/moren_pic.png"></a>
                             <textarea id="msg" name="msg" rows="1" class="xin_input" placeholder="請輸入" onclick="if(this.value=='') this.value=' ';" onblur="if(this.value=='') this.value=' ';"></textarea>
                         </div>
+                        <script>
+                            if (!typeof(chatForm_submit) == 'function') {
+                                function chatForm_submit() {
+                                    @if($to_forbid_msg_data??null)
+                                        return;
+                                    @endif
+                                    if($('#tab05').css('display')=='none') {
+                                        $('#msg').focus();
+                                    }
+                                    else {
+                                        $('#msg').blur();
+                                    }
+                                    let content = $('#msg').val(), msgsnd = $('.msgsnd');
+                                    var msg_str = $("#msg").val().replace(/\r\n|\n/g,"").replace(/\s+/g, "");
+
+                                    if(msg_str.length>400) {
+                                        c5('訊息輸入至多400個字');
+                                        return false;
+                                    }else{
+
+                                        $('#chatForm').submit();
+
+                                        setTimeout(function() {
+                                            messageContentToEnd();
+                                        }, 3200);
+
+                                    }
+
+                                    if($.trim(content) == "" ){
+                                        $('.alert').remove();
+                                        // $("<a style='color: red; font-weight: bold;' class='alert'>請勿僅輸入空白！</a>").insertAfter($('.msg'));
+                                        $( ".message_fixed" ).html();
+                                        $( ".message_fixed" ).append( "<div><a style='color: red; font-weight: bold;' class='alert'>請勿僅輸入空白！</a></div>" );
+                                        msgsnd.prop('disabled', true);
+                                        return checkForm;
+                                    }
+                                    else {
+                                        $('.alert').remove();
+                                        return checkForm;
+                                    }
+                                }
+                            }
+                        </script>
                         <a onclick="chatForm_submit();" class="xin_right" style="border: none;"><img
                                 src="/new/images/fasong.png" style="margin-top:6px;"></a>
                     </form>

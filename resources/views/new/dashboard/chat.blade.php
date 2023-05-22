@@ -825,32 +825,34 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
     </div>
     <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
 </div>
-<div id="video_verify_pop_up" class="container" style="display:none;">
-    <div class="row" >
-        <div class="col">
-            <p style="margin-bottom:10px;">
-                您好，是否要進行視訊驗證?
-            </p>
-            <div class="btn-group">
-                <a
-                    id="btn_reject_video_verify" href="/hint_to_video_record_verify?access=0"
-                    type="button"
-                    class="btn btn-danger"
-                >
-                    拒絕視訊
-                </a>
-                <a
-                    id="btn_access_video_verify" href="/hint_to_video_record_verify?access=1" 
-                    type="button"
-                    class="btn btn-success ml-5"
-                >
-                    前往視訊
-                </a>
+@if($user->engroup == 2)
+    <div id="video_verify_pop_up" class="container" style="display:none;">
+        <div class="row" >
+            <div class="col">
+                <p style="margin-bottom:10px;">
+                    您好，是否要進行視訊驗證?
+                </p>
+                <div class="btn-group">
+                    <a
+                        id="btn_reject_video_verify" href="/hint_to_video_record_verify?access=0"
+                        type="button"
+                        class="btn btn-danger"
+                    >
+                        拒絕視訊
+                    </a>
+                    <a
+                        id="btn_access_video_verify" href="/hint_to_video_record_verify?access=1"
+                        type="button"
+                        class="btn btn-success ml-5"
+                    >
+                        前往視訊
+                    </a>
+                </div>
             </div>
         </div>
     </div>
-</div>
-<div id="video_verify_bg" class="mask_bg" ></div>
+    <div id="video_verify_bg" class="mask_bg" ></div>
+@endif
 
 <div class="announce_bg" id="reverify_announce_bg" style="display:none;"></div>
 <div class="bl bl_tab" id="reverify_tab05">
@@ -1432,7 +1434,8 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                            message_user_note,
                            isVVIP,
                            msg_pic,
-                           isOnline){
+                           isOnline,
+                           is_hide_online){
             showMsg = show;
             var li='';
             var ss =((i+1)>Page.row)?'display:none;':'display:none;';
@@ -1482,7 +1485,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
 
                 li += `<div class="sjpic shanx" id="${user_id}" style="width: 65px; height: 65px;">
                         <img class="${styBlur}" src="${pic}" style="margin-top: 5px;width: 65px; height: 65px;">
-                        <div class="onlineStatusChatView ${isOnline==true?'denglu_nn':(isOnline==-1?'denglu_nn deng_nn':'')}">${isOnline==-1?'<img src="{{asset('images/wsx.png')}}">':''}</div>
+                        <div class="onlineStatusChatView ${(isOnline==true && is_hide_online==0)?'denglu_nn':(isOnline==-1?'denglu_nn deng_nn':'')}">${isOnline==-1?'<img src="{{asset('images/wsx.png')}}">':''}</div>
                        </div>
                         </div>
                         <div style="width: calc(100% - 75px); float: right;">
@@ -1497,7 +1500,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                 }
                 li += `<div class="sjpic shanx" id="${user_id}" style="width: 65px; height: 65px;">
                     <img class="${styBlur}" src="${pic}" style="margin-top: 5px;width: 65px; height: 65px;">
-                    <div class="onlineStatusChatView ${isOnline==true?'denglu_nn':(isOnline==-1?'denglu_nn deng_nn':'')}">${isOnline==-1?'<img src="{{asset('images/wsx.png')}}">':''}</div>
+                    <div class="onlineStatusChatView ${(isOnline==true && is_hide_online==0)?'denglu_nn':(isOnline==-1?'denglu_nn deng_nn':'')}">${isOnline==-1?'<img src="{{asset('images/wsx.png')}}">':''}</div>
                 </div>
                 </div>
                     <div style="width: calc(100% - 75px); float: right;">
@@ -1697,13 +1700,13 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                         if (userIsVip != 1 && i < hide_vip_counts && hide_vip_counts > 0 ) {
                             if(e.user_id == 1049 || e.isBanned==1){
                                 //hide_vip_counts = hide_vip_counts-1;
-                                if (e && e.user_id) li = liContent(pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1,e.isWarned,e.isBanned,e.exchange_period,e.isblur,e.is_truth, e.isCan, e.cityAndArea, e.message_user_note,e.isVVIP, e.isVvipSelectionRewardActive,e.isOnline);
+                                if (e && e.user_id) li = liContent(pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1,e.isWarned,e.isBanned,e.exchange_period,e.isblur,e.is_truth, e.isCan, e.cityAndArea, e.message_user_note,e.isVVIP, e.isVvipSelectionRewardActive,e.isOnline,e.is_hide_online);
                             }else {							
-                                if (e && e.user_id) li = liContent(pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 0,e.isWarned,e.isBanned,e.exchange_period,e.isblur,e.is_truth, e.isCan, e.cityAndArea, e.message_user_note,e.isVVIP, e.isVvipSelectionRewardActive,e.isOnline);
+                                if (e && e.user_id) li = liContent(pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 0,e.isWarned,e.isBanned,e.exchange_period,e.isblur,e.is_truth, e.isCan, e.cityAndArea, e.message_user_note,e.isVVIP, e.isVvipSelectionRewardActive,e.isOnline,e.is_hide_online);
                             }
                         }else {
 							//if(e.isBanned==1) hide_vip_counts = hide_vip_counts+1;
-                            if (e && e.user_id) li = liContent(pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1,e.isWarned,e.isBanned,e.exchange_period,e.isblur,e.is_truth, e.isCan, e.cityAndArea, e.message_user_note,e.isVVIP, e.isVvipSelectionRewardActive,e.isOnline);
+                            if (e && e.user_id) li = liContent(pic, e.user_name, e.content, e.created_at, e.read_n, i, e.user_id, e.isVip, 1,e.isWarned,e.isBanned,e.exchange_period,e.isblur,e.is_truth, e.isCan, e.cityAndArea, e.message_user_note,e.isVVIP, e.isVvipSelectionRewardActive,e.isOnline,e.is_hide_online);
                         }
 
                         var has_vvip_msg_count=0;
@@ -2874,7 +2877,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                                                 <div style="width: 70px; float: left;">
                                                     <div class="sjpic shanx">
                                                         <img class="${isBlur?'blur_img':''}" src="${v.avatar?v.avatar:`/new/images/${anonymousGender}.png`}">
-                                                        <div class="onlineStatusChatView ${v.isOnline==true?'denglu_nn':(v.isOnline==-1?'denglu_nn deng_nn':'')}">${v.isOnline==-1?'<img src="{{asset('images/wsx.png')}}">':''}</div>
+                                                        <div class="onlineStatusChatView ${(v.isOnline==true && v.is_hide_online==0)?'denglu_nn':(v.isOnline==-1?'denglu_nn deng_nn':'')}">${v.isOnline==-1?'<img src="{{asset('images/wsx.png')}}">':''}</div>
                                                     </div>
                                                 </div>
                                             </a>
@@ -3218,45 +3221,77 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
             $('#announce_bg').show();
         }
 
-    $(function() {
-        @if(($user->backend_user_details->first()->is_need_video_verify ?? false) && !($user->backend_user_details->first()->temp_stop_video_verify ?? false))
-            @if($user->warned_users->video_auth ?? false)
-                @if(($user->backend_user_details->first()->is_need_reverify ?? false) && $user->backend_user_details->first()->video_verify_fail_count <= 2)
-                    @if($user->meta->phone ?? false && $user->meta->phone != '')
-                        reverify_c5html('您上一次視訊驗證失敗，需要您重新進行進階驗證。您之前是使用手機驗證：{{$user->meta->phone}}，請確認是否重新驗證，按下確定後，即發送驗證碼至您原留手機，若有問題請與站長聯絡');
-                        $('#reverify_button_field').html('<span><a id="reverify_enter" class="n_left">確定</a></span><span><a id="reverify_cancel" class="n_right" onclick="gmBtnNoReload()">取消</a></span>');
-                        $('#reverify_enter').click(function() {
-                            reverify();
-                        });
-                    @elseif($user->advance_auth_email ?? false)
-                        reverify_c5html('您上一次視訊驗證失敗，需要您重新進行進階驗證。您之前是使用 Email 驗證：{{$user->advance_auth_email}}，請確認是否重新驗證，按下確定後，即發送驗證碼至您原驗證信箱，若有問題請與站長聯絡');
-                        $('#reverify_button_field').html('<span><a id="reverify_enter" class="n_left">確定</a></span><span><a id="reverify_cancel" class="n_right" onclick="gmBtnNoReload()">取消</a></span>');
-                        $('#reverify_enter').click(function() {
-                            reverify();
-                        });
+    @if($user->engroup == 2)
+        $(function() {
+            @if(($user->backend_user_details->first()->is_need_video_verify ?? false) && !($user->backend_user_details->first()->temp_stop_video_verify ?? false))
+                @if($user->warned_users->video_auth ?? false)
+                    @if(($user->backend_user_details->first()->is_need_reverify ?? false) && $user->backend_user_details->first()->video_verify_fail_count <= 2)
+                        @if($user->meta->phone ?? false && $user->meta->phone != '')
+                            reverify_c5html('您上一次視訊驗證失敗，需要您重新進行進階驗證。您之前是使用手機驗證：{{$user->meta->phone}}，請確認是否重新驗證，按下確定後，即發送驗證碼至您原留手機，若有問題請與站長聯絡');
+                            $('#reverify_button_field').html('<span><a id="reverify_enter" class="n_left">確定</a></span><span><a id="reverify_cancel" class="n_right" onclick="gmBtnNoReload()">取消</a></span>');
+                            $('#reverify_enter').click(function() {
+                                this.disabled = true;
+                                reverify();
+                            });
+                        @elseif($user->advance_auth_email ?? false)
+                            reverify_c5html('您上一次視訊驗證失敗，需要您重新進行進階驗證。您之前是使用 Email 驗證：{{$user->advance_auth_email}}，請確認是否重新驗證，按下確定後，即發送驗證碼至您原驗證信箱，若有問題請與站長聯絡');
+                            $('#reverify_button_field').html('<span><a id="reverify_enter" class="n_left">確定</a></span><span><a id="reverify_cancel" class="n_right" onclick="gmBtnNoReload()">取消</a></span>');
+                            $('#reverify_enter').click(function() {
+                                this.disabled = true;
+                                reverify();
+                            });
+                        @else
+                            c5html('您上一次視訊驗證失敗，需要您進行進階驗證，若有問題請與站長聯絡');
+                        @endif
                     @else
-                        c5html('您上一次視訊驗證失敗，需要您進行進階驗證，若有問題請與站長聯絡');
+                        @switch($user->backend_user_details->first()->video_verify_fail_count)
+                            @case(0)
+                                @if(Carbon\Carbon::parse($user->backend_user_details->first()->need_video_verify_date) < Carbon\Carbon::now() && $user->backend_user_details->first()->login_times_after_need_video_verify_date > 0)
+                                    video_verify_pop_up();
+                                @endif
+                                @break
+
+                            @case(1)
+                                @if(Carbon\Carbon::parse($user->backend_user_details->first()->need_video_verify_date)->addHours(12) < Carbon\Carbon::now() && $user->backend_user_details->first()->login_times_after_need_video_verify_date > 2)
+                                    video_verify_pop_up();
+                                @endif
+                                @break
+
+                            @case(2)
+                                @if(Carbon\Carbon::parse($user->backend_user_details->first()->need_video_verify_date)->addHours(36) < Carbon\Carbon::now() && $user->backend_user_details->first()->login_times_after_need_video_verify_date > 6)
+                                    video_verify_pop_up();
+                                @endif
+                                @break
+
+                            @default
+                                if(!(sessionStorage.getItem('display_video_record_verify_fail'))){
+                                    sessionStorage.setItem('display_video_record_verify_fail', true);
+                                    c5html('您連續三次視訊驗證失敗，暫時停止視訊驗證，若有問題請與站長聯絡 <a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="all: initial;all: unset;height: 26px; float: unset;vertical-align:middle !important;"></a>');
+                                }
+                                @break
+
+                        @endswitch
                     @endif
                 @else
                     @switch($user->backend_user_details->first()->video_verify_fail_count)
                         @case(0)
-                            @if(Carbon\Carbon::parse($user->backend_user_details->first()->need_video_verify_date) < Carbon\Carbon::now() && $user->backend_user_details->first()->login_times_after_need_video_verify_date > 0)
-                                video_verify_pop_up();
-                            @endif
-                            @break
-                    
-                        @case(1)
                             @if(Carbon\Carbon::parse($user->backend_user_details->first()->need_video_verify_date)->addHours(12) < Carbon\Carbon::now() && $user->backend_user_details->first()->login_times_after_need_video_verify_date > 2)
                                 video_verify_pop_up();
                             @endif
                             @break
 
-                        @case(2)
+                        @case(1)
                             @if(Carbon\Carbon::parse($user->backend_user_details->first()->need_video_verify_date)->addHours(36) < Carbon\Carbon::now() && $user->backend_user_details->first()->login_times_after_need_video_verify_date > 6)
                                 video_verify_pop_up();
                             @endif
                             @break
-                    
+
+                        @case(2)
+                            @if(Carbon\Carbon::parse($user->backend_user_details->first()->need_video_verify_date)->addHours(72) < Carbon\Carbon::now() && $user->backend_user_details->first()->login_times_after_need_video_verify_date > 9)
+                                video_verify_pop_up();
+                            @endif
+                            @break
+
                         @default
                             if(!(sessionStorage.getItem('display_video_record_verify_fail'))){
                                 sessionStorage.setItem('display_video_record_verify_fail', true);
@@ -3266,37 +3301,9 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
 
                     @endswitch
                 @endif
-            @else
-                @switch($user->backend_user_details->first()->video_verify_fail_count)
-                    @case(0)
-                        @if(Carbon\Carbon::parse($user->backend_user_details->first()->need_video_verify_date)->addHours(12) < Carbon\Carbon::now() && $user->backend_user_details->first()->login_times_after_need_video_verify_date > 2)
-                            video_verify_pop_up();
-                        @endif
-                        @break
-                
-                    @case(1)
-                        @if(Carbon\Carbon::parse($user->backend_user_details->first()->need_video_verify_date)->addHours(36) < Carbon\Carbon::now() && $user->backend_user_details->first()->login_times_after_need_video_verify_date > 6)
-                            video_verify_pop_up();
-                        @endif
-                        @break
-
-                    @case(2)
-                        @if(Carbon\Carbon::parse($user->backend_user_details->first()->need_video_verify_date)->addHours(72) < Carbon\Carbon::now() && $user->backend_user_details->first()->login_times_after_need_video_verify_date > 9)
-                            video_verify_pop_up();
-                        @endif
-                        @break
-                
-                    @default
-                        if(!(sessionStorage.getItem('display_video_record_verify_fail'))){
-                            sessionStorage.setItem('display_video_record_verify_fail', true);
-                            c5html('您連續三次視訊驗證失敗，暫時停止視訊驗證，若有問題請與站長聯絡 <a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="all: initial;all: unset;height: 26px; float: unset;vertical-align:middle !important;"></a>');
-                        }
-                        @break
-
-                @endswitch
             @endif
-        @endif
-    });
+        });
+    @endif
 
     function video_verify_pop_up(){
 
@@ -3343,6 +3350,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
                 $('#resend_reverify').click(function() {
                     click_time = new Date();
                     if((click_time - now_time)/1000/60 > 5){
+                        this.disabled = true;
                         reverify();
                         c5html('<br>已重新發送<br><br>');
                     }

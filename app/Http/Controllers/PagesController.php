@@ -1882,6 +1882,7 @@ class PagesController extends BaseController
             $expiry = Carbon::parse($expiry_time);
             $days = $expiry->diffInDays(Carbon::now());
         }
+        $currentVipData = Vip::where('member_id', $user->id)->orderBy('created_at', 'desc')->first();
 
         return view('new.dashboard.vipForNewebPay')
             ->with('user', $user)->with('cur', $user)
@@ -1889,7 +1890,8 @@ class PagesController extends BaseController
             ->with('upgrade_vip', $upgrade_vip->content)
             ->with('cancel_vip', $cancel_vip->content)
             ->with('expiry_time', $expiry_time)
-            ->with('days',$days);
+            ->with('days', $days)
+            ->with('currentVipData', $currentVipData);
     }
 
     public function view_vip(Request $request)
@@ -6237,7 +6239,10 @@ class PagesController extends BaseController
     public function posts_delete(Request $request)
     {
         $posts = Posts::where('id',$request->get('pid'))->first();
-        if($posts->user_id!== auth()->user()->id && auth()->user()->id != 1049){
+        if (!$posts) {
+            return response()->json(['msg'=>'留言不存在']);
+        }
+        else if($posts->user_id!== auth()->user()->id && auth()->user()->id != 1049){
             return response()->json(['msg'=>'留言刪除失敗 不可刪除別人的留言!']);
         }else{
             $postsType = $posts->type;
@@ -8430,7 +8435,7 @@ class PagesController extends BaseController
 
         $vasStatus = '';
 
-        if($user->valueAddedServiceStatus('hideOnline') == 1 && $user->is_hide_online == 1) {
+        if($user->valueAddedServiceStatus('hideOnline') == 1) {
             $vasStatus = '您目前已購買隱藏功能。';
             $vas = $user->vas->where('service_name','hideOnline')->first();
             if($vas->payment){
@@ -8583,7 +8588,8 @@ class PagesController extends BaseController
             $diffDays = $datetime2->diff($datetime3)->days;
         }
 
-        if (!empty($user_isBannedOrWarned->warned_id) && $user_isBannedOrWarned->warned_adv_auth == 1) {
+        if (!empty($user_isBannedOrWarned->warned_id) && $user_isBannedOrWarned->warned_adv_auth == 1) 
+        {
             $adminWarnedStatus = '您目前<span class="main_word">已被系統警示</span>，';
             if ($user_isBannedOrWarned->warned_expire_date > now()) {
                 $adminWarnedStatus .= '預計至 ' . substr($user_isBannedOrWarned->warned_expire_date, 0, 16) . ' 日解除，';
@@ -8592,21 +8598,61 @@ class PagesController extends BaseController
                 $adminWarnedStatus .= '原因是<span class="main_word"> ' . $user_isBannedOrWarned->warned_reason . '</span>，';
             }
             $adminWarnedStatus .= '做完進階驗證可解除<a class="red" href="' . url('advance_auth') . '"> [請點我進行驗證]</a>。';
-        } else if ($user_isBannedOrWarned->warned_type == 'no_mobile_verify') {
+        } 
+        else if ($user_isBannedOrWarned->warned_type == 'no_mobile_verify') 
+        {
             $adminWarnedStatus = '您目前<span class="main_word">已被系統警示</span>，原因是<span class="main_word"> ' . $user_isBannedOrWarned->warned_reason . '</span>，<a class="red" href="' . url('/member_auth') . '">立即手機驗證</a>';
-        } else if ($user_isBannedOrWarned->type == 'month_budget' || $user_isBannedOrWarned->type == 'transport_fare') {
+        } 
+        else if ($user_isBannedOrWarned->type == 'month_budget' || $user_isBannedOrWarned->type == 'transport_fare') 
+        {
             $adminWarnedStatus = '您因為 <span class="main_word">' . $user_isBannedOrWarned->warned_reason . '</span>，警示 <span class="main_word">' . $diffDays . '天</span>。時間自' . substr($user_isBannedOrWarned->warned_created_at, 0, 16) . '~' . substr($user_isBannedOrWarned->warned_expire_date, 0, 16) . '。如有疑慮請聯絡站長<a href="https://lin.ee/rLqcCns" target="_blank"> <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="height: 26px; float: unset;"></a>';
-        } else if ($user_isBannedOrWarned->warned_vip_pass == 1 && $user_isBannedOrWarned->warned_expire_date == null) {
+        } 
+        else if ($user_isBannedOrWarned->warned_vip_pass == 1 && $user_isBannedOrWarned->warned_expire_date == null) 
+        {
             $adminWarnedStatus = '您目前<span class="main_word">已被站方警示</span>，原因是<span class="main_word"> ' . $user_isBannedOrWarned->warned_reason . '</span>，若要解鎖請升級VIP解除，並同意如有再犯，站方有權不退費並永久警示。同意[<a href="../dashboard/new_vip" class="red">請點我</a>]';
-        } else if ($user_isBannedOrWarned->warned_vip_pass == 1 && $user_isBannedOrWarned->warned_expire_date > now()) {
+        } 
+        else if ($user_isBannedOrWarned->warned_vip_pass == 1 && $user_isBannedOrWarned->warned_expire_date > now()) 
+        {
             $adminWarnedStatus .= '您從 ' . substr($user_isBannedOrWarned->warned_created_at, 0, 10) . ' <span class="main_word">被站方警示 ' . $diffDays . '天</span>，預計至 ' . substr($user_isBannedOrWarned->warned_expire_date, 0, 16) . ' 日解除，原因是<span class="main_word"> ' . $user_isBannedOrWarned->warned_reason . '</span>，若要解鎖請升級VIP解除，並同意如有再犯，站方有權不退費並永久警示。同意[<a href="../dashboard/new_vip" class="red">請點我</a>]';
-        } else if (($user->warned_users->video_auth ?? false) == 1 && $user_isBannedOrWarned->warned_expire_date == null) {
-            $adminWarnedStatus = '您目前<span class="main_word">已被站方警示</span>，原因是<span class="main_word"> ' . $user_isBannedOrWarned->warned_reason . '</span>，站方會再跟您約視訊驗證時間，再請注意來訊。';
-        } else if (($user->warned_users->video_auth ?? false) == 1 && $user_isBannedOrWarned->warned_expire_date > now()) {
-            $adminWarnedStatus .= '您從 ' . substr($user_isBannedOrWarned->warned_created_at, 0, 10) . ' <span class="main_word">被站方警示 ' . $diffDays . '天</span>，預計至 ' . substr($user_isBannedOrWarned->warned_expire_date, 0, 16) . ' 日解除，原因是<span class="main_word"> ' . $user_isBannedOrWarned->warned_reason . '</span>，站方會再跟您約視訊驗證時間，再請注意來訊。';
-        } else if (!empty($user_isBannedOrWarned->warned_id) && $user_isBannedOrWarned->warned_expire_date == null) {
+        } 
+        else if (($user->backend_user_details->first()->has_upload_video_verify ?? false) == 1 && $user_isBannedOrWarned->warned_expire_date == null) 
+        {
+            $adminWarnedStatus = '您目前<span class="main_word">已被站方警示</span>，原因是<span class="main_word"> ' . $user_isBannedOrWarned->warned_reason . '</span>，目前已完成視訊錄影，待站方審核通知。';
+        } 
+        else if (($user->backend_user_details->first()->has_upload_video_verify ?? false) == 1 && $user_isBannedOrWarned->warned_expire_date > now()) 
+        {
+            $adminWarnedStatus .= '您從 ' . substr($user_isBannedOrWarned->warned_created_at, 0, 10) . ' <span class="main_word">被站方警示 ' . $diffDays . '天</span>，預計至 ' . substr($user_isBannedOrWarned->warned_expire_date, 0, 16) . ' 日解除，原因是<span class="main_word"> ' . $user_isBannedOrWarned->warned_reason . '</span>，目前已完成視訊錄影，待站方審核通知。';
+        } 
+        else if (($user->warned_users->video_auth ?? false) == 1 && $user_isBannedOrWarned->warned_expire_date == null) 
+        {
+            $adminWarnedStatus = '您目前<span class="main_word">已被站方警示</span>，原因是<span class="main_word"> ' . $user_isBannedOrWarned->warned_reason;
+            if($user->isAdvanceAuth())
+            {
+                $adminWarnedStatus = $adminWarnedStatus . '</span>，站方會再跟您約視訊驗證時間，再請注意來訊。';
+            }
+            else
+            {
+                $adminWarnedStatus = $adminWarnedStatus . '</span>，<a href="/advance_auth" style="color:#fd5678">請點此</a>先完成進階驗證後，站方會再跟您約視訊驗證時間，再請注意來訊。';
+            }
+        } 
+        else if (($user->warned_users->video_auth ?? false) == 1 && $user_isBannedOrWarned->warned_expire_date > now()) 
+        {
+            $adminWarnedStatus .= '您從 ' . substr($user_isBannedOrWarned->warned_created_at, 0, 10) . ' <span class="main_word">被站方警示 ' . $diffDays . '天</span>，預計至 ' . substr($user_isBannedOrWarned->warned_expire_date, 0, 16) . ' 日解除，原因是<span class="main_word"> ' . $user_isBannedOrWarned->warned_reason;
+            if($user->isAdvanceAuth())
+            {
+                $adminWarnedStatus = $adminWarnedStatus . '</span>，站方會再跟您約視訊驗證時間，再請注意來訊。';
+            }
+            else
+            {
+                $adminWarnedStatus = $adminWarnedStatus . '</span>，<a href="/advance_auth" style="color:#fd5678">請點此</a>先完成進階驗證後，站方會再跟您約視訊驗證時間，再請注意來訊。';
+            }
+        } 
+        else if (!empty($user_isBannedOrWarned->warned_id) && $user_isBannedOrWarned->warned_expire_date == null) 
+        {
             $adminWarnedStatus = '您目前<span class="main_word">已被站方警示</span>，原因是<span class="main_word"> ' . $user_isBannedOrWarned->warned_reason . '</span>，如有需要反應請點右下聯絡我們聯絡站長。';
-        } else if (!empty($user_isBannedOrWarned->warned_id) && $user_isBannedOrWarned->warned_expire_date > now()) {
+        } 
+        else if (!empty($user_isBannedOrWarned->warned_id) && $user_isBannedOrWarned->warned_expire_date > now()) 
+        {
             $adminWarnedStatus .= '您從 ' . substr($user_isBannedOrWarned->warned_created_at, 0, 10) . ' <span class="main_word">被站方警示 ' . $diffDays . '天</span>，預計至 ' . substr($user_isBannedOrWarned->warned_expire_date, 0, 16) . ' 日解除，原因是<span class="main_word"> ' . $user_isBannedOrWarned->warned_reason . '</span>，如有需要反應請點右下聯絡我們聯絡站長。';
         }
 

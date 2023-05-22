@@ -132,13 +132,29 @@
     </div>
     <a id="" onclick="$('.blbg').click();" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
 </div>
-
+<script>
+    if (!(typeof(c5_gmBtnNoReload) == 'function')) {
+        function c5_gmBtnNoReload(){
+            $("#announce_bg").hide();
+            $("#tab05").hide();
+        }
+    }
+</script>
 <div class="announce_bg" id="announce_bg" onclick="c5_gmBtnNoReload()" style="display:none;"></div>
 <div class="bl bl_tab" id="tab05">
     <div class="bltitle">提示</div>
     <div class="n_blnr01 matop10">
     <div class="blnr bltext"></div>
     <a id="c5_certain_btn" class="n_bllbut matop30" onclick="c5_gmBtnNoReload()">確定</a>
+    </div>
+    <a id="" onclick="c5_gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+</div>
+
+<div class="bl bl_tab" id="tab05_redirect">
+    <div class="bltitle">提示</div>
+    <div class="n_blnr01 matop10">
+    <div class="blnr bltext"></div>
+    <a id="c5_redirect_certain_btn" class="n_bllbut matop30">確定</a>
     </div>
     <a id="" onclick="c5_gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
 </div>

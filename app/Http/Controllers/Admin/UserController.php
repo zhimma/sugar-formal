@@ -2358,7 +2358,36 @@ class UserController extends \App\Http\Controllers\BaseController
     {
         $list = banned_users::join('users', 'users.id', '=', 'banned_users.member_id')
             ->select('banned_users.*', 'users.name', 'users.email', 'banned_users.reason')->orderBy('banned_users.created_at', 'desc')->paginate(100);
-        return view('admin.users.bannedList')->with('list', $list);
+
+        //以reason回推出原本自動封鎖id
+        $set_auto_ban_id_list = [];
+        foreach($list as $banned_user)
+        {
+            $reason = $banned_user->reason;
+            if(strpos($reason, '系統原因(') !== false)
+            {
+                $temp_str = str_replace('系統原因(', '', $reason);
+                if(strpos($temp_str, ')') !== false)
+                {
+                    $set_auto_ban_id_list[] = $banned_user->set_auto_ban_id =  intval(str_replace(')', '', $temp_str));
+                }
+                else
+                {
+                    $banned_user->set_auto_ban_id = 0;
+                }
+            }
+            else
+            {
+                $banned_user->set_auto_ban_id = 0;
+            }
+        }
+        $set_auto_ban_id_list = array_unique($set_auto_ban_id_list);
+        $set_auto_ban_list = SetAutoBan::whereIn('id', $set_auto_ban_id_list)->get()->keyBy('id')->toArray();
+
+        return view('admin.users.bannedList')
+                ->with('list', $list)
+                ->with('set_auto_ban_list', $set_auto_ban_list)
+                ;
     }
 
     /**
@@ -5732,9 +5761,12 @@ class UserController extends \App\Http\Controllers\BaseController
     public function messageBoardList(Request $request)
     {
         $messages = MessageBoard::select('message_board.*', 'users.name', 'users.engroup')
-            ->join('reported_message_board', 'reported_message_board.message_board_id', '=', 'message_board.id')
             ->join('users', 'users.id', '=', 'message_board.user_id');
-        $messages = $messages->whereRaw('reported_message_board.id is not null');
+
+        if($request->reported_message){
+            $messages->join('reported_message_board', 'reported_message_board.message_board_id', '=', 'message_board.id')
+                ->whereRaw('reported_message_board.id is not null');
+        }
         if (isset($request->date_start) || isset($request->date_end) || isset($request->keyword)) {
             $start = isset($request->date_start) ? $request->date_start : '';
             $end = isset($request->date_end) ? $request->date_end : '';
@@ -8340,14 +8372,28 @@ class UserController extends \App\Http\Controllers\BaseController
                     VipExpiryLog::addToLog($user->id, $vipData, $expire_origin, $expire_date, null, null);
                 }
             }
-        }else {
-            $expire_date = date("Y-m-d H:i:s",strtotime("+".$extend." days"));
-            $vip = new Vip();
-            $vip->member_id = $user->id;
-            $vip->expiry = $expire_date;
-            $vip->active = 1;
-            $vip->free = 0;
-            $vip->save();
+        }
+        else {
+            $vipData = Vip::findByIdWithDateDesc($user->id);
+            if($vipData && $vipData->expiry != '0000-00-00 00:00:00'){
+                if($vipData->expiry < Carbon::now()){
+                    $expire_date = date("Y-m-d H:i:s",strtotime("+".$extend." days"));
+                }else{
+                    $expire_date = date("Y-m-d H:i:s",strtotime("+".$extend." days", strtotime($vipData->expiry)));
+                }
+                $vipData->expiry = $expire_date;
+                $vipData->active = 1;
+                $vipData->save();
+            }else if(!$vipData){
+                $expire_date = date("Y-m-d H:i:s",strtotime("+".$extend." days"));
+                $vip = new Vip();
+                $vip->member_id = $user->id;
+                $vip->expiry = $expire_date;
+                $vip->active = 1;
+                $vip->free = 0;
+                $vip->save();
+            }
+
             VipLog::addToLog($user->id, 'backend_extend_expiry_service: +'.$extend.' days', 'Manual Setting', 1, 0);
             VipExpiryLog::addToLog($user->id, $user->getVipData(true), null, $expire_date, null, null);
         }

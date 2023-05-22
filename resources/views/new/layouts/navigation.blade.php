@@ -57,7 +57,7 @@
 				<ul id="menuList" class="change marg30" style="z-index: 10;">
 					<div class="comt"><img src="/new/images/t.png"></div>
 					<div class="coheight">
-					<div class="heyctop">{{ $user->name }}@if($user->isVVIP()) (VVIP) @elseif($user->isVip()) (VIP) @endif @if(view()->shared('valueAddedServices')['hideOnline'] ?? 0 == 1)<br>(隱藏)@endif</div>
+					<div class="heyctop">{{ $user->name }}@if($user->isVVIP()) (VVIP) @elseif($user->isVip()) (VIP) @endif @if((view()->shared('valueAddedServices')['hideOnline'] ?? 0) == 1 && $user->is_hide_online)<br>(隱藏)@endif</div>
 						<div class="juanzhou">
 							<div class="helist">
 								<ul>
