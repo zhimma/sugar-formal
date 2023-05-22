@@ -95,7 +95,7 @@
                 else if(!$userInfo->accountStatus)
                     $background_color="#C9C9C9";
                 else if($userInfo->is_banned())
-                    $background_color="#FDFF8C";
+                    $background_color="yellow";
                 else if($userInfo->is_warned())
                     $background_color="#B0FFB1";
                 else if($userInfo->is_waiting_for_more_data())
