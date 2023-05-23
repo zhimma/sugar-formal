@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 
 use App\Models\SuspiciousUserListTable;
+use App\Models\SuspiciousUser;
 
 class CheckSuspiciousUserList extends Command
 {
@@ -39,7 +40,8 @@ class CheckSuspiciousUserList extends Command
      */
     public function handle()
     {
-        SuspiciousUserListTable::check_medium_long_term_without_adv_verification();
+        //SuspiciousUserListTable::check_medium_long_term_without_adv_verification();
+        SuspiciousUser::check_weekly_communication_count();
         return 0;
     }
 }
