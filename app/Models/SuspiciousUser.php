@@ -127,6 +127,7 @@ class SuspiciousUser extends Model
 
                 $city_list = UserMeta::whereIn('user_id', $user_communication_id_list)->get()->pluck('city')->toArray();
 
+                //判斷多地區數量(待修改)
                 $count_of_city = count(array_unique($city_list));
 
                 if($count_of_city > $country_count_set)
