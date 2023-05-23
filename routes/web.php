@@ -1071,6 +1071,8 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('users/WarnedOrBannedLog/{logType}/{user_id}', 'UserController@isEverWarnedOrBannedLog');
         Route::get('users/commitUser', 'UserController@commitUser')->name('users/commitUser');
 
+        Route::post('users/suspicious_list_count_set_change', 'UserController@suspicious_list_count_set_change')->name('users/suspicious_list_count_set_change');
+
         //訂單
         Route::get('order', 'OrderController@index')->name('order');
         Route::get('order/list', 'OrderController@getOrderData')->name('order/list');

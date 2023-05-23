@@ -5448,7 +5448,9 @@ class UserController extends \App\Http\Controllers\BaseController
         foreach($adminInfo_array as $info) {
             $adminInfo[$info->id] = $info;
         }
-        return view('admin.users.suspiciousUser', compact('suspiciousUser','adminInfo'));
+        $communication_count_weekly_set = intval(DB::table('queue_global_variables')->where('name','suspicious_list_communication_weekly_count_set')->first()->value);
+        $country_count_set = intval(DB::table('queue_global_variables')->where('name','suspicious_list_communication_country_count_set')->first()->value);
+        return view('admin.users.suspiciousUser', compact('suspiciousUser','adminInfo','communication_count_weekly_set','country_count_set'));
     }
 
     public function modifyContent(Request $request)
@@ -8651,6 +8653,13 @@ class UserController extends \App\Http\Controllers\BaseController
     {
         DB::table('queue_global_variables')->where('name','medium_long_term_without_adv_verification_communication_count_set')->update(['value' => $request->communication_count_set]);
         return back()->with('message', '已修改總通訊人數');
+    }
+
+    public function suspicious_list_count_set_change(Request $request)
+    {
+        DB::table('queue_global_variables')->where('name','suspicious_list_communication_weekly_count_set')->update(['value' => $request->communication_count_weekly_set]);
+        DB::table('queue_global_variables')->where('name','suspicious_list_communication_country_count_set')->update(['value' => $request->country_count_set]);
+        return back()->with('message', '已修改');
     }
     
 }
