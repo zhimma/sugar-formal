@@ -588,6 +588,7 @@
 		function tab_evaluation_close(){
 			$(".announce_bg").hide();
 			$("#tab_evaluation").hide();
+            $('#content').val('');
 			$('body').css("overflow", "auto");
 		}
 
@@ -3656,6 +3657,7 @@
         resize_before_upload(reportedImages_uploader,1200,1800,'#show_banned_ele,#show_reportPic');
         $(".announce_bg").on("click", function() {
             $('.bl_tab_aa').hide();
+            $('#content').val('');
             $('body').css("overflow", "auto");
         });
 
