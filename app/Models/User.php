@@ -992,11 +992,18 @@ class User extends Authenticatable implements JWTSubject
 
     public function isSent3Msg($tid)
     {
-        $msg_count = Message::where('from_id', $tid)->where('to_id', $this->id)
+        $msg_count = Message::withTrashed()->where('from_id', $tid)->where('to_id', $this->id)
 //            ->where('is_row_delete_1','<>',$this->id)
 //            ->where('is_row_delete_2','<>',$this->id)
 //            ->where('is_single_delete_1','<>',$this->id)
 //            ->where('is_single_delete_2','<>',$this->id)
+            ->where(function ($q) {
+                $q->where(function ($q1) {
+                    $q1->where('unsend', 0)->whereNull('deleted_at');
+                })->orWhere(function ($q2) {
+                    $q2->where('unsend', 1);
+                });
+            })  
             ->count();
         return $msg_count>=3;
     }
