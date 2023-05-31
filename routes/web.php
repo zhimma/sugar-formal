@@ -349,6 +349,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
 
         //精華討論區
         Route::get('/dashboard/essence_enter_intro', 'PagesController@essence_enter_intro');
+        Route::get('/dashboard/essence_main', 'PagesController@essence_main');
         Route::get('/dashboard/essence_list', 'PagesController@essence_list');
         Route::get('/dashboard/essence_posts', 'PagesController@essence_posts');
         Route::post('/dashboard/essence_doPosts', 'PagesController@essence_doPosts');
