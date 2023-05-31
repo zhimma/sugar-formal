@@ -7692,10 +7692,16 @@ class PagesController extends BaseController
         return view('/dashboard/essence_enter_intro');
     }
 
+    public function essence_main(Request $request)
+    {
+        return view('/dashboard/essence_main');
+    }
+
     public function essence_list(Request $request)
     {
         $user=$request->user();
         $postType=$request->get('postType');
+        $source=$request->get('s');
 
         $posts_list = EssencePosts::selectraw('
              essence_posts.id as pid,
@@ -7743,6 +7749,12 @@ class PagesController extends BaseController
             }
         }
         $posts_list->orderBy('essence_posts.updated_at','desc');
+
+        if($source=='admin'){
+            $posts_list->where('users.id', 1049);
+        }else{
+            $posts_list->where('users.id','!=', 1049);
+        }
 
         $posts_list=$posts_list->paginate(10);
         return view('/dashboard/essence_list', compact('posts_list', 'postType', 'user'));

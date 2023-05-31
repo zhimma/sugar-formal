@@ -33,7 +33,7 @@
             <div class="col-sm-12 col-xs-12 col-md-10">
 
                 <div class="shou" style="text-align: center; position: relative;">
-                    <a href="{{ $user->engroup==1 ? '/dashboard/essence_enter_intro' : '/dashboard/personalPage' }}" class="toug_back btn_img" style=" position: absolute; left:-6px;">
+                    <a href="{{ $user->engroup==1 ? '/dashboard/essence_enter_intro' : '/dashboard/essence_main' }}" class="toug_back btn_img" style=" position: absolute; left:-6px;">
                         <div class="btn_back"></div>
                     </a>
                     <div style="position: absolute; left:45px;">
@@ -118,7 +118,7 @@
                 <div class="jinghua_tl">
                     <div class="jh_ulist">
                         <ul>
-                            @if($user->engroup==2)
+                            @if($user->engroup==2 && Request()->get('s')=='admin')
                                 @php
                                     $admin_info=\App\Models\User::leftJoin('user_meta', 'users.id','=','user_meta.user_id')->where('users.id', 1049)->first();
                                 @endphp
