@@ -7869,7 +7869,7 @@ class PagesController extends BaseController
             ->LeftJoin('users', 'users.id','=','essence_posts.user_id')
             ->LeftJoin('user_meta', 'users.id','=','user_meta.user_id')
             ->where('essence_posts.id', $pid)->first();
-        if(!$postDetail) {
+        if(!$postDetail && $request->article!='law_protection_sample') {
             $request->session()->flash('message', '找不到該篇精華討論區：' . $pid);
             $request->session()->reflash();
             return  redirect('/dashboard/essence_list');
