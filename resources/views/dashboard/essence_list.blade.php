@@ -152,6 +152,22 @@
                                         </div>
                                     </li>
                                 </a>
+                                <a href="/dashboard/essence_post_detail/1?article=law_protection_sample">
+                                    <li>
+                                        <div class="jh_hu04">
+                                            <div class="jh_biaoq01 jh_biaoq04"><span><img src="/posts/images/jh_11.png">法律保護女性篇</span></div>
+                                            <div class="jh_one">
+                                                <div class="jh_one_img"><img src="@if(file_exists( public_path().$admin_info->pic ) && $admin_info->pic != ""){{$admin_info->pic}} @elseif($admin_info->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="imgov"></div>
+                                                <div class="jh_fontw">{{ $admin_info->name }}<span>2023-05-30</span></div>
+                                            </div>
+                                            <div class="jh_two">
+                                                <h2 >窈窕淑女人見人愛怎麼追?君子的妙法寶就是要尊重!</h2>
+                                                <h3>小王愛慕小美追求未果因而心生怨恨，在花園網發現與小美相似的女會員照片，將其截圖私下散布於工作群組，經起訴判刑小王加重毀謗罪，判處拘役1
+                                                    個月。</h3>
+                                            </div>
+                                        </div>
+                                    </li>
+                                </a>
                             @endif
                             @if($posts_list->total()>0)
                                 @foreach($posts_list as $detail)

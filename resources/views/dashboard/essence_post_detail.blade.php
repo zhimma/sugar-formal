@@ -42,6 +42,27 @@
 						</a>
 					</div>
 					<div>
+						@if(Request()->get('article')=='law_protection_sample')
+							@php
+								$admin_info=\App\Models\User::leftJoin('user_meta', 'users.id','=','user_meta.user_id')->where('users.id', 1049)->first();
+							@endphp
+							<div class="toug_xq" style="position: relative;">
+								<div class="tougao_xnew">
+									<div class="tou_img_1">
+										<div class="tou_tx_img"><img src="@if(file_exists( public_path().$admin_info->umpic ) && $admin_info->umpic != ""){{$admin_info->umpic}} @elseif($admin_info->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="hycov"></div>
+										<span>{{ $admin_info->name }}<i class="tou_fi">2023-05-30 16:40</i></span>
+									</div>
+								</div>
+								<div class="xq_text">窈窕淑女人見人愛怎麼追?君子的妙法寶就是要尊重!</div>
+								<div class="xq_text01">
+									<span style="font-size: 16px;font-weight: bold;">小王愛慕小美追求未果因而心生怨恨，在花園網發現與小美相似的女會員照片，將其截圖私下散布於工作群組，經起訴判刑小王加重毀謗罪，判處拘役1個月。</span><br><br>
+									<div>&nbsp;&nbsp;「窈窕淑女、君子好逑。」不過若是一昧罔顧對方意願，甚而因為被拒絕惱羞成怒，做出種種逾越法律分際的行為，那可是會吃上官司的!這是一則根據事實案例判決改編的甜心網故事，奉勸各位想追求心儀的對象時，就是一定要先好好尊重女孩子，這才是君子們代代相傳、千古不敗的妙法寶喔!</div><br>
+									<div>&nbsp;&nbsp;小王(基於個資法規定文中皆採化名)與小美(基於個資法規定文中皆採化名)因為工作關係認識以後，小王即屢傳訊息給小美，這讓小美感覺已經開始讓她困擾，只能先採取冷處理的態度因應。某天早上在小美至台北某大醫院附近時，小王卻突然靠近小美表示想跟她說說話，小美加快腳步轉進醫院地下街的商店尋求店員的協助，小王見狀先在商店門口外徘徊，過沒多久欲直接進入店內，小王在店員的阻攔下大聲嚷嚷，威脅小美若再不肯跟他說話，他就要在小美上班的公司散布對小美不利的消息，說罷小王才悻悻然地離開店家，而直至小美同事到來後，小美在同事的陪同下安然離開。</div><br>
+									<div>&nbsp;&nbsp;「小王在這件事情過了大約兩週後，他在花園網截圖了多張長相疑似小美的會員照片，並附加了很多不雅的揣測詞句在公務群組裡散佈，例如 : 「很可能是某人的秘密」、「她是會為了自己目的，不擇手段到連身體都會賣的人，她有在做包養的賣喔」等等….後續經小美輾轉從同事收到訊息關心她發生了甚麼事後，赫然發現自己莫名其妙的平白受辱，因此憤而報警。</div><br>
+									<div>&nbsp;&nbsp;「經由檢察官提起公訴開庭時，小王還試圖為自己的行為辯解，他聘請了律師幫其主張 : 「公司群組是屬於私人群組必須被邀請才能加入，所以他不算是在公眾散布流言因此並沒有構成毀謗。」此案件法官最後裁定，小王觸犯了文字加重毀謗罪，判處拘役1個月。</div>
+								</div>
+							</div>
+						@else
 						<div class="toug_xq" style="position: relative; {{ $postDetail->uid==1049 ? 'background:#ddf3ff;' : ''}} @if($postDetail->top==1) background:#ffcf869e !important; @endif">
 							<div class="tougao_xnew">
 								@php
@@ -78,6 +99,7 @@
 							<div id="pcontents" class="xq_text01">{!! \App\Models\Posts::showContent($postDetail->pcontents) !!}</div>
 							{{--<div class="xq_textbot"><img src="/posts/images/tg_10.png"></div>--}}
 						</div>
+						@endif
 						<div class="botline_fnr" style="margin-bottom:0px;"></div>
 						<!--  -->
 						<style>
