@@ -49,7 +49,7 @@
 							<div class="toug_xq" style="position: relative;">
 								<div class="tougao_xnew">
 									<div class="tou_img_1">
-										<div class="tou_tx_img"><img src="@if(file_exists( public_path().$admin_info->umpic ) && $admin_info->umpic != ""){{$admin_info->umpic}} @elseif($admin_info->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="hycov"></div>
+										<div class="tou_tx_img"><img src="@if(file_exists( public_path().$admin_info->pic ) && $admin_info->pic != ""){{$admin_info->pic}} @elseif($admin_info->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="hycov"></div>
 										<span>{{ $admin_info->name }}<i class="tou_fi">2023-05-30 16:40</i></span>
 									</div>
 								</div>
