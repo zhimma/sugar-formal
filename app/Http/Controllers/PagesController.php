@@ -8640,11 +8640,11 @@ class PagesController extends BaseController
             $adminWarnedStatus = '您目前<span class="main_word">已被站方警示</span>，原因是<span class="main_word"> ' . $user_isBannedOrWarned->warned_reason;
             if($user->isAdvanceAuth())
             {
-                $adminWarnedStatus = $adminWarnedStatus . '</span>，站方會再跟您約視訊驗證時間，再請注意來訊。';
+                $adminWarnedStatus = $adminWarnedStatus . '</span>，下次上線時站方會主動撥打給您，完成視訊驗證即可解除站方警示。';
             }
             else
             {
-                $adminWarnedStatus = $adminWarnedStatus . '</span>，<a href="/advance_auth" style="color:#fd5678">請點此</a>先完成進階驗證後，站方會再跟您約視訊驗證時間，再請注意來訊。';
+                $adminWarnedStatus = $adminWarnedStatus . '</span>，<a href="/advance_auth" style="color:#fd5678">請點此</a>先完成進階驗證後，下次上線時站方會主動撥打給您，完成視訊驗證即可解除站方警示。';
             }
         } 
         else if (($user->warned_users->video_auth ?? false) == 1 && $user_isBannedOrWarned->warned_expire_date > now()) 
@@ -8652,11 +8652,11 @@ class PagesController extends BaseController
             $adminWarnedStatus .= '您從 ' . substr($user_isBannedOrWarned->warned_created_at, 0, 10) . ' <span class="main_word">被站方警示 ' . $diffDays . '天</span>，預計至 ' . substr($user_isBannedOrWarned->warned_expire_date, 0, 16) . ' 日解除，原因是<span class="main_word"> ' . $user_isBannedOrWarned->warned_reason;
             if($user->isAdvanceAuth())
             {
-                $adminWarnedStatus = $adminWarnedStatus . '</span>，站方會再跟您約視訊驗證時間，再請注意來訊。';
+                $adminWarnedStatus = $adminWarnedStatus . '</span>，下次上線時站方會主動撥打給您，完成視訊驗證即可解除站方警示。';
             }
             else
             {
-                $adminWarnedStatus = $adminWarnedStatus . '</span>，<a href="/advance_auth" style="color:#fd5678">請點此</a>先完成進階驗證後，站方會再跟您約視訊驗證時間，再請注意來訊。';
+                $adminWarnedStatus = $adminWarnedStatus . '</span>，<a href="/advance_auth" style="color:#fd5678">請點此</a>先完成進階驗證後，下次上線時站方會主動撥打給您，完成視訊驗證即可解除站方警示。';
             }
         } 
         else if (!empty($user_isBannedOrWarned->warned_id) && $user_isBannedOrWarned->warned_expire_date == null) 

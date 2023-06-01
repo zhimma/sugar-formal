@@ -162,22 +162,26 @@
 
         $('#apply_video_record_verify').click(function(){  
             @if((!($user->backend_user_details->first()->is_need_video_verify ?? false)) && $user->video_verify_auth_status == 0 && (!($user->warned_users->adv_auth ?? false)))
-                @if($user->isAdvanceAuth())
-                    $.ajax({
-                        url: '{{ route("apply_video_record_verify") }}',
-                        type: 'GET',
-                        data: {
-                            '_token': '{{ csrf_token() }}',
-                        },
-                        success: function(data) {
-                            if(data.status == 'success'){
-                                c5('已申請，站方會再跟您約驗證時間，再請注意來訊。');
+                c8html_custom('您好，您申請的視訊驗證功能，通過驗證後，將大大提高您的照片真實性，並驗證與您個人資料相符。同時，您將獲得官方認證的標籤 ✅，表示您的身分受官方認證。<br><br>通過驗證，能提升其他會員對您資料的信任度，吸引更多真實、的會員與您互動，提高交友的品質和成功率。<br><br>請放心，我們將嚴格保護您的隱私和個人資料，在視訊驗證過程中採取相應的安全措施。驗證結果僅用於確認照片真實性和授予官方認證標籤，不會被用於其他任何目的。', '申請驗證', '取消驗證');
+                $("#tab08 .tab_confirm_btn").on('click', function() {
+                    @if($user->isAdvanceAuth())
+                        $.ajax({
+                            url: '{{ route("apply_video_record_verify") }}',
+                            type: 'GET',
+                            data: {
+                                '_token': '{{ csrf_token() }}',
+                            },
+                            success: function(data) {
+                                if(data.status == 'success'){
+                                    c5('已申請，站方會再跟您約驗證時間，再請注意來訊。');
+                                }
                             }
-                        }
-                    });
-                @else
-                    c5html("請先通過 進階驗證(<a href='/advance_auth'><span style='color:red'>點此前往</span></a>)");
-                @endif
+                        });
+                    @else
+                        c5html("請先通過 進階驗證(<a href='/advance_auth'><span style='color:red'>點此前往</span></a>)");
+                    @endif
+                    c8_gmBtnNoReload();
+                });
             @else
                 @if($user->video_verify_auth_status)
                     c5('已通過');
@@ -187,7 +191,7 @@
                     @elseif($user->backend_user_details->first()->video_verify_fail_count>=3)
                         c5html('您連續三次視訊驗證失敗，暫時停止視訊驗證，若有問題請與站長聯絡 <a href="https://lin.ee/rLqcCns"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="26" border="0" style="all: initial;all: unset;height: 26px; float: unset;vertical-align:middle !important;"></a>');
                     @elseif($user->warned_users->video_auth ?? false)
-                        c5('你好，您目前被站方警示，站方會再跟您約視訊驗證時間，再請注意來訊。');
+                        c5('您好，您目前被站方警示，請留意下次上線時站方將撥打給你進行視訊驗證。');
                     @elseif($user->warned_users->adv_auth ?? false)
                         c5('你好，您目前被站方警示，請進行進階驗證(<a href="/advance_auth"><span style="color:red">點此前往</span></a>)。');
                     @else
