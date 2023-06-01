@@ -171,7 +171,7 @@
 <div class="bl bl_tab" id="tab08">
     <div class="bltitle">提示</div>
     <div class="n_blnr01">
-        <div class="blnr bltext"></div>
+        <div class="text_area blnr bltext"></div>
         <div class="n_bbutton">
             <span><a class="n_left tab_confirm_btn" href="javascript:" >確認</a></span>
             <span><a onclick="c8_gmBtnNoReload()" class="n_right tab_cancel_btn" href="javascript:">返回</a></span>

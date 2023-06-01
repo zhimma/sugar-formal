@@ -1,5 +1,10 @@
 @extends('new.layouts.website')
-
+<style>
+    #tab08 a .obvious {color:red;float:none;}
+    #tab08 .n_bbutton,#tab_general_alert .n_bbutton {width:initial;}
+    #tab08 .n_bbutton span,#tab_general_alert .n_bbutton span {float:initial;}
+    #tab08 .n_fengs {text-align:center;}
+</style>
 @section('app-content')
     <div class="container matop70">
         <div class="row">
@@ -163,6 +168,7 @@
         $('#apply_video_record_verify').click(function(){  
             @if((!($user->backend_user_details->first()->is_need_video_verify ?? false)) && $user->video_verify_auth_status == 0 && (!($user->warned_users->adv_auth ?? false)))
                 c8html_custom('您好，您申請的視訊驗證功能，通過驗證後，將大大提高您的照片真實性，並驗證與您個人資料相符。同時，您將獲得官方認證的標籤 ☑️，表示您的身分受官方認證。<br><br>通過驗證，能提升其他會員對您資料的信任度，吸引更多真實、的會員與您互動，提高交友的品質和成功率。<br><br>請放心，我們將嚴格保護您的隱私和個人資料，在視訊驗證過程中採取相應的安全措施。驗證結果僅用於確認照片真實性和授予官方認證標籤，不會被用於其他任何目的。', '申請驗證', '取消驗證');
+                $("#tab08 .text_area").removeClass('blnr bltext').addClass('n_fengs');
                 $("#tab08 .tab_confirm_btn").on('click', function() {
                     @if($user->isAdvanceAuth())
                         $.ajax({
