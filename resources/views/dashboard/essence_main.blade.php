@@ -133,7 +133,7 @@
                         <li>
                             <div class="ta_img">
                                 <div class="video-wrapper">
-                                    <video id="video" src="/video/essence_01.mp4" controls></video>
+                                    <video id="video" src="/video/essence_01.mp4" controls  poster="/video/essence_01.png"></video>
                                     {{--<div class="play-button"></div>--}}
                                 </div>
                             </div>
