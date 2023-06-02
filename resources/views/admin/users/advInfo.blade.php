@@ -1178,7 +1178,7 @@
              $isWarned_show['expire_date']=$row->expire_date;
              $isWarned_show['vip_pass']=$row->vip_pass;
              $isWarned_show['adv_auth']=$row->adv_auth;
-             $isWarned_show['video_auth']=$row->adv_auth;
+             $isWarned_show['video_auth']=$row->video_auth;
          }
         $isWarned_show['cancal_admin']='';
         $isWarned_show['cancal_time']='尚未解除';
