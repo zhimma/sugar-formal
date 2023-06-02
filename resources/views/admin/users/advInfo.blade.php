@@ -1140,6 +1140,7 @@
             $isEverWarned_log[$key]['reason']=$row->reason;
             $isEverWarned_log[$key]['vip_pass']=$row->vip_pass;
             $isEverWarned_log[$key]['adv_auth']=$row->adv_auth;
+            $isEverWarned_log[$key]['video_auth']=$row->video_auth;
             $isEverWarned_log[$key]['expire_date']=$row->expire_date;
             $isEverWarned_cancel=($isWarned->count() && $key || !$isWarned->count())?\App\Models\AdminActionLog::where('target_id', $user->id)->where('act','解除站方警示')->orderByDesc('created_at')->skip($isWarned && $key?$key-1:$key)->first():null;
             $isEverWarned_log[$key]['cancal_admin']=$isEverWarned_cancel? \App\Models\User::findById($isEverWarned_cancel->operator??''):'';
@@ -1177,6 +1178,7 @@
              $isWarned_show['expire_date']=$row->expire_date;
              $isWarned_show['vip_pass']=$row->vip_pass;
              $isWarned_show['adv_auth']=$row->adv_auth;
+             $isWarned_show['video_auth']=$row->adv_auth;
          }
         $isWarned_show['cancal_admin']='';
         $isWarned_show['cancal_time']='尚未解除';
@@ -1597,6 +1599,7 @@
             @if(($isWarned_show && count($isWarned_show)>0) )
                 {{ array_get($isWarned_show,'vip_pass')==1  ? '付費警示' : '' }}
                 {{ array_get($isWarned_show,'adv_auth')==1  ? '驗證警示' : '' }}
+                {{ array_get($isWarned_show,'video_auth')==1  ? '視訊驗證警示' : '' }}
             @endif
             </td>
             <td>
@@ -1612,6 +1615,7 @@
                 @if(!is_null(array_get($isEverWarned_log,'0')))      
                 {{ array_get($isEverWarned_log,'0.vip_pass') == 1 ? '付費警示' : '' }}
                 {{ array_get($isEverWarned_log,'0.adv_auth') == 1 ? '驗證警示' : '' }}
+                {{ array_get($isEverWarned_log,'0.video_auth') == 1 ? '視訊驗證警示' : '' }}
                 @endif
             @endif
             </td>
