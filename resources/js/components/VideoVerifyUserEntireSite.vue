@@ -1866,7 +1866,7 @@ export default {
       */
     },
 
-    checkDevices() {
+    async checkDevices() {
       var cd_log_arr = {
             from_file:'VideoVerifyUserEntireSite.vue'
             ,title:'start checkDevices()@methods@export default@VideoVerifyUserEntireSite.vue'
@@ -1881,9 +1881,9 @@ export default {
       };
       log_video_chat_process_entire_site(cd_log_arr);
 
-      return navigator.mediaDevices.enumerateDevices()
-          .then(dev => {
-            this.gotDevices(dev);
+      await navigator.mediaDevices.enumerateDevices()
+          .then(async (dev) => {
+            await this.gotDevices(dev);
             cd_log_arr.act_step = 'then';
             cd_log_arr.data = {dev: dev};
             log_video_chat_process_entire_site(cd_log_arr);
@@ -1897,7 +1897,7 @@ export default {
 
     async gotDevices(deviceInfos) {
       //console.log(deviceInfos)
-      await sleep(1000);
+      await this.sleep(1000);
       this.audioSet = false;
       this.videoSet = false;
       for (let i = 0; i !== deviceInfos.length; ++i) {

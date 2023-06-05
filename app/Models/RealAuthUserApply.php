@@ -281,6 +281,102 @@ class RealAuthUserApply extends Model
                 ->where('item_id',3)
                 ->where('has_pic',1)
                 ;
-    }      
+    } 
+
+    public function saveModifyByArr($arr) 
+    {
+        $data = $arr;
+        $apply_entry = $this;
+        
+        if(!$apply_entry) return;       
+        
+        $data['apply_status_shot'] = $apply_entry->status;
+        
+        if(in_array($data['item_id'],[4,5])) {
+            if(!$apply_entry->real_auth_user_modify->where('item_id',$data['item_id'])->where('apply_status_shot',0)->count()) {
+                $data['is_formal_first'] = 1;
+            }
+        }
+        $rs = $apply_entry->real_auth_user_modify()->create($data);
+
+        if($rs){
+            if($rs->item_id!=1)  {
+                
+                if(!$rs->apply_status_shot
+                    || ($rs->apply_status_shot==1 && $rs->status==1 )
+                ) {
+                    if($rs->new_height) {
+                        $apply_entry->height_modify_id = $rs->id;
+                    }
+                    
+                    if($rs->new_weight) {
+                        $apply_entry->weight_modify_id = $rs->id;
+                    }  
+
+                    if($rs->new_exchange_period ) {
+                        $apply_entry->exchange_period_modify_id = $rs->id;
+                    }  
+
+                    if($rs->new_mem_pic_num || $rs->new_avatar_num) {
+                        $apply_entry->pic_modify_id  = $rs->id;
+                    } 
+
+                    if($rs->new_video_record_id ) {
+                        $apply_entry->video_modify_id  = $rs->id;
+                    } 
+
+                    if($rs->has_reply ) {
+                        $apply_entry->reply_modify_id  = $rs->id;
+                    }   
+
+                    $apply_entry->save();
+                }
+               
+            }
+            return $rs;
+        }
+    }
+    
+    public function saveVideoRecordId($vrid)
+    {
+        $self_auth_apply_entry = $this;
+        
+        if($self_auth_apply_entry->auth_type_id!=1)  return false;
+        
+        $latest_vmodify = $self_auth_apply_entry->latest_working_video_modify;
+
+        if ($latest_vmodify) {
+            if ($latest_vmodify->new_video_record_id) {
+                $vmodify_data['old_video_record_id'] = $latest_vmodify->new_video_record_id;
+            }
+
+            if ($self_auth_apply_entry->status == 1) {
+                $vmodify_data['status'] = 0;
+                $vmodify_data['now_video_record_id'] = $latest_vmodify->new_video_record_id;
+
+                if ($latest_vmodify->new_video_record_id) {
+                    $vmodify_data['old_video_record_id'] = $latest_vmodify->new_video_record_id;
+                }
+            } else {
+                $vmodify_data['now_video_record_id'] = $vrid;
+
+            }
+        }
+        else {
+            $vmodify_data['now_video_record_id'] = $vrid;
+        }
+
+        $vmodify_data['new_video_record_id'] = $vrid;
+        $vmodify_data['item_id'] = 4;
+
+        $modify_rs = $this->saveModifyByArr($vmodify_data);
+
+        if($modify_rs && $self_auth_apply_entry->status!=1) {
+            $self_auth_apply_entry->video_modify_id = $modify_rs->id;
+            $self_auth_apply_entry->save();
+        }
+
+        return $modify_rs;
+    }    
 
 }

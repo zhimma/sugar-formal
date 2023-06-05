@@ -71,6 +71,8 @@
                             <a @if($isAdvAuthUsable??false) href="/advance_auth/" @endif class="gg_zh_li" onclick="checkAdvAuth()"><span><img src="/new/images/zh10.png"></span>
                                 <font>進階驗證</font>
                             </a>
+                        @endif
+                        @if($user->engroup==2 && (!$rap_service->isPassedByAuthTypeId(1) || ($user->video_verify_auth_status??false)))
                             <a id="apply_video_record_verify" class="gg_zh_li"><span><img src="/new/images/zh11.png"></span>
                                 <font>申請視訊錄影驗證</font>
                             </a>

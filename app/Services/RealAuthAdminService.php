@@ -504,14 +504,14 @@ class RealAuthAdminService {
             foreach($modify_pic_list as $modify_pic) {
                 switch($modify_pic->pic_cat) {
                     case 'avatar':
-                        $this->img_ctrl()->handleAvatarUploadedFile($user,$modify_pic->pic,$modify_pic->original_name );
+                        $this->img_ctrl()->handleAvatarUploadedFile($user,$modify_pic->pic,$modify_pic->original_name,$modify_pic->original_exif,null,null,null,null );
                         $this->img_ctrl()->handleAvatarLogFreeVipPicAct($user);
                     break;
                     case 'member_pic':
                         if($modify_pic->old_pic)
                             $this->img_ctrl()->handleDeletePictures($user->pic->where('pic',$modify_pic->old_pic),$user);
                         
-                        $this->img_ctrl()->handlePicturesUploadedFile($user,$modify_pic->pic,$modify_pic->original_name );
+                        $this->img_ctrl()->handlePicturesUploadedFile($user,$modify_pic->pic,$modify_pic->original_name, $modify_pic->original_exif,null,null,null,null );
                         $this->img_ctrl()->handlePicturesLogFreeVipPicAct($user);
                     break;
                 }

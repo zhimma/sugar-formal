@@ -245,57 +245,15 @@ class RealAuthUserRepository
     }
     
     public function saveModifyByArr($arr) 
-    {
+    {    
         $data = $arr;
         $apply_entry = $this->apply_entry();
         
         if(!$apply_entry) return;       
-        
-        $data['apply_status_shot'] = $apply_entry->status;
-        
-        if(in_array($data['item_id'],[4,5])) {
-            if(!$apply_entry->real_auth_user_modify->where('item_id',$data['item_id'])->where('apply_status_shot',0)->count()) {
-                $data['is_formal_first'] = 1;
-            }
-        }
-        $rs = $apply_entry->real_auth_user_modify()->create($data);
-        
-        if($rs){
-            if($rs->item_id!=1)  {
-                
-                if(!$rs->apply_status_shot
-                    || ($rs->apply_status_shot==1 && $rs->status==1 )
-                ) {
-                    if($rs->new_height) {
-                        $apply_entry->height_modify_id = $rs->id;
-                    }
-                    
-                    if($rs->new_weight) {
-                        $apply_entry->weight_modify_id = $rs->id;
-                    }  
+        $rs = $apply_entry->saveModifyByArr($arr);
 
-                    if($rs->new_exchange_period ) {
-                        $apply_entry->exchange_period_modify_id = $rs->id;
-                    }  
-
-                    if($rs->new_mem_pic_num || $rs->new_avatar_num) {
-                        $apply_entry->pic_modify_id  = $rs->id;
-                    } 
-
-                    if($rs->new_video_record_id ) {
-                        $apply_entry->video_modify_id  = $rs->id;
-                    } 
-
-                    if($rs->has_reply ) {
-                        $apply_entry->reply_modify_id  = $rs->id;
-                    }   
-
-                    $apply_entry->save();
-                }
-               
-            }
+        if($rs)
             return $this->modify_entry($rs);
-        }
     }
     
     public function getEffectWorkingReplyListFromApplyEntry($apply_entry=null) 
@@ -894,5 +852,14 @@ class RealAuthUserRepository
         $status = $this->getAuthStatusByAuthTypeId($auth_type_id);        
         $apply_entry = $this->getApplyByAuthTypeId($auth_type_id);
         return $status==2 && $apply_entry;
-    }      
+    } 
+    
+    public function saveVideoRecordId($vrid)
+    {
+        $apply_entry = $this->apply_entry();
+        
+        if(!$apply_entry)  return false;
+        
+        return $apply_entry->saveVideoRecordId($vrid);
+    }
 }

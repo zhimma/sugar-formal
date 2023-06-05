@@ -331,7 +331,7 @@
                             </div>
                         </div>         
                     @endif
-                    @if($user->engroup == 2)
+                    @if($user->engroup == 2 && (!$rap_service->isPassedByAuthTypeId(1) || ($user->video_verify_auth_status??false)))
                         @if((!($user->warned_users->adv_auth ?? false) && !($user->warned_users->video_auth ?? false)) || $user->backend_user_details->first()?->video_verify_fail_count>=3)
                             <div class="sys_aa" id="apply_video_record_block">
                                 <div class="tabbox_new_dt"><span>視訊錄影驗證</span>

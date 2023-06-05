@@ -109,6 +109,15 @@ class RealAuthUserModify extends Model
             $apply_entry->exchange_period_modify_id  = $rs->id;
             $apply_entry->pic_modify_id  = $rs->id;
             $apply_entry->save();
+            
+            if($user->video_verify_auth_status==1) {
+                $video_verify_auth_latest_record = $user->video_verify_record()->where('admin_id',0)->orderByDesc('id')->first();
+                
+                if($video_verify_auth_latest_record) {
+                    $apply_entry->saveVideoRecordId($video_verify_auth_latest_record->id);
+                }
+            }
+            
             return $rs;
         }          
     }

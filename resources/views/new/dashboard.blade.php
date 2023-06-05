@@ -209,7 +209,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                         </span>
                     </dt>                
                     @endif
-                    @if($user->engroup==2)
+                    @if($user->engroup==2 && (!$rap_service->isPassedByAuthTypeId(1) || ($user->video_verify_auth_status??false)))
                         <dt>
                             <span>視訊錄影驗證</span>
                             <span>
