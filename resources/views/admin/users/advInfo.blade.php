@@ -1821,12 +1821,14 @@
                         <td>
                             {{ (array_get($isEverWarned_log,'1.vip_pass')==1) ? '付費警示' : '' }}
                             {{ (array_get($isEverWarned_log,'1.adv_auth')==1) ? '驗證警示' : '' }}
+                            {{ (array_get($isEverWarned_log,'1.video_auth') == 1) ? '視訊驗證警示' : '' }}
                         </td>
                     @endif
                     @if(!is_null(array_get($isEverWarned_log,'2')))
                         <td>
                             {{ (array_get($isEverWarned_log,'2.vip_pass')==1) ? '付費警示' : '' }}
                             {{ (array_get($isEverWarned_log,'2.adv_auth')==1) ? '驗證警示' : '' }}
+                            {{ (array_get($isEverWarned_log,'2.video_auth') == 1) ? '視訊驗證警示' : '' }}
                         </td>
                     @endif
                 @endif
