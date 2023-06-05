@@ -2,6 +2,7 @@
 namespace App\Services;
 use App\Repositories\RealAuthUserRepository;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class RealAuthPageService {
     public function __construct(
@@ -280,27 +281,7 @@ class RealAuthPageService {
         $user = $this->user();
         $real_auth = request()->real_auth;
         $start_msg_str = '';
-
-        if ($real_auth == 1 ||  $real_auth == 2) {
-            if ($user) {
-                $user_sa_apply = $this->getApplyByAuthTypeId(1);
-                if(!$user_sa_apply) {
-                    $this->user()->refresh();
-                   $user_sa_apply = $this->getApplyByAuthTypeId(1); 
-                }
-                $sa_apply_first_modify = $user_sa_apply->first_modify;
-                $start_msg_str = $user->name . '您好，您在' . $sa_apply_first_modify->created_at . '時於本站申請' . ($user_sa_apply->from_auto?'美顏推薦':'本人認證') ;
-            } 
-            else {
-                if ($real_auth == 1 ) {
-                    $start_msg_str = '還差一點！只要通過最後的視訊驗證即可完成認證。';
-                } else if ($real_auth == 2) {
-                    $start_msg_str = '還差一點！只剩最後兩個步驟即可完成美顏認證：視訊驗證和填寫美顏認證表。';
-                }
-            }
-        } 
-        $users = DB::table('role_user')->leftJoin('users', 'role_user.user_id', '=', 'users.id')->where('users.id', '<>', auth()->id())->get();
-        return $start_msg_str . ' 
+        $not_video_yet_intro =  ' 
                     <br>
         <div class="self_auth_msg_before_video">
   <div style="margin-top:1em;">
@@ -313,6 +294,33 @@ class RealAuthPageService {
         </div>
                     <br>
                         ';
+        if ($real_auth == 1 ||  $real_auth == 2) {
+            if ($user) {
+                $this->user()->refresh();
+                $user_sa_apply = $this->getApplyByAuthTypeId(1);
+                if(!$user_sa_apply) {
+                    
+                   $user_sa_apply = $this->getApplyByAuthTypeId(1); 
+                }
+
+                $sa_apply_first_modify = $user_sa_apply->first_modify;
+                $start_msg_str = $user->name . '您好，您在' . Carbon::parse($sa_apply_first_modify->created_at)->format('Y-m-d H:i') . '時於本站申請' . ($user_sa_apply->from_auto?'美顏推薦':'本人認證');
+                
+                if($user->video_verify_auth_status==1 && $this->isSelfAuthWaitingCheck()) {
+                    $start_msg_str.= '。您已完成視訊錄影驗證，無須再進行第二次視訊，站方將於審查後直接通過本人認證';
+                    $not_video_yet_intro = '';
+                }
+            } 
+            else {
+                if ($real_auth == 1 ) {
+                    $start_msg_str = '還差一點！只要通過最後的視訊驗證即可完成認證。';
+                } else if ($real_auth == 2) {
+                    $start_msg_str = '還差一點！只剩最後兩個步驟即可完成美顏認證：視訊驗證和填寫美顏認證表。';
+                }
+            }
+        } 
+        $users = DB::table('role_user')->leftJoin('users', 'role_user.user_id', '=', 'users.id')->where('users.id', '<>', auth()->id())->get();
+        return $start_msg_str .$not_video_yet_intro;
     }
 
     public function getOnClickAttrForNoUnloadConfirm()
@@ -443,40 +451,10 @@ class RealAuthPageService {
     public function saveVideoRecordId($vrid)
     {
         $self_auth_apply_entry = $this->getApplyByAuthTypeId(1);
-        $latest_vmodify = $self_auth_apply_entry->latest_working_video_modify;
-
-        if ($latest_vmodify) {
-            if ($latest_vmodify->new_video_record_id) {
-                $vmodify_data['old_video_record_id'] = $latest_vmodify->new_video_record_id;
-            }
-
-            if ($self_auth_apply_entry->status == 1) {
-                $vmodify_data['status'] = 0;
-                $vmodify_data['now_video_record_id'] = $latest_vmodify->new_video_record_id;
-
-                if ($latest_vmodify->new_video_record_id) {
-                    $vmodify_data['old_video_record_id'] = $latest_vmodify->new_video_record_id;
-                }
-            } else {
-                $vmodify_data['now_video_record_id'] = $vrid;
-
-            }
-        }
-        else {
-            $vmodify_data['now_video_record_id'] = $vrid;
-        }
-
-        $vmodify_data['new_video_record_id'] = $vrid;
-        $vmodify_data['item_id'] = 4;
-
-        $modify_rs = $this->rau_repo()->saveModifyByArr($vmodify_data);
-
-        if($modify_rs && $self_auth_apply_entry->status!=1) {
-            $self_auth_apply_entry->video_modify_id = $modify_rs->id;
-            $self_auth_apply_entry->save();
-        }
-
-        return $modify_rs;
+        
+        if(!$self_auth_apply_entry)  return false;
+        
+        return $this->rau_repo()->saveVideoRecordId($vrid);
     }
     
     public function saveProfileModifyByReq($request)
@@ -628,7 +606,7 @@ class RealAuthPageService {
         $is_passed = $this->isPassedByAuthTypeId($auth_type_id);
         $unchk_apply_entry = $this->getUncheckedApplyByAuthTypeId($auth_type_id);
 
-        if(!$is_passed && !$unchk_apply_entry)
+        if(!$is_passed && (!$unchk_apply_entry ||  $unchk_apply_entry->status==2))
         {
             return true;
         }

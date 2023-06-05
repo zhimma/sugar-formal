@@ -1580,7 +1580,8 @@ class PagesController extends BaseController
             ->with('userPauseMsg', $userPauseMsg ?? null)
             ->with('apiPauseMsg', $apiPauseMsg ?? null)
             ->with('userWrongMsg', $userWrongMsg)
-            ->with('userForbidMsg', $userForbidMsg);
+            ->with('userForbidMsg', $userForbidMsg)
+            ->with('rap_service',$this->rap_service);
     }
 
     public function advance_auth_get_msg($type = null)

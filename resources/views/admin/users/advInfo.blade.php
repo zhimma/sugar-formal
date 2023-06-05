@@ -172,8 +172,8 @@
         <a class="btn @if($user['advance_auth_status']==1 ) btn-secondary @else btn-danger @endif warned-user warned_adv_auth" title="站方警示與自動封鎖的警示，只能經後台解除" id="adv_auth_warned_user" href="#" @if($user['advance_auth_status']==1 ) onclick="return false;"  @else data-toggle="modal" data-target="#warned_modal" data-vip_pass="0" data-vip_pass="0" data-adv_auth="1"  data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}" @endif >驗證警示</a>
         @endif
         @if($user->engroup == 2)
-            <a class="btn @if($user->video_verify_auth_status == 1 || ($user->backend_user_details->first()->is_need_video_verify ?? false)) btn-secondary @else btn-danger @endif warned-user warned_video_auth"
-                @if(!($user->warned_users->video_auth ?? false) && ($user->backend_user_details->first()->is_need_video_verify ?? false))
+            <a class="btn @if($raa_service->isPassedByAuthTypeId(1) ||  $user->video_verify_auth_status == 1 || ($user->backend_user_details->first()?->is_need_video_verify ?? false)) btn-secondary @else btn-danger @endif warned-user warned_video_auth"
+                @if(!($user->warned_users->video_auth ?? false) && ($user->backend_user_details->first()?->is_need_video_verify ?? false))
                     title="{{$user->backend_user_details->first()->need_video_verify_date}} 申請"
                 @else
                     title="站方警示與自動封鎖的警示，只能經後台解除" 
@@ -3361,9 +3361,14 @@ $(".real_auth_pass").click(function(){
                 else if(res==2) {
                     alert('無法通過'+data.auth_name+'，發現有新送出的修改，頁面將自動重新整理，請重新審核'+data.auth_name);
                 }
-                else alert('儲存失敗，無法通過此會員的'+data.auth_name+'申請');
+                else alert('儲存失敗！！！無法通過此會員的'+data.auth_name+'申請');
                 location.reload();
-            }});
+            },
+            error: function (request, status, error) {
+                alert('儲存失敗！！！無法通過此會員的'+data.auth_name+'申請。錯誤訊息：'+request.status+','+status+','+error);
+                location.reload();
+            }
+        });
     }
     else{
         return false;
@@ -3387,9 +3392,14 @@ $(".modify_check_pass").click(function(){
             },            
             success: function(res){
                 if(res==1 )alert('已通過'+data.auth_name);
-                else alert('儲存失敗，無法通過此會員的'+data.auth_name+'申請');
+                else alert('儲存失敗！！！無法通過此會員的'+data.auth_name+'資料異動申請');
                 location.reload();
-            }});
+            },
+            error: function (request, status, error) {
+                alert('儲存失敗！！！無法通過此會員的'+data.auth_name+'資料異動申請。錯誤訊息：'+request.status+','+status+','+error);
+                location.reload();
+            }
+        });
     }
     else{
         return false;
@@ -3417,9 +3427,14 @@ $(".real_auth_cancel_pass").click(function(){
             },             
             success: function(res){
                 if(res==1 )alert('已取消'+data.auth_name);
-                else alert('儲存失敗，無法取消此會員的'+data.auth_name);
+                else alert('儲存失敗！！！無法取消此會員的'+data.auth_name);
                 location.reload();
-            }});
+            },
+            error: function (request, status, error) {
+                alert('儲存失敗！！！無法取消此會員的'+data.auth_name+'。錯誤訊息：'+request.status+','+status+','+error);
+                location.reload();
+            }
+        });
     }
     else{
         return false;

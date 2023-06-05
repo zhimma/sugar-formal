@@ -40,7 +40,7 @@
                     <td class="nowrap">{{getSelfAuthStatusContent(user.self_auth_apply.status,user.self_auth_apply.latest_video_modify,user.self_auth_apply.from_auto)}}</td> 
                     <td>
                         <div v-for="record in user.video_verify_record" class="video_record_list_item_block">
-                            {{getVideoRecordContent(record)}}
+                            {{getVideoRecordContent(record,user)}}
                         </div>
                     </td>                       
                     <td>
@@ -416,18 +416,14 @@
         let now_vue = this;
         
         let userList = [];
-        console.log(' now_vue.userList = ');
-        console.log(now_vue.userList);
-        console.log('now_vue.allusers = ');
-        console.log(now_vue.allusers);        
+       
         if(now_vue.userList.length) {
             userList = now_vue.userList;
         }
         else {
             userList = now_vue.allusers;
         }
-        console.log('getUsers userList：');
-        console.log(userList);
+
         return userList;
     },    
     incomingCallDialog() {
@@ -1886,7 +1882,7 @@
         return content;
     },
 
-    getVideoRecordContent(record) {
+    getVideoRecordContent(record,user) {
         let content = '';
         let status_str = '';
         let rd_created_at = record.created_at;
@@ -1900,9 +1896,12 @@
                 break;
             case 'upload_user_video':
                 status_str = '僅存會員視訊';
+                if(user.video_verify_auth_status && record.admin_id==0) {
+                    status_str = '已完成錄影驗證';
+                }
                 break;
             case 'upload_admin_video':
-                status_str = '僅存站方視訊';
+                status_str = '僅存站方視訊';               
                 break;
         } 
 
@@ -1922,6 +1921,10 @@
             if(last_action=='' || last_action==null) {
                 if(record.admin_video!='' && record.admin_video!=null && record.user_video!='' && record.user_video!=null) {
                     status_str = '順利結束';
+                    
+                    if(user.video_verify_auth_status && record.admin_id==0) {
+                        status_str = '已完成錄影驗證';
+                    }                    
                 }
                 else {
                     switch(record.is_caller_admin) {
@@ -1944,11 +1947,19 @@
                 }
                 if(last_action=='callAccepted') {
                     status_str = '通話中或已中斷';
+                    
+                    if(user.video_verify_auth_status && record.admin_id==0) {
+                        status_str = '已完成錄影驗證';
+                    }                    
                 }
             }
             
             if(status_str=='') {
-                status_str = '已中斷';
+                status_str = '已中斷'; 
+
+                if(user.video_verify_auth_status && record.admin_id==0) {
+                    status_str = '已完成錄影驗證';
+                }                
             }
             
             content = content + status_str;
@@ -1958,6 +1969,9 @@
         
         if(status_str=='') {
             status_str = '已中斷';
+            if(user.video_verify_auth_status && record.admin_id==0) {
+                status_str = '已完成錄影驗證';
+            }            
         }
         
         content+=status_str;
