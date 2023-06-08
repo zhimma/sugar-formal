@@ -945,12 +945,11 @@ class VideoChatController extends BaseController
 
     public function video_verify_record_list(Request $request)
     {
-        $user_video_verify_record = UserVideoVerifyRecord::select('user_video_verify_record.*', 'users.name', 'users.email','users.engroup')
-            ->leftJoin('users', 'user_video_verify_record.user_id', '=', 'users.id')
-            ->where('admin_id', 0)
-            ->orderBy('user_video_verify_record.created_at', 'desc')
+        $user_video_verify_record = User::with(['backend_user_details'=>function($q){$q->orderByDesc('created_at');},'video_verify_record'])
+            ->whereHas('backend_user_details',function($query) {$query->where('is_need_video_verify',1);})            
+            ->orWhere('video_verify_auth_status',1)
             ->get()
-            ->unique('user_id');
+            ->sortByDesc('backend_user_details.0.created_at');
 
         return view('admin.users.video_verify_record_list', ['user_video_verify_record' => $user_video_verify_record]);
     }
