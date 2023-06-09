@@ -73,9 +73,18 @@ class BackendUserDetails extends Model
     public static function apply_video_verify($user_id)
     {
         $backend_user_detail = BackendUserDetails::first_or_new($user_id);
-        $backend_user_detail->is_need_video_verify = 1;
-        $backend_user_detail->need_video_verify_date = Carbon::now();
-        $backend_user_detail->save();
+        if(!$backend_user_detail->is_need_video_verify) {
+            $backend_user_detail->is_need_video_verify = 1;
+            if($backend_user_detail->user?->warned_users?->video_auth==1) {
+                $backend_user_detail->video_auth_warned_users_shot_id = $backend_user_detail->user?->warned_users?->id;
+            }
+            else {
+                $backend_user_detail->video_auth_warned_users_shot_id = null;
+            }
+            
+            $backend_user_detail->need_video_verify_date = Carbon::now();
+            $backend_user_detail->save();            
+        }
     }
 
     public static function cancel_video_verify($user_id)

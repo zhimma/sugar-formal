@@ -103,6 +103,11 @@ class RealAuthUserApply extends Model
                 ->latest();       
     } 
     
+    public function latest_formal_first_modify() 
+    {
+        return $this->latest_modify()->where('is_formal_first',1);       
+    }     
+    
     public function latest_reply_modify() 
     {
         return $this->latest_modify()->where('has_reply',1);       
