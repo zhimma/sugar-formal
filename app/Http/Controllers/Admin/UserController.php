@@ -695,7 +695,7 @@ class UserController extends \App\Http\Controllers\BaseController
                     //寫入log
                     DB::table('is_warned_log')->insert(['user_id' => $r->member_id, 'reason' => $r->reason, 'vip_pass' => $r->vip_pass, 'adv_auth' => $r->adv_auth, 'video_auth' => $r->video_auth, 'created_at' => $r->created_at]);
                 }
-                if(($r->video_auth ?? 0) == 1)
+                if(($r->video_auth ?? 0) == 1 && isset($r->user?->backend_user_details->sortByDesc('id')->first()?->video_auth_warned_users_shot_id)  && $r->user->backend_user_details->sortByDesc('id')->first()->video_auth_warned_users_shot_id)
                 {
                     BackendUserDetails::reset_video_verify($data['id']);
                 }

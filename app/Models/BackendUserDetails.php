@@ -140,6 +140,7 @@ class BackendUserDetails extends Model
         $backend_user_detail->is_need_reverify = 0;
         $backend_user_detail->has_upload_video_verify = 0;
         $backend_user_detail->temp_stop_video_verify = 0;
+        $backend_user_detail->video_auth_warned_users_shot_id = null;
         $backend_user_detail->save();
     }
 
