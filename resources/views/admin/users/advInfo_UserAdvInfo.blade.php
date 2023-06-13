@@ -15,7 +15,7 @@
     </tr>
     <tr>
         <th>過去七天未回人數： {{ array_get($userAdvInfo,'message_no_reply_count_7',0) }}</th>
-        <th>總未回人數： {{ array_get($userAdvInfo,'message_no_reply_count',0) }}</th>
+        <th>總未回人數(被主動發訊)： {{ array_get($userAdvInfo,'reply_message_no_reply_count',0) }}</th>
         <th>收藏會員次數： {{ array_get($userAdvInfo,'fav_count',0) }}</th>
         <th></th>
     </tr>
