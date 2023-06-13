@@ -1500,7 +1500,7 @@ class User extends Authenticatable implements JWTSubject
                                 ->where('to_id','!=',1049)
                                 ->orderBy('id')
                                 ->get();
-        /*總房間數*/
+        /*總房間*/
         $first_messages_all = $messages_all->unique('room_id');
 
         /*第一則訊息為發訊的房間*/
@@ -1517,6 +1517,11 @@ class User extends Authenticatable implements JWTSubject
         $reply_message_all = Message::withTrashed()->select('id','room_id','to_id','from_id','read','created_at')
                                     ->whereIn('room_id', $first_reply_room)
                                     ->where('from_id',$user_id)
+                                    ->orderByDesc('id')
+                                    ->get();
+        /*由對方發起的訊息*/
+        $first_receive_message_all = Message::withTrashed()->select('id','room_id','to_id','from_id','read','created_at')
+                                    ->whereIn('room_id', $first_reply_room)
                                     ->orderByDesc('id')
                                     ->get();
 
@@ -1546,7 +1551,7 @@ class User extends Authenticatable implements JWTSubject
         $advInfo['message_no_reply_count_7'] = count($messages_all->sortByDesc('id')->where('created_at','>', $seven_days_ago)->unique('room_id')->where('from_id',$user_id)->where('read','Y'));
 
         /*第一則訊息為收訊的未回人數*/
-        $advInfo['reply_message_no_reply_count'] = count($reply_message_all->sortByDesc('id')->unique('room_id')->where('from_id',$user_id)->where('read','Y'));
+        $advInfo['reply_message_no_reply_count'] = count($first_receive_message_all->sortByDesc('id')->unique('room_id')->where('from_id',$user_id)->where('read','Y'));
 
         /*總通訊人數*/
         $advInfo['message_people_total'] = $advInfo['message_people_count'] + $advInfo['message_reply_people_count'];
