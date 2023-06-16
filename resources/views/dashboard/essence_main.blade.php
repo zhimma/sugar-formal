@@ -39,7 +39,7 @@
         .talist li{width: 48%; float: left; border-bottom: #ececec solid 1px; padding-bottom: 15px; margin-bottom: 20px;}
         .talist li:nth-child(even){ float: right;}
 
-        .ta_img{width: 100%; height: 200px;justify-content: center;align-items: center;overflow: hidden; display: flex; border-radius: 20px; box-sizing: 2px 2px 2px rgba(0,0,0,0.1);
+        .ta_img{width: 100%; height: 250px;justify-content: center;align-items: center;overflow: hidden; display: flex; border-radius: 20px; box-sizing: 2px 2px 2px rgba(0,0,0,0.1);
             background: #eee; position: relative; cursor: pointer;}
         .ta_img img{width: 100%;}
         .ta_img:active{box-shadow: 0 0px 20px rgba(173,194,213,0.7);}
@@ -53,7 +53,7 @@
         .ta_font02 span{ float: left;}
         .ta_yuan{width: 5px; height: 5px; background: #999; border-radius: 100px; display: table; margin-top: 13px; margin-left: 6px; margin-right: 6px;}
 
-        @media (max-width: 768px) {
+        @media (max-width: 450px) {
             .ta_img{width: 100%; height: 200px;}
             .talist li{width: 100%; float: left;}
         }
