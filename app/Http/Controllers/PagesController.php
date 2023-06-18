@@ -10913,54 +10913,65 @@ class PagesController extends BaseController
             $option_array_other['expect_date_other'] = json_decode($request->expect_date_other);
         }
 
-        //重置選項
-        VvipOptionXref::reset($user->id);
-        //插入選項
-        VvipOptionXref::update_multiple_option($user->id, $option_array, $option_array_other);
-        //預設圖片處理
-        $system_image_assets = json_decode($request->system_image_assets);
-        VvipOptionXref::updateMultipleOptionAndRemark($user->id, 'assets_image', $system_image_assets);
-        $system_image_life = json_decode($request->system_image_life);
-        $system_image_life_title = json_decode($request->system_image_life_title);
-        VvipOptionXref::updateMultipleOptionAndRemark($user->id, 'quality_life_image', $system_image_life, $system_image_life_title);
+        try {
+            DB::transaction(function () use ($user, $request, $option_array, $option_array_other) {
+                //重置選項
+                VvipOptionXref::reset($user->id);
+                //插入選項
+                VvipOptionXref::update_multiple_option($user->id, $option_array, $option_array_other);
+                //預設圖片處理
+                $system_image_assets = json_decode($request->system_image_assets);
+                VvipOptionXref::updateMultipleOptionAndRemark($user->id, 'assets_image', $system_image_assets);
+                $system_image_life = json_decode($request->system_image_life);
+                $system_image_life_title = json_decode($request->system_image_life_title);
+                VvipOptionXref::updateMultipleOptionAndRemark($user->id, 'quality_life_image', $system_image_life, $system_image_life_title);
 
-        //圖片上傳處理
-        if ($request->assets_image_content ?? false) {
-            VvipOptionXref::uploadImage($user->id, 'assets_image', $request->assets_image, $request->assets_image_detail, $request->assets_image_content);
+                //圖片上傳處理
+                if ($request->assets_image_content ?? false) {
+                    VvipOptionXref::uploadImage($user->id, 'assets_image', $request->assets_image, $request->assets_image_detail, $request->assets_image_content);
+                }
+                if ($request->life_image_content ?? false) {
+                    VvipOptionXref::uploadImage($user->id, 'quality_life_image', $request->quality_life_image, $request->quality_life_image_detail, $request->life_image_content, $request->life_image_content_title);
+                }
+
+                //重置選項
+                VvipSubOptionXref::reset($user->id);
+                //插入選項
+                VvipSubOptionXref::updateHighAssets($user->id, $request->high_assets, $request->high_assets_other);
+                VvipSubOptionXref::updateCeoTitle($user->id, $request->ceo_title);
+                $professional = json_decode($request->professional);
+                VvipSubOptionXref::updateMultipleOption($user->id, $professional, 'professional');
+                $high_net_worth = json_decode($request->high_net_worth);
+                VvipSubOptionXref::updateMultipleOptionAndRemark($user->id, $high_net_worth, 'high_net_worth');
+                $entrepreneur = json_decode($request->entrepreneur);
+                VvipSubOptionXref::updateOptionAndRemark($user->id, $entrepreneur, 'entrepreneur');
+                $professional_network = json_decode($request->professional_network);
+                VvipSubOptionXref::updateOptionAndCustomAndRemark($user->id, $professional_network, 'professional_network');
+                $life_care = json_decode($request->life_care);
+                VvipSubOptionXref::updateMultipleOption($user->id, $life_care, 'life_care');
+                $special_problem_handling = json_decode($request->special_problem_handling);
+                VvipSubOptionXref::updateMultipleOption($user->id, $special_problem_handling, 'special_problem_handling');
+
+                $vvipInfo = VvipInfo::where('user_id', $user->id)->first();
+                if(!$vvipInfo) {
+                    $vvipInfo = new VvipInfo();
+                    $vvipInfo->user_id = $user->id;
+                    $vvipInfo->status = 1;
+                }
+                $vvipInfo->has_writed = 1;
+                $vvipInfo->save();
+
+                //更新關於我
+                UserMeta::where('user_id',$user->id)->update(['about' => $request->about]);
+            });
         }
-        if ($request->life_image_content ?? false) {
-            VvipOptionXref::uploadImage($user->id, 'quality_life_image', $request->quality_life_image, $request->quality_life_image_detail, $request->life_image_content, $request->life_image_content_title);
+        catch (\Exception $e) {            
+            if (app()->bound('sentry')) {
+                \Sentry\captureMessage($e->getMessage());
+                app('sentry')->captureException($exception);
+            }
+            return back()->with('message', '資料更新失敗');
         }
-
-        //重置選項
-        VvipSubOptionXref::reset($user->id);
-        //插入選項
-        VvipSubOptionXref::updateHighAssets($user->id, $request->high_assets, $request->high_assets_other);
-        VvipSubOptionXref::updateCeoTitle($user->id, $request->ceo_title);
-        $professional = json_decode($request->professional);
-        VvipSubOptionXref::updateMultipleOption($user->id, $professional, 'professional');
-        $high_net_worth = json_decode($request->high_net_worth);
-        VvipSubOptionXref::updateMultipleOptionAndRemark($user->id, $high_net_worth, 'high_net_worth');
-        $entrepreneur = json_decode($request->entrepreneur);
-        VvipSubOptionXref::updateOptionAndRemark($user->id, $entrepreneur, 'entrepreneur');
-        $professional_network = json_decode($request->professional_network);
-        VvipSubOptionXref::updateOptionAndCustomAndRemark($user->id, $professional_network, 'professional_network');
-        $life_care = json_decode($request->life_care);
-        VvipSubOptionXref::updateMultipleOption($user->id, $life_care, 'life_care');
-        $special_problem_handling = json_decode($request->special_problem_handling);
-        VvipSubOptionXref::updateMultipleOption($user->id, $special_problem_handling, 'special_problem_handling');
-
-        $vvipInfo = VvipInfo::where('user_id', $user->id)->first();
-        if(!$vvipInfo) {
-            $vvipInfo = new VvipInfo();
-            $vvipInfo->user_id = $user->id;
-            $vvipInfo->status = 1;
-        }
-        $vvipInfo->has_writed = 1;
-        $vvipInfo->save();
-
-        //更新關於我
-        UserMeta::where('user_id',$user->id)->update(['about' => $request->about]);
 
 
         return back()->with('message', '資料已更新');
