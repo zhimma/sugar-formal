@@ -116,13 +116,43 @@
 
                 </style>
                 <div class="jinghua_tl">
+                    @if($user->engroup==2 && Request()->get('s')=='admin')
+                        <div style="float: right;margin-right: 20px;">
+                            <label>文章類別</label>
+                            <select id="article_type" style="padding-left:6px;padding-right:6px;">
+                                <option value="all">所有文章</option>
+                                <option value="newer_article">新手教學</option>
+                                <option value="law_article">法律保護</option>
+                            </select>
+                        </div>
+                        <script>
+                            $(document).ready(function() {
+                                $('#article_type').change(function() {
+
+                                    var selectedValue = $(this).val();
+                                    if (selectedValue === 'newer_article') {
+                                        $('.newer_article').show();
+                                        $('.law_article').hide();
+                                        $('.others').hide();
+                                    } else if (selectedValue === 'law_article') {
+                                        $('.law_article').show();
+                                        $('.newer_article').hide();
+                                        $('.others').hide();
+                                    } else {
+                                        $('.newer_article, .law_article, .others').show();
+                                    }
+                                });
+                            });
+
+                        </script>
+                    @endif
                     <div class="jh_ulist">
                         <ul>
                             @if($user->engroup==2 && Request()->get('s')=='admin')
                                 @php
                                     $admin_info=\App\Models\User::leftJoin('user_meta', 'users.id','=','user_meta.user_id')->where('users.id', 1049)->first();
                                 @endphp
-                                <a href="/dashboard/newer_manual">
+                                <a href="/dashboard/newer_manual" class="newer_article">
                                     <li>
                                         <div class="jh_blue">
                                             <div class="jh_biaoq"><span><img src="/posts/images/jh_03.png">新手教學手冊</span></div>
@@ -137,7 +167,7 @@
                                         </div>
                                     </li>
                                 </a>
-                                <a href="/dashboard/anti_fraud_manual">
+                                <a href="/dashboard/anti_fraud_manual" class="newer_article">
                                     <li>
                                         <div class="jh_blue">
                                             <div class="jh_biaoq"><span><img src="/posts/images/jh_03.png">拒絕詐騙手冊</span></div>
@@ -152,22 +182,7 @@
                                         </div>
                                     </li>
                                 </a>
-                                <a href="/dashboard/essence_post_detail/1?article=law_protection_sample">
-                                    <li>
-                                        <div class="jh_hu04">
-                                            <div class="jh_biaoq01 jh_biaoq04"><span><img src="/posts/images/jh_11.png">法律保護女性篇</span></div>
-                                            <div class="jh_one">
-                                                <div class="jh_one_img"><img src="@if(file_exists( public_path().$admin_info->pic ) && $admin_info->pic != ""){{$admin_info->pic}} @elseif($admin_info->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="imgov"></div>
-                                                <div class="jh_fontw">{{ $admin_info->name }}<span>2023-05-30</span></div>
-                                            </div>
-                                            <div class="jh_two">
-                                                <h2>窈窕淑女人見人愛怎麼追?君子的妙法寶就是要尊重!</h2>
-                                                <h3>小王愛慕小美追求未果因而心生怨恨，在花園網發現與小美相似的女會員照片，將其截圖私下散布於工作群組，經起訴判刑小王加重毀謗罪，判處拘役1個月。</h3>
-                                            </div>
-                                        </div>
-                                    </li>
-                                </a>
-                                <a href="/dashboard/essence_post_detail/1?article=law_protection_sample_2">
+                                <a href="/dashboard/essence_post_detail/1?article=law_protection_sample_5" class="law_article">
                                     <li>
                                         <div class="jh_hu04">
                                             <div class="jh_biaoq01 jh_biaoq04"><span><img src="/posts/images/jh_11.png">法律保護女性篇</span></div>
@@ -176,28 +191,13 @@
                                                 <div class="jh_fontw">{{ $admin_info->name }}<span>2023-06-17</span></div>
                                             </div>
                                             <div class="jh_two">
-                                                <h2>紳士的禮儀來自好聚好散 風度轉身迎接下一位佳人</h2>
-                                                <h3>小陳於花園網結識小晴後，因不滿小晴後來拒絕聯絡而多次騷擾小晴，小晴不堪其擾報警處理，經檢察官起訴後判決小陳嚇危害安全罪，判處拘役20日。</h3>
+                                                <h2>神鬼交鋒真人版假名行騙，相交貴在誠信勿以身試法</h2>
+                                                <h3>大勇與小愛在花園網結識，幾次出遊大勇皆請小愛墊付購買高價精品，且提供假名給店家供後續手機取貨，佯稱月底還款卻將小愛封鎖，經小愛報警檢察官起訴判決大勇詐欺取財罪以及偽造私文書罪，宣告沒收不法所得，判處拘役11個月。</h3>
                                             </div>
                                         </div>
                                     </li>
                                 </a>
-                                <a href="/dashboard/essence_post_detail/1?article=law_protection_sample_3">
-                                    <li>
-                                        <div class="jh_hu04">
-                                            <div class="jh_biaoq01 jh_biaoq04"><span><img src="/posts/images/jh_11.png">法律保護女性篇</span></div>
-                                            <div class="jh_one">
-                                                <div class="jh_one_img"><img src="@if(file_exists( public_path().$admin_info->pic ) && $admin_info->pic != ""){{$admin_info->pic}} @elseif($admin_info->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="imgov"></div>
-                                                <div class="jh_fontw">{{ $admin_info->name }}<span>2023-06-17</span></div>
-                                            </div>
-                                            <div class="jh_two">
-                                                <h2>誠實是建立長期關係的橋樑 編造的謊言終會被正義擊破</h2>
-                                                <h3>大明在花園網編造虛假的收入條件，相約小莉出遊約會後未履行與小莉的約定且將她封鎖，小莉報警後經起訴判決詐欺罪成立，賠償12,500元判處拘役55日。</h3>
-                                            </div>
-                                        </div>
-                                    </li>
-                                </a>
-                                <a href="/dashboard/essence_post_detail/1?article=law_protection_sample_4">
+                                <a href="/dashboard/essence_post_detail/1?article=law_protection_sample_4" class="law_article">
                                     <li>
                                         <div class="jh_hu04">
                                             <div class="jh_biaoq01 jh_biaoq04"><span><img src="/posts/images/jh_11.png">法律保護女性篇</span></div>
@@ -212,7 +212,7 @@
                                         </div>
                                     </li>
                                 </a>
-                                <a href="/dashboard/essence_post_detail/1?article=law_protection_sample_5">
+                                <a href="/dashboard/essence_post_detail/1?article=law_protection_sample_3" class="law_article">
                                     <li>
                                         <div class="jh_hu04">
                                             <div class="jh_biaoq01 jh_biaoq04"><span><img src="/posts/images/jh_11.png">法律保護女性篇</span></div>
@@ -221,8 +221,38 @@
                                                 <div class="jh_fontw">{{ $admin_info->name }}<span>2023-06-17</span></div>
                                             </div>
                                             <div class="jh_two">
-                                                <h2>神鬼交鋒真人版假名行騙 相交貴在誠信勿以身試法</h2>
-                                                <h3>大勇與小愛在花園網結識，幾次出遊大勇皆請小愛墊付購買高價精品，且提供假名給店家供後續手機取貨，佯稱月底還款卻將小愛封鎖，經小愛報警檢察官起訴判決大勇詐欺取財罪以及偽造私文書罪，宣告沒收不法所得，判處拘役11個月。</h3>
+                                                <h2>誠實是建立長期關係的橋樑，編造的謊言終會被正義擊破</h2>
+                                                <h3>大明在花園網編造虛假的收入條件，相約小莉出遊約會後未履行與小莉的約定且將她封鎖，小莉報警後經起訴判決詐欺罪成立，賠償12,500元判處拘役55日。</h3>
+                                            </div>
+                                        </div>
+                                    </li>
+                                </a>
+                                <a href="/dashboard/essence_post_detail/1?article=law_protection_sample_2" class="law_article">
+                                    <li>
+                                        <div class="jh_hu04">
+                                            <div class="jh_biaoq01 jh_biaoq04"><span><img src="/posts/images/jh_11.png">法律保護女性篇</span></div>
+                                            <div class="jh_one">
+                                                <div class="jh_one_img"><img src="@if(file_exists( public_path().$admin_info->pic ) && $admin_info->pic != ""){{$admin_info->pic}} @elseif($admin_info->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="imgov"></div>
+                                                <div class="jh_fontw">{{ $admin_info->name }}<span>2023-06-17</span></div>
+                                            </div>
+                                            <div class="jh_two">
+                                                <h2>紳士的禮儀來自好聚好散，風度轉身迎接下一位佳人</h2>
+                                                <h3>小陳於花園網結識小晴後，因不滿小晴後來拒絕聯絡而多次騷擾小晴，小晴不堪其擾報警處理，經檢察官起訴後判決小陳嚇危害安全罪，判處拘役20日。</h3>
+                                            </div>
+                                        </div>
+                                    </li>
+                                </a>
+                                <a href="/dashboard/essence_post_detail/1?article=law_protection_sample" class="law_article">
+                                    <li>
+                                        <div class="jh_hu04">
+                                            <div class="jh_biaoq01 jh_biaoq04"><span><img src="/posts/images/jh_11.png">法律保護女性篇</span></div>
+                                            <div class="jh_one">
+                                                <div class="jh_one_img"><img src="@if(file_exists( public_path().$admin_info->pic ) && $admin_info->pic != ""){{$admin_info->pic}} @elseif($admin_info->engroup==2)/new/images/female.png @else/new/images/male.png @endif" class="imgov"></div>
+                                                <div class="jh_fontw">{{ $admin_info->name }}<span>2023-05-30</span></div>
+                                            </div>
+                                            <div class="jh_two">
+                                                <h2>窈窕淑女人見人愛怎麼追?君子的妙法寶就是要尊重!</h2>
+                                                <h3>小王愛慕小美追求未果因而心生怨恨，在花園網發現與小美相似的女會員照片，將其截圖私下散布於工作群組，經起訴判刑小王加重毀謗罪，判處拘役1個月。</h3>
                                             </div>
                                         </div>
                                     </li>
@@ -234,7 +264,7 @@
                                         $uID=\App\Models\User::findById($detail->uid);
                                         $isBlurAvatar = \App\Services\UserService::isBlurAvatar($uID, $user);
                                     @endphp
-                                    <a href="/dashboard/essence_post_detail/{{ $detail->pid }}">
+                                    <a href="/dashboard/essence_post_detail/{{ $detail->pid }}" class="others">
                                         <li>
                                             <div class="{{ $detail->uid==1049 ? 'jh_blue' : ($detail->verify_status==2 ? 'jh_huise' : 'jh_huise hus_ad') }}">
                                                 <div class="{{ $detail->uid==1049 ? 'jh_biaoq' : ($detail->verify_status==2 ? 'jh_biaoq01' : 'jh_biaoq01 jh_biaoq01_hs') }}"><span><img src="/posts/images/{{ $detail->engroup==1 ? 'jh_03.png' : 'jh_09.png' }}">{{ \App\Models\EssencePosts::CATEGORY[$detail->category] }}</span></div>
