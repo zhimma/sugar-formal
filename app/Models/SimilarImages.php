@@ -90,7 +90,9 @@ class SimilarImages extends Model
             
             $similar_images->save();
         }
-
+        else {
+            \Sentry\captureMessage('照片送檢失敗，SimilarImages::update_or_create() failed, path: ' . $pic_path);
+        }
         // dd($response->json());
     }
     
