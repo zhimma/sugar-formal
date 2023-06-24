@@ -431,6 +431,12 @@ class UserMeta extends Model
     {
         //Log::Info($request->all()); //純測試用
         // $time_start = microtime(true);
+        if (!$request->user) {
+            $request->user = auth()->user();
+            if (!$request->user) {
+                return response()->json(['error' => '?'], 401);
+            }
+        }
         $city = $request->city;
         $area = $request->area;
         $cup = $request->cup;
