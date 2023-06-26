@@ -201,7 +201,7 @@ class SetAutoBan extends Model
 
     public static function mobile_verify_warned($uid)
     {
-        $reason = '尚未進行手機驗證';
+        $reason = '註冊未滿10天&電腦登入3次';
         $userWarned = new warned_users;
         $userWarned->member_id = $uid;
         $userWarned->type = 'no_mobile_verify';
