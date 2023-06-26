@@ -8292,7 +8292,9 @@ class UserController extends \App\Http\Controllers\BaseController
 
     public function vipIndex()
     {
-        return view('admin.users.searchVip');
+        return view('admin.users.searchVip')
+            ->with('short_messages',session()->get('short_messages'))
+            ->with('forbidden_deleted_from_arr',ShortMessageService::$forbidden_deleted_from_arr);
     }
 
     public function vipSearch(Request $request)
@@ -8329,8 +8331,27 @@ class UserController extends \App\Http\Controllers\BaseController
             }
         }
         return view('admin.users.searchVip')
-            ->with('users', $users);
+            ->with('users', $users)
+            ->with('forbidden_deleted_from_arr',ShortMessageService::$forbidden_deleted_from_arr);
     }
+    
+    public function short_message_search(Request $request)
+    {
+
+        if (!$request->phone_search && !$request->del_all_short_message) {
+            return redirect('admin/users/vip');
+        }
+        
+        $phone_search = $request->phone_search;
+        
+        if($request->del_all_short_message) {
+            ShortMessageService::forceDeleteWithTrashedByPhoneNumber($request->del_all_short_message);
+        }
+        
+        $short_messages = ShortMessageService::getWithTrashedByPhoneNumber($phone_search);
+        
+        return back()->with('short_messages',$short_messages);
+    }    
 
     public function periodExtend(Request $request)
     {
