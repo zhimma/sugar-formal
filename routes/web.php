@@ -983,7 +983,8 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
 
 
         Route::get('users/vip/search', 'UserController@vipIndex')->name('users/vip');
-        Route::post('users/vip/search', 'UserController@vipSearch')->name('users/vip/search');
+        Route::post('users/vip/search', 'UserController@vipSearch')->name('users/vip/search');        
+        Route::post('users/short_message/search', 'UserController@short_message_search')->name('users/short_message/search');
         Route::post('users/vip/period/extend', 'UserController@periodExtend')->name('users/vip/period/extend');
         Route::post('users/vip/period/transfer', 'UserController@periodTransfer')->name('users/vip/period/transfer');
         Route::post('users/vip/adv_auth_count/save', 'UserController@updateVipAdvandceAuthCount')->name('users/vip/adv_auth_count/save');

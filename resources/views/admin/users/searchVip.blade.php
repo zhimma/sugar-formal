@@ -64,6 +64,66 @@
 	@endforelse
 </table>
 @endif
+
+<hr style="border-top-width:medium;"/>
+<h1>清除手機驗證紀錄</h1>
+<form method="POST" action="{{ route('users/short_message/search') }}" class="short_message_search_form">
+	{!! csrf_field() !!}
+	<div class="form-group">
+		<label for="phone" class="">輸入會員手機號碼</label>	
+		<input type="text" name='phone_search' class="" style="width:300px;" id="phone" value="{{$short_messages?$short_messages->first()?->mobile:''}}" required>
+        <input type="hidden" name="del_all_short_message"  id="del_all_short_message" value="0" />
+    </div>
+	<button type="button" class="btn btn-primary" onclick="$('#phone_search_rs').remove();$('#phone_search_operator').remove();$('.short_message_search_form').submit()">送出</button>
+    <button type="button" class="btn btn-success" onclick="$('#phone').val('');$('#phone_search_rs').remove();$('#phone_search_operator').remove();" >Reset</button>
+</form><br><br>
+
+@if(($short_messages??null))
+    <table id="phone_search_rs">
+	@forelse ($short_messages->unique('member_id') as $key=>$s_message)
+	
+    <tr>
+        <td>{{!$key?'此手機號碼在':''}}
+		<td><a href="{{route('users/advInfo',['id'=> $s_message->user?->id])}}" target="_blank">{{ $s_message->user?->email }}</a></td>
+		<td class="center">使用過</td>
+		<td class="center"> 
+            @if(var_carrier('backend_modify_mobile_num',$s_message->user?->short_message()->withTrashed()->select('mobile')->whereNotNull('mobile')->where('mobile','!=',$s_message->mobile)->whereIn('deleted_from',($forbidden_deleted_from_arr??[]))->distinct()->count())) ( 該會員被從後台修改過 {{var_carrier('backend_modify_mobile_num')}} 次"不同"的手機號碼)
+            @elseif(var_carrier('sms_num',$s_message->user?->short_message()->withTrashed()->select('mobile')->whereNotNull('mobile')->distinct()->count('mobile'))>1) ( 該會員總共用過 {{var_carrier('sms_num')}} 個不同的手機號碼進行驗證) @endif
+        </td>
+	</tr>  
+	@empty
+	<tr>
+        <td colspan="4">
+        找不到資料
+        </td>
+	</tr>
+	@endforelse
+</table>            
+    @if($short_messages && $short_messages->count())
+    <div id="phone_search_operator">
+        <br/><br/>
+        <div style="color:red;">
+        @if($short_messages->unique('member_id')->count()>1 || var_carrier('backend_modify_mobile_num'))
+            提醒：此{{$s_message->mobile}}手機號碼
+            @if($short_messages->unique('member_id')->count()>1)   
+            有被2個以上的會員用於驗證
+            @elseif(var_carrier('backend_modify_mobile_num'))
+            的使用者，曾經從後台修改成"不同"的手機號碼{{var_carrier('backend_modify_mobile_num')}}次
+            @endif
+            ，為避免會員濫用驗證，因此非常不適合刪除{{$s_message->mobile}}此手機號碼的驗證紀錄 
+        @elseif(var_carrier('sms_num')>1)
+            此{{$s_message->mobile}}手機號碼的使用者，總共用過 {{var_carrier('sms_num')}} 個不同的手機號碼進行驗證，若刪除此手機號碼，之後將無法得到完整的使用者驗證紀錄。
+        
+        @endif
+        </div> 
+          
+        
+        <br/><br/>
+        <button type="button" class="btn btn-danger" onclick="if(confirm('即將刪除{{$short_messages->first()->mobile}}的所有手機驗證紀錄，\n\n\n您確定真的要全部刪除{{$short_messages->first()->mobile}}的驗證紀錄嗎 (無法復原) ?')){$('#del_all_short_message').val('{{$short_messages->first()->mobile}}');$('.short_message_search_form').submit();}">刪除驗證紀錄</button>
+    </div>
+    @endif
+
+@endif
 </body>
 <script>
 	function periodExtend(id) {

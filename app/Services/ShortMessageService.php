@@ -48,8 +48,14 @@ class ShortMessageService
     public static function isForbiddenByPhoneNumber($phone_number)
     {
         $arr =self::$forbidden_deleted_from_arr;
+        $memIdData = short_message::withTrashed()->select('member_id')->where('mobile',$phone_number)->distinct()->get();
+        $phoneData = collect([]);
+        if($memIdData->count()==1) {
+            $member_id=$memIdData->first()->member_id;
+            $phoneData = short_message::withTrashed()->select('mobile')->where('member_id',$member_id)->whereNotNull('mobile')->distinct()->get();
+        }
         
-        if(short_message::withTrashed()->where('mobile',$phone_number)->whereIn('deleted_from',$arr)->count()) {
+        if(($memIdData->count()>1 ||  $phoneData->count()>1  ) && short_message::withTrashed()->where('mobile',$phone_number)->whereIn('deleted_from',$arr)->count()) {
             return true;
         }
     }
@@ -63,7 +69,22 @@ class ShortMessageService
         if($first_forbidden_sms) {
             return User::find($first_forbidden_sms->member_id);
         }
-    }    
+    }
+
+    public static  function  getWithTrashedByPhoneNumberQuery($phone_number)
+    {
+         return short_message::withTrashed()->where('mobile',$phone_number);
+    }  
+
+    public static  function  getWithTrashedByPhoneNumber($phone_number)
+    {
+         return ShortMessageService::getWithTrashedByPhoneNumberQuery($phone_number)->get();
+    } 
+
+    public static  function  forceDeleteWithTrashedByPhoneNumber($phone_number)
+    {
+         return ShortMessageService::getWithTrashedByPhoneNumberQuery($phone_number)->forceDelete();
+    }     
 }
 
 
