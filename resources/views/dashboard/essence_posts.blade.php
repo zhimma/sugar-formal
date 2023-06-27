@@ -29,7 +29,7 @@
 								<input type="hidden" name="type" value="main">
 								<div class="tw_input" >
 									<label>文章類別</label>
-									<select name="category" style="border: none;">
+									<select name="category" style="border: none;background: #f8f8f8;">
 										<option value="">請選擇</option>
 										<option value="1">教學經驗文</option>
 										<option value="2">包養故事文</option>
@@ -38,7 +38,7 @@
 								</div>
 								<div class="tw_input" >
 									<label>分享對象</label>
-									<select name="share_with" style="border: none;">
+									<select name="share_with" style="border: none;background: #f8f8f8;">
 										<option value="">請選擇</option>
 										<option value="1">男會員</option>
 										<option value="2">女會員</option>
