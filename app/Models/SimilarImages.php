@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Http;
+use App\Services\LineNotifyService as LineNotify;
 
 class SimilarImages extends Model
 {
@@ -90,7 +91,12 @@ class SimilarImages extends Model
             
             $similar_images->save();
         }
-
+        else {
+            $err_str = '照片送檢失敗，SimilarImages::update_or_create() failed, path: ' . $pic_path . ', response: ' . $response->body();
+            \Sentry\captureMessage($err_str);
+            $lineNotify = new LineNotify;
+            $lineNotify->sendLineNotifyMessage($err_str);   
+        }
         // dd($response->json());
     }
     

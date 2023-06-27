@@ -117,7 +117,7 @@
 									@endif
 									@if(isset($user) && $user->engroup == 2)
 										<li>
-											<a href="/dashboard/essence_list"><img src="/new/images/icon_zq45.png">教學專區</a>
+											<a href="/dashboard/essence_main"><img src="/new/images/icon_zq45.png">教學專區</a>
 										</li>
 									@endif
 									<li>

@@ -825,7 +825,7 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
     </div>
     <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
 </div>
-@if(user_allow_feature($user) && $user->engroup == 2)
+@if($user->engroup == 2)
     <div id="video_verify_pop_up" class="container" style="display:none;">
         <div class="row" >
             <div class="col">
@@ -3221,11 +3221,11 @@ is_truth_icon_pic.src="{{asset('/new/images/zz_zt2.png')}}";
             $('#announce_bg').show();
         }
 
-    @if(user_allow_feature($user) && $user->engroup == 2)
+    @if($user->engroup == 2)
         $(function() {
             @if(($user->backend_user_details->first()->is_need_video_verify ?? false) && !($user->backend_user_details->first()->temp_stop_video_verify ?? false))
-                @if($user->warned_users->video_auth ?? false)
-                    @if(($user->backend_user_details->first()->is_need_reverify ?? false) && $user->backend_user_details->first()->video_verify_fail_count <= 2)
+                @if(($user->warned_users->video_auth ?? false)  && $user->backend_user_details->sortByDesc('id')->first()->video_auth_warned_users_shot_id)
+                    @if(($user->backend_user_details->sortByDesc('id')->first()->is_need_reverify ?? false) && $user->backend_user_details->first()->video_verify_fail_count <= 2)
                         @if($user->meta->phone ?? false && $user->meta->phone != '')
                             reverify_c5html('您上一次視訊驗證失敗，需要您重新進行進階驗證。您之前是使用手機驗證：{{$user->meta->phone}}，請確認是否重新驗證，按下確定後，即發送驗證碼至您原留手機，若有問題請與站長聯絡');
                             $('#reverify_button_field').html('<span><a id="reverify_enter" class="n_left">確定</a></span><span><a id="reverify_cancel" class="n_right" onclick="gmBtnNoReload()">取消</a></span>');

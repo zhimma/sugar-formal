@@ -10,6 +10,21 @@
 </style>
 <body style="padding: 15px;">
 <h1>可疑名單列表</h1>
+<br>
+<form method="POST" action="{{ route('users/suspicious_list_count_set_change') }}" style="display: inline-flex;max-width: 250px;">
+    <input type="hidden" name="_token" value="{{ csrf_token() }}" >
+    <div>
+        <span>當周累積人數:</span>
+        <input name='communication_count_weekly_set' value="{{ $communication_count_weekly_set }}">
+    </div>
+    <div>
+        <span>縣市數量:</span>
+        <input name='country_count_set' value="{{ $country_count_set }}">
+    </div>
+    <button type="submit" class="btn btn-success">修改</button>
+</form>
+<br>
+<br>
 {{--@php--}}
 {{--print_r($suspiciousUser);--}}
 {{--@endphp--}}

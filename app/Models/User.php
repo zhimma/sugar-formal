@@ -992,11 +992,18 @@ class User extends Authenticatable implements JWTSubject
 
     public function isSent3Msg($tid)
     {
-        $msg_count = Message::where('from_id', $tid)->where('to_id', $this->id)
+        $msg_count = Message::withTrashed()->where('from_id', $tid)->where('to_id', $this->id)
 //            ->where('is_row_delete_1','<>',$this->id)
 //            ->where('is_row_delete_2','<>',$this->id)
 //            ->where('is_single_delete_1','<>',$this->id)
 //            ->where('is_single_delete_2','<>',$this->id)
+            ->where(function ($q) {
+                $q->where(function ($q1) {
+                    $q1->where('unsend', 0)->whereNull('deleted_at');
+                })->orWhere(function ($q2) {
+                    $q2->where('unsend', 1);
+                });
+            })  
             ->count();
         return $msg_count>=3;
     }
@@ -1493,7 +1500,7 @@ class User extends Authenticatable implements JWTSubject
                                 ->where('to_id','!=',1049)
                                 ->orderBy('id')
                                 ->get();
-        /*總房間數*/
+        /*總房間*/
         $first_messages_all = $messages_all->unique('room_id');
 
         /*第一則訊息為發訊的房間*/
@@ -1510,6 +1517,11 @@ class User extends Authenticatable implements JWTSubject
         $reply_message_all = Message::withTrashed()->select('id','room_id','to_id','from_id','read','created_at')
                                     ->whereIn('room_id', $first_reply_room)
                                     ->where('from_id',$user_id)
+                                    ->orderByDesc('id')
+                                    ->get();
+        /*由對方發起的訊息*/
+        $first_receive_message_all = Message::withTrashed()->select('id','room_id','to_id','from_id','read','created_at')
+                                    ->whereIn('room_id', $first_reply_room)
                                     ->orderByDesc('id')
                                     ->get();
 
@@ -1537,6 +1549,9 @@ class User extends Authenticatable implements JWTSubject
         $advInfo['message_no_reply_count'] = count($messages_all->sortByDesc('id')->unique('room_id')->where('from_id',$user_id)->where('read','Y'));
         /*過去七天未回人數*/
         $advInfo['message_no_reply_count_7'] = count($messages_all->sortByDesc('id')->where('created_at','>', $seven_days_ago)->unique('room_id')->where('from_id',$user_id)->where('read','Y'));
+
+        /*第一則訊息為收訊的未回人數*/
+        $advInfo['reply_message_no_reply_count'] = count($first_receive_message_all->sortByDesc('id')->unique('room_id')->where('to_id', $user_id)->where('read','Y'));
 
         /*總通訊人數*/
         $advInfo['message_people_total'] = $advInfo['message_people_count'] + $advInfo['message_reply_people_count'];

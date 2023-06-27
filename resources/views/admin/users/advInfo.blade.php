@@ -172,14 +172,14 @@
         <a class="btn @if($user['advance_auth_status']==1 ) btn-secondary @else btn-danger @endif warned-user warned_adv_auth" title="站方警示與自動封鎖的警示，只能經後台解除" id="adv_auth_warned_user" href="#" @if($user['advance_auth_status']==1 ) onclick="return false;"  @else data-toggle="modal" data-target="#warned_modal" data-vip_pass="0" data-vip_pass="0" data-adv_auth="1"  data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}" @endif >驗證警示</a>
         @endif
         @if($user->engroup == 2)
-            <a class="btn @if($user->video_verify_auth_status == 1 || ($user->backend_user_details->first()->is_need_video_verify ?? false)) btn-secondary @else btn-danger @endif warned-user warned_video_auth"
-                @if(!($user->warned_users->video_auth ?? false) && ($user->backend_user_details->first()->is_need_video_verify ?? false))
+            <a class="btn @if($raa_service->isPassedByAuthTypeId(1) ||  $user->video_verify_auth_status == 1  ) btn-secondary @else btn-danger @endif warned-user warned_video_auth"
+                @if(!($user->warned_users->video_auth ?? false) && ($user->backend_user_details->first()?->is_need_video_verify ?? false))
                     title="{{$user->backend_user_details->first()->need_video_verify_date}} 申請"
                 @else
                     title="站方警示與自動封鎖的警示，只能經後台解除" 
                 @endif
                 id="video_auth_warned_user" href="#" 
-                @if($user->video_verify_auth_status == 1 || ($user->backend_user_details->first()->is_need_video_verify ?? false)) 
+                @if($raa_service->isPassedByAuthTypeId(1) || $user->video_verify_auth_status == 1 ) 
                     onclick="return false;" style="color: #fff; background-color: #C0C0C0; border-color: #C0C0C0;" 
                 @else 
                     data-toggle="modal" data-target="#warned_modal" data-vip_pass="0" data-vip_pass="0" data-adv_auth="0"  data-id="{{ $user['id'] }}" data-name="{{ $user['name']}}" 
@@ -1140,6 +1140,7 @@
             $isEverWarned_log[$key]['reason']=$row->reason;
             $isEverWarned_log[$key]['vip_pass']=$row->vip_pass;
             $isEverWarned_log[$key]['adv_auth']=$row->adv_auth;
+            $isEverWarned_log[$key]['video_auth']=$row->video_auth;
             $isEverWarned_log[$key]['expire_date']=$row->expire_date;
             $isEverWarned_cancel=($isWarned->count() && $key || !$isWarned->count())?\App\Models\AdminActionLog::where('target_id', $user->id)->where('act','解除站方警示')->orderByDesc('created_at')->skip($isWarned && $key?$key-1:$key)->first():null;
             $isEverWarned_log[$key]['cancal_admin']=$isEverWarned_cancel? \App\Models\User::findById($isEverWarned_cancel->operator??''):'';
@@ -1177,6 +1178,7 @@
              $isWarned_show['expire_date']=$row->expire_date;
              $isWarned_show['vip_pass']=$row->vip_pass;
              $isWarned_show['adv_auth']=$row->adv_auth;
+             $isWarned_show['video_auth']=$row->video_auth;
          }
         $isWarned_show['cancal_admin']='';
         $isWarned_show['cancal_time']='尚未解除';
@@ -1597,6 +1599,7 @@
             @if(($isWarned_show && count($isWarned_show)>0) )
                 {{ array_get($isWarned_show,'vip_pass')==1  ? '付費警示' : '' }}
                 {{ array_get($isWarned_show,'adv_auth')==1  ? '驗證警示' : '' }}
+                {{ array_get($isWarned_show,'video_auth')==1  ? '視訊驗證警示' : '' }}
             @endif
             </td>
             <td>
@@ -1612,6 +1615,7 @@
                 @if(!is_null(array_get($isEverWarned_log,'0')))      
                 {{ array_get($isEverWarned_log,'0.vip_pass') == 1 ? '付費警示' : '' }}
                 {{ array_get($isEverWarned_log,'0.adv_auth') == 1 ? '驗證警示' : '' }}
+                {{ array_get($isEverWarned_log,'0.video_auth') == 1 ? '視訊驗證警示' : '' }}
                 @endif
             @endif
             </td>
@@ -1817,12 +1821,14 @@
                         <td>
                             {{ (array_get($isEverWarned_log,'1.vip_pass')==1) ? '付費警示' : '' }}
                             {{ (array_get($isEverWarned_log,'1.adv_auth')==1) ? '驗證警示' : '' }}
+                            {{ (array_get($isEverWarned_log,'1.video_auth') == 1) ? '視訊驗證警示' : '' }}
                         </td>
                     @endif
                     @if(!is_null(array_get($isEverWarned_log,'2')))
                         <td>
                             {{ (array_get($isEverWarned_log,'2.vip_pass')==1) ? '付費警示' : '' }}
                             {{ (array_get($isEverWarned_log,'2.adv_auth')==1) ? '驗證警示' : '' }}
+                            {{ (array_get($isEverWarned_log,'2.video_auth') == 1) ? '視訊驗證警示' : '' }}
                         </td>
                     @endif
                 @endif
@@ -3355,9 +3361,14 @@ $(".real_auth_pass").click(function(){
                 else if(res==2) {
                     alert('無法通過'+data.auth_name+'，發現有新送出的修改，頁面將自動重新整理，請重新審核'+data.auth_name);
                 }
-                else alert('儲存失敗，無法通過此會員的'+data.auth_name+'申請');
+                else alert('儲存失敗！！！無法通過此會員的'+data.auth_name+'申請');
                 location.reload();
-            }});
+            },
+            error: function (request, status, error) {
+                alert('儲存失敗！！！無法通過此會員的'+data.auth_name+'申請。錯誤訊息：'+request.status+','+status+','+error);
+                location.reload();
+            }
+        });
     }
     else{
         return false;
@@ -3381,9 +3392,14 @@ $(".modify_check_pass").click(function(){
             },            
             success: function(res){
                 if(res==1 )alert('已通過'+data.auth_name);
-                else alert('儲存失敗，無法通過此會員的'+data.auth_name+'申請');
+                else alert('儲存失敗！！！無法通過此會員的'+data.auth_name+'資料異動申請');
                 location.reload();
-            }});
+            },
+            error: function (request, status, error) {
+                alert('儲存失敗！！！無法通過此會員的'+data.auth_name+'資料異動申請。錯誤訊息：'+request.status+','+status+','+error);
+                location.reload();
+            }
+        });
     }
     else{
         return false;
@@ -3411,9 +3427,14 @@ $(".real_auth_cancel_pass").click(function(){
             },             
             success: function(res){
                 if(res==1 )alert('已取消'+data.auth_name);
-                else alert('儲存失敗，無法取消此會員的'+data.auth_name);
+                else alert('儲存失敗！！！無法取消此會員的'+data.auth_name);
                 location.reload();
-            }});
+            },
+            error: function (request, status, error) {
+                alert('儲存失敗！！！無法取消此會員的'+data.auth_name+'。錯誤訊息：'+request.status+','+status+','+error);
+                location.reload();
+            }
+        });
     }
     else{
         return false;

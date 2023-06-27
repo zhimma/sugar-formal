@@ -588,6 +588,7 @@
 		function tab_evaluation_close(){
 			$(".announce_bg").hide();
 			$("#tab_evaluation").hide();
+            $('#content').val('');
 			$('body').css("overflow", "auto");
 		}
 
@@ -1662,7 +1663,7 @@
                                     
                                     <dt><span>註冊時間</span>@if($user->isVip() || $user->isVVIP())<font>{{substr($to->created_at,0,10)}}</font>@else <span class="mtop"><img src="/new/images/icon_35.png"></span> @endif</dt>
                                     <dt><span>最後上線時間</span>
-                                        <span v-if="is_vip"><font>@{{last_login}}</font></span>
+                                        <font  v-if="is_vip">@{{last_login}}</font>
                                         <span class="mtop" v-else><img src="/new/images/icon_35.png" /></span>
                                     </dt>
                                     <dt><span>每周平均上線次數</span>
@@ -3656,6 +3657,7 @@
         resize_before_upload(reportedImages_uploader,1200,1800,'#show_banned_ele,#show_reportPic');
         $(".announce_bg").on("click", function() {
             $('.bl_tab_aa').hide();
+            $('#content').val('');
             $('body').css("overflow", "auto");
         });
 

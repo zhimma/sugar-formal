@@ -710,7 +710,7 @@ class VideoChatController extends BaseController
     public function video_chat_get_users(Request $request,$not_json_output=false) 
     {
         $users = User::with(['video_verify_memo','self_auth_apply','self_auth_apply.latest_video_modify','video_verify_record'=>function($q){$q->with('admin_user')->orderByDesc('id');}])->where('id', '<>', Auth::id())->where('last_login', '>', Carbon::now()->subDay())
-                    ->select('id','name','created_at')
+                    ->select('id','name','created_at','video_verify_auth_status')
                     ->without('vip')
                     ->where('engroup',2)
                     ->whereHas('self_auth_apply')
@@ -843,7 +843,7 @@ class VideoChatController extends BaseController
 
     public function apply_video_record_verify(Request $request)
     {
-        if (user_allow_feature(auth()->user()) && auth()->user()->engroup == 2) {
+        if (auth()->user()->engroup == 2) {
             $user_id = auth()->user()->id;
             $backend_user_detail = BackendUserDetails::first_or_new($user_id);
             $backend_user_detail->is_need_video_verify = 1;
@@ -945,12 +945,11 @@ class VideoChatController extends BaseController
 
     public function video_verify_record_list(Request $request)
     {
-        $user_video_verify_record = UserVideoVerifyRecord::select('user_video_verify_record.*', 'users.name', 'users.email','users.engroup')
-            ->leftJoin('users', 'user_video_verify_record.user_id', '=', 'users.id')
-            ->where('admin_id', 0)
-            ->orderBy('user_video_verify_record.created_at', 'desc')
+        $user_video_verify_record = User::with(['backend_user_details'=>function($q){$q->orderByDesc('created_at');},'video_verify_record'])
+            ->whereHas('backend_user_details',function($query) {$query->where('is_need_video_verify',1);})            
+            ->orWhere('video_verify_auth_status',1)
             ->get()
-            ->unique('user_id');
+            ->sortByDesc('backend_user_details.0.created_at');
 
         return view('admin.users.video_verify_record_list', ['user_video_verify_record' => $user_video_verify_record]);
     }
@@ -963,7 +962,7 @@ class VideoChatController extends BaseController
         return view('admin.users.video_verify_record', ['record' => $record]);
     }
     
-    public function video_verify_record_pass(Request $request)
+    public function video_verify_record_pass(Request $request,RealAuthPageService $rap_service)
     {
         BackendUserDetails::reset_video_verify($request->user_id);
 
@@ -975,6 +974,17 @@ class VideoChatController extends BaseController
         
         $user->video_verify_auth_status = 1;
         $user->save();
+        
+        $latest_video_record = UserVideoVerifyRecord::where('user_id', $user->id)->where('admin_id', 0)->orderBy('created_at', 'desc')->first();
+
+        if($latest_video_record) {
+            $rap_service->riseByUserEntry($user);
+            $rap_service->saveVideoRecordId($latest_video_record->id);
+            $action = 'upload_user_video'; 
+            $latest_video_record->user_last_action = $action;
+            $latest_video_record->user_last_action_at = Carbon::now();             
+            $latest_video_record->save();
+        }
 
         return redirect()->back()->with('message', '已通過');
     }

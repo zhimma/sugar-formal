@@ -100,6 +100,7 @@ use Intervention\Image\Facades\Image;
 use Session;
 use Yajra\DataTables\Facades\DataTables;
 use App\Http\Controllers\Message_newController;
+use App\Models\SuspiciousUserListTable;
 
 class UserController extends \App\Http\Controllers\BaseController
 {
@@ -452,7 +453,7 @@ class UserController extends \App\Http\Controllers\BaseController
             $checkLog = DB::table('is_warned_log')->where('user_id', $userWarned->member_id)->where('created_at', $userWarned->created_at)->get()->first();
             if (!$checkLog) {
                 //寫入log
-                DB::table('is_warned_log')->insert(['user_id' => $userWarned->member_id, 'reason' => $userWarned->reason, 'expire_date' => $userWarned->expire_date, 'created_at' => $userWarned->created_at, 'vip_pass' => $userWarned->vip_pass, 'adv_auth' => $userWarned->adv_auth]);
+                DB::table('is_warned_log')->insert(['user_id' => $userWarned->member_id, 'reason' => $userWarned->reason, 'expire_date' => $userWarned->expire_date, 'created_at' => $userWarned->created_at, 'vip_pass' => $userWarned->vip_pass, 'adv_auth' => $userWarned->adv_auth, 'video_auth' => $userWarned->video_auth]);
             }
             $userWarned->delete();
         }
@@ -462,11 +463,6 @@ class UserController extends \App\Http\Controllers\BaseController
         $userWarned->adv_auth = $request->adv_auth;
         $userWarned->video_auth = $request->video_auth ?? 0;
         Log::Info($request->video_auth);
-
-        if(($request->video_auth ?? 0) == 1)
-        {
-            BackendUserDetails::apply_video_verify($request->user_id);
-        }
         
         if ($request->days != 'X') {
             $userWarned->expire_date = $now_time->copy()->addDays($request->days);
@@ -477,9 +473,15 @@ class UserController extends \App\Http\Controllers\BaseController
             $userWarned->reason = $request->reason;
         }
         $userWarned->save();
+        //先完成警示才能快照warned id
+        if(($request->video_auth ?? 0) == 1)
+        {
+            BackendUserDetails::apply_video_verify($request->user_id);
+        }        
+        
         BadUserCommon::addRemindMsgFromBadId($request->user_id);
         //寫入log
-        DB::table('is_warned_log')->insert(['user_id' => $request->user_id, 'reason' => $request->reason, 'vip_pass' => $request->vip_pass, 'adv_auth' => $request->adv_auth, 'created_at' => $now_time, 'expire_date' => $now_time->copy()->addDays($request->days)]);
+        DB::table('is_warned_log')->insert(['user_id' => $request->user_id, 'reason' => $request->reason, 'vip_pass' => $request->vip_pass, 'adv_auth' => $request->adv_auth, 'video_auth' => $request->video_auth, 'created_at' => $now_time, 'expire_date' => $now_time->copy()->addDays($request->days)]);
         //新增Admin操作log
         $this->insertAdminActionLog($request->user_id, '站方警示');
 
@@ -558,7 +560,7 @@ class UserController extends \App\Http\Controllers\BaseController
             $checkLog = DB::table('is_warned_log')->where('user_id', $userWarned->member_id)->where('created_at', $userWarned->created_at)->get()->first();
             if (!$checkLog) {
                 //寫入log
-                DB::table('is_warned_log')->insert(['user_id' => $userWarned->member_id, 'reason' => $userWarned->reason, 'created_at' => $userWarned->created_at, 'vip_pass' => $userWarned->vip_pass, 'adv_auth' => $userWarned->adv_auth]);
+                DB::table('is_warned_log')->insert(['user_id' => $userWarned->member_id, 'reason' => $userWarned->reason, 'created_at' => $userWarned->created_at, 'vip_pass' => $userWarned->vip_pass, 'adv_auth' => $userWarned->adv_auth, 'video_auth' => $userWarned->video_auth]);
             }
             $userWarned->delete();
         }
@@ -691,9 +693,9 @@ class UserController extends \App\Http\Controllers\BaseController
                 $checkLog = DB::table('is_warned_log')->where('user_id', $r->member_id)->where('created_at', $r->created_at)->first();
                 if (!$checkLog) {
                     //寫入log
-                    DB::table('is_warned_log')->insert(['user_id' => $r->member_id, 'reason' => $r->reason, 'vip_pass' => $r->vip_pass, 'adv_auth' => $r->adv_auth, 'created_at' => $r->created_at]);
+                    DB::table('is_warned_log')->insert(['user_id' => $r->member_id, 'reason' => $r->reason, 'vip_pass' => $r->vip_pass, 'adv_auth' => $r->adv_auth, 'video_auth' => $r->video_auth, 'created_at' => $r->created_at]);
                 }
-                if(($r->video_auth ?? 0) == 1)
+                if(($r->video_auth ?? 0) == 1 && isset($r->user?->backend_user_details->sortByDesc('id')->first()?->video_auth_warned_users_shot_id)  && $r->user->backend_user_details->sortByDesc('id')->first()->video_auth_warned_users_shot_id)
                 {
                     BackendUserDetails::reset_video_verify($data['id']);
                 }
@@ -5447,7 +5449,9 @@ class UserController extends \App\Http\Controllers\BaseController
         foreach($adminInfo_array as $info) {
             $adminInfo[$info->id] = $info;
         }
-        return view('admin.users.suspiciousUser', compact('suspiciousUser','adminInfo'));
+        $communication_count_weekly_set = intval(DB::table('queue_global_variables')->where('name','suspicious_list_communication_weekly_count_set')->first()->value);
+        $country_count_set = intval(DB::table('queue_global_variables')->where('name','suspicious_list_communication_country_count_set')->first()->value);
+        return view('admin.users.suspiciousUser', compact('suspiciousUser','adminInfo','communication_count_weekly_set','country_count_set'));
     }
 
     public function modifyContent(Request $request)
@@ -8288,7 +8292,9 @@ class UserController extends \App\Http\Controllers\BaseController
 
     public function vipIndex()
     {
-        return view('admin.users.searchVip');
+        return view('admin.users.searchVip')
+            ->with('short_messages',session()->get('short_messages'))
+            ->with('forbidden_deleted_from_arr',ShortMessageService::$forbidden_deleted_from_arr);
     }
 
     public function vipSearch(Request $request)
@@ -8325,8 +8331,27 @@ class UserController extends \App\Http\Controllers\BaseController
             }
         }
         return view('admin.users.searchVip')
-            ->with('users', $users);
+            ->with('users', $users)
+            ->with('forbidden_deleted_from_arr',ShortMessageService::$forbidden_deleted_from_arr);
     }
+    
+    public function short_message_search(Request $request)
+    {
+
+        if (!$request->phone_search && !$request->del_all_short_message) {
+            return redirect('admin/users/vip');
+        }
+        
+        $phone_search = $request->phone_search;
+        
+        if($request->del_all_short_message) {
+            ShortMessageService::forceDeleteWithTrashedByPhoneNumber($request->del_all_short_message);
+        }
+        
+        $short_messages = ShortMessageService::getWithTrashedByPhoneNumber($phone_search);
+        
+        return back()->with('short_messages',$short_messages);
+    }    
 
     public function periodExtend(Request $request)
     {
@@ -8627,4 +8652,36 @@ class UserController extends \App\Http\Controllers\BaseController
         return view('admin.users.trackUserList', compact('trackUserList'));
     }
 
+    public function medium_long_term_without_adv_verification_list(Request $request)
+    {
+        $user_list = SuspiciousUserListTable::where('is_medium_long_term_without_adv_verification', 1)
+                                                ->orderByDesc('medium_long_term_without_adv_verification_created_at')
+                                                ->get();
+
+        $banned_user_list = banned_users::whereIn('member_id', $user_list->pluck('user_id'))->get()->pluck('member_id')->toArray();
+
+        $communication_count = intval(DB::table('queue_global_variables')->where('name','medium_long_term_without_adv_verification_communication_count_set')->first()->value);
+        
+        return view('admin.users.medium_long_term_without_adv_verification_list', compact('user_list', 'banned_user_list', 'communication_count'));
+    }
+
+    public function medium_long_term_without_adv_verification_user_remove(Request $request)
+    {
+        SuspiciousUserListTable::remove_medium_long_term_without_adv_verification($request->user_id);
+        return back()->with('message', '該帳號已移除名單');
+    }
+
+    public function medium_long_term_without_adv_verification_communication_count_set_change(Request $request)
+    {
+        DB::table('queue_global_variables')->where('name','medium_long_term_without_adv_verification_communication_count_set')->update(['value' => $request->communication_count_set]);
+        return back()->with('message', '已修改總通訊人數');
+    }
+
+    public function suspicious_list_count_set_change(Request $request)
+    {
+        DB::table('queue_global_variables')->where('name','suspicious_list_communication_weekly_count_set')->update(['value' => $request->communication_count_weekly_set]);
+        DB::table('queue_global_variables')->where('name','suspicious_list_communication_country_count_set')->update(['value' => $request->country_count_set]);
+        return back()->with('message', '已修改');
+    }
+    
 }

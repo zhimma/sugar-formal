@@ -89,12 +89,19 @@
                 $user['warnedicon'] = \App\Models\User::warned_icondata($list->user_id);
 
                 $background_color='';
-                if($result['isBlocked'])
-                    $background_color='yellow';
-                else if ($userInfo->account_status_admin)
-                    $background_color='darkgray';
-                else if ($userInfo->accountStatus)
-                    $background_color='lightgrey';
+
+                if(!$userInfo->account_status_admin)
+                    $background_color="#969696";
+                else if(!$userInfo->accountStatus)
+                    $background_color="#C9C9C9";
+                else if($userInfo->is_banned())
+                    $background_color="yellow";
+                else if($userInfo->is_warned())
+                    $background_color="#B0FFB1";
+                else if($userInfo->is_waiting_for_more_data())
+                    $background_color="#DBA5F2";
+                else if($userInfo->is_waiting_for_more_data_with_login_time())
+                    $background_color="#A9D4F5";
             @endphp
             <tr style="background:{{$background_color}};">
                 <td><a href="/admin/users/advInfo/{{ $list->user_id }}" target="_blank">{{ $list->user_email }}</a></td>

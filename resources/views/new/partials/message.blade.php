@@ -150,6 +150,15 @@
     <a id="" onclick="c5_gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
 </div>
 
+<div class="bl bl_tab" id="tab05_redirect">
+    <div class="bltitle">提示</div>
+    <div class="n_blnr01 matop10">
+    <div class="blnr bltext"></div>
+    <a id="c5_redirect_certain_btn" class="n_bllbut matop30">確定</a>
+    </div>
+    <a id="" onclick="c5_gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+</div>
+
 <div class="bl bl_tab" id="tabPopM">
     <div class="bltitle">提示</div>
     <div class="n_blnr01 matop10">
@@ -162,13 +171,13 @@
 <div class="bl bl_tab" id="tab08">
     <div class="bltitle">提示</div>
     <div class="n_blnr01">
-        <div class="blnr bltext"></div>
+        <div class="text_area blnr bltext"></div>
         <div class="n_bbutton">
-            <span><a class="n_left" href="javascript:" >確認</a></span>
-            <span><a onclick="gmBtnNoReload()" class="n_right" href="javascript:">返回</a></span>
+            <span><a class="n_left tab_confirm_btn" href="javascript:" >確認</a></span>
+            <span><a onclick="c8_gmBtnNoReload()" class="n_right tab_cancel_btn" href="javascript:">返回</a></span>
         </div>
     </div>
-    <a id="" onclick="gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
+    <a id="" onclick="c8_gmBtnNoReload()" class="bl_gb"><img src="/new/images/gb_icon.png"></a>
 </div>
 
 <div class="bl bl_tab" id="tab09">

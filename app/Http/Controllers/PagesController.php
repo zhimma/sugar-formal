@@ -1580,7 +1580,8 @@ class PagesController extends BaseController
             ->with('userPauseMsg', $userPauseMsg ?? null)
             ->with('apiPauseMsg', $apiPauseMsg ?? null)
             ->with('userWrongMsg', $userWrongMsg)
-            ->with('userForbidMsg', $userForbidMsg);
+            ->with('userForbidMsg', $userForbidMsg)
+            ->with('rap_service',$this->rap_service);
     }
 
     public function advance_auth_get_msg($type = null)
@@ -7692,10 +7693,16 @@ class PagesController extends BaseController
         return view('/dashboard/essence_enter_intro');
     }
 
+    public function essence_main(Request $request)
+    {
+        return view('/dashboard/essence_main');
+    }
+
     public function essence_list(Request $request)
     {
         $user=$request->user();
         $postType=$request->get('postType');
+        $source=$request->get('s');
 
         $posts_list = EssencePosts::selectraw('
              essence_posts.id as pid,
@@ -7743,6 +7750,12 @@ class PagesController extends BaseController
             }
         }
         $posts_list->orderBy('essence_posts.updated_at','desc');
+
+        if($source=='admin'){
+            $posts_list->where('users.id', 1049);
+        }else{
+            $posts_list->where('users.id','!=', 1049);
+        }
 
         $posts_list=$posts_list->paginate(10);
         return view('/dashboard/essence_list', compact('posts_list', 'postType', 'user'));
@@ -7869,7 +7882,7 @@ class PagesController extends BaseController
             ->LeftJoin('users', 'users.id','=','essence_posts.user_id')
             ->LeftJoin('user_meta', 'users.id','=','user_meta.user_id')
             ->where('essence_posts.id', $pid)->first();
-        if(!$postDetail) {
+        if(!$postDetail && !str_contains($request->article, 'law_protection_sample')) {
             $request->session()->flash('message', '找不到該篇精華討論區：' . $pid);
             $request->session()->reflash();
             return  redirect('/dashboard/essence_list');
@@ -8615,8 +8628,9 @@ class PagesController extends BaseController
         {
             $adminWarnedStatus .= '您從 ' . substr($user_isBannedOrWarned->warned_created_at, 0, 10) . ' <span class="main_word">被站方警示 ' . $diffDays . '天</span>，預計至 ' . substr($user_isBannedOrWarned->warned_expire_date, 0, 16) . ' 日解除，原因是<span class="main_word"> ' . $user_isBannedOrWarned->warned_reason . '</span>，若要解鎖請升級VIP解除，並同意如有再犯，站方有權不退費並永久警示。同意[<a href="../dashboard/new_vip" class="red">請點我</a>]';
         } 
-        else if (($user->backend_user_details->first()->has_upload_video_verify ?? false) == 1 && $user_isBannedOrWarned->warned_expire_date == null) 
-        {
+        //else if (($user->backend_user_details->first()->has_upload_video_verify ?? false) == 1 && $user_isBannedOrWarned->warned_expire_date == null) 
+        else if (($user->backend_user_details->first()->has_upload_video_verify ?? false) == 1 && $user_isBannedOrWarned->video_auth == 1) 
+        {   
             $adminWarnedStatus = '您目前<span class="main_word">已被站方警示</span>，原因是<span class="main_word"> ' . $user_isBannedOrWarned->warned_reason . '</span>，目前已完成視訊錄影，待站方審核通知。';
         } 
         else if (($user->backend_user_details->first()->has_upload_video_verify ?? false) == 1 && $user_isBannedOrWarned->warned_expire_date > now()) 
@@ -8628,11 +8642,11 @@ class PagesController extends BaseController
             $adminWarnedStatus = '您目前<span class="main_word">已被站方警示</span>，原因是<span class="main_word"> ' . $user_isBannedOrWarned->warned_reason;
             if($user->isAdvanceAuth())
             {
-                $adminWarnedStatus = $adminWarnedStatus . '</span>，站方會再跟您約視訊驗證時間，再請注意來訊。';
+                $adminWarnedStatus = $adminWarnedStatus . '</span>，下次上線時站方會主動撥打給您，完成視訊驗證即可解除站方警示。';
             }
             else
             {
-                $adminWarnedStatus = $adminWarnedStatus . '</span>，<a href="/advance_auth" style="color:#fd5678">請點此</a>先完成進階驗證後，站方會再跟您約視訊驗證時間，再請注意來訊。';
+                $adminWarnedStatus = $adminWarnedStatus . '</span>，<a href="/advance_auth" style="color:#fd5678">請點此</a>先完成進階驗證後，下次上線時站方會主動撥打給您，完成視訊驗證即可解除站方警示。';
             }
         } 
         else if (($user->warned_users->video_auth ?? false) == 1 && $user_isBannedOrWarned->warned_expire_date > now()) 
@@ -8640,11 +8654,11 @@ class PagesController extends BaseController
             $adminWarnedStatus .= '您從 ' . substr($user_isBannedOrWarned->warned_created_at, 0, 10) . ' <span class="main_word">被站方警示 ' . $diffDays . '天</span>，預計至 ' . substr($user_isBannedOrWarned->warned_expire_date, 0, 16) . ' 日解除，原因是<span class="main_word"> ' . $user_isBannedOrWarned->warned_reason;
             if($user->isAdvanceAuth())
             {
-                $adminWarnedStatus = $adminWarnedStatus . '</span>，站方會再跟您約視訊驗證時間，再請注意來訊。';
+                $adminWarnedStatus = $adminWarnedStatus . '</span>，下次上線時站方會主動撥打給您，完成視訊驗證即可解除站方警示。';
             }
             else
             {
-                $adminWarnedStatus = $adminWarnedStatus . '</span>，<a href="/advance_auth" style="color:#fd5678">請點此</a>先完成進階驗證後，站方會再跟您約視訊驗證時間，再請注意來訊。';
+                $adminWarnedStatus = $adminWarnedStatus . '</span>，<a href="/advance_auth" style="color:#fd5678">請點此</a>先完成進階驗證後，下次上線時站方會主動撥打給您，完成視訊驗證即可解除站方警示。';
             }
         } 
         else if (!empty($user_isBannedOrWarned->warned_id) && $user_isBannedOrWarned->warned_expire_date == null) 
@@ -10899,54 +10913,65 @@ class PagesController extends BaseController
             $option_array_other['expect_date_other'] = json_decode($request->expect_date_other);
         }
 
-        //重置選項
-        VvipOptionXref::reset($user->id);
-        //插入選項
-        VvipOptionXref::update_multiple_option($user->id, $option_array, $option_array_other);
-        //預設圖片處理
-        $system_image_assets = json_decode($request->system_image_assets);
-        VvipOptionXref::updateMultipleOptionAndRemark($user->id, 'assets_image', $system_image_assets);
-        $system_image_life = json_decode($request->system_image_life);
-        $system_image_life_title = json_decode($request->system_image_life_title);
-        VvipOptionXref::updateMultipleOptionAndRemark($user->id, 'quality_life_image', $system_image_life, $system_image_life_title);
+        try {
+            DB::transaction(function () use ($user, $request, $option_array, $option_array_other) {
+                //重置選項
+                VvipOptionXref::reset($user->id);
+                //插入選項
+                VvipOptionXref::update_multiple_option($user->id, $option_array, $option_array_other);
+                //預設圖片處理
+                $system_image_assets = json_decode($request->system_image_assets);
+                VvipOptionXref::updateMultipleOptionAndRemark($user->id, 'assets_image', $system_image_assets);
+                $system_image_life = json_decode($request->system_image_life);
+                $system_image_life_title = json_decode($request->system_image_life_title);
+                VvipOptionXref::updateMultipleOptionAndRemark($user->id, 'quality_life_image', $system_image_life, $system_image_life_title);
 
-        //圖片上傳處理
-        if ($request->assets_image_content ?? false) {
-            VvipOptionXref::uploadImage($user->id, 'assets_image', $request->assets_image, $request->assets_image_detail, $request->assets_image_content);
+                //圖片上傳處理
+                if ($request->assets_image_content ?? false) {
+                    VvipOptionXref::uploadImage($user->id, 'assets_image', $request->assets_image, $request->assets_image_detail, $request->assets_image_content);
+                }
+                if ($request->life_image_content ?? false) {
+                    VvipOptionXref::uploadImage($user->id, 'quality_life_image', $request->quality_life_image, $request->quality_life_image_detail, $request->life_image_content, $request->life_image_content_title);
+                }
+
+                //重置選項
+                VvipSubOptionXref::reset($user->id);
+                //插入選項
+                VvipSubOptionXref::updateHighAssets($user->id, $request->high_assets, $request->high_assets_other);
+                VvipSubOptionXref::updateCeoTitle($user->id, $request->ceo_title);
+                $professional = json_decode($request->professional);
+                VvipSubOptionXref::updateMultipleOption($user->id, $professional, 'professional');
+                $high_net_worth = json_decode($request->high_net_worth);
+                VvipSubOptionXref::updateMultipleOptionAndRemark($user->id, $high_net_worth, 'high_net_worth');
+                $entrepreneur = json_decode($request->entrepreneur);
+                VvipSubOptionXref::updateOptionAndRemark($user->id, $entrepreneur, 'entrepreneur');
+                $professional_network = json_decode($request->professional_network);
+                VvipSubOptionXref::updateOptionAndCustomAndRemark($user->id, $professional_network, 'professional_network');
+                $life_care = json_decode($request->life_care);
+                VvipSubOptionXref::updateMultipleOption($user->id, $life_care, 'life_care');
+                $special_problem_handling = json_decode($request->special_problem_handling);
+                VvipSubOptionXref::updateMultipleOption($user->id, $special_problem_handling, 'special_problem_handling');
+
+                $vvipInfo = VvipInfo::where('user_id', $user->id)->first();
+                if(!$vvipInfo) {
+                    $vvipInfo = new VvipInfo();
+                    $vvipInfo->user_id = $user->id;
+                    $vvipInfo->status = 1;
+                }
+                $vvipInfo->has_writed = 1;
+                $vvipInfo->save();
+
+                //更新關於我
+                UserMeta::where('user_id',$user->id)->update(['about' => $request->about]);
+            });
         }
-        if ($request->life_image_content ?? false) {
-            VvipOptionXref::uploadImage($user->id, 'quality_life_image', $request->quality_life_image, $request->quality_life_image_detail, $request->life_image_content, $request->life_image_content_title);
+        catch (\Exception $e) {            
+            if (app()->bound('sentry')) {
+                \Sentry\captureMessage($e->getMessage());
+                app('sentry')->captureException($exception);
+            }
+            return back()->with('message', '資料更新失敗');
         }
-
-        //重置選項
-        VvipSubOptionXref::reset($user->id);
-        //插入選項
-        VvipSubOptionXref::updateHighAssets($user->id, $request->high_assets, $request->high_assets_other);
-        VvipSubOptionXref::updateCeoTitle($user->id, $request->ceo_title);
-        $professional = json_decode($request->professional);
-        VvipSubOptionXref::updateMultipleOption($user->id, $professional, 'professional');
-        $high_net_worth = json_decode($request->high_net_worth);
-        VvipSubOptionXref::updateMultipleOptionAndRemark($user->id, $high_net_worth, 'high_net_worth');
-        $entrepreneur = json_decode($request->entrepreneur);
-        VvipSubOptionXref::updateOptionAndRemark($user->id, $entrepreneur, 'entrepreneur');
-        $professional_network = json_decode($request->professional_network);
-        VvipSubOptionXref::updateOptionAndCustomAndRemark($user->id, $professional_network, 'professional_network');
-        $life_care = json_decode($request->life_care);
-        VvipSubOptionXref::updateMultipleOption($user->id, $life_care, 'life_care');
-        $special_problem_handling = json_decode($request->special_problem_handling);
-        VvipSubOptionXref::updateMultipleOption($user->id, $special_problem_handling, 'special_problem_handling');
-
-        $vvipInfo = VvipInfo::where('user_id', $user->id)->first();
-        if(!$vvipInfo) {
-            $vvipInfo = new VvipInfo();
-            $vvipInfo->user_id = $user->id;
-            $vvipInfo->status = 1;
-        }
-        $vvipInfo->has_writed = 1;
-        $vvipInfo->save();
-
-        //更新關於我
-        UserMeta::where('user_id',$user->id)->update(['about' => $request->about]);
 
 
         return back()->with('message', '資料已更新');

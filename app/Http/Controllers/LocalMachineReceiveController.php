@@ -57,7 +57,14 @@ class LocalMachineReceiveController extends Controller
 			}
 			else if($type == 'delete')
 			{
-				$ban_set = SetAutoBan::where('id', $id)->first()->delete();
+				$ban_set = SetAutoBan::where('id', $id)->first();
+				if ($ban_set ?? false) {
+					$ban_set->delete();
+				}
+				else {
+					Log::Info('自動封鎖列表-ID不存在:' . $id);
+					return '自動封鎖列表--ID不存在:' . $id;
+				}
 			}
 			return '自動封鎖列表-IP更新成功';
 		}

@@ -497,13 +497,13 @@ function requestBlurryAvatarDefault() {
                               @endif
                           </h4>
                     </div>
-                    <scrip>
+                    <script>
                         if (!typeof(disable_onbeforeunload_hint) == 'function') {
                             function disable_onbeforeunload_hint() {
                                 $('body').attr('onbeforeunload',"");
                             }
                         }
-                    </scrip>
+                    </script>
                     <div class="row mb-4 ">
                         <div class="col-sm-12 col-lg-12">
                             <form id="avatar_upload_form" @if($rap_service->isInRealAuthProcess()) action="{{route('dashboard/avatar/upload',['real_auth'=>request()->real_auth])}}" @else action="{{ url('/dashboard/avatar/upload') }}" @endif method="post" enctype="multipart/form-data">

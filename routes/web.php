@@ -349,6 +349,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
 
         //精華討論區
         Route::get('/dashboard/essence_enter_intro', 'PagesController@essence_enter_intro');
+        Route::get('/dashboard/essence_main', 'PagesController@essence_main');
         Route::get('/dashboard/essence_list', 'PagesController@essence_list');
         Route::get('/dashboard/essence_posts', 'PagesController@essence_posts');
         Route::post('/dashboard/essence_doPosts', 'PagesController@essence_doPosts');
@@ -982,7 +983,8 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
 
 
         Route::get('users/vip/search', 'UserController@vipIndex')->name('users/vip');
-        Route::post('users/vip/search', 'UserController@vipSearch')->name('users/vip/search');
+        Route::post('users/vip/search', 'UserController@vipSearch')->name('users/vip/search');        
+        Route::post('users/short_message/search', 'UserController@short_message_search')->name('users/short_message/search');
         Route::post('users/vip/period/extend', 'UserController@periodExtend')->name('users/vip/period/extend');
         Route::post('users/vip/period/transfer', 'UserController@periodTransfer')->name('users/vip/period/transfer');
         Route::post('users/vip/adv_auth_count/save', 'UserController@updateVipAdvandceAuthCount')->name('users/vip/adv_auth_count/save');
@@ -1071,6 +1073,8 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('users/WarnedOrBannedLog/{logType}/{user_id}', 'UserController@isEverWarnedOrBannedLog');
         Route::get('users/commitUser', 'UserController@commitUser')->name('users/commitUser');
 
+        Route::post('users/suspicious_list_count_set_change', 'UserController@suspicious_list_count_set_change')->name('users/suspicious_list_count_set_change');
+
         //訂單
         Route::get('order', 'OrderController@index')->name('order');
         Route::get('order/list', 'OrderController@getOrderData')->name('order/list');
@@ -1144,6 +1148,12 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
 
         //進階資訊統計工具
         Route::get('users/informationStatistics', 'UserController@informationStatistics')->name('users/informationStatistics');
+
+        //中長期會員管理列表
+        Route::get('users/medium_long_term_without_adv_verification_list', 'UserController@medium_long_term_without_adv_verification_list')->name('users/medium_long_term_without_adv_verification_list');
+        Route::post('users/medium_long_term_without_adv_verification_user_remove', 'UserController@medium_long_term_without_adv_verification_user_remove')->name('medium_long_term_without_adv_verification_user_remove');
+        Route::post('users/medium_long_term_without_adv_verification_communication_count_set_change', 'UserController@medium_long_term_without_adv_verification_communication_count_set_change')->name('medium_long_term_without_adv_verification_communication_count_set_change');
+
 
         //廣告紀錄統計
         Route::get('admin/advertiseStatistics', 'UserController@advertiseStatistics')->name('admin/advertiseStatistics');

@@ -45,8 +45,8 @@ class BanJob implements ShouldQueue
         }
         if($this->user ?? false)
         {
-            Log::info("start_jobs_BanJob at " . now() . ", user {$this->user->id}, ban set {$this->ban_set->id}");
-            if (!$this->ban_set->id) {
+            Log::info("start_jobs_BanJob at " . now() . ", user {$this->user->id}, ban set {$this->ban_set?->id}");
+            if (!$this->ban_set?->id) {
                 logger("Ban job failed on user {$this->user->id}, no ban set id, try to display ban type: " . $this->ban_set->set_ban);
             }
             if (!$this->ban_set->set_ban) {

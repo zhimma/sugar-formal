@@ -40,7 +40,7 @@
             .video_status_text_show_elt {float:none !important;}
             #app,#app .btn-success {height:0 !important;width:0 !important;}
             #app {display:none !important;}        
-            .de_input {white-space:nowrap;}
+            /* .de_input {white-space:nowrap;} */
         </style>        
         <script>
             real_auth_process_check();
@@ -184,7 +184,7 @@
 								
                                 @if($rap_service->isInRealAuthProcess())
                                     @if(Session::has('message'))
-                                        {!!implode('<br>',Session::get('message')??[])!!}                                
+                                        {!!implode('<br><br>',Session::get('message')??[])!!}                                
                                     @elseif($init_check_msg)
                                     <div class="center">{!!$init_check_msg!!}</div>    
                                     @endif

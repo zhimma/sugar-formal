@@ -39,18 +39,47 @@ class ChatShowContent extends Component
         $showSlide = $this->showSlide;
         $admin_id = AdminService::checkAdmin()->id;
 
-        if (Blocked::isBlocked($to->id, auth()->user()->id)) {
-            $blockTime = Blocked::getBlockTime($to->id, auth()->user()->id);
-            //用model會抓不到unsend欄位 所以這邊用DB來抓
-            $messages = DB::table('message')->where(function ($q) use ($to, $blockTime) {
-                $q->where([
-                    ['to_id', $to->id],
-                    ['from_id', auth()->user()->id],
-                    ['created_at', '<=', $blockTime->created_at]
-                ])->orWhere([
-                    ['from_id', $to->id],
-                    ['to_id', auth()->user()->id]]);
-                })->distinct()->orderBy('created_at', 'desc');
+        if(Blocked::isBlocked($to->id, auth()->user()->id)  ||  Blocked::isBlocked( auth()->user()->id,$to->id)) {
+            
+            $messages = DB::table('message');
+            
+            if (Blocked::isBlocked($to->id, auth()->user()->id)) {
+                $blockTime = Blocked::getBlockTime($to->id, auth()->user()->id);
+                //用model會抓不到unsend欄位 所以這邊用DB來抓
+                $messages->where(function ($q) use ($to, $blockTime) {
+                                $q->where([
+                                    ['to_id', $to->id],
+                                    ['from_id', auth()->user()->id],   
+                                ])
+                                ->orWhere([
+                                    ['from_id', $to->id],
+                                    ['to_id', auth()->user()->id],
+                                    ['created_at', '<=', $blockTime->created_at]
+                                ]);
+                                
+                            });
+            } 
+            
+            if (Blocked::isBlocked(auth()->user()->id,$to->id)) {
+                $blockTimeFromSelf = Blocked::getBlockTime(auth()->user()->id,$to->id);
+                //用model會抓不到unsend欄位 所以這邊用DB來抓
+                $messages->where(function ($q) use ($to, $blockTimeFromSelf) {
+                                $q->where([
+                                    ['to_id', $to->id],
+                                    ['from_id', auth()->user()->id],
+                                    ['created_at', '<=', $blockTimeFromSelf->created_at]
+                                ])
+                                ->orWhere([
+                                    ['from_id', $to->id],
+                                    ['to_id', auth()->user()->id],
+                                    ['created_at', '<=', $blockTimeFromSelf->created_at]
+                                ]);
+                                
+                            });
+            } 
+            
+            $messages->distinct()->orderBy('created_at', 'desc');
+            
         } else {
             //用model會抓不到unsend欄位 所以這邊用DB來抓
             $messages = DB::table('message')->where(function ($q) use ($to) {
