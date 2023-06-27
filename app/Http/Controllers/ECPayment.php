@@ -17,12 +17,20 @@ class ECPayment extends BaseController
         *    Credit信用卡付款產生訂單範例
         */
 
-        //default 舊系統付款方式保留
-        $amount = 888;
-        $PeriodType = 'M';
-        $Frequency = '1';
-        $PeriodAmount = '888';
-        $ExecTimes = '99';
+        if($request->amount && $request->amount>0){
+            $amount = $request->amount;
+            $PeriodType = 'M';
+            $Frequency = '1';
+            $PeriodAmount = $request->amount;
+            $ExecTimes = '99';
+        }else {
+            //default 舊系統付款方式保留
+            $amount = 888;
+            $PeriodType = 'M';
+            $Frequency = '1';
+            $PeriodAmount = '888';
+            $ExecTimes = '99';
+        }
 
         //new payment
         if($request->type == 'cc_quarterly_payment'){
