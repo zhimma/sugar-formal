@@ -17,7 +17,7 @@ class DeployController extends Controller
         $localHash = 'sha1=' . hash_hmac('sha1', $payload, $localToken, false);
         if ($hash == $localToken) {
             $root_path = base_path();
-            exec('cd ' . $root_path . '; sudo sh ./deploy.sh');
+            exec('cd ' . $root_path . '; sudo sh ./deploy.sh 2>&1');
             \Sentry\captureMessage('deployed');
             logger('deployed');
         }
@@ -36,7 +36,7 @@ class DeployController extends Controller
         $localHash = 'sha1=' . hash_hmac('sha1', $payload, $localToken, false);
         if ($hash == $localToken) {
             $root_path = base_path();
-            exec('cd ' . $root_path . '; sudo sh ./staging.sh');
+            exec('cd ' . $root_path . '; sudo sh ./staging.sh 2>&1');
             \Sentry\captureMessage('staging deployed');
             logger('staging deployed');
         }
