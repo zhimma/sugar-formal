@@ -9099,6 +9099,13 @@ class PagesController extends BaseController
             );
             $allMessage = \App\Models\Message::allMessage($user->id);
             $forum = Forum::withTrashed()->where('user_id',$user->id)->orderby('id','desc')->first();
+
+            # 若使用者已連動則進行取消連動作業
+            if (!empty($user->line_notify_token) && !$user->isVipOrIsVvip()) {
+                lineNotifyChatSet::where('user_id', $user->id)->delete();
+                app(LineNotify::class)->lineNotifyRevoke($user->id, $user->line_notify_token);
+            }
+
             return view('new.dashboard.personalPage', $data)
                 ->with('myFav', $myFav)
                 ->with('otherFav', $otherFav)
