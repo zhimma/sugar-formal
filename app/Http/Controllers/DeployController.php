@@ -49,7 +49,7 @@ class DeployController extends Controller
 
     public function manualDeploy() {
         $root_path = base_path();
-        exec('cd ' . $root_path . '; sudo sh ./deploy.sh > ~/debug.log 2>&1');
+        var_dump(exec('cd ' . $root_path . '; sudo sh ./deploy.sh > ~/debug.log 2>&1', $output, $errno), $output, $errno);
         \Sentry\captureMessage('production manually deployed');
         logger('production manually deployed');
         return "呼叫完成";
