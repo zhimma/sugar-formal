@@ -17,9 +17,9 @@ class DeployController extends Controller
         $localHash = 'sha1=' . hash_hmac('sha1', $payload, $localToken, false);
         if ($hash == $localToken) {
             $root_path = base_path();
-            shell_exec('cd ' . $root_path . '; sudo sh ./deploy.sh > ~/debug.log 2>&1');
-            \Sentry\captureMessage('deployed');
-            logger('deployed');
+            $result = shell_exec('cd ' . $root_path . '; sudo sh ./deploy.sh 2>&1');
+            \Sentry\captureMessage($result);
+            logger($result);
         }
         else {
             \Sentry\captureMessage('hash not equal');
@@ -36,9 +36,9 @@ class DeployController extends Controller
         $localHash = 'sha1=' . hash_hmac('sha1', $payload, $localToken, false);
         if ($hash == $localToken) {
             $root_path = base_path();
-            shell_exec('cd ' . $root_path . '; sudo sh ./staging.sh > ~/debug.log 2>&1');
-            \Sentry\captureMessage('staging deployed');
-            logger('staging deployed');
+            $result = shell_exec('cd ' . $root_path . '; sudo sh ./staging.sh 2>&1');
+            \Sentry\captureMessage($result);
+            logger($result);
         }
         else {
             \Sentry\captureMessage('hash not equal');
@@ -49,7 +49,7 @@ class DeployController extends Controller
 
     public function manualDeploy() {
         $root_path = base_path();
-        var_dump(shell_exec('cd ' . $root_path . '; sudo sh ./deploy.sh > ~/debug.log 2>&1'));
+        var_dump(shell_exec('cd ' . $root_path . '; sudo sh ./deploy.sh 2>&1'));
         \Sentry\captureMessage('production manually deployed');
         logger('production manually deployed');
         return "呼叫完成";
