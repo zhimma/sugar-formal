@@ -2667,6 +2667,7 @@ class PagesController extends BaseController
                         ->where('user_options_xref.option_type', '=', 9);
                 })
                 ->select('option_personality_traits.*', 'user_options_xref.id as xref_id')
+                ->whereNotNull('user_options_xref.id')
                 ->get();
             $life_style = DB::table('option_life_style')
                 ->leftJoin('user_options_xref', function ($join) use ($user) {
@@ -2675,6 +2676,7 @@ class PagesController extends BaseController
                         ->where('user_options_xref.option_type', '=', 10);
                 })
                 ->select('option_life_style.*', 'user_options_xref.id as xref_id')
+                ->whereNotNull('user_options_xref.id')
                 ->get();
             //工作/學業
             $user_option_xref = UserOptionsXref::where('user_id', $to->id);
