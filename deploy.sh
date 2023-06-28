@@ -15,6 +15,7 @@ if [ "$(. ./.env; printf '%s' "$APP_ENV")" = "production" ]; then
     sudo service php8.1-fpm restart
 elif [ "$(. ./.env; printf '%s' "$APP_ENV")" = "build" ] || [ "$(. ./.env; printf '%s' "$APP_ENV")" = "staging" ]; then
     now=$(date +"%Y-%m-%d-%H-%M-%S")
+    git reset --hard origin master
     git checkout dev_master 
     git reset --hard DEV/master
     git fetch DEV master
