@@ -4,6 +4,12 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
+/**
+ * 初次使用時，要確定
+ * 1. nginx/apache 和 PHP 的使用者擁有免密碼 sudo 的權限
+ * 2. 最好在 sudo 後再執行這段：git config --global --add safe.directory {專案路徑}
+ *    {專案路徑} 要置換為實際值
+ */
 class DeployController extends Controller
 {
     public function deploy(Request $request)
