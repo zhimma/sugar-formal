@@ -133,7 +133,17 @@ class LineNotify extends Controller
         $response = $this->curl($url,$type,[],[],$header);
         $response = json_decode($response,true);
         if($response["status"] != "200"){
-            throw new \Exception("error " . $response["status"] . " : " . $response["message"]);
+            if (app()->isProduction()) {
+                if (app()->bound('sentry')) {
+                    app('sentry')->captureMessage("error " . $response["status"] . " : " . $response["message"]);
+                }
+                else {
+                    logger("error " . $response["status"] . " : " . $response["message"]);
+                }
+            }
+            else {
+                throw new \Exception("error " . $response["status"] . " : " . $response["message"]);
+            }
         }else{
             User::where('id',$id)->update(['line_notify_token' => null]);
         }
