@@ -48,6 +48,8 @@ class DeployController extends Controller
     }
 
     public function manualDeploy() {
+        ini_set('max_execution_time', 300);
+        ini_set('memory_limit', '256M');
         $root_path = base_path();
         $result = shell_exec('cd ' . $root_path . '; sudo sh ./deploy.sh 2>&1');
         \Sentry\captureMessage('production manually deployed' . $result);
