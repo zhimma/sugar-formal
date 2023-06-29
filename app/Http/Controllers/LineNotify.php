@@ -144,9 +144,8 @@ class LineNotify extends Controller
             else {
                 throw new \Exception("error " . $response["status"] . " : " . $response["message"]);
             }
-        }else{
-            User::where('id',$id)->update(['line_notify_token' => null]);
         }
+        User::where('id',$id)->update(['line_notify_token' => null]);
         /**
          * {"status":200,"message":"ok"}
          */
