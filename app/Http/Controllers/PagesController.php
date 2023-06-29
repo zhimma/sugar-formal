@@ -3139,7 +3139,7 @@ class PagesController extends BaseController
             $uid = $request->uid;
             $target_user = User::find($uid);
             if ($target_user->valueAddedServiceStatus('hideOnline') && $target_user->is_hide_online != 0) {
-                $data = hideOnlineData::select('user_id', 'blocked_other_count', 'be_blocked_other_count')->where('user_id', $uid)->first();
+                $data = hideOnlineData::select('user_id', 'blocked_other_count', 'be_blocked_other_count')->where('user_id', $uid)->orderByDesc('id')->first();
                 /*此會員封鎖多少其他會員*/
                 $blocked_other_count = $data->blocked_other_count;
                 /*此會員被多少會員封鎖*/
