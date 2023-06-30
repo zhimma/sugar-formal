@@ -145,7 +145,13 @@ class LineNotify extends Controller
                 throw new \Exception("error " . $response["status"] . " : " . $response["message"]);
             }
         }
-        User::where('id',$id)->update(['line_notify_token' => null]);
+        User::where('id',$id)->update([
+            'line_notify_token' => null,
+            'line_notify_auth_code'=> null,
+            'line_notify_switch' =>1
+        ]);
+        lineNotifyChatSet::where('user_id', $id)->delete();
+
         /**
          * {"status":200,"message":"ok"}
          */
