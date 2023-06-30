@@ -146,6 +146,8 @@ class LineNotify extends Controller
             }
         }
         User::where('id',$id)->update(['line_notify_token' => null]);
+        lineNotifyChatSet::where('user_id', $id)->delete();
+
         /**
          * {"status":200,"message":"ok"}
          */

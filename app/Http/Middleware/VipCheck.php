@@ -49,7 +49,6 @@ class VipCheck
 
         //曾經綁定過,但現在不是VIP帳號, 則ＬineNotify強制解綁
         if (!empty($user->line_notify_token) && !$user->isVipOrIsVvip()) {
-            lineNotifyChatSet::where('user_id', $user->id)->delete();
             app(LineNotify::class)->lineNotifyRevoke($user->id, $user->line_notify_token);
         }
 
