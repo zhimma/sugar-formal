@@ -33,12 +33,12 @@ class DeployJob implements ShouldQueue
         $result = shell_exec('cd ' . $root_path . '; sudo sh ./deploy.sh 2>&1');
         $commit = shell_exec('git rev-parse HEAD');
         try {
-            $lineNotify->sendLineNotifyMessage("正式站部署完成，目前 commit 為 " . $commit);
+            $lineNotify->sendLineNotifyMessage('正式站部署完成');
         }
         catch (\Exception $e) {
             \Sentry\captureException($e);
         }
-        \Sentry\captureMessage('production manually deployed' . $result);
+        \Sentry\captureMessage("production manually deployed\n" . $result . "\n commit: " . $commit);
         logger('production manually deployed' . $result);
     }
 }
