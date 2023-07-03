@@ -31,7 +31,7 @@ class DeployJob implements ShouldQueue
         ini_set('memory_limit', -1);
         $root_path = base_path();
         $result = shell_exec('cd ' . $root_path . '; sudo sh ./deploy.sh 2>&1');
-        $commit = shell_exec('git rev-parse HEAD 2>&1');
+        $commit = shell_exec('cd ' . $root_path . '; git rev-parse HEAD 2>&1');
         try {
             $lineNotify->sendLineNotifyMessage('正式站部署完成，目前 commit: ' . $commit);
         }
