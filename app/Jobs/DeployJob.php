@@ -38,7 +38,7 @@ class DeployJob implements ShouldQueue
         catch (\Exception $e) {
             \Sentry\captureException($e);
         }
-        \Sentry\captureMessage("production manually deployed\n" . $result . "\n commit: " . $commit);
+        \Sentry\captureMessage("production manually deployed\n commit: " . $commit . "\n, result: " . $result);
         logger('production manually deployed' . $result);
     }
 }
