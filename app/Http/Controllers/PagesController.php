@@ -3156,7 +3156,10 @@ class PagesController extends BaseController
                     ->leftJoin('user_meta as um', 'um.user_id', '=', 'blocked.blocked_id')
                     ->leftJoin('warned_users as w2', 'w2.member_id', '=', 'blocked.blocked_id')
                     ->where('um.isWarned', 0)
-                    ->whereNull('w2.id')
+                    ->where(function($q){
+                        $q->whereNull('w2.id')
+                          ->orWhere('w2.expire_date','<=',now());
+                    })
                     ->where('blocked.member_id', $uid)
                     ->whereNotIn('blocked.blocked_id', $bannedUsers)
                     ->whereNotNull('users.id')
@@ -3176,7 +3179,10 @@ class PagesController extends BaseController
                     ->leftJoin('user_meta as um', 'um.user_id', '=', 'blocked.member_id')
                     ->leftJoin('warned_users as w2', 'w2.member_id', '=', 'blocked.member_id')
                     ->where('um.isWarned', 0)
-                    ->whereNull('w2.id')
+                    ->where(function($q){
+                        $q->whereNull('w2.id')
+                          ->orWhere('w2.expire_date','<=',now());
+                    })
                     ->where('blocked.blocked_id', $uid)
                     ->whereNotIn('blocked.member_id', $bannedUsers)
                     ->whereNotNull('users.id')
