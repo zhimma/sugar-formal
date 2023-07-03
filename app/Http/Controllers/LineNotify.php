@@ -133,10 +133,25 @@ class LineNotify extends Controller
         $response = $this->curl($url,$type,[],[],$header);
         $response = json_decode($response,true);
         if($response["status"] != "200"){
-            throw new \Exception("error " . $response["status"] . " : " . $response["message"]);
-        }else{
-            User::where('id',$id)->update(['line_notify_token' => null]);
+            if (app()->isProduction()) {
+                if (app()->bound('sentry')) {
+                    app('sentry')->captureMessage("error " . $response["status"] . " : " . $response["message"]);
+                }
+                else {
+                    logger("error " . $response["status"] . " : " . $response["message"]);
+                }
+            }
+            else {
+                throw new \Exception("error " . $response["status"] . " : " . $response["message"]);
+            }
         }
+        User::where('id',$id)->update([
+            'line_notify_token' => null,
+            'line_notify_auth_code'=> null,
+            'line_notify_switch' =>1
+        ]);
+        lineNotifyChatSet::where('user_id', $id)->delete();
+
         /**
          * {"status":200,"message":"ok"}
          */

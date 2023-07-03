@@ -2,6 +2,8 @@
 
 namespace App\Http\Middleware;
 
+use App\Http\Controllers\LineNotify;
+use App\Models\lineNotifyChatSet;
 use App\Services\AdminService;
 use App\Services\VipLogService;
 use Closure;
@@ -44,6 +46,12 @@ class VipCheck
     {
         $now = new \DateTime(\Carbon\Carbon::now()->toDateTimeString());
         $user = $this->auth->user();
+
+        //曾經綁定過,但現在不是VIP帳號, 則ＬineNotify強制解綁
+        if (!empty($user->line_notify_token) && !$user->isVipOrIsVvip()) {
+            app(LineNotify::class)->lineNotifyRevoke($user->id, $user->line_notify_token);
+        }
+
         // Check VIP expiry.
         if ($user->isVip()) {
             $userVIP = $user->getVipData(true);

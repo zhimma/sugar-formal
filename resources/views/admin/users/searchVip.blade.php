@@ -71,7 +71,7 @@
 	{!! csrf_field() !!}
 	<div class="form-group">
 		<label for="phone" class="">輸入會員手機號碼</label>	
-		<input type="text" name='phone_search' class="" style="width:300px;" id="phone" value="{{$short_messages?$short_messages->first()?->mobile:''}}" required>
+		<input type="text" name='phone_search' class="" style="width:300px;" id="phone" value="{{ isset($short_messages) ? $short_messages->first()?->mobile : '' }}" required>
         <input type="hidden" name="del_all_short_message"  id="del_all_short_message" value="0" />
     </div>
 	<button type="button" class="btn btn-primary" onclick="$('#phone_search_rs').remove();$('#phone_search_operator').remove();$('.short_message_search_form').submit()">送出</button>

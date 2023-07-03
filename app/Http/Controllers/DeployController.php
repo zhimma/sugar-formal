@@ -4,6 +4,12 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
+/**
+ * 初次使用時，要確定
+ * 1. nginx/apache 和 PHP 的使用者擁有免密碼 sudo 的權限
+ * 2. 最好在 sudo 後再執行這段：git config --global --add safe.directory {專案路徑}
+ *    {專案路徑} 要置換為實際值
+ */
 class DeployController extends Controller
 {
     public function deploy(Request $request)
@@ -17,9 +23,9 @@ class DeployController extends Controller
         $localHash = 'sha1=' . hash_hmac('sha1', $payload, $localToken, false);
         if ($hash == $localToken) {
             $root_path = base_path();
-            exec('cd ' . $root_path . '; sudo sh ./deploy.sh');
-            \Sentry\captureMessage('deployed');
-            logger('deployed');
+            $result = shell_exec('cd ' . $root_path . '; sudo sh ./deploy.sh 2>&1');
+            \Sentry\captureMessage($result);
+            logger($result);
         }
         else {
             \Sentry\captureMessage('hash not equal');
@@ -36,9 +42,9 @@ class DeployController extends Controller
         $localHash = 'sha1=' . hash_hmac('sha1', $payload, $localToken, false);
         if ($hash == $localToken) {
             $root_path = base_path();
-            exec('cd ' . $root_path . '; sudo sh ./staging.sh');
-            \Sentry\captureMessage('staging deployed');
-            logger('staging deployed');
+            $result = shell_exec('cd ' . $root_path . '; sudo sh ./staging.sh 2>&1');
+            \Sentry\captureMessage($result);
+            logger($result);
         }
         else {
             \Sentry\captureMessage('hash not equal');
@@ -48,10 +54,14 @@ class DeployController extends Controller
     }
 
     public function manualDeploy() {
+        ini_set('opcache.enable', '0');
+        ini_set('max_execution_time', 300);
+        ini_set('memory_limit', -1);
         $root_path = base_path();
-        exec('cd ' . $root_path . '; sudo sh ./deploy.sh');
-        \Sentry\captureMessage('production manually deployed');
-        logger('production manually deployed');
+        $result = shell_exec('cd ' . $root_path . '; sudo sh ./deploy.sh 2>&1');
+        \Sentry\captureMessage('production manually deployed' . $result);
+        logger('production manually deployed' . $result);
+        ini_set('opcache.enable', '1');
         return "呼叫完成";
     }
 }

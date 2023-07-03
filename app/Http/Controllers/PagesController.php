@@ -2706,6 +2706,7 @@ class PagesController extends BaseController
                         ->where('user_options_xref.option_type', '=', 9);
                 })
                 ->select('option_personality_traits.*', 'user_options_xref.id as xref_id')
+                ->whereNotNull('user_options_xref.id')
                 ->get();
             $life_style = DB::table('option_life_style')
                 ->leftJoin('user_options_xref', function ($join) use ($user) {
@@ -2714,6 +2715,7 @@ class PagesController extends BaseController
                         ->where('user_options_xref.option_type', '=', 10);
                 })
                 ->select('option_life_style.*', 'user_options_xref.id as xref_id')
+                ->whereNotNull('user_options_xref.id')
                 ->get();
             //工作/學業
             $user_option_xref = UserOptionsXref::where('user_id', $to->id);
@@ -3137,7 +3139,7 @@ class PagesController extends BaseController
             $uid = $request->uid;
             $target_user = User::find($uid);
             if ($target_user->valueAddedServiceStatus('hideOnline') && $target_user->is_hide_online != 0) {
-                $data = hideOnlineData::select('user_id', 'blocked_other_count', 'be_blocked_other_count')->where('user_id', $uid)->first();
+                $data = hideOnlineData::select('user_id', 'blocked_other_count', 'be_blocked_other_count')->where('user_id', $uid)->orderByDesc('id')->first();
                 /*此會員封鎖多少其他會員*/
                 $blocked_other_count = $data->blocked_other_count;
                 /*此會員被多少會員封鎖*/
@@ -3154,7 +3156,10 @@ class PagesController extends BaseController
                     ->leftJoin('user_meta as um', 'um.user_id', '=', 'blocked.blocked_id')
                     ->leftJoin('warned_users as w2', 'w2.member_id', '=', 'blocked.blocked_id')
                     ->where('um.isWarned', 0)
-                    ->whereNull('w2.id')
+                    ->where(function($q){
+                        $q->whereNull('w2.id')
+                          ->orWhere('w2.expire_date','<=',now());
+                    })
                     ->where('blocked.member_id', $uid)
                     ->whereNotIn('blocked.blocked_id', $bannedUsers)
                     ->whereNotNull('users.id')
@@ -3174,7 +3179,10 @@ class PagesController extends BaseController
                     ->leftJoin('user_meta as um', 'um.user_id', '=', 'blocked.member_id')
                     ->leftJoin('warned_users as w2', 'w2.member_id', '=', 'blocked.member_id')
                     ->where('um.isWarned', 0)
-                    ->whereNull('w2.id')
+                    ->where(function($q){
+                        $q->whereNull('w2.id')
+                          ->orWhere('w2.expire_date','<=',now());
+                    })
                     ->where('blocked.blocked_id', $uid)
                     ->whereNotIn('blocked.member_id', $bannedUsers)
                     ->whereNotNull('users.id')
@@ -9097,6 +9105,7 @@ class PagesController extends BaseController
             );
             $allMessage = \App\Models\Message::allMessage($user->id);
             $forum = Forum::withTrashed()->where('user_id',$user->id)->orderby('id','desc')->first();
+
             return view('new.dashboard.personalPage', $data)
                 ->with('myFav', $myFav)
                 ->with('otherFav', $otherFav)

@@ -477,22 +477,48 @@ class ValueAddedService extends Model
 
         $blocked_other_count = Blocked::with(['blocked_user'])
             ->join('users', 'users.id', '=', 'blocked.blocked_id')
+            ->join('message', function ($join) {
+                $join->on('blocked.member_id', '=', 'message.from_id');
+                $join->on('blocked.blocked_id', '=', 'message.to_id');
+            })  
+            ->leftJoin('user_meta as um', 'um.user_id', '=', 'blocked.blocked_id')
+            ->leftJoin('warned_users as w2', 'w2.member_id', '=', 'blocked.blocked_id')                      
+            ->where('um.isWarned', 0)
+            ->where(function($q){
+                $q->whereNull('w2.id')
+                  ->orWhere('w2.expire_date','<=',now());
+            })
             ->where('blocked.member_id', $user->id)
             ->whereNotIn('blocked.blocked_id',$bannedUsers)
             ->whereNotNull('users.id')
             ->where('users.accountStatus', 1)
             ->where('users.account_status_admin', 1)
-            ->count();
+            ->whereNotNull('message.id')
+            ->distinct()
+            ->count('blocked.blocked_id');
 
         /*此會員被多少會員封鎖*/
         $be_blocked_other_count = Blocked::with(['blocked_user'])
             ->join('users', 'users.id', '=', 'blocked.member_id')
+            ->join('message', function ($join) {
+                $join->on('blocked.member_id', '=', 'message.from_id');
+                $join->on('blocked.blocked_id', '=', 'message.to_id');
+            })
+            ->leftJoin('user_meta as um', 'um.user_id', '=', 'blocked.member_id')
+            ->leftJoin('warned_users as w2', 'w2.member_id', '=', 'blocked.member_id')
+            ->where('um.isWarned', 0)
+            ->where(function($q){
+                        $q->whereNull('w2.id')
+                          ->orWhere('w2.expire_date','<=',now());
+                    })          
             ->where('blocked.blocked_id', $user->id)
             ->whereNotIn('blocked.member_id',$bannedUsers)
             ->whereNotNull('users.id')
             ->where('users.accountStatus', 1)
             ->where('users.account_status_admin', 1)
-            ->count();
+            ->whereNotNull('message.id')
+            ->distinct(\DB::raw("blocked.member_id, blocked_id"))
+            ->count('blocked.blocked_id');
 
 
         //寫入hide_online_data
