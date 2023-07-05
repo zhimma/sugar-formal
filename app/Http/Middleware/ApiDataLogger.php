@@ -205,6 +205,7 @@ class ApiDataLogger{
                         }
                     }
 
+                    //預先給予機制
                     //暫時自動發放VIP權限
 //                    $transactionType='';
 //                    if($payload['PaymentType'] == 'Credit_CreditCard')
