@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\DeployJob;
 use Illuminate\Http\Request;
 
 /**
@@ -54,14 +55,7 @@ class DeployController extends Controller
     }
 
     public function manualDeploy() {
-        ini_set('opcache.enable', '0');
-        ini_set('max_execution_time', 300);
-        ini_set('memory_limit', -1);
-        $root_path = base_path();
-        $result = shell_exec('cd ' . $root_path . '; sudo sh ./deploy.sh 2>&1');
-        \Sentry\captureMessage('production manually deployed' . $result);
-        logger('production manually deployed' . $result);
-        ini_set('opcache.enable', '1');
+        DeployJob::dispatch();
         return "呼叫完成";
     }
 }

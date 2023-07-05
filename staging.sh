@@ -12,7 +12,7 @@ if [ "$(. ./.env; printf '%s' "$APP_ENV")" = "production" ]; then
     # --force  Required to run when in production.
     php artisan optimize
     php artisan queue:restart
-    sudo service php8.1-fpm restart
+    sudo service php8.1-fpm reload
 else    
     # update source code
     git pull
