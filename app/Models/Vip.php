@@ -70,14 +70,14 @@ class Vip extends Model
         $logStrQrcode = '';
 
         if(!isset($vipData)){
-
-            if(str_contains($transactionType, 'CVS') || str_contains($transactionType, 'ATM') || str_contains($transactionType, 'BARCODE')) {
-                //check取號資料表
-                $checkData = PaymentGetQrcodeLog::where('order_id', $order_id)->first();
-                if(isset($checkData)){
-                    $logStrQrcode = '(預先給予權限)';
-                }
-            }
+//預先給予機制
+//            if(str_contains($transactionType, 'CVS') || str_contains($transactionType, 'ATM') || str_contains($transactionType, 'BARCODE')) {
+//                //check取號資料表
+//                $checkData = PaymentGetQrcodeLog::where('order_id', $order_id)->first();
+//                if(isset($checkData)){
+//                    $logStrQrcode = '(預先給予權限)';
+//                }
+//            }
             //新建資料從當前計算
             if($payment=='one_quarter_payment'){
                 $expiry = Carbon::now()->addMonthsNoOverflow(3);
@@ -107,24 +107,25 @@ class Vip extends Model
             $vip->save();
         }
         else{
-
-            if(str_contains($transactionType, 'CVS') || str_contains($transactionType, 'ATM') || str_contains($transactionType, 'BARCODE')){
-                //check取號資料表
-                $checkData = PaymentGetQrcodeLog::where('order_id', $order_id)->first();
-                $checkDataByUser = PaymentGetQrcodeLog::where('user_id', $member_id)->first();
-                if(isset($checkData) && ($vipData->updated_at > $checkData->TradeDate && $vipData->updated_at < $checkData->ExpireDate) && $vipData->active==1 && $vipData->order_id == $order_id){
-                    //自動流程判斷
-                    //暫時性發放VIP者到期日不變更
-                    $expiry = $vipData->expiry;
-                    $logStrQrcode = '(期限內完成付款升級)';
-                }
-                elseif(isset($checkDataByUser) && ($vipData->updated_at > $checkDataByUser->TradeDate && $vipData->updated_at < $checkDataByUser->ExpireDate) && $vipData->active==1 && $vipData->order_id != $order_id){
-                    //手動給VIP時的判斷 ATM除外
-                    //原先只手動到期日者可能會抓不到
-                    $expiry = $vipData->expiry;
-                    $logStrQrcode = '(期限內完成付款升級/原手動升級者)';
-                }
-            }elseif($vipData->order_id != $order_id) {
+//預先給予機制
+//            if(str_contains($transactionType, 'CVS') || str_contains($transactionType, 'ATM') || str_contains($transactionType, 'BARCODE')){
+//                //check取號資料表
+//                $checkData = PaymentGetQrcodeLog::where('order_id', $order_id)->first();
+//                $checkDataByUser = PaymentGetQrcodeLog::where('user_id', $member_id)->first();
+//                if(isset($checkData) && ($vipData->updated_at > $checkData->TradeDate && $vipData->updated_at < $checkData->ExpireDate) && $vipData->active==1 && $vipData->order_id == $order_id){
+//                    //自動流程判斷
+//                    //暫時性發放VIP者到期日不變更
+//                    $expiry = $vipData->expiry;
+//                    $logStrQrcode = '(期限內完成付款升級)';
+//                }
+//                elseif(isset($checkDataByUser) && ($vipData->updated_at > $checkDataByUser->TradeDate && $vipData->updated_at < $checkDataByUser->ExpireDate) && $vipData->active==1 && $vipData->order_id != $order_id){
+//                    //手動給VIP時的判斷 ATM除外
+//                    //原先只手動到期日者可能會抓不到
+//                    $expiry = $vipData->expiry;
+//                    $logStrQrcode = '(期限內完成付款升級/原手動升級者)';
+//                }
+//            }else
+            if($vipData->order_id != $order_id) {
                 //舊資料更新 從原expiry計算
                 if ($payment == 'one_quarter_payment') {
                     if ($vipData->expiry < Carbon::now()) {
