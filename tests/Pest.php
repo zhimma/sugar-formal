@@ -10,6 +10,7 @@
 | need to change it using the "uses()" function to bind a different classes or traits.
 |
 */
+ini_set('memory_limit', '2048M');
 if(!defined('LARAVEL_START')) {
         define('LARAVEL_START',microtime(true));
 }
