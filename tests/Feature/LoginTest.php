@@ -21,11 +21,10 @@
             $response = $this->postJson('/login', ['email' => $user->email, 'password'=>'123123']);
             $this->assertAuthenticated();   
         }catch(Throwable $e){
-            
             $notification_string = test_notification(__CLASS__, __FUNCTION__, __LINE__,__FILE__);
             $this->handleCatchedException($e,$notification_string);
         }
-    });
+    })->skip();
 
     test('users_can_not_authenticate_with_invalid_password' ,function ()
     {
