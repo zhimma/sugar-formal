@@ -4325,9 +4325,17 @@ class PagesController extends BaseController
                 }
             }
             if(isset($input['county2']) && $key =='county2'){
-                if(($input['county'] == $input['county2']) && ($input['district'] == $input['district2'])){
-                    request()->county2 = null;
-                    $input['county2'] = null;
+                if (isset($input['district']) && isset($input['district2'])) {
+                    if(($input['county'] == $input['county2']) && ($input['district'] == $input['district2'])){
+                        request()->county2 = null;
+                        $input['county2'] = null;
+                    }
+                }
+                elseif (isset($input['district']) && !isset($input['district2'])) {
+                    if(($input['county'] == $input['county2'])){
+                        request()->county2 = null;
+                        $input['county2'] = null;
+                    }
                 }
             }
         }
