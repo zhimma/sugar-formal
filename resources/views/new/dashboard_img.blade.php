@@ -484,6 +484,7 @@ function requestBlurryAvatarDefault() {
                         @endphp
                          <h2>為保護會員隱私，網站可以設定照片自動模糊化</h2>
                           <ul>
+                              <li><span>◎</span>VVIIP 或 PR 值大於 80 的會員，會自動顯示清晰照片</li>
                               <li><span>◎</span>預設為只給 VIP 看清楚的照片</li>
                               <li><span>◎</span>如果你想要開放給所有人看照片</li>
                               <li><span>◎</span>請自行勾選下方的 "試用會員"</li>
@@ -542,6 +543,7 @@ function requestBlurryAvatarDefault() {
                         @endphp
                          <h2>為保護會員隱私，網站可以設定照片自動模糊化</h2>
                           <ul>
+                              <li><span>◎</span>VVIIP 或 PR 值大於 80 的會員，會自動顯示清晰照片</li>
                               <li><span>◎</span>預設為只給 VIP 看清楚的照片</li>
                               <li><span>◎</span>如果你想要開放給所有人看照片</li>
                               <li><span>◎</span>請自行勾選下方的 "試用會員"</li>
