@@ -22,6 +22,7 @@
             $response = $this->postJson('/login', ['email' => $user->email, 'password'=>'123123']);
             $this->assertAuthenticated();   
         }catch(Throwable $e){
+            logger($response->getContent());
             $notification_string = test_notification(__CLASS__, __FUNCTION__, __LINE__,__FILE__);
             $this->handleCatchedException($e,$notification_string);
         }
