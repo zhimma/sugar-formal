@@ -856,15 +856,15 @@ class UserMeta extends Model
         if ( $prRange != '' && $userIsVip) {
             $pieces = explode('-', $prRange);
             if(is_array($pieces)) {
-                try {
+                // try {
                     $from = (int)$pieces[0];
                     $to = (int)$pieces[1];
-                }
-                catch (\Exception $e) {
-                    logger("prRange: " . $prRange);
-                    $from = 0;
-                    $to = 100;
-                }
+                // }
+                // catch (\Exception $e) {
+                //     logger("prRange: " . $prRange);
+                //     $from = 0;
+                //     $to = 100;
+                // }
                 $query->whereIn('users.id', function ($query) use ($from, $to, $prRange_none) {
                     $query->select('user_id')
                         ->from(with(new Pr_log)->getTable())
