@@ -26,7 +26,11 @@
             $notification_string = test_notification(__CLASS__, __FUNCTION__, __LINE__,__FILE__);
             $this->handleCatchedException($e,$notification_string);
         }
-    });
+    })->skip(
+        // https://freek.dev/2475-skipping-tests-conditionally-in-pest
+        fn() => app()->isProduction(),
+        '待建立完整測試環境再執行'
+    );
 
     test('users_can_not_authenticate_with_invalid_password' ,function ()
     {
