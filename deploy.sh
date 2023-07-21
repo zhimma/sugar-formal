@@ -1,5 +1,6 @@
 #!/bin/sh
 if [ "$(. ./.env; printf '%s' "$APP_ENV")" = "production" ]; then
+    sudo git fetch origin master
     sudo git reset --hard origin/master
     # update source code
     sudo git pull
@@ -27,6 +28,7 @@ elif [ "$(. ./.env; printf '%s' "$APP_ENV")" = "build" ] || [ "$(. ./.env; print
     git push origin ready_to_deploy/$now
     hub pull-request --base mmmaya111:master --head mmmaya111:ready_to_deploy/$now -m "auto pull-request $now"
 else    
+    git fetch origin master
     # update source code
     git pull
     # update PHP dependencies
