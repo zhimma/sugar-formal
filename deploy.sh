@@ -1,7 +1,8 @@
 #!/bin/sh
 if [ "$(. ./.env; printf '%s' "$APP_ENV")" = "production" ]; then
+    sudo git reset --hard origin/master
     # update source code
-    git pull
+    sudo git pull
     # update PHP dependencies
     yes | sudo composer update --no-interaction --prefer-dist
     # --no-interaction Do not ask any interactive question
