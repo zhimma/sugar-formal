@@ -161,7 +161,7 @@ class Kernel extends ConsoleKernel
 
             //每天檢查疑似八大名單
             $schedule->command('CheckSuspiciousUserList')->timezone('Asia/Taipei')->dailyAt('00:30'); 
-            $schedule->command("auto:test")->timezone('Asia/Taipei')->everyXMinutes(15);
+            $schedule->command("auto:test")->timezone('Asia/Taipei')->everyFifteenMinutes();
         }
         if(app()->isProduction()) {
             $schedule->command('send_registed_users_statistics_by_LineNotify')->timezone('Asia/Taipei')->dailyAt('2:00'); 
