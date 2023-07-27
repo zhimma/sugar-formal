@@ -286,7 +286,7 @@ class OrderController extends \App\Http\Controllers\BaseController
                 }
                 if($currentOrder &&
                     ((Carbon::parse($lastProcessDate)->toDateTimeString() != Carbon::parse($current_order_pay_date[0])->toDateTimeString() &&
-                            (($currentOrder->pay_fail != '' && Carbon::parse($lastProcessDate)->toDateTimeString() != Carbon::parse($current_order_pay_fail[0])->toDateTimeString()) || $currentOrder->pay_fail=='')
+                            (($currentOrder->pay_fail != '' && Carbon::parse($lastProcessDate)->toDateTimeString() != Carbon::parse($current_order_pay_fail[0])->toDateTimeString()) || ($currentOrder->pay_fail=='' || $currentOrder->pay_fail == null))
                     ) ||
                     $currentOrder->ExecStatus == '' )
                 ) {
