@@ -199,7 +199,7 @@ class Kernel extends ConsoleKernel
     }
 
     protected function checkECPayVip(){
-       $vipDatas = \App\Models\Vip::where(['free' => 0, 'active' => 1])->get();
+        $vipDatas = \App\Models\Vip::where(['free' => 0, 'active' => 1])->get();
         // $vipDatas = \App\Models\Vip::where('business_id','3137610')->where('order_id','like','SG%')->get();
         foreach ($vipDatas as $vipData){
             \App\Jobs\CheckECpay::dispatch($vipData);
