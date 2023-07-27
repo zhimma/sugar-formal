@@ -1077,13 +1077,13 @@ class OrderController extends \App\Http\Controllers\BaseController
                     }
                     //定期定額取消 移除權限
                     elseif ($vip && $vip->active == 1 &&
-                        $checkOrder->ExecStatus == 0
+                        $checkOrder->ExecStatus == 0 &&
+                        $vip->order_id == $checkOrder->order_id &&
+                        Carbon::parse($checkOrder->order_expire_date) < Carbon::now()
                     ){
-                        if($vip->order_id == $checkOrder->order_id) {
                             $vip->removeVIP();
                             VipLog::addToLog($checkOrder->user_id, 'Order ID: ' . $checkOrder->order_id . ' Auto cancel, last process date: ' . Carbon::now() . ' 經由後台反查訂單取消，移除VIP權限', '', 1, 0);
                             OrderLog::addToLog($checkOrder->user_id, $checkOrder->order_id, '定期定額取消，VIP 權限移除');
-                        }
                     }
                     //定期定額 付款日在期限內 恢復權限
                     elseif ($vip && $vip->active == 0 && $checkOrder->ExecStatus == 1 && $now->diffInDays($theActualLastProcessDate) < $periodRemained){
@@ -1128,12 +1128,12 @@ class OrderController extends \App\Http\Controllers\BaseController
                     }
                     //定期定額取消 移除權限
                     elseif ($ValueAddedServiceData && $ValueAddedServiceData->active == 1 &&
-                            $checkOrder->ExecStatus == 0
+                            $checkOrder->ExecStatus == 0 &&
+                            $ValueAddedServiceData->order_id == $checkOrder->order_id &&
+                            Carbon::parse($checkOrder->order_expire_date) < Carbon::now()
                     ){
-                        if ($ValueAddedServiceData->order_id == $checkOrder->order_id){
                             ValueAddedService::removeValueAddedService($checkOrder->user_id, $checkOrder->service_name);
                             ValueAddedServiceLog::addToLog($checkOrder->user_id, $checkOrder->service_name, 'Auto cancel, last process date: ' . Carbon::now().' 經由後台反查訂單取消，移除 '.$checkOrder->service_name.' 權限', $checkOrder->order_id, $ValueAddedServiceData->txn_id, 0);
-                        }
                     }
                     //定期定額 付款日在期限內 恢復權限
                     elseif ($ValueAddedServiceData && $ValueAddedServiceData->active == 0 &&
