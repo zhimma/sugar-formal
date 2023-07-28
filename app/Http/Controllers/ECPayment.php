@@ -68,9 +68,8 @@ class ECPayment extends BaseController
             else{
                 $envStr = '';
             }
-
             //服務參數
-            if(/*($request->choosePayment=='Credit' || $request->type == 'cc_quarterly_payment' || $request->type == 'cc_monthly_payment') && */$request->choosePaymentFlow=='funpoint'){
+            if($request->choosePaymentFlow=='funpoint'){
                 //信用卡付款導向funpoint金流 && 使用者選擇funpoint付款方式
                 $obj->ServiceURL = Config::get('funpoint.payment' . $envStr . '.ActionURL');   //服務位置
                 $obj->HashKey = Config::get('funpoint.payment' . $envStr . '.HashKey');     //測試用Hashkey
