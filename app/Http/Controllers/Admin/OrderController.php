@@ -277,11 +277,16 @@ class OrderController extends \App\Http\Controllers\BaseController
                 $current_order_pay_date = last(json_decode($currentOrder->pay_date));
                 $current_order_pay_fail = '';
                 if($currentOrder->pay_fail != ''){
-                    $current_order_pay_fail = last(json_decode($currentOrder->pay_fail));
+                    if (json_decode($currentOrder->pay_fail)) {
+                        $current_order_pay_fail = last(json_decode($currentOrder->pay_fail));
+                    }
+                    else {                        
+                        $current_order_pay_fail = json_decode($currentOrder->pay_fail);
+                    }
                 }
                 if($currentOrder &&
                     ((Carbon::parse($lastProcessDate)->toDateTimeString() != Carbon::parse($current_order_pay_date[0])->toDateTimeString() &&
-                            (($currentOrder->pay_fail != '' && Carbon::parse($lastProcessDate)->toDateTimeString() != Carbon::parse($current_order_pay_fail[0])->toDateTimeString()) || $currentOrder->pay_fail=='')
+                            (($currentOrder->pay_fail != '' && Carbon::parse($lastProcessDate)->toDateTimeString() != Carbon::parse($current_order_pay_fail[0])->toDateTimeString()) || ($currentOrder->pay_fail=='' || $currentOrder->pay_fail == null))
                     ) ||
                     $currentOrder->ExecStatus == '' )
                 ) {

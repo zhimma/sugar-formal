@@ -14,6 +14,10 @@ test('render_anonymous_chat', function () {
         $this->handleCatchedException($e,$notification_string);
     }    
 
-});
+})->skip(
+    // https://freek.dev/2475-skipping-tests-conditionally-in-pest
+    fn() => app()->isProduction(),
+    '待建立完整測試環境再執行'
+);
 
 

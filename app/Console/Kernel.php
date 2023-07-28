@@ -161,7 +161,7 @@ class Kernel extends ConsoleKernel
 
             //每天檢查疑似八大名單
             $schedule->command('CheckSuspiciousUserList')->timezone('Asia/Taipei')->dailyAt('00:30'); 
-            $schedule->command("auto:test")->timezone('Asia/Taipei')->everyXMinutes(15);
+            $schedule->command("auto:test")->timezone('Asia/Taipei')->everyFifteenMinutes();
         }
         if(app()->isProduction()) {
             $schedule->command('send_registed_users_statistics_by_LineNotify')->timezone('Asia/Taipei')->dailyAt('2:00'); 
@@ -199,7 +199,7 @@ class Kernel extends ConsoleKernel
     }
 
     protected function checkECPayVip(){
-       $vipDatas = \App\Models\Vip::where(['free' => 0, 'active' => 1])->get();
+        $vipDatas = \App\Models\Vip::where(['free' => 0, 'active' => 1])->get();
         // $vipDatas = \App\Models\Vip::where('business_id','3137610')->where('order_id','like','SG%')->get();
         foreach ($vipDatas as $vipData){
             \App\Jobs\CheckECpay::dispatch($vipData);

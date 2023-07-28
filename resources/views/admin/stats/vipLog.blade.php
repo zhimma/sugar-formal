@@ -372,7 +372,7 @@
 					name: 'order.pay_fail',
 					render: function(data,type,row,meta) {
 						let str='';
-						if(data != null) {
+						if(data != null && data != 'null') {
 							let dd = JSON.parse(data.replace(/&quot;/g, '"'));
 							$.each(dd, function (key, value) {
 								let v = value.toString().substring(0, 10);
