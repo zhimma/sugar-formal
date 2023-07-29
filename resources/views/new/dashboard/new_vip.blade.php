@@ -108,7 +108,6 @@
                                                             <input type="hidden" name="userId" value="{{$user->id}}">
                                                             <input type="hidden" name="type"
                                                                    value="one_quarter_payment">
-                                                            <input type="hidden" name="choosePaymentFlow" value="">
                                                             <input type="hidden" name="choosePayment" value="ATM">
                                                             @php
                                                                 $codeNoPaidGetId = \App\Models\PaymentGetQrcodeLog::codeNoPaidGetId($user->id, 'VIP', 'ATM', 'one_quarter_payment');
@@ -167,7 +166,6 @@
                                                             <input type="hidden" name="userId" value="{{$user->id}}">
                                                             <input type="hidden" name="type"
                                                                    value="one_quarter_payment">
-                                                            <input type="hidden" name="choosePaymentFlow" value="">
                                                             <input type="hidden" name="choosePayment" value="CVS">
                                                             @php
                                                                 $codeNoPaidGetId = \App\Models\PaymentGetQrcodeLog::codeNoPaidGetId($user->id, 'VIP', 'CVS', 'one_quarter_payment');
@@ -260,7 +258,6 @@
                                                                    value="{{ csrf_token() }}">
                                                             <input type="hidden" name="userId" value="{{$user->id}}">
                                                             <input type="hidden" name="type" value="one_month_payment">
-                                                            <input type="hidden" name="choosePaymentFlow" value="">
                                                             <input type="hidden" name="choosePayment" value="ATM">
                                                             @php
                                                                 $codeNoPaidGetId = \App\Models\PaymentGetQrcodeLog::codeNoPaidGetId($user->id, 'VIP', 'ATM', 'one_month_payment');
@@ -316,7 +313,6 @@
                                                                    value="{{ csrf_token() }}">
                                                             <input type="hidden" name="userId" value="{{$user->id}}">
                                                             <input type="hidden" name="type" value="one_month_payment">
-                                                            <input type="hidden" name="choosePaymentFlow" value="">
                                                             <input type="hidden" name="choosePayment" value="CVS">
                                                             @php
                                                                 $codeNoPaidGetId = \App\Models\PaymentGetQrcodeLog::codeNoPaidGetId($user->id, 'VIP', 'CVS', 'one_month_payment');
@@ -594,21 +590,17 @@
                             $(".n_left").on('click', function () {
                                 common_confirm("{{$atm_cvs_notice}}","{{$atm_cvs_notice_red}}");
                                 $(".n_left").on('click', function () {
-                                    if(choosePayment != 'BARCODE'){
-                                        $(".blbg").hide();
-                                        $('#common_confirm').hide();
-                                        $('.paymentFlowChoose').show();
-                                        $('.main_vip').hide();
-                                        $("input[name='temp_form_id']").val('#'+id+choosePayment+'Form');
-                                    }else{
-                                        $('#' + id + choosePayment + 'Form').submit();
-                                    }
+                                    $('#' + id + choosePayment + 'Form').submit();
                                 });
                             });
                         }else {
                             $(".n_left").on('click', function () {
                                 if(choosePayment=='Credit'){
-
+                                    $(".blbg").hide();
+                                    $('#common_confirm').hide();
+                                    $('.paymentFlowChoose').show();
+                                    $('.main_vip').hide();
+                                    $("input[name='temp_form_id']").val('#'+id+choosePayment+'Form');
                                 }else {
                                     $('#' + id + choosePayment + 'Form').submit();
                                 }
@@ -631,20 +623,12 @@
                             $(".n_left").on('click', function () {
                                 common_confirm("{{$atm_cvs_notice}}","{{$atm_cvs_notice_red}}");
                                 $(".n_left").on('click', function () {
-                                    if(choosePayment != 'BARCODE'){
-                                        $(".blbg").hide();
-                                        $('#common_confirm').hide();
-                                        $('.paymentFlowChoose').show();
-                                        $('.main_vip').hide();
-                                        $("input[name='temp_form_id']").val('#'+id+choosePayment+'Form');
-                                    }else {
-                                        $('#' + id + choosePayment + 'Form').submit();
-                                    }
+                                    $('#' + id + choosePayment + 'Form').submit();
                                 });
                             });
                         }else {
                             $(".n_left").on('click', function () {
-                                if(choosePayment == 'Credit'){
+                                if(choosePayment=='Credit'){
                                     $(".blbg").hide();
                                     $('#common_confirm').hide();
                                     $('.paymentFlowChoose').show();

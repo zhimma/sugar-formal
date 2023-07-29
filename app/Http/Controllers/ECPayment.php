@@ -68,8 +68,9 @@ class ECPayment extends BaseController
             else{
                 $envStr = '';
             }
+
             //服務參數
-            if($request->choosePaymentFlow=='funpoint'){
+            if(($request->choosePayment=='Credit' || $request->type == 'cc_quarterly_payment' || $request->type == 'cc_monthly_payment') && $request->choosePaymentFlow=='funpoint'){
                 //信用卡付款導向funpoint金流 && 使用者選擇funpoint付款方式
                 $obj->ServiceURL = Config::get('funpoint.payment' . $envStr . '.ActionURL');   //服務位置
                 $obj->HashKey = Config::get('funpoint.payment' . $envStr . '.HashKey');     //測試用Hashkey
@@ -113,23 +114,15 @@ class ECPayment extends BaseController
 
                 if($request->choosePayment=='Credit'){
                     if($request->choosePaymentFlow=='funpoint'){
-                        $obj->Send['IgnorePayment'] = "ATM#CVS";
+                        $obj->Send['ChoosePayment'] = ECPay_PaymentMethod::Credit;
                     }else {
                         $obj->Send['IgnorePayment'] = "WebATM#ATM#CVS#BARCODE";
                     }
                 }elseif($request->choosePayment=='ATM'){
-                    if($request->choosePaymentFlow=='funpoint'){
-                        $obj->Send['IgnorePayment'] = "Credit#CVS";
-                    }else {
-                        $obj->Send['IgnorePayment'] = "WebATM#Credit#CVS#BARCODE";
-                    }
+                    $obj->Send['IgnorePayment']  = "WebATM#Credit#CVS#BARCODE" ;
                     $obj->Send['ExpireDate']  = 30 ;
                 }elseif($request->choosePayment=='CVS'){
-                    if($request->choosePaymentFlow=='funpoint'){
-                        $obj->Send['IgnorePayment'] = "Credit#ATM";
-                    }else {
-                        $obj->Send['IgnorePayment'] = "WebATM#Credit#ATM#BARCODE";
-                    }
+                    $obj->Send['IgnorePayment']  = "WebATM#Credit#ATM#BARCODE" ;
                     $obj->Send['StoreExpireDate']  = 43200 ;
                 }elseif($request->choosePayment=='BARCODE'){
                     $obj->Send['IgnorePayment']  = "WebATM#Credit#ATM#CVS" ;
