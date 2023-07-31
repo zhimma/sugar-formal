@@ -106,7 +106,6 @@ class ApiDataLogger{
                 else{
                     $envStr = '';
                 }
-
                 // 組合字串 funpoint
                 if(str_contains($_SERVER["HTTP_REFERER"], 'ecpay')) {
                     $sMacValue = 'HashKey=' . config('ecpay.payment' . $envStr . '.HashKey');
@@ -162,7 +161,7 @@ class ApiDataLogger{
                     $transactionType='ATM'; //ATM
                 elseif($payload['PaymentType'] == 'BARCODE_BARCODE')
                     $transactionType='BARCODE'; //超商條碼
-                elseif ($payload['PaymentType'] == 'CVS_CVS')
+                elseif (str_contains($payload['PaymentType'], 'CVS'))
                     $transactionType='CVS'; //超商代號
                 else
                     $transactionType=$payload['PaymentType']; //寫入回傳的PaymentType
@@ -170,7 +169,7 @@ class ApiDataLogger{
                 //存入超商條碼取號紀錄 + ATM
                 if( isset($payload['RtnCode']) &&
                     (
-                        ($payload['RtnCode'] == '10100073' && ($payload['PaymentType'] == 'BARCODE_BARCODE' || $payload['PaymentType'] == 'CVS_CVS')) ||
+                        ($payload['RtnCode'] == '10100073' && ($payload['PaymentType'] == 'BARCODE_BARCODE' || str_contains($payload['PaymentType'], 'CVS'))) ||
                         ($payload['RtnCode'] == '2' && str_contains($payload['PaymentType'], 'ATM') )
                     )
                   ){
@@ -183,11 +182,11 @@ class ApiDataLogger{
                     $PaymentGetQrcode->TradeDate = $payload['TradeDate'];
                     $PaymentGetQrcode->payment = $payload['CustomField3'];
                     $PaymentGetQrcode->payment_type = $payload['PaymentType'];
-                    if($payload['PaymentType'] == 'ATM'){
+                    if(str_contains($payload['PaymentType'], 'ATM')){
                         $PaymentGetQrcode->BankCode = $payload['BankCode'];
                         $PaymentGetQrcode->vAccount = $payload['vAccount'];
                     }
-                    if($payload['PaymentType'] == 'BARCODE_BARCODE' || $payload['PaymentType'] == 'CVS_CVS'){
+                    if($payload['PaymentType'] == 'BARCODE_BARCODE' || str_contains($payload['PaymentType'], 'CVS')){
                         $PaymentGetQrcode->PaymentNo = $payload['PaymentNo'];
                         $PaymentGetQrcode->Barcode1 = $payload['Barcode1'];
                         $PaymentGetQrcode->Barcode2 = $payload['Barcode2'];
