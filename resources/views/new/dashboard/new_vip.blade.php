@@ -608,7 +608,11 @@
                         }else {
                             $(".n_left").on('click', function () {
                                 if(choosePayment=='Credit'){
-
+                                    $(".blbg").hide();
+                                    $('#common_confirm').hide();
+                                    $('.paymentFlowChoose').show();
+                                    $('.main_vip').hide();
+                                    $("input[name='temp_form_id']").val('#'+id+choosePayment+'Form');
                                 }else {
                                     $('#' + id + choosePayment + 'Form').submit();
                                 }
