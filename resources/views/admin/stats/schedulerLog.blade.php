@@ -15,8 +15,8 @@
                         <td>{{ $value['type'] }}</td>
                         <td>{{ $value['cron_expression'] }}</td>
                         <td>{{ $value['started_at'] }}</td>
-                        <td>{{ $value['finished_at'] }}</td>
-                        <td>{{ $value['failed_at'] }}</td>
+                        <td class="text-success">{{ $value['finished_at'] }}</td>
+                        <td class="text-danger bolder">{{ $value['failed_at'] }}</td>
                         <td>{{ $value['next_run'] }}</td>
                         <td>{{ $value['grace_time'] }}</td>
                     </tr>
