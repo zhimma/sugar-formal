@@ -507,7 +507,7 @@ class StatController extends \App\Http\Controllers\BaseController
                 'finished_at' => optional($task["last_finished_at"])->format($dateFormat) ?? '',
                 'failed_at' => optional($task["last_failed_at"])->format($dateFormat) ?? '',
                 'next_run' => $this->nextRunAt($task["cron_expression"])->format($dateFormat),
-                'grace_time' => $task->graceTimeInMinutes(),
+                'grace_time' => $task["grace_time_in_minutes"],
             ];
 
             return $row;
