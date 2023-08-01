@@ -3,7 +3,7 @@
     <body style="padding: 15px;">
         <h1>排程監控</h1>
         @if($data)
-            <table>
+            <table class="table table-bordered table-hover center-block">
                 <tr>                    
                     @foreach ($data["headers"] as $header)
                         <th>{{ $header }}</th>
