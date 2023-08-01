@@ -60,13 +60,13 @@ class Kernel extends ConsoleKernel
             //$schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance',['request'=>$puppetReq])->timezone('Asia/Taipei')->dailyAt('21:00');
         }
         if(app()->isProduction() || EnvironmentService::isLocalOrTestMachine()){
-            $schedule->command('FillDataForFilterByInfo')->timezone('Asia/Taipei')->dailyAt('01:00');
+            $schedule->command('FillDataForFilterByInfo')->timezone('Asia/Taipei')->dailyAt('01:00')->monitorName('FillDataForFilterByInfo - 01:00');
             $schedule->command('MessageSchedule')->timezone('Asia/Taipei')->dailyAt('01:30');
             $schedule->call(function (){
                 $this->checkECPayVip();
                 $this->checkECPayForValueAddedService();
                 $this->checkEmailVailUser();
-            })->timezone('Asia/Taipei')->dailyAt('3:00');
+            })->timezone('Asia/Taipei')->dailyAt('3:00')->monitorName('checkECPayVip + checkECPayForValueAddedService + checkEmailVailUser');
             $schedule->call(function (){
                 $this->checkVipExpired();
             })->timezone('Asia/Taipei')->dailyAt('3:10')->monitorName('checkVipExpired');
@@ -82,16 +82,13 @@ class Kernel extends ConsoleKernel
                 $this->deleteAnonymousChat();
             })->timezone('Asia/Taipei')->weeklyOn(0, '23:59')->monitorName('deleteAnonymousChat');
 
-            //每週檢查討論區
-            $schedule->command('ForumCheck')->timezone('Asia/Taipei')->weeklyOn(1, '2:15');
-
             $schedule->command('TestCheck')->timezone('Asia/Taipei')->weeklyOn(1, '2:15');
 
             //新增檢查等待更多資料名單
-            $schedule->command('Step2CheckExtendRecheck')->timezone('Asia/Taipei')->dailyAt('03:00');
-            $schedule->command('Step2CheckExtendRecheck')->timezone('Asia/Taipei')->dailyAt('09:00');
-            $schedule->command('Step2CheckExtendRecheck')->timezone('Asia/Taipei')->dailyAt('13:00');
-            $schedule->command('Step2CheckExtendRecheck')->timezone('Asia/Taipei')->dailyAt('18:30');
+            $schedule->command('Step2CheckExtendRecheck')->timezone('Asia/Taipei')->dailyAt('03:00')->monitorName('Step2CheckExtendRecheck - 3:00');
+            $schedule->command('Step2CheckExtendRecheck')->timezone('Asia/Taipei')->dailyAt('09:00')->monitorName('Step2CheckExtendRecheck - 9:00');
+            $schedule->command('Step2CheckExtendRecheck')->timezone('Asia/Taipei')->dailyAt('13:00')->monitorName('Step2CheckExtendRecheck - 13:00');
+            $schedule->command('Step2CheckExtendRecheck')->timezone('Asia/Taipei')->dailyAt('18:30')->monitorName('Step2CheckExtendRecheck - 18:30');
             //新增檢查等待更多資料名單
         }
         if(app()->environment('CFP')){
@@ -117,29 +114,29 @@ class Kernel extends ConsoleKernel
             
             $puppetReq = new Request();
             $puppetReq->only = 'vid';
-            $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance',['request'=>$puppetReq])->timezone('Asia/Taipei')->dailyAt('01:00')->monitorName('FindPuppet-ALL');
-            $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance',['request'=>$puppetReq])->timezone('Asia/Taipei')->dailyAt('13:00')->monitorName('FindPuppet-ALL');            
+            $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance',['request'=>$puppetReq])->timezone('Asia/Taipei')->dailyAt('01:00')->monitorName('FindPuppet-ALL - 01:00');
+            $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance',['request'=>$puppetReq])->timezone('Asia/Taipei')->dailyAt('13:00')->monitorName('FindPuppet-ALL - 13:00');            
             
             $schedule->call(function (){
                 $this->checkEmailVailUser();
-            })->timezone('Asia/Taipei')->dailyAt('8:00')->monitorName('checkEmailVailUser');
+            })->timezone('Asia/Taipei')->dailyAt('8:00')->monitorName('checkEmailVailUser - 8:00');
             $schedule->call(function (){
                 $this->VIPCheck();
                 $this->checkEmailVailUser();
-            })->timezone('Asia/Taipei')->dailyAt('12:00')->monitorName('VIPCheck + checkEmailVailUser');
-            $schedule->command('FillDataForFilterByInfo')->timezone('Asia/Taipei')->dailyAt('13:00');
+            })->timezone('Asia/Taipei')->dailyAt('12:00')->monitorName('VIPCheck + checkEmailVailUser - 12:00');
+            $schedule->command('FillDataForFilterByInfo')->timezone('Asia/Taipei')->dailyAt('13:00')->monitorName('FillDataForFilterByInfo - 13:00');
             $schedule->call(function (){
                 $this->VIPCheck();
                 $this->checkEmailVailUser();
-            })->timezone('Asia/Taipei')->dailyAt('16:00')->monitorName('VIPCheck + checkEmailVailUser');
+            })->timezone('Asia/Taipei')->dailyAt('16:00')->monitorName('VIPCheck + checkEmailVailUser - 16:00');
             $schedule->call(function (){
                 $this->VIPCheck();
                 $this->checkEmailVailUser();
-            })->timezone('Asia/Taipei')->dailyAt('20:00')->monitorName('VIPCheck + checkEmailVailUser');
+            })->timezone('Asia/Taipei')->dailyAt('20:00')->monitorName('VIPCheck + checkEmailVailUser - 20:00');
             $schedule->call(function (){
                 $this->VIPCheck();
                 $this->checkEmailVailUser();
-            })->timezone('Asia/Taipei')->dailyAt('23:59')->monitorName('VIPCheck + checkEmailVailUser');
+            })->timezone('Asia/Taipei')->dailyAt('23:59')->monitorName('VIPCheck + checkEmailVailUser - 23:59');
             $schedule->call(function (){
                 $this->checkUserPics();
             })->everyFiveMinutes()->timezone('Asia/Taipei')->monitorName('checkUserPics');
@@ -150,7 +147,7 @@ class Kernel extends ConsoleKernel
             $schedule->command('command:checkwarned')->timezone('Asia/Taipei')->dailyAt('07:00');           
 
             //每週檢查討論區
-            $schedule->command('ForumCheck')->timezone('Asia/Taipei')->weeklyOn(1, '2:15');
+            $schedule->command('ForumCheck')->timezone('Asia/Taipei')->weeklyOn(1, '2:15')->monitorName('ForumCheck - 2:15');
             $schedule->command('CompareImages')->timezone('Asia/Taipei')->dailyAt('08:00');       
             $schedule->command('CompareImages  --dsort')->timezone('Asia/Taipei')->everyTenMinutes();//->between('02:00', '12:00');   
             //$schedule->command('EncodeImagesForCompare')->timezone('Asia/Taipei')->dailyAt('02:01');

@@ -18,10 +18,11 @@ use Illuminate\Support\Facades\Log;
 use App\Models\User;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use App\Services\EnvironmentService;
+use romanzipp\QueueMonitor\Traits\IsMonitored;
 
 class CheckECpay implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, IsMonitored;
 
     public $timeout = 60;
 
