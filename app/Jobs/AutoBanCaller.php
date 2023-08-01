@@ -21,6 +21,9 @@ class AutoBanCaller implements ShouldQueue
     protected $toid;
     protected $msg;
 
+    public $timeout = 600;
+    public $tries = 10;
+
     /**
      * Create a new job instance.
      *
