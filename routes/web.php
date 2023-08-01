@@ -698,7 +698,15 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::group(['prefix'=>'users/message'], function() {
             Route::post('multiple/send', 'UserController@sendAdminMessageMultiple')->name('admin/send/multiple/readOnly');
         });
+    });    
+        
+    Route::group(['prefix' => 'admin/queue', 'middleware' => 'Admin', 'namespace' => 'Admin\Queue'], function () {
+        Route::get('/', ShowQueueMonitorController::class)->name('queue-monitor::index');
+        Route::delete('monitors/{monitor}', DeleteMonitorController::class)->name('queue-monitor::destroy');
+        Route::patch('monitors/retry/{monitor}', RetryMonitorController::class)->name('queue-monitor::retry');
+        Route::delete('purge', PurgeMonitorsController::class)->name('queue-monitor::purge');
     });
+
     Route::group(['prefix' => 'admin', 'namespace' => 'Admin', 'middleware' => 'Admin'], function () {
         /*
         |--------------------------------------------------------------------------
