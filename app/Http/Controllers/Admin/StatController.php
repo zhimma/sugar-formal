@@ -497,17 +497,17 @@ class StatController extends \App\Http\Controllers\BaseController
         ];
 
         $dateFormat = config('schedule-monitor.date_format');
-
-        $rows = $tasks->map(function ($task) use ($dateFormat) {
+        $that = $this;
+        $rows = $tasks->map(function ($task) use ($dateFormat, $that) {
             $row = [
-                'name' => $task["name"],
-                'type' => ucfirst($task["type"]),
-                'cron_expression' => $this->humanReadableCron($task["cron_expression"]),
-                'started_at' => optional($task["last_started_at"])->format($dateFormat) ?? 'Did not start yet',
-                'finished_at' => optional($task["last_finished_at"])->format($dateFormat) ?? '',
-                'failed_at' => optional($task["last_failed_at"])->format($dateFormat) ?? '',
-                'next_run' => $this->nextRunAt($task["cron_expression"])->format($dateFormat),
-                'grace_time' => $task["grace_time_in_minutes"],
+                'name' => $task->name,
+                'type' => ucfirst($task->type),
+                'cron_expression' => $that->humanReadableCron($task->cron_expression),
+                'started_at' => optional($task->last_started_at)->format($dateFormat) ?? 'Did not start yet',
+                'finished_at' => optional($task->last_finished_at)->format($dateFormat) ?? '',
+                'failed_at' => optional($task->last_failed_at)->format($dateFormat) ?? '',
+                'next_run' => $that->nextRunAt($task->cron_expression)->format($dateFormat),
+                'grace_time' => $task->grace_time_in_minutes,
             ];
 
             return $row;
