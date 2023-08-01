@@ -479,9 +479,7 @@ class StatController extends \App\Http\Controllers\BaseController
     }
 
     public function schedulerLog(Request $request) {
-        $tasks = \Spatie\ScheduleMonitor\Support\ScheduledTasks\ScheduledTasks::createForSchedule()
-            ->uniqueTasks()
-            ->filter(fn (\Spatie\ScheduleMonitor\Support\ScheduledTasks\Tasks\Task $task) => $task->isBeingMonitored());
+        $tasks = \DB::table('monitored_scheduled_tasks')->get();
 
         if ($tasks->isEmpty()) {            
             return view('admin.stats.schedulerLog')->with('data', null);
@@ -500,7 +498,7 @@ class StatController extends \App\Http\Controllers\BaseController
 
         $dateFormat = config('schedule-monitor.date_format');
 
-        $rows = $tasks->map(function (\Spatie\ScheduleMonitor\Support\ScheduledTasks\Tasks\Task $task) use ($dateFormat) {
+        $rows = $tasks->map(function ($task) use ($dateFormat) {
             $row = [
                 'name' => $task->name(),
                 'type' => ucfirst($task->type()),
@@ -519,7 +517,7 @@ class StatController extends \App\Http\Controllers\BaseController
             'headers' => $headers,
             'rows' => $rows,
         ];
-        
+
         return view('admin.stats.schedulerLog', compact('data'));
     }
 }

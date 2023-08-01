@@ -6,7 +6,7 @@
             <table>
                 <tr>                    
                     @foreach ($data["headers"] as $header)
-                        
+                        <th>{{ $header }}</th>
                     @endforeach
                 </tr>
                 @foreach ($data["rows"] as $key => $value)
@@ -22,6 +22,8 @@
                     </tr>
                 @endforeach
             </table>
+        @else
+            <p>無資料</p>
         @endif
     </body>
 @stop
