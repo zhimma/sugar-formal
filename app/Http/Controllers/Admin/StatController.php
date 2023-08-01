@@ -503,9 +503,9 @@ class StatController extends \App\Http\Controllers\BaseController
                 'name' => $task->name,
                 'type' => ucfirst($task->type),
                 'cron_expression' => $that->humanReadableCron($task->cron_expression),
-                'started_at' => optional($task->last_started_at)->format($dateFormat) ?? 'Did not start yet',
-                'finished_at' => optional($task->last_finished_at)->format($dateFormat) ?? '',
-                'failed_at' => optional($task->last_failed_at)->format($dateFormat) ?? '',
+                'started_at' => $task->last_started_at ? \Carbon\Carbon::parse($task->last_started_at)->format($dateFormat) : 'Did not start yet',
+                'finished_at' => $task->last_finished_at ? \Carbon\Carbon::parse($task->last_finished_at)->format($dateFormat) : '',
+                'failed_at' => $task->last_failed_at ? \Carbon\Carbon::parse($task->last_failed_at)->format($dateFormat) : '',
                 'next_run' => $that->nextRunAt($task->cron_expression)->format($dateFormat),
                 'grace_time' => $task->grace_time_in_minutes,
             ];
@@ -538,7 +538,7 @@ class StatController extends \App\Http\Controllers\BaseController
             config('app.timezone')
         );
 
-        $date = \Date::instance($dateTime);
+        $date = \Illuminate\Support\Facades\Date::instance($dateTime);
 
         $date->setTimezone(config('app.timezone'));
 
