@@ -500,13 +500,13 @@ class StatController extends \App\Http\Controllers\BaseController
 
         $rows = $tasks->map(function ($task) use ($dateFormat) {
             $row = [
-                'name' => $task->name(),
-                'type' => ucfirst($task->type()),
-                'cron_expression' => $task->humanReadableCron(),
-                'started_at' => optional($task->lastRunStartedAt())->format($dateFormat) ?? 'Did not start yet',
-                'finished_at' => $this->getLastRunFinishedAt($task),
-                'failed_at' => $this->getLastRunFailedAt($task),
-                'next_run' => $task->nextRunAt()->format($dateFormat),
+                'name' => $task["name"],
+                'type' => ucfirst($task["type"]),
+                'cron_expression' => $this->humanReadableCron($task["cron_expression"]),
+                'started_at' => optional($task["last_started_at"])->format($dateFormat) ?? 'Did not start yet',
+                'finished_at' => optional($task["last_finished_at"])->format($dateFormat) ?? '',
+                'failed_at' => optional($task["last_failed_at"])->format($dateFormat) ?? '',
+                'next_run' => $this->nextRunAt($task["cron_expression"])->format($dateFormat),
                 'grace_time' => $task->graceTimeInMinutes(),
             ];
 
@@ -519,5 +519,29 @@ class StatController extends \App\Http\Controllers\BaseController
         ];
 
         return view('admin.stats.schedulerLog', compact('data'));
+    }
+
+    protected function humanReadableCron($cronExpression) {
+        try {
+            return \Lorisleiva\CronTranslator\CronTranslator::translate($cronExpression);
+        } catch (\Lorisleiva\CronTranslator\CronParsingException $exception) {
+            return $cronExpression;
+        }
+    }
+
+    protected function nextRunAt($cron_expression): \Carbon\CarbonInterface
+    {
+        $dateTime = \Cron\CronExpression::factory($cron_expression)->getNextRunDate(
+            now(),
+            0,
+            false,
+            config('app.timezone')
+        );
+
+        $date = \Date::instance($dateTime);
+
+        $date->setTimezone(config('app.timezone'));
+
+        return $date;
     }
 }
