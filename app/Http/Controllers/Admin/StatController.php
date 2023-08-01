@@ -477,4 +477,49 @@ class StatController extends \App\Http\Controllers\BaseController
             }
         }
     }
+
+    public function schedulerLog(Request $request) {
+        $tasks = \Spatie\ScheduleMonitor\Support\ScheduledTasks\ScheduledTasks::createForSchedule()
+            ->uniqueTasks()
+            ->filter(fn (\Spatie\ScheduleMonitor\Support\ScheduledTasks\Tasks\Task $task) => $task->isBeingMonitored());
+
+        if ($tasks->isEmpty()) {            
+            return view('admin.stats.schedulerLog')->with('data', null);
+        }
+
+        $headers = [
+            'Name',
+            'Type',
+            'Frequency',
+            'Last started at',
+            'Last finished at',
+            'Last failed at',
+            'Next run date',
+            'Grace time',
+        ];
+
+        $dateFormat = config('schedule-monitor.date_format');
+
+        $rows = $tasks->map(function (\Spatie\ScheduleMonitor\Support\ScheduledTasks\Tasks\Task $task) use ($dateFormat) {
+            $row = [
+                'name' => $task->name(),
+                'type' => ucfirst($task->type()),
+                'cron_expression' => $task->humanReadableCron(),
+                'started_at' => optional($task->lastRunStartedAt())->format($dateFormat) ?? 'Did not start yet',
+                'finished_at' => $this->getLastRunFinishedAt($task),
+                'failed_at' => $this->getLastRunFailedAt($task),
+                'next_run' => $task->nextRunAt()->format($dateFormat),
+                'grace_time' => $task->graceTimeInMinutes(),
+            ];
+
+            return $row;
+        });
+
+        $data = [
+            'headers' => $headers,
+            'rows' => $rows,
+        ];
+        
+        return view('admin.stats.schedulerLog', compact('data'));
+    }
 }

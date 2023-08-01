@@ -755,6 +755,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
             return '<h1>Clear Config cleared</h1>';
         });
 
+
         Route::get('dashboard/accessPermission', 'DashboardController@accessPermission')->name('accessPermission');
         Route::get('dashboard/accessPermission/show', 'DashboardController@showJuniorAdmin')->name('showJuniorAdmin');
         Route::post('dashboard/accessPermission/create', 'DashboardController@juniorAdminCreate')->name('juniorAdminCreate');
@@ -1049,6 +1050,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('stats/vip_log/{id}', 'StatController@vipLog')->name('stats/vip_log');
         Route::get('stats/cron_log', 'StatController@cronLog')->name('stats/cron_log');
         Route::get('stats/date_file_log', 'StatController@datFileLog')->name('stats/date_file_log');
+        Route::get('stats/schedulerLog', 'StatController@schedulerLog')->name('schedulerLog');
         Route::get('stats/set_autoBan', 'StatController@set_autoBan')->name('stats/set_autoBan');
         Route::post('stats/set_autoBan_add', 'StatController@set_autoBan_add')->name('stats/set_autoBan_add');
         Route::get('stats/set_autoBan_del/{id?}', 'StatController@set_autoBan_del')->name('stats/set_autoBan_del');
