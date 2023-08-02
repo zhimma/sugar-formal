@@ -40,8 +40,7 @@
 	    <td>
 	    	輸入來源email <input type ="text" name="cuz_email_set" value="">
 	    </td>
-		<td>來源主機</td>
-		<td>備註 <input type ="text" name="remark" value=""></td>
+		<td colspan="2">來源主機/備註 <input type ="text" name="remark" value=""></td>
 		<td>建立時間</td>
 	    <td>
 	    	<input type="radio" name="set_ban" value="1" checked>封鎖
