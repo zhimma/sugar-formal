@@ -188,10 +188,10 @@ class StatController extends \App\Http\Controllers\BaseController
         if(isset($request->content)){
             $user = User::findByEmail($request->cuz_email_set);
             if($user){
-                SetAutoBan::setAutoBanAdd($request->type, $request->content, $request->set_ban, $user->id);
+                SetAutoBan::setAutoBanAdd($request->type, $request->content, $request->set_ban, $user->id, '0000-00-00 00:00:00', null, $request->remark);
 //                DB::table('set_auto_ban')->insert(['type' => $request->type, 'content' => $request->content, 'set_ban' => $request->set_ban, 'cuz_user_set' => $user->id,'expiry'=>$expiry]);
             }else{
-                SetAutoBan::setAutoBanAdd($request->type, $request->content, $request->set_ban);
+                SetAutoBan::setAutoBanAdd($request->type, $request->content, $request->set_ban, null, '0000-00-00 00:00:00', null, $request->remark);
 //                DB::table('set_auto_ban')->insert(['type' => $request->type, 'content' => $request->content, 'set_ban' => $request->set_ban,'expiry'=>$expiry]);
             }
         }
