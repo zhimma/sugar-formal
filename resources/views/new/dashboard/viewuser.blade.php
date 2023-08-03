@@ -1584,7 +1584,7 @@
                                     </dt>
                                     @endif
 
-                                    @if(!empty($to->meta->marriage))
+                                    @if(!empty($to->meta->marriage) && $to->engroup==1)
                                     <dt>
                                         <span>婚姻</span>
                                         <span>

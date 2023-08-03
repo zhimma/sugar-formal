@@ -1155,6 +1155,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                             </select>
                         </span>
                     </dt>
+                    @if($user->engroup==1)
                     <dt>
                         <span>婚姻<i>(必填)</i></span>
                         <span>
@@ -1183,6 +1184,7 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                             </select>
                         </span>
                     </dt>
+                    @endif
                     @if($user->engroup==2)
                         {{--
                         <dt>
@@ -2106,11 +2108,13 @@ dt span.engroup_type_title {display:inline-block;width:10%;white-space:nowrap;}
                 c5('請選擇教育');
                 return false;
             }
-            if(marriage.val() === "") {
-                marriage.focus();
-                c5('請選擇婚姻');
-                return false;
-            }
+            @if($user->engroup==1)
+                if(marriage.val() === "") {
+                    marriage.focus();
+                    c5('請選擇婚姻');
+                    return false;
+                }
+            @endif
             if(drinking.val() === "") {
                 drinking.focus();
                 c5('請選擇喝酒');
