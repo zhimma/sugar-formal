@@ -250,7 +250,12 @@ class UserMeta extends Model
                 $query->whereBetween('height', [$heightfrom, $heightto]);
             }
             if (isset($situation) && strlen($situation) != 0) $query->where('situation', $situation);
-            if (isset($education) && strlen($education) != 0) $query->where('education', $education);
+            //if (isset($education) && strlen($education) != 0) $query->where('education', $education);
+            if (isset($education) && $education != ''){
+                if(count($education) > 0){
+                    $query->whereIn('education', $education);
+                }
+            }
 
             if($isWarned != 2 && $userIsVip){
                 $query->where('isWarned', '<>', 1);
@@ -711,7 +716,12 @@ class UserMeta extends Model
                 $query->whereBetween('height', [$heightfrom, $heightto]);
             }
             if (isset($situation) && strlen($situation) != 0) $query->where('situation', $situation);
-            if (isset($education) && strlen($education) != 0) $query->where('education', $education);
+            //if (isset($education) && strlen($education) != 0) $query->where('education', $education);
+            if (isset($education) && $education != ''){
+                if(count($education) > 0){
+                    $query->whereIn('education', $education);
+                }
+            }
 /*
             if($isWarned != 2 && $userIsVip){
                 $query->where('isWarned', 0);
@@ -749,7 +759,13 @@ class UserMeta extends Model
         $xref_constraint = function ($query) use ($relationship_status){
             if($relationship_status)
             {
-                $query->where('option_type', 2)->where('option_id', $relationship_status);
+                //$query->where('option_type', 2)->where('option_id', $relationship_status);
+                if (isset($relationship_status) && $relationship_status != ''){
+                    if(count($relationship_status) > 0){
+                        logger('$relationship_status='.json_encode($relationship_status));
+                        $query->where('option_type', 2)->whereIn('option_id', $relationship_status);
+                    }
+                }
             }
         };
 
