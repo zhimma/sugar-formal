@@ -29,7 +29,7 @@
                                 <h4>這是系統錯誤頁面</h4>
                                 <ul>
                                     <li>1. 如果您是登入失敗，請點此連結：<a href="{{ route("loginIOS") }}" style="font-weight: bold;">重新登入</a></li>
-                                    <li>2. 如果不是登入失敗，請十分鐘後重新嘗試原先操作</li>
+                                    <li>2. 如果不是登入失敗，可能與網站正在進行大型更新有關，請十分鐘後重新嘗試原先操作</li>
                                     <li>3. 如果都還不行，請與站長連繫：<a href="{!! url('contact') !!}" style="font-weight: bold;">聯絡我們</a></li>
                                 </ul>
                             @endif
