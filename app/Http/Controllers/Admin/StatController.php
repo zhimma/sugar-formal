@@ -489,6 +489,7 @@ class StatController extends \App\Http\Controllers\BaseController
             $tasks->each(static fn($task) => \DB::table('monitored_scheduled_tasks')
                 ->where('id', $task->id)
                 ->update(['remark' => $request->get('remark_' . $task->id)]));
+            $tasks = \DB::table('monitored_scheduled_tasks')->get();
         }
 
         $headers = [
