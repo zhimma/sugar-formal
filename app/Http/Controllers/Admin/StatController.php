@@ -485,8 +485,16 @@ class StatController extends \App\Http\Controllers\BaseController
             return view('admin.stats.schedulerLog')->with('data', null);
         }
 
+        if ($request->isMethod('POST')) {
+            $tasks->each(static function ($task) use ($request) {
+                $task->remark = $request->get('remark.' . $task->id);
+                $task->save();
+            });
+        }
+
         $headers = [
             'Name',
+            '備註',
             'Type',
             'Frequency',
             'Last started at',
@@ -500,7 +508,9 @@ class StatController extends \App\Http\Controllers\BaseController
         $that = $this;
         $rows = $tasks->map(function ($task) use ($dateFormat, $that) {
             $row = [
+                'id' => $task->id,
                 'name' => $task->name,
+                'remark' => $task->remark,
                 'type' => ucfirst($task->type),
                 'cron_expression' => $that->humanReadableCron($task->cron_expression),
                 'started_at' => $task->last_started_at ? \Carbon\Carbon::parse($task->last_started_at)->format($dateFormat) : 'Did not start yet',

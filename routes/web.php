@@ -1050,6 +1050,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('stats/vip_log/{id}', 'StatController@vipLog')->name('stats/vip_log');
         Route::get('stats/cron_log', 'StatController@cronLog')->name('stats/cron_log');
         Route::get('stats/date_file_log', 'StatController@datFileLog')->name('stats/date_file_log');
+        Route::post('stats/schedulerLog', 'StatController@schedulerLog');
         Route::get('stats/schedulerLog', 'StatController@schedulerLog')->name('schedulerLog');
         Route::get('stats/set_autoBan', 'StatController@set_autoBan')->name('stats/set_autoBan');
         Route::post('stats/set_autoBan_add', 'StatController@set_autoBan_add')->name('stats/set_autoBan_add');
