@@ -718,7 +718,7 @@ class UserMeta extends Model
             if (isset($situation) && strlen($situation) != 0) $query->where('situation', $situation);
             //if (isset($education) && strlen($education) != 0) $query->where('education', $education);
             if (isset($education) && $education != ''){
-                if(count($education) > 0){
+                if(is_array($education) && count($education) > 0){
                     $query->whereIn('education', $education);
                 }
             }
@@ -761,8 +761,7 @@ class UserMeta extends Model
             {
                 //$query->where('option_type', 2)->where('option_id', $relationship_status);
                 if (isset($relationship_status) && $relationship_status != ''){
-                    if(count($relationship_status) > 0){
-                        logger('$relationship_status='.json_encode($relationship_status));
+                    if(is_array($relationship_status) && count($relationship_status) > 0){
                         $query->where('option_type', 2)->whereIn('option_id', $relationship_status);
                     }
                 }
@@ -1099,7 +1098,7 @@ class UserMeta extends Model
             //return isset($this->smoking) && isset($this->drinking) && isset($this->marriage) && isset($this->education) && isset($this->about) && isset($this->style) && isset($this->birthdate) && isset($this->budget) && $this->height > 0 && isset($this->area) && isset($this->city) && isset($this->income) && isset($this->assets);
             return isset($this->smoking) && isset($this->drinking) && isset($this->marriage) && isset($this->education) && isset($this->about) && isset($this->style) && isset($this->birthdate) && $this->height > 0 && isset($this->area) && isset($this->city);
         } else {
-            return isset($this->smoking) && isset($this->drinking) && isset($this->marriage) && isset($this->education) && isset($this->about) && isset($this->style) && isset($this->birthdate) && $this->height > 0 && isset($this->area) && isset($this->city);
+            return isset($this->smoking) && isset($this->drinking) && isset($this->education) && isset($this->about) && isset($this->style) && isset($this->birthdate) && $this->height > 0 && isset($this->area) && isset($this->city);
         }
 
     }

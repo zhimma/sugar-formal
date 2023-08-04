@@ -954,7 +954,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 area5:"{{$district5  ?? null}}",
                 //新增體重
                 weight:"{{$weight}}",
-                relationship_status:{!! json_encode($relationship_status? array_keys($relationship_status) :null) !!},
+                relationship_status:{!! json_encode($relationship_status && is_array($relationship_status)? array_keys($relationship_status) :null) !!},
                 perPageCount:perPageCount
             };
             axios.post('/getSearchData', post_data)
