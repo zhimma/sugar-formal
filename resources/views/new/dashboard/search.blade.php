@@ -139,26 +139,31 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                     <div class="select_xx08 right" data-role="district" data-name="district" data-value="@if(!empty($_POST['district'])){{ $_POST['district'] }}@elseif(!empty($_GET['district'])){{ $_GET['district'] }}@elseif(!empty(session()->get('search_page_key.district'))){{ session()->get('search_page_key.district')  }}@endif" style=""></div>
                                     </span>
                                     @if ($user->isVIP()||$user->isVVIP())
-                                    <span class="twzipcode" id="twzipcode2" style="display:inline-flex">
+                                    <span class="twzipcode" id="twzipcode2" style="display:{{ request()->county2??session()->get('search_page_key.county2') ? 'inline-flex':'none' }};">
                                     <div class="select_xx08 left" data-role="county" data-name="county2" data-value="{{ request()->county2??session()->get('search_page_key.county2')  }}" style=""></div>
                                     <div class="sew6" style="width:13%"></div>
                                     <div class="select_xx08 right" data-role="district" data-name="district2" data-value="{{ request()->district2??session()->get('search_page_key.district2')  }}" style=""></div>
                                     </span>
-                                    <span class="twzipcode" id="twzipcode3" style="display:inline-flex">
+                                    <span class="twzipcode" id="twzipcode3" style="display:{{ request()->county2??session()->get('search_page_key.county3') ? 'inline-flex':'none' }};">
                                     <div class="select_xx08 left" data-role="county" data-name="county3" data-value="{{ request()->county3??session()->get('search_page_key.county3')  }}" style=""></div>
                                     <div class="sew6" style="width:13%"></div>
                                     <div class="select_xx08 right" data-role="district" data-name="district3" data-value="{{ request()->district3??session()->get('search_page_key.district3')  }}" style=""></div>
-                                    </span>  
-                                    <span class="twzipcode" id="twzipcode4" style="display:inline-flex">
+                                    </span>
+                                    <span class="twzipcode" id="twzipcode4" style="display:{{ request()->county2??session()->get('search_page_key.county4') ? 'inline-flex':'none' }};">
                                     <div class="select_xx08 left" data-role="county" data-name="county4" data-value="{{ request()->county4??session()->get('search_page_key.county4')  }}" style=""></div>
                                     <div class="sew6" style="width:13%"></div>
                                     <div class="select_xx08 right" data-role="district" data-name="district4" data-value="{{ request()->district4??session()->get('search_page_key.district4')  }}" style=""></div>
-                                    </span>  
-                                    <span class="twzipcode" id="twzipcode5" style="display:inline-flex">
+                                    </span>
+                                    <span class="twzipcode" id="twzipcode5" style="display:{{ request()->county2??session()->get('search_page_key.county5') ? 'inline-flex':'none' }};">
                                     <div class="select_xx08 left" data-role="county" data-name="county5" data-value="{{ request()->county5??session()->get('search_page_key.county5')  }}" style=""></div>
                                     <div class="sew6" style="width:13%"></div>
                                     <div class="select_xx08 right" data-role="district" data-name="district5" data-value="{{ request()->district5??session()->get('search_page_key.district5')  }}" style=""></div>
-                                    </span>  
+                                    </span>
+                                    <div class="n_xqline" style="margin-top:-6px;">
+                                        <div id="add_county" class="right" onclick="toggleNextTwzipcode()" style="margin-bottom: 10px;">
+                                            <a style="cursor: pointer;"><img src="/new/images/jh.png">新增縣市</a>
+                                        </div>
+                                    </div>
                                     @endif
                                 </dt>
 
@@ -187,7 +192,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                             <span>有無照片</span>
                                             <span>
                                                 <select name="pic" id="pic" class="select_xx01">
-                                                    <option value="">請選擇</option>
+                                                    <option value="">皆可</option>
                                                     <option value="1" @if( !empty( $_POST["pic"] ) && $_POST["pic"] == 1 ) selected @elseif(!empty( $_GET["pic"] ) && $_GET["pic"] == 1) selected @elseif(!empty( session()->get('search_page_key.pic') ) && session()->get('search_page_key.pic') == 1) selected @endif>有</option>
                                                 </select>
                                             </span>
@@ -1456,6 +1461,19 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             });
             return false;
         }
+
+        var currentTwzipcodeIndex = 2;
+        function toggleNextTwzipcode() {
+            var nextTwzipcode = document.getElementById("twzipcode" + currentTwzipcodeIndex);
+            if (nextTwzipcode) {
+                nextTwzipcode.style.display = "inline-flex";
+                currentTwzipcodeIndex++;
+            }
+            if(currentTwzipcodeIndex>5){
+                $('#add_county').hide();
+            }
+        }
+
     </script>
 @endsection
 
