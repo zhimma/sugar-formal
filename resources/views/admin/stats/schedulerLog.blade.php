@@ -14,7 +14,7 @@
                     @foreach ($data["rows"] as $key => $value)
                         <tr>
                             <td>{{ $value['name'] }}</td>
-                            <td><textarea name="remark.{{ $value["id"] }}" cols="30" rows="10">{{ $value["remark"] }}</textarea></td>
+                            <td><textarea name="remark.{{ $value["id"] }}" cols="30" rows="5">{{ $value["remark"] }}</textarea></td>
                             <td>{{ $value['type'] }}</td>
                             <td>{{ $value['cron_expression'] }}</td>
                             <td>{{ $value['started_at'] }}</td>
