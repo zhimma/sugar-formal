@@ -648,7 +648,7 @@
                             <span class="rgnback"><img src="/new/images/zx_x.png">{{$exchange_period_name->name}}</span>
                         @endif
 
-                        <div class="swiper-container photo">
+                        <div class="swiper-container photo userPicList">
                             <div class="swiper-wrapper">
                                 @php
                                     $getAvatarPath=($isBlurAvatar && $to->meta->pic_blur) ? $to->meta->pic_blur : $to->meta->pic;
@@ -3716,7 +3716,33 @@ rendorItemNthText.nthEnum = '一二三四五六七八九十'.split('');
                 $(".swiper-num .active").text(active);
             }
         });
+        $(".userPicList img").on("click",
+            function () {
+                var imgBox = $(this).closest(".userPicList").find(".swiper-slide:not(.swiper-slide-duplicate) img");
+                var imgBox_length = imgBox.length;
+                var i = $(imgBox).index(this);
 
+                $(".big_img .swiper-wrapper").html("")
+                for (var j = 0, c = imgBox_length; j < c ; j++) {
+                    var imgSrc = imgBox.eq(j).attr("src");
+                    var isBlur = imgBox.eq(j).closest(".swiper-slide").hasClass("blur_img");
+                    var cellClass = isBlur ? "cell blur_img" : "cell";
+                    $(".big_img .swiper-wrapper").append('<div class="swiper-slide"><div class="' + cellClass + '"><img src="' + imgSrc + '" /></div></div>');
+                }
+                mySwiper.updateSlidesSize();
+                mySwiper.updatePagination();
+                $(".big_img").css({
+                    "z-index": 1001,
+                    "opacity": "1"
+                });
+                //分页器
+                var num = $(".swiper-pagination2 span").length;
+                $(".swiper-num .total").text(num);
+                $(".swiper-num .active").text(i + 1);
+
+                mySwiper.slideTo(i, 0, false);
+                return false;
+            });
         $(".zap_photo li").on("click",
             function () {
                 var imgBox = $(this).parent(".zap_photo").find("li");
