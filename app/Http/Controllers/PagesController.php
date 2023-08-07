@@ -4340,7 +4340,7 @@ class PagesController extends BaseController
                 }
             }
         }
-        if(!isset($input['page'])){
+        if((!isset($input['page'])) && (!str_contains(url()->previous(), '/viewuser'))){
             foreach ($input as $key => $value) {
                 session()->put('search_page_key.' . $key, array_get($input, $key, null));
             }
