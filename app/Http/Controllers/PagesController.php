@@ -4294,6 +4294,7 @@ class PagesController extends BaseController
 
     public function search2(Request $request)
     {
+        Log::Info($request);
         $input = $request->input();
         $search_page_key=session()->get('search_page_key',[]);
         if(!$search_page_key && !$input) {
@@ -4356,16 +4357,16 @@ class PagesController extends BaseController
 
             // Create a temporary array with non-empty county and district values
             foreach ($countyKeys as $index => $countyKey) {
-                $countyValue = array_get($input, $countyKey, '');
-                $districtValue = array_get($input, $districtKeys[$index], '');
-
-                if (!empty($countyValue)) {
-                    $tempArray[] = [
-                        'county' => $countyValue,
-                        'district' => $districtValue,
-                    ];
-                }
+                $countyValue = array_get($input, $countyKey);
+                $districtValue = array_get($input, $districtKeys[$index]);
+               
+                $tempArray[] = [
+                    'county' => $countyValue,
+                    'district' => $districtValue,
+                ];
+                
             }
+            rsort($tempArray);
 
             // Clear existing values in session
             foreach ($countyKeys as $countyKey) {
@@ -4379,10 +4380,12 @@ class PagesController extends BaseController
 
             // Put the adjusted values back into session
             foreach ($tempArray as $index => $values) {
+                Log::Info($index);
+                Log::Info($values);
                 session()->put('search_page_key.county' . ($index==0 ? '' : ($index+ 1)), $values['county']);
                 session()->put('search_page_key.district' . ($index==0 ? '' : ($index+ 1)), $values['district']);
-                request()->offsetSet('county'.($index==0 ? '' : ($index+ 1)), $countyValue);
-                request()->offsetSet('district'.($index==0 ? '' : ($index+ 1)), $districtValue);
+                request()->offsetSet('county'.($index==0 ? '' : ($index+ 1)), $values['county']);
+                request()->offsetSet('district'.($index==0 ? '' : ($index+ 1)), $values['district']);
             }
 
             if(auth()->user()->search_filter_remember) {
@@ -4395,6 +4398,7 @@ class PagesController extends BaseController
                 
             
         }
+        Log::Info($request);
 
         $user = $request->user();
         $rap_service->riseByUserEntry($user);
