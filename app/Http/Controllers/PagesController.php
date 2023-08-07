@@ -4380,8 +4380,6 @@ class PagesController extends BaseController
 
             // Put the adjusted values back into session
             foreach ($tempArray as $index => $values) {
-                Log::Info($index);
-                Log::Info($values);
                 session()->put('search_page_key.county' . ($index==0 ? '' : ($index+ 1)), $values['county']);
                 session()->put('search_page_key.district' . ($index==0 ? '' : ($index+ 1)), $values['district']);
                 request()->offsetSet('county'.($index==0 ? '' : ($index+ 1)), $values['county']);
@@ -4398,7 +4396,6 @@ class PagesController extends BaseController
                 
             
         }
-        Log::Info($request);
 
         $user = $request->user();
         $rap_service->riseByUserEntry($user);
