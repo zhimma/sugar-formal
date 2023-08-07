@@ -471,9 +471,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                                 <li>
                                                     <span>顯示已封鎖會員</span>
                                                     <font>
-                                                        <label class="n_tx">
-                                                            <input type="checkbox" name="isBlocked" value="1" id="isBlocked" @if( !empty( $_POST["isBlocked"] ) && $_POST["isBlocked"] == "1" ) checked @elseif(!empty( $_GET["isBlocked"] ) && $_GET["isBlocked"] == "1") checked @elseif(!empty( session()->get('search_page_key.isBlocked') ) && session()->get('search_page_key.isBlocked') == "1") checked @endif><i>否</i>
-                                                        </label>
+                                                        <label class="n_tx"><input type="checkbox" name="isBlocked" value="1" id="isBlocked" @if( !empty( $_POST["isBlocked"] ) && $_POST["isBlocked"] == "1" ) checked @elseif(!empty( $_GET["isBlocked"] ) && $_GET["isBlocked"] == "1") checked @elseif(!empty( session()->get('search_page_key.isBlocked') ) && session()->get('search_page_key.isBlocked') == "1") checked @endif><i>否</i></label>
                                                         <input type="hidden" name="isBlocked" value="1" id="isBlockedHidden">
                                                         {{--<label class="ba_tx"><input type="radio" name="isBlocked" value="2" id="isBlocked" @if( !empty( $_POST["isBlocked"] ) && $_POST["isBlocked"] == 2 ) checked @elseif(!empty( $_GET["isBlocked"] ) && $_GET["isBlocked"]== 2) checked @endif><i>是</i></label>--}}
                                                         {{--<label class="ba_tx"><input type="radio" name="isBlocked" value="1" id="isBlocked1" @if( !empty( $_POST["isBlocked"] ) && $_POST["isBlocked"] == 1 ) checked @elseif(!empty( $_GET["isBlocked"]) && $_GET["isBlocked"] == 1) checked @endif><i>否</i></label>--}}
@@ -670,6 +668,12 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
         @if($isBlocked == 1)
             $('#isBlocked').attr('checked', true);
         @endif
+
+        $("input[name='isBlocked']").click(function(){
+            if ( ! $("input[name='isBlocked']").is(':checked') ){
+                $('#isBlockedHidden').val(2);
+            }
+        });
 
         // // if ( ! $("input[name='isVip']").is(':checked') ){
         // //     $('#isVip1').attr('checked', true);
@@ -1470,13 +1474,6 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             }
         }
 
-    </script>
-    <script>
-        $("#form").submit(function(e){
-            if (!$("input[name='isBlocked']").is(':checked')){
-                $('#isBlockedHidden').val(2);
-            }
-        });
     </script>
 @endsection
 
