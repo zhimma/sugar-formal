@@ -4360,13 +4360,14 @@ class PagesController extends BaseController
                 $countyValue = array_get($input, $countyKey);
                 $districtValue = array_get($input, $districtKeys[$index]);
                
-                $tempArray[] = [
-                    'county' => $countyValue,
-                    'district' => $districtValue,
-                ];
-                
+                if(!empty($countyValue))
+                {
+                    $tempArray[] = [
+                        'county' => $countyValue,
+                        'district' => $districtValue,
+                    ];
+                }
             }
-            rsort($tempArray);
 
             // Clear existing values in session
             foreach ($countyKeys as $countyKey) {
