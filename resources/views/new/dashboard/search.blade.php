@@ -134,27 +134,27 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                 <dt>
                                     <span>地區</span>
                                     <span class="twzipcode" id="twzipcode" style="display:inline-flex">
-                                    <div class="select_xx08 left" data-role="county" data-name="county" data-value="@if(!empty($_POST['county'])){{ $_POST['county'] }}@elseif(!empty($_GET['county'])){{ $_GET['county']  }}@elseif(!empty(session()->get('search_page_key.county'))){{ session()->get('search_page_key.county')  }}@endif" style=""></div>
+                                    <div class="select_xx08 left" data-role="county" data-name="county" data-value="{{ request()->county??session()->get('search_page_key.county')  }}" style=""></div>
                                     <div class="sew6" style="width:13%"></div>
-                                    <div class="select_xx08 right" data-role="district" data-name="district" data-value="@if(!empty($_POST['district'])){{ $_POST['district'] }}@elseif(!empty($_GET['district'])){{ $_GET['district'] }}@elseif(!empty(session()->get('search_page_key.district'))){{ session()->get('search_page_key.district')  }}@endif" style=""></div>
+                                    <div class="select_xx08 right" data-role="district" data-name="district" data-value="{{ request()->district??session()->get('search_page_key.district')  }}" style=""></div>
                                     </span>
                                     @if ($user->isVIP()||$user->isVVIP())
-                                    <span class="twzipcode" id="twzipcode2" style="display:{{ request()->county2??session()->get('search_page_key.county2') ? 'inline-flex':'none' }};">
+                                    <span class="twzipcode" id="twzipcode2" style="display:{{ !is_null(request()->county2??session()->get('search_page_key.county2')) ? 'inline-flex':'none' }};">
                                     <div class="select_xx08 left" data-role="county" data-name="county2" data-value="{{ request()->county2??session()->get('search_page_key.county2')  }}" style=""></div>
                                     <div class="sew6" style="width:13%"></div>
                                     <div class="select_xx08 right" data-role="district" data-name="district2" data-value="{{ request()->district2??session()->get('search_page_key.district2')  }}" style=""></div>
                                     </span>
-                                    <span class="twzipcode" id="twzipcode3" style="display:{{ request()->county2??session()->get('search_page_key.county3') ? 'inline-flex':'none' }};">
+                                    <span class="twzipcode" id="twzipcode3" style="display:{{ !is_null(request()->county3??session()->get('search_page_key.county3')) ? 'inline-flex':'none' }};">
                                     <div class="select_xx08 left" data-role="county" data-name="county3" data-value="{{ request()->county3??session()->get('search_page_key.county3')  }}" style=""></div>
                                     <div class="sew6" style="width:13%"></div>
                                     <div class="select_xx08 right" data-role="district" data-name="district3" data-value="{{ request()->district3??session()->get('search_page_key.district3')  }}" style=""></div>
                                     </span>
-                                    <span class="twzipcode" id="twzipcode4" style="display:{{ request()->county2??session()->get('search_page_key.county4') ? 'inline-flex':'none' }};">
+                                    <span class="twzipcode" id="twzipcode4" style="display:{{ !is_null(request()->county4??session()->get('search_page_key.county4')) ? 'inline-flex':'none' }};">
                                     <div class="select_xx08 left" data-role="county" data-name="county4" data-value="{{ request()->county4??session()->get('search_page_key.county4')  }}" style=""></div>
                                     <div class="sew6" style="width:13%"></div>
                                     <div class="select_xx08 right" data-role="district" data-name="district4" data-value="{{ request()->district4??session()->get('search_page_key.district4')  }}" style=""></div>
                                     </span>
-                                    <span class="twzipcode" id="twzipcode5" style="display:{{ request()->county2??session()->get('search_page_key.county5') ? 'inline-flex':'none' }};">
+                                    <span class="twzipcode" id="twzipcode5" style="display:{{ !is_null(request()->county5??session()->get('search_page_key.county5')) ? 'inline-flex':'none' }};">
                                     <div class="select_xx08 left" data-role="county" data-name="county5" data-value="{{ request()->county5??session()->get('search_page_key.county5')  }}" style=""></div>
                                     <div class="sew6" style="width:13%"></div>
                                     <div class="select_xx08 right" data-role="district" data-name="district5" data-value="{{ request()->district5??session()->get('search_page_key.district5')  }}" style=""></div>
