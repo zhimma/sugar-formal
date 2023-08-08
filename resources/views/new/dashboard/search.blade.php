@@ -262,6 +262,16 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                             {{--<input id="heightRange" name="heightRange" class="multi-range" type="range" />--}}
                                             </span>
                                         </dt>
+
+                                        <dt>
+                                            <span>體重範圍</span>
+                                            <span style="display: inline-flex;">
+                                                <input class="select_xx06" name="weightfrom" id="weightfrom" type="number" step="5" value="@if(!empty($_POST['weightfrom'])){{ $_POST['weightfrom'] }}@elseif(!empty($_GET['weightfrom'])){{$_GET['weightfrom']}}@elseif(!empty(session()->get('search_page_key.weightfrom'))){{ session()->get('search_page_key.weightfrom')  }}@endif">
+                                                <div class="sew6">至</div>
+                                                <input class="select_xx06 right" name="weightto" id="weightto" type="number" step="5" value="@if(!empty($_POST['weightto'])){{$_POST['weightto'] }}@elseif(!empty($_GET['weightto'])){{$_GET['weightto']}}@elseif(!empty(session()->get('search_page_key.weightto'))){{ session()->get('search_page_key.weightto')  }}@endif">
+                                            </span>
+                                        </dt>
+
                                         <dt>
                                             @if ($user_engroup == 1)
                                                 <div class="n_se left">
@@ -377,6 +387,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                                     <option value="常喝" @if( !empty( $_POST["drinking"] ) && $_POST["drinking"] == "常喝" ) selected @elseif(!empty( $_GET["drinking"] ) && $_GET["drinking"] == "常喝") selected @elseif(!empty( session()->get('search_page_key.drinking') ) && session()->get('search_page_key.drinking') == "常喝") selected @endif>常喝</option>
                                                 </select>
                                             </div>
+                                            {{--
                                             <div class="n_se right">
                                                 <span>體重<i class="ssrgf">(僅顯示有填寫者)</i></span>
                                                 <select name="weight" id="weight" class="select_xx01">
@@ -386,8 +397,10 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                                     @endfor
                                                 </select>
                                             </div>
+                                            --}}
                                             @endif
                                         </dt>
+                                        {{--
                                         <!--增加體重搜尋-->
                                         @if($user->engroup == 1)
                                         <dt>
@@ -402,6 +415,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                             </div>
                                         </dt>
                                         @endif
+                                        --}}
                                         <dt class="matopj15" style="margin-top: 15px;">
                                             <span>教育</span>
                                             <span class="line20">
@@ -546,6 +560,8 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         $isBlocked = search_variable('isBlocked',1);
                         $heightto = search_variable('heightto',"");
                         $heightfrom = search_variable('heightfrom',"");
+                        $weightto = search_variable('weightto',"");
+                        $weightfrom = search_variable('weightfrom',"");
                         $prRange_none = search_variable('prRange_none',"");
                         $prRange = search_variable('prRange',"");
                         $situation = search_variable('situation',"");
@@ -932,6 +948,8 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 userIsVip:"{{$userIsVip}}",
                 heightfrom:"{{$heightfrom}}",
                 heightto:"{{$heightto}}",
+                weightfrom:"{{$weightfrom}}",
+                weightto:"{{$weightto}}",
                 prRange_none:"{{$prRange_none}}",
                 prRange:"{{$prRange}}",
                 situation:"{{$situation}}",
@@ -1475,6 +1493,20 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
         $("#form").submit(function(e){
             if (!$("input[name='isBlocked']").is(':checked')){
                 $('#isBlockedHidden').val(2);
+            }
+            heightfrom = $('#heightfrom').val();
+            heightto = $('#heightto').val();
+            weightfrom = $('#weightfrom').val();
+            weightto = $('#weightto').val();
+            if(heightfrom > heightto)
+            {
+                $('#heightfrom').val(heightto);
+                $('#heightto').val(heightfrom);
+            }
+            if(weightfrom > weightto)
+            {
+                $('#weightfrom').val(weightto);
+                $('#weightto').val(weightfrom);
             }
         });
     </script>

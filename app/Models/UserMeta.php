@@ -12,6 +12,7 @@ use Datetime;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class UserMeta extends Model
 {
@@ -466,6 +467,8 @@ class UserMeta extends Model
         $userIsVip = $request->userIsVip ?? '';
         $heightfrom = $request->heightfrom ?? '';
         $heightto = $request->heightto ?? '';
+        $weightfrom = $request->weightfrom ?? '';
+        $weightto = $request->weightto ?? '';
         $prRange_none = $request->prRange_none ?? '';
         $prRange = $request->prRange ?? '';
         $situation = $request->situation ?? '';
@@ -530,6 +533,8 @@ class UserMeta extends Model
             $userIsVip,
             $heightfrom,
             $heightto,
+            $weightfrom,
+            $weightto,
             $situation,
             $education,
             $isWarned,
@@ -714,6 +719,9 @@ class UserMeta extends Model
                 //->where('pic', '<>', 'NULL')->where('pic', '<>', '');
             if (isset($heightfrom) && isset($heightto) && strlen($heightfrom) != 0 && strlen($heightto) != 0) {
                 $query->whereBetween('height', [$heightfrom, $heightto]);
+            }
+            if (isset($weightfrom) && isset($weightto) && strlen($weightfrom) != 0 && strlen($weightto) != 0) {
+                $query->whereBetween('weight', [$weightfrom, $weightto]);
             }
             if (isset($situation) && strlen($situation) != 0) $query->where('situation', $situation);
             //if (isset($education) && strlen($education) != 0) $query->where('education', $education);
