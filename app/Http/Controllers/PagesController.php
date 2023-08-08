@@ -4294,7 +4294,6 @@ class PagesController extends BaseController
 
     public function search2(Request $request)
     {
-        Log::Info($request);
         $input = $request->input();
         $search_page_key=session()->get('search_page_key',[]);
         if(!$search_page_key && !$input) {
