@@ -4349,41 +4349,44 @@ class PagesController extends BaseController
                 }
             }
 
-            //如果如果地區有空排則往前遞補位置
-            $countyKeys = ['county', 'county2', 'county3', 'county4', 'county5'];
-            $districtKeys = ['district', 'district2', 'district3', 'district4', 'district5'];
-            $tempArray = [];
+            if(count($input))
+            {
+                //如果如果地區有空排則往前遞補位置
+                $countyKeys = ['county', 'county2', 'county3', 'county4', 'county5'];
+                $districtKeys = ['district', 'district2', 'district3', 'district4', 'district5'];
+                $tempArray = [];
 
-            // Create a temporary array with non-empty county and district values
-            foreach ($countyKeys as $index => $countyKey) {
-                $countyValue = array_get($input, $countyKey);
-                $districtValue = array_get($input, $districtKeys[$index]);
-               
-                if(!empty($countyValue))
-                {
-                    $tempArray[] = [
-                        'county' => $countyValue,
-                        'district' => $districtValue,
-                    ];
+                // Create a temporary array with non-empty county and district values
+                foreach ($countyKeys as $index => $countyKey) {
+                    $countyValue = array_get($input, $countyKey);
+                    $districtValue = array_get($input, $districtKeys[$index]);
+                
+                    if(!empty($countyValue))
+                    {
+                        $tempArray[] = [
+                            'county' => $countyValue,
+                            'district' => $districtValue,
+                        ];
+                    }
                 }
-            }
 
-            // Clear existing values in session
-            foreach ($countyKeys as $countyKey) {
-                session()->forget('search_page_key.' . $countyKey);
-                request()->offsetUnset($countyKey);
-            }
-            foreach ($districtKeys as $districtKey) {
-                session()->forget('search_page_key.' . $districtKey);
-                request()->offsetUnset($districtKey);
-            }
+                // Clear existing values in session
+                foreach ($countyKeys as $countyKey) {
+                    session()->put('search_page_key.' . $countyKey, null);
+                    request()->offsetUnset($countyKey);
+                }
+                foreach ($districtKeys as $districtKey) {
+                    session()->put('search_page_key.' . $districtKey, null);
+                    request()->offsetUnset($districtKey);
+                }
 
-            // Put the adjusted values back into session
-            foreach ($tempArray as $index => $values) {
-                session()->put('search_page_key.county' . ($index==0 ? '' : ($index+ 1)), $values['county']);
-                session()->put('search_page_key.district' . ($index==0 ? '' : ($index+ 1)), $values['district']);
-                request()->offsetSet('county'.($index==0 ? '' : ($index+ 1)), $values['county']);
-                request()->offsetSet('district'.($index==0 ? '' : ($index+ 1)), $values['district']);
+                // Put the adjusted values back into session
+                foreach ($tempArray as $index => $values) {
+                    session()->put('search_page_key.' . $countyKeys[$index], $values['county']);
+                    session()->put('search_page_key.' . $districtKeys[$index], $values['district']);
+                    request()->offsetSet('county'.($index==0 ? '' : ($index+ 1)), $values['county']);
+                    request()->offsetSet('district'.($index==0 ? '' : ($index+ 1)), $values['district']);
+                }
             }
 
             if(auth()->user()->search_filter_remember) {
@@ -4393,8 +4396,6 @@ class PagesController extends BaseController
             else {
                 auth()->user()->search_filter_remember()->create(['filter'=>json_encode(session()->get('search_page_key',[]))]);            
             }
-                
-            
         }
 
         $user = $request->user();
