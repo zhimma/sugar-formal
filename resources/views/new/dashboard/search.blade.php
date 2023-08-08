@@ -500,7 +500,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                                 <li>
                                                     <span>通過手機驗證</span>
                                                     <font>
-                                                        <label class="n_tx"><input type="checkbox" name="isPhoneAuth" value="2" id="isPhoneAuth" @if( (request()->isPhoneAuth??null)  && request()->isPhoneAuth== "2" ) checked @elseif(!empty( session()->get('search_page_key.isAdvanceAuth') ) && session()->get('search_page_key.isPhoneAuth') == "2") checked @endif><i>是</i></label>
+                                                        <label class="n_tx"><input type="checkbox" name="isPhoneAuth" value="2" id="isPhoneAuth" @if( (request()->isPhoneAuth ?? false)  && request()->isPhoneAuth == "2" ) checked @elseif(!empty( session()->get('search_page_key.isPhoneAuth') ) && session()->get('search_page_key.isPhoneAuth') == "2") checked @endif><i>是</i></label>
                                                     </font>
                                                 </li>
                                                 @endif                                    
