@@ -474,48 +474,70 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                                 @if($user_engroup==2)
                                                 <li>
                                                     <span>是否為VIP</span>
+                                                    <br>
+                                                    <br>
+                                                    {{--<div class="custom_s a1 option_favorite_food @if($option->xref_id ?? false) cractive @endif" value={{$option->id}}>{{$option->option_name}}</div>--}}
+                                                    <div class="custom_s a1">僅顯示VIP</div>
+                                                    {{--
                                                     <font>
                                                         <label class="n_tx"><input type="checkbox" name="isVip" value="1" id="Checkbox" @if( !empty( $_POST["isVip"] ) && $_POST["isVip"] == "1" ) checked @elseif(!empty( $_GET["isVip"] ) && $_GET["isVip"] == "1") checked @elseif(!empty( session()->get('search_page_key.isVip') ) && session()->get('search_page_key.isVip') == "1") checked @endif><i>是</i></label>
-
-                                                        {{--<label class="ba_tx"><input type="radio" name="isVip" value="1" id="isVip" @if( !empty( $_POST["isVip"] ) && $_POST["isVip"] == 1 ) checked @elseif(!empty( $_GET["isVip"] ) && $_GET["isVip"]== 1) checked @endif><i>是</i></label>--}}
-                                                        {{--<label class="ba_tx"><input type="radio" name="isVip" value="0" id="isVip1" @if( !empty( $_POST["isVip"] ) && $_POST["isVip"] == 0 ) checked @elseif(!empty( $_GET["isVip"] ) && $_GET["isVip"]== 0) checked @endif><i>否</i></label>--}}
                                                     </font>
+                                                    --}}
                                                 </li>
                                                 @endif
                                                 <li>
                                                     <span>顯示已封鎖會員</span>
+                                                    <br>
+                                                    <br>
+                                                    <div class="custom_s a1">顯示已封鎖會員</div>
+                                                    <div class="custom_s a1">隱藏已封鎖會員</div>
+                                                    {{--
                                                     <font>
                                                         <label class="n_tx">
                                                             <input type="checkbox" name="isBlocked" value="1" id="isBlocked" @if( !empty( $_POST["isBlocked"] ) && $_POST["isBlocked"] == "1" ) checked @elseif(!empty( $_GET["isBlocked"] ) && $_GET["isBlocked"] == "1") checked @elseif(!empty( session()->get('search_page_key.isBlocked') ) && session()->get('search_page_key.isBlocked') == "1") checked @endif><i>否</i>
                                                         </label>
                                                         <input type="hidden" name="isBlocked" value="1" id="isBlockedHidden">
-                                                        {{--<label class="ba_tx"><input type="radio" name="isBlocked" value="2" id="isBlocked" @if( !empty( $_POST["isBlocked"] ) && $_POST["isBlocked"] == 2 ) checked @elseif(!empty( $_GET["isBlocked"] ) && $_GET["isBlocked"]== 2) checked @endif><i>是</i></label>--}}
-                                                        {{--<label class="ba_tx"><input type="radio" name="isBlocked" value="1" id="isBlocked1" @if( !empty( $_POST["isBlocked"] ) && $_POST["isBlocked"] == 1 ) checked @elseif(!empty( $_GET["isBlocked"]) && $_GET["isBlocked"] == 1) checked @endif><i>否</i></label>--}}
                                                     </font>
+                                                    --}}
                                                 </li>
                                                 <li>
                                                     <span>顯示警示帳戶</span>
+                                                    <br>
+                                                    <br>
+                                                    <div class="custom_s a1">顯示警示帳戶</div>
+                                                    <div class="custom_s a1">隱藏警示帳戶</div>
+                                                    {{--
                                                     <font>
                                                         <label class="n_tx"><input type="checkbox" name="isWarned" value="2" id="isWarned" @if( !empty( $_POST["isWarned"] ) && $_POST["isWarned"] == "2" ) checked @elseif(!empty( $_GET["isWarned"] ) && $_GET["isWarned"] == "2") checked @elseif(!empty( session()->get('search_page_key.isWarned') ) && session()->get('search_page_key.isWarned') == "2") checked @endif><i>是</i></label>
-
-                                                        {{--<label class="ba_tx"><input type="radio" name="isWarned" value="2" id="isWarned" @if( !empty( $_POST["isWarned"] ) && $_POST["isWarned"] == 2 ) checked @elseif(!empty( $_GET["isWarned"] ) && $_GET["isWarned"]== 2) checked @endif><i>是</i></label>--}}
-                                                        {{--<label class="ba_tx"><input type="radio" name="isWarned" value="1" id="isWarned1" @if( !empty( $_POST["isWarned"] ) && $_POST["isWarned"] == 1 ) checked @elseif(!empty( $_GET["isWarned"] ) && $_GET["isWarned"]== 1) checked @endif><i>否</i></label>--}}
                                                     </font>
+                                                    --}}
                                                 </li>
                                                 @if($user_engroup==1)
                                                 <li>
                                                     <span>通過進階驗證</span>
+                                                    <br>
+                                                    <br>
+                                                    <div class="custom_s a1">顯示通過進階驗證會員</div>
+                                                    <div class="custom_s a1">隱藏未通過進階驗證會員</div>
+                                                    {{--
                                                     <font>
                                                         <label class="n_tx"><input type="checkbox" name="isAdvanceAuth" value="1" id="isAdvanceAuth" @if( !empty( $_POST["isAdvanceAuth"] ) && $_POST["isAdvanceAuth"] == "1" ) checked @elseif(!empty( $_GET["isAdvanceAuth"] ) && $_GET["isAdvanceAuth"] == "1") checked  @elseif(!empty( session()->get('search_page_key.isAdvanceAuth') ) && session()->get('search_page_key.isAdvanceAuth') == "1") checked @endif><i>是</i></label>
                                                     </font>
+                                                    --}}
                                                 </li>
                                                 @endif
                                                 @if($user_engroup==2)
                                                 <li>
                                                     <span>通過手機驗證</span>
+                                                    <br>
+                                                    <br>
+                                                    <div class="custom_s a1">顯示通過手機驗證會員</div>
+                                                    <div class="custom_s a1">隱藏未通過手機驗證會員</div>
+                                                    {{--
                                                     <font>
                                                         <label class="n_tx"><input type="checkbox" name="isPhoneAuth" value="2" id="isPhoneAuth" @if( (request()->isPhoneAuth ?? false)  && request()->isPhoneAuth == "2" ) checked @elseif(!empty( session()->get('search_page_key.isPhoneAuth') ) && session()->get('search_page_key.isPhoneAuth') == "2") checked @endif><i>是</i></label>
                                                     </font>
+                                                    --}}
                                                 </li>
                                                 @endif                                    
                                             </div>
