@@ -264,7 +264,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                         </dt>
 
                                         <dt>
-                                            <span>體重範圍</span>
+                                            <span>體重範圍<i class="ssrgf">(僅顯示有填寫者)</i></span>
                                             <span style="display: inline-flex;">
                                                 <input class="select_xx06" name="weightfrom" id="weightfrom" type="number" step="5" value="@if(!empty($_POST['weightfrom'])){{ $_POST['weightfrom'] }}@elseif(!empty($_GET['weightfrom'])){{$_GET['weightfrom']}}@elseif(!empty(session()->get('search_page_key.weightfrom'))){{ session()->get('search_page_key.weightfrom')  }}@endif">
                                                 <div class="sew6">至</div>
@@ -1494,10 +1494,27 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             if (!$("input[name='isBlocked']").is(':checked')){
                 $('#isBlockedHidden').val(2);
             }
+
             heightfrom = $('#heightfrom').val();
             heightto = $('#heightto').val();
             weightfrom = $('#weightfrom').val();
             weightto = $('#weightto').val();
+
+            if((heightfrom == "" && heightto != "") || (heightfrom != "" && heightto == ""))
+            {
+                event.preventDefault();
+                c5('請輸入身高範圍');
+                return false;
+            }
+
+            if((weightfrom == "" && weightto != "") || (weightfrom != "" && weightto == ""))
+            {
+                event.preventDefault();
+                c5('請輸入體重範圍');
+                return false;
+            }
+            
+
             if(heightfrom > heightto)
             {
                 $('#heightfrom').val(heightto);
