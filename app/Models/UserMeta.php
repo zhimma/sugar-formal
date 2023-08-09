@@ -118,7 +118,7 @@ class UserMeta extends Model
                                   $body,
                                   $userid,
                                   $exchange_period = '',
-                                  $isBlocked = 1,
+                                  $isBlocked = 2,
                                   $userIsVip = '',
                                   $heightfrom = '',
                                   $heightto = '',
@@ -349,7 +349,7 @@ class UserMeta extends Model
                 $query->whereIn('exchange_period', $exchange_period);
         }
 
-        if($isBlocked==1 && $userIsVip){
+        if($isBlocked==2 && $userIsVip){
             $query->whereNotIn('users.id', function($query) use ($userid){
                 // $blockedUsers
                 $query->select('blocked_id')
@@ -463,7 +463,7 @@ class UserMeta extends Model
         $body = $request->body;
         $userid = $request->user['id'];
         $exchange_period = $request->exchange_period ?? '';
-        $isBlocked = $request->isBlocked ?? 1;
+        $isBlocked = $request->isBlocked ?? 2;
         $userIsVip = $request->userIsVip ?? '';
         $heightfrom = $request->heightfrom ?? '';
         $heightto = $request->heightto ?? '';
@@ -841,7 +841,7 @@ class UserMeta extends Model
                 $query->whereIn('exchange_period', $exchange_period);
         }
 
-        if($isBlocked==1 && $userIsVip){
+        if($isBlocked==2 && $userIsVip){
             $query->whereNotIn('users.id', function($query) use ($userid){
                 // $blockedUsers
                 $query->select('blocked_id')
@@ -912,7 +912,7 @@ class UserMeta extends Model
 
         }
 
-        if(isset($isPhoneAuth) && $isPhoneAuth==2 && $userIsVip){
+        if(isset($isPhoneAuth) && $isPhoneAuth==1 && $userIsVip){
             $query->whereIn('users.id', function($query) use ($userid){
                 // $blockedUsers
                 $query->select('member_id')
