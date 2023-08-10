@@ -463,7 +463,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
                                         <dt class="b_nsead matopjf10">
                                             <div class="b_nsead_tit"><i>身份選擇</i></div>
-                                            <div class="b_nsba" style="padding-top: 0; margin-left:25px;">
+                                            <div class="b_nsba" style="padding-top: 0; margin-left:15px;">
                                                 <input type="hidden" name="isVip" value="0">
                                                 <input type="hidden" name="isBlocked" value="0">
                                                 <input type="hidden" name="isWarned" value="0">
