@@ -731,7 +731,7 @@ class UserMeta extends Model
                 }
             }
 /*
-            if($isWarned != 2 && $userIsVip){
+            if($isWarned != 1 && $userIsVip){
                 $query->where('isWarned', 0);
             }
             */
@@ -850,7 +850,7 @@ class UserMeta extends Model
             });
         }
 
-        if($isWarned !=2 && $userIsVip){
+        if($isWarned !=1 && $userIsVip){
             $query->whereNotIn('users.id', function($query) use ($userid){
                 // $blockedUsers
                 $query->select('member_id')
@@ -947,7 +947,7 @@ class UserMeta extends Model
             $query->whereNotIn('users.id',$ignore_user_ids);
         }
         // $time_end = microtime(true);
-        if($isWarned !=2 && $userIsVip){
+        if($isWarned !=1 && $userIsVip){
             /*
             $constraintVipWarned = clone $constraint;
             $constraintVVipWarned = clone $constraint;
