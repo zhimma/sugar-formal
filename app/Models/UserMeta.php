@@ -926,30 +926,11 @@ class UserMeta extends Model
 
 
         if($userIsVip && isset($isVip) && $isVip==1){
-            $query->whereIn('users.id', function($query){
-                $query->whereIn('users.id', function($query){
-                    $query->select('member_id')
-                        ->from(with(new Vip)->getTable())
-                        ->where('active', 1);
-                })
-                ->orWhereIn('users.id', function($query){
-                    $query->whereIn('users.id', function($query){
-                        $query->select('member_id')
-                            ->from(with(new ValueAddedService)->getTable())
-                            ->where('active', 1)
-                            ->where('service_name', 'VVIP')
-                            ->where(function($query) {
-                                $query->where('expiry', '0000-00-00 00:00:00')
-                                    ->orWhere('expiry', '>=', Carbon::now());
-                            });
-                    })
-                    ->whereIn('users.id', function($query){
-                        $query->select('member_id')
-                            ->from(with(new VvipApplication)->getTable())
-                            ->where('status',1);
-                    });
-                    
-                });
+            $query->whereIn('users.id', function($query) use ($userid, $isVip){
+                // $blockedUsers
+                $query->select('member_id')
+                    ->from(with(new Vip)->getTable())
+                    ->where('active', $isVip);
             });
         }
 
