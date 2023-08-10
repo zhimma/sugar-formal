@@ -196,13 +196,6 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                                     <option value="1" @if( !empty( $_POST["pic"] ) && $_POST["pic"] == 1 ) selected @elseif(!empty( $_GET["pic"] ) && $_GET["pic"] == 1) selected @elseif(!empty( session()->get('search_page_key.pic') ) && session()->get('search_page_key.pic') == 1) selected @endif>有</option>
                                                 </select>
                                             </span>
-
-                                            <!--<span class="line20">
-                                                <label class="n_tx"><input type="checkbox" name="pic" value="1" id="Checkbox" @if( !empty( $_POST["pic"] ) && $_POST["pic"] == "1" ) checked @elseif(!empty( $_GET["pic"] ) && $_GET["pic"] == "1") checked @elseif(!empty( session()->get('search_page_key.pic') ) && session()->get('search_page_key.pic') == "1") checked @endif><i>有</i></label>
-                                                {{--<label class="n_tx j_lr"><input type="radio" name="pic" value="1" id="pic" @if( !empty( $_POST["pic"] ) && $_POST["pic"] == 1 ) checked @elseif(!empty( $_GET["pic"] ) && $_GET["pic"]== 1) checked @endif><i>有</i></label>--}}
-                                                {{--<label class="n_tx j_lr"><input type="radio" name="pic" value="0" id="pic1" @if( !empty( $_POST["pic"] ) && $_POST["pic"] == 0 ) checked @elseif(!empty( $_GET["pic"] ) && $_GET["pic"]== 0) checked @endif><i>無</i></label>--}}
-                                            </span>-->
-
                                         </div>
                                         
                                     </dt>
@@ -470,52 +463,75 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
                                         <dt class="b_nsead matopjf10">
                                             <div class="b_nsead_tit"><i>身份選擇</i></div>
-                                            <div class="b_nsba">
+                                            <div class="b_nsba" style="padding-top: 0; margin-left:15px;">
+                                                <input type="hidden" name="isVip" value="0">
+                                                <input type="hidden" name="isBlocked" value="0">
+                                                <input type="hidden" name="isWarned" value="0">
+                                                <input type="hidden" name="isPhoneAuth" value="0">
+                                                <input type="hidden" name="isAdvanceAuth" value="0">
                                                 @if($user_engroup==2)
                                                 <li>
-                                                    <span>是否為VIP</span>
-                                                    <font>
-                                                        <label class="n_tx"><input type="checkbox" name="isVip" value="1" id="Checkbox" @if( !empty( $_POST["isVip"] ) && $_POST["isVip"] == "1" ) checked @elseif(!empty( $_GET["isVip"] ) && $_GET["isVip"] == "1") checked @elseif(!empty( session()->get('search_page_key.isVip') ) && session()->get('search_page_key.isVip') == "1") checked @endif><i>是</i></label>
-
-                                                        {{--<label class="ba_tx"><input type="radio" name="isVip" value="1" id="isVip" @if( !empty( $_POST["isVip"] ) && $_POST["isVip"] == 1 ) checked @elseif(!empty( $_GET["isVip"] ) && $_GET["isVip"]== 1) checked @endif><i>是</i></label>--}}
-                                                        {{--<label class="ba_tx"><input type="radio" name="isVip" value="0" id="isVip1" @if( !empty( $_POST["isVip"] ) && $_POST["isVip"] == 0 ) checked @elseif(!empty( $_GET["isVip"] ) && $_GET["isVip"]== 0) checked @endif><i>否</i></label>--}}
-                                                    </font>
+                                                    <span style="margin-top:5px;">是否為VIP</span>
+                                                    <br>
+                                                    <div style="margin-top:20px;">
+                                                        <div class="custom_s a1 a_isVip @if( !empty( $_POST["isVip"] ) && $_POST["isVip"] == "1" ) cractive @elseif(!empty( $_GET["isVip"] ) && $_GET["isVip"] == "1") cractive @elseif(!empty( session()->get('search_page_key.isVip') ) && session()->get('search_page_key.isVip') == "1") cractive @endif" value="1">僅顯示VIP</div>
+                                                    </div>
                                                 </li>
                                                 @endif
                                                 <li>
-                                                    <span>顯示已封鎖會員</span>
-                                                    <font>
-                                                        <label class="n_tx">
-                                                            <input type="checkbox" name="isBlocked" value="1" id="isBlocked" @if( !empty( $_POST["isBlocked"] ) && $_POST["isBlocked"] == "1" ) checked @elseif(!empty( $_GET["isBlocked"] ) && $_GET["isBlocked"] == "1") checked @elseif(!empty( session()->get('search_page_key.isBlocked') ) && session()->get('search_page_key.isBlocked') == "1") checked @endif><i>否</i>
-                                                        </label>
-                                                        <input type="hidden" name="isBlocked" value="1" id="isBlockedHidden">
-                                                        {{--<label class="ba_tx"><input type="radio" name="isBlocked" value="2" id="isBlocked" @if( !empty( $_POST["isBlocked"] ) && $_POST["isBlocked"] == 2 ) checked @elseif(!empty( $_GET["isBlocked"] ) && $_GET["isBlocked"]== 2) checked @endif><i>是</i></label>--}}
-                                                        {{--<label class="ba_tx"><input type="radio" name="isBlocked" value="1" id="isBlocked1" @if( !empty( $_POST["isBlocked"] ) && $_POST["isBlocked"] == 1 ) checked @elseif(!empty( $_GET["isBlocked"]) && $_GET["isBlocked"] == 1) checked @endif><i>否</i></label>--}}
-                                                    </font>
+                                                    <span style="margin-top:5px;">顯示已封鎖會員</span>
+                                                    <br>
+                                                    <div style="margin-top:20px;">
+                                                        <div class="custom_s a1 a_isBlocked @if( !empty( $_POST["isBlocked"] ) && $_POST["isBlocked"] == "1" ) cractive 
+                                                                                            @elseif(!empty( $_GET["isBlocked"] ) && $_GET["isBlocked"] == "1") cractive 
+                                                                                            @elseif(!empty( session()->get('search_page_key.isBlocked') ) && session()->get('search_page_key.isBlocked') == "1") cractive
+                                                                                            @endif" value="1">
+                                                            顯示已封鎖會員
+                                                        </div>
+                                                        <div class="custom_s a1 a_isBlocked @if( !empty( $_POST["isBlocked"] ) && $_POST["isBlocked"] == "2" ) cractive 
+                                                                                            @elseif(!empty( $_GET["isBlocked"] ) && $_GET["isBlocked"] == "2") cractive 
+                                                                                            @elseif(!empty( session()->get('search_page_key.isBlocked') ) && session()->get('search_page_key.isBlocked') == "2") cractive
+                                                                                            @elseif(empty( $_POST["isBlocked"] ) && empty( $_GET["isBlocked"] ) && empty( session()->get('search_page_key.isBlocked') )) cractive
+                                                                                            @endif" value="2">
+                                                            隱藏已封鎖會員
+                                                        </div>
+                                                    </div>
                                                 </li>
                                                 <li>
-                                                    <span>顯示警示帳戶</span>
-                                                    <font>
-                                                        <label class="n_tx"><input type="checkbox" name="isWarned" value="2" id="isWarned" @if( !empty( $_POST["isWarned"] ) && $_POST["isWarned"] == "2" ) checked @elseif(!empty( $_GET["isWarned"] ) && $_GET["isWarned"] == "2") checked @elseif(!empty( session()->get('search_page_key.isWarned') ) && session()->get('search_page_key.isWarned') == "2") checked @endif><i>是</i></label>
-
-                                                        {{--<label class="ba_tx"><input type="radio" name="isWarned" value="2" id="isWarned" @if( !empty( $_POST["isWarned"] ) && $_POST["isWarned"] == 2 ) checked @elseif(!empty( $_GET["isWarned"] ) && $_GET["isWarned"]== 2) checked @endif><i>是</i></label>--}}
-                                                        {{--<label class="ba_tx"><input type="radio" name="isWarned" value="1" id="isWarned1" @if( !empty( $_POST["isWarned"] ) && $_POST["isWarned"] == 1 ) checked @elseif(!empty( $_GET["isWarned"] ) && $_GET["isWarned"]== 1) checked @endif><i>否</i></label>--}}
-                                                    </font>
+                                                    <span style="margin-top:5px;">顯示警示帳戶</span>
+                                                    <br>
+                                                    <div style="margin-top:20px;">
+                                                        <div class="custom_s a1 a_isWarned @if( !empty( $_POST["isWarned"] ) && $_POST["isWarned"] == "1" ) cractive 
+                                                                                            @elseif(!empty( $_GET["isWarned"] ) && $_GET["isWarned"] == "1") cractive 
+                                                                                            @elseif(!empty( session()->get('search_page_key.isWarned') ) && session()->get('search_page_key.isWarned') == "1") cractive
+                                                                                            @endif" value="1">
+                                                            顯示警示帳戶
+                                                        </div>
+                                                        <div class="custom_s a1 a_isWarned @if( !empty( $_POST["isWarned"] ) && $_POST["isWarned"] == "2" ) cractive 
+                                                                                            @elseif(!empty( $_GET["isWarned"] ) && $_GET["isWarned"] == "2") cractive 
+                                                                                            @elseif(!empty( session()->get('search_page_key.isWarned') ) && session()->get('search_page_key.isWarned') == "2") cractive
+                                                                                            @elseif(empty( $_POST["isWarned"] ) && empty( $_GET["isWarned"] ) && empty( session()->get('search_page_key.isWarned') )) cractive
+                                                                                            @endif" value="2">
+                                                            隱藏警示帳戶
+                                                        </div>
+                                                    </div>
                                                 </li>
                                                 @if($user_engroup==1)
                                                 <li>
-                                                    <span>通過進階驗證</span>
-                                                    <font>
-                                                        <label class="n_tx"><input type="checkbox" name="isAdvanceAuth" value="1" id="isAdvanceAuth" @if( !empty( $_POST["isAdvanceAuth"] ) && $_POST["isAdvanceAuth"] == "1" ) checked @elseif(!empty( $_GET["isAdvanceAuth"] ) && $_GET["isAdvanceAuth"] == "1") checked  @elseif(!empty( session()->get('search_page_key.isAdvanceAuth') ) && session()->get('search_page_key.isAdvanceAuth') == "1") checked @endif><i>是</i></label>
-                                                    </font>
+                                                    <span style="margin-top:5px;">通過進階驗證</span>
+                                                    <br>
+                                                    <div style="margin-top:20px;">
+                                                        <div class="custom_s a1 a_isAdvanceAuth @if( !empty( $_POST["isAdvanceAuth"] ) && $_POST["isAdvanceAuth"] == "1" ) cractive @elseif(!empty( $_GET["isAdvanceAuth"] ) && $_GET["isAdvanceAuth"] == "1") cractive  @elseif(!empty( session()->get('search_page_key.isAdvanceAuth') ) && session()->get('search_page_key.isAdvanceAuth') == "1") cractive @endif" value="1">顯示通過進階驗證會員</div>
+                                                    </div>
                                                 </li>
                                                 @endif
                                                 @if($user_engroup==2)
                                                 <li>
-                                                    <span>通過手機驗證</span>
-                                                    <font>
-                                                        <label class="n_tx"><input type="checkbox" name="isPhoneAuth" value="2" id="isPhoneAuth" @if( (request()->isPhoneAuth ?? false)  && request()->isPhoneAuth == "2" ) checked @elseif(!empty( session()->get('search_page_key.isPhoneAuth') ) && session()->get('search_page_key.isPhoneAuth') == "2") checked @endif><i>是</i></label>
-                                                    </font>
+                                                    <span style="margin-top:5px;">通過手機驗證</span>
+                                                    <br>
+                                                    <div style="margin-top:20px;">
+                                                        <div class="custom_s a1 a_isPhoneAuth @if( (request()->isPhoneAuth ?? false)  && request()->isPhoneAuth == "1" ) cractive @elseif(!empty( session()->get('search_page_key.isPhoneAuth') ) && session()->get('search_page_key.isPhoneAuth') == "1") cractive @endif" value="1">顯示通過手機驗證會員</div>
+                                                    </div>
                                                 </li>
                                                 @endif                                    
                                             </div>
@@ -671,31 +687,9 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             $('.se_but2').removeClass('se_but2_hover');
         }
 
-        @if($_SERVER['REQUEST_METHOD'] === 'POST' || isset($_POST['_token']) || isset($_GET['_token']))
-
-        @else
-            //if (!$("input[name='isBlocked']").is(':checked')) {
-            //    $('#isBlocked').attr('checked', true);
-            //}
-
-            {{-- if (!$("input[name='isWarned']").is(':checked')) {
-                $('#isWarned').attr('checked', true);
-            } --}}
-        @endif
-
         @if($isBlocked == 1)
             $('#isBlocked').attr('checked', true);
         @endif
-
-        // // if ( ! $("input[name='isVip']").is(':checked') ){
-        // //     $('#isVip1').attr('checked', true);
-        // // }
-        //
-
-        //
-        // if ( ! $("input[name='isPhoneAuth']").is(':checked') ){
-        //     $('#isPhoneAuth1').attr('checked', true);
-        // }
 
         $('.n_zcbut').click(function(){
 
@@ -1491,30 +1485,22 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
     </script>
     <script>
         $("#form").submit(function(e){
-            if (!$("input[name='isBlocked']").is(':checked')){
-                $('#isBlockedHidden').val(2);
-            }
-
             heightfrom = $('#heightfrom').val();
             heightto = $('#heightto').val();
             weightfrom = $('#weightfrom').val();
             weightto = $('#weightto').val();
-
             if((heightfrom == "" && heightto != "") || (heightfrom != "" && heightto == ""))
             {
                 event.preventDefault();
                 c5('請輸入身高範圍');
                 return false;
             }
-
             if((weightfrom == "" && weightto != "") || (weightfrom != "" && weightto == ""))
             {
                 event.preventDefault();
                 c5('請輸入體重範圍');
                 return false;
             }
-            
-
             if(heightfrom > heightto)
             {
                 $('#heightfrom').val(heightto);
@@ -1525,6 +1511,34 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 $('#weightfrom').val(weightto);
                 $('#weightto').val(weightfrom);
             }
+
+            $('input[name="isVip"]').val($('.a_isVip.cractive').first().attr('value'));
+            $('input[name="isBlocked"]').val($('.a_isBlocked.cractive').first().attr('value'));
+            $('input[name="isWarned"]').val($('.a_isWarned.cractive').first().attr('value'));
+            $('input[name="isAdvanceAuth"]').val($('.a_isAdvanceAuth.cractive').first().attr('value'));
+            $('input[name="isPhoneAuth"]').val($('.a_isPhoneAuth.cractive').first().attr('value'));
+        });
+    </script>
+    <script type="text/javascript">
+        $(".a_isVip").on("click", function() {
+            $(this).siblings().removeClass("cractive");
+            $(this).toggleClass('cractive');
+        });
+        $(".a_isBlocked").on("click", function() {
+            $(this).siblings().removeClass("cractive");
+            $(this).addClass('cractive');
+        });
+        $(".a_isWarned").on("click", function() {
+            $(this).siblings().removeClass("cractive");
+            $(this).addClass('cractive');
+        });
+        $(".a_isAdvanceAuth").on("click", function() {
+            $(this).siblings().removeClass("cractive");
+            $(this).toggleClass('cractive');
+        });
+        $(".a_isPhoneAuth").on("click", function() {
+            $(this).siblings().removeClass("cractive");
+            $(this).toggleClass('cractive');
         });
     </script>
 @endsection
