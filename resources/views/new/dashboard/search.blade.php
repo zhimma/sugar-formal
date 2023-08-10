@@ -463,7 +463,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
                                         <dt class="b_nsead matopjf10">
                                             <div class="b_nsead_tit"><i>身份選擇</i></div>
-                                            <div class="b_nsba">
+                                            <div class="b_nsba" style="padding-top: 0;">
                                                 <input type="hidden" name="isVip" value="0">
                                                 <input type="hidden" name="isBlocked" value="0">
                                                 <input type="hidden" name="isWarned" value="0">
@@ -471,7 +471,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                                 <input type="hidden" name="isAdvanceAuth" value="0">
                                                 @if($user_engroup==2)
                                                 <li>
-                                                    <span style="font-weight:bold;">是否為VIP</span>
+                                                    <span>是否為VIP</span>
                                                     <br>
                                                     <div style="margin-left:20px; margin-top:15px;">
                                                         <div class="custom_s a1 a_isVip @if( !empty( $_POST["isVip"] ) && $_POST["isVip"] == "1" ) cractive @elseif(!empty( $_GET["isVip"] ) && $_GET["isVip"] == "1") cractive @elseif(!empty( session()->get('search_page_key.isVip') ) && session()->get('search_page_key.isVip') == "1") cractive @endif" value="1">僅顯示VIP</div>
@@ -479,24 +479,46 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                                 </li>
                                                 @endif
                                                 <li>
-                                                    <span style="font-weight:bold;">顯示已封鎖會員</span>
+                                                    <span>顯示已封鎖會員</span>
                                                     <br>
                                                     <div style="margin-left:20px; margin-top:15px;">
-                                                        <div class="custom_s a1 a_isBlocked @if( !empty( $_POST["isBlocked"] ) && $_POST["isBlocked"] == "1" ) cractive @elseif(!empty( $_GET["isBlocked"] ) && $_GET["isBlocked"] == "1") cractive @elseif(!empty( session()->get('search_page_key.isBlocked') ) && session()->get('search_page_key.isBlocked') == "1") cractive @endif" value="1">顯示已封鎖會員</div>
-                                                        <div class="custom_s a1 a_isBlocked a_isBlocked_disappear @if( !empty( $_POST["isBlocked"] ) && $_POST["isBlocked"] == "2" ) cractive @elseif(!empty( $_GET["isBlocked"] ) && $_GET["isBlocked"] == "2") cractive @elseif(!empty( session()->get('search_page_key.isBlocked') ) && session()->get('search_page_key.isBlocked') == "2") cractive @endif" value="2">隱藏已封鎖會員</div>
+                                                        <div class="custom_s a1 a_isBlocked @if( !empty( $_POST["isBlocked"] ) && $_POST["isBlocked"] == "1" ) cractive 
+                                                                                            @elseif(!empty( $_GET["isBlocked"] ) && $_GET["isBlocked"] == "1") cractive 
+                                                                                            @elseif(!empty( session()->get('search_page_key.isBlocked') ) && session()->get('search_page_key.isBlocked') == "1") cractive
+                                                                                            @endif" value="1">
+                                                            顯示已封鎖會員
+                                                        </div>
+                                                        <div class="custom_s a1 a_isBlocked @if( !empty( $_POST["isBlocked"] ) && $_POST["isBlocked"] == "2" ) cractive 
+                                                                                            @elseif(!empty( $_GET["isBlocked"] ) && $_GET["isBlocked"] == "2") cractive 
+                                                                                            @elseif(!empty( session()->get('search_page_key.isBlocked') ) && session()->get('search_page_key.isBlocked') == "2") cractive
+                                                                                            @elseif(empty( $_POST["isBlocked"] ) && empty( $_GET["isBlocked"] ) && empty( session()->get('search_page_key.isBlocked') )) cractive
+                                                                                            @endif" value="2">
+                                                            隱藏已封鎖會員
+                                                        </div>
                                                     </div>
                                                 </li>
                                                 <li>
-                                                    <span style="font-weight:bold;">顯示警示帳戶</span>
+                                                    <span>顯示警示帳戶</span>
                                                     <br>
                                                     <div style="margin-left:20px; margin-top:15px;">
-                                                        <div class="custom_s a1 a_isWarned @if( !empty( $_POST["isWarned"] ) && $_POST["isWarned"] == "1" ) cractive @elseif(!empty( $_GET["isWarned"] ) && $_GET["isWarned"] == "1") cractive @elseif(!empty( session()->get('search_page_key.isWarned') ) && session()->get('search_page_key.isWarned') == "1") cractive @endif" value="1">顯示警示帳戶</div>
-                                                        <div class="custom_s a1 a_isWarned @if( !empty( $_POST["isWarned"] ) && $_POST["isWarned"] == "2" ) cractive @elseif(!empty( $_GET["isWarned"] ) && $_GET["isWarned"] == "2") cractive @elseif(!empty( session()->get('search_page_key.isWarned') ) && session()->get('search_page_key.isWarned') == "2") cractive @endif" value="2">隱藏警示帳戶</div>
+                                                        <div class="custom_s a1 a_isWarned @if( !empty( $_POST["isWarned"] ) && $_POST["isWarned"] == "1" ) cractive 
+                                                                                            @elseif(!empty( $_GET["isWarned"] ) && $_GET["isWarned"] == "1") cractive 
+                                                                                            @elseif(!empty( session()->get('search_page_key.isWarned') ) && session()->get('search_page_key.isWarned') == "1") cractive
+                                                                                            @endif" value="1">
+                                                            顯示警示帳戶
+                                                        </div>
+                                                        <div class="custom_s a1 a_isWarned @if( !empty( $_POST["isWarned"] ) && $_POST["isWarned"] == "2" ) cractive 
+                                                                                            @elseif(!empty( $_GET["isWarned"] ) && $_GET["isWarned"] == "2") cractive 
+                                                                                            @elseif(!empty( session()->get('search_page_key.isWarned') ) && session()->get('search_page_key.isWarned') == "2") cractive
+                                                                                            @elseif(empty( $_POST["isWarned"] ) && empty( $_GET["isWarned"] ) && empty( session()->get('search_page_key.isWarned') )) cractive
+                                                                                            @endif" value="2">
+                                                            隱藏警示帳戶
+                                                        </div>
                                                     </div>
                                                 </li>
                                                 @if($user_engroup==1)
                                                 <li>
-                                                    <span style="font-weight:bold;">通過進階驗證</span>
+                                                    <span>通過進階驗證</span>
                                                     <br>
                                                     <div style="margin-left:20px; margin-top:15px;">
                                                         <div class="custom_s a1 a_isAdvanceAuth @if( !empty( $_POST["isAdvanceAuth"] ) && $_POST["isAdvanceAuth"] == "1" ) cractive @elseif(!empty( $_GET["isAdvanceAuth"] ) && $_GET["isAdvanceAuth"] == "1") cractive  @elseif(!empty( session()->get('search_page_key.isAdvanceAuth') ) && session()->get('search_page_key.isAdvanceAuth') == "1") cractive @endif" value="1">顯示通過進階驗證會員</div>
@@ -505,7 +527,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                                 @endif
                                                 @if($user_engroup==2)
                                                 <li>
-                                                    <span style="font-weight:bold;">通過手機驗證</span>
+                                                    <span>通過手機驗證</span>
                                                     <br>
                                                     <div style="margin-left:20px; margin-top:15px;">
                                                         <div class="custom_s a1 a_isPhoneAuth @if( (request()->isPhoneAuth ?? false)  && request()->isPhoneAuth == "1" ) cractive @elseif(!empty( session()->get('search_page_key.isPhoneAuth') ) && session()->get('search_page_key.isPhoneAuth') == "1") cractive @endif" value="1">顯示通過手機驗證會員</div>
@@ -1504,11 +1526,11 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
         });
         $(".a_isBlocked").on("click", function() {
             $(this).siblings().removeClass("cractive");
-            $(this).toggleClass('cractive');
+            $(this).addClass('cractive');
         });
         $(".a_isWarned").on("click", function() {
             $(this).siblings().removeClass("cractive");
-            $(this).toggleClass('cractive');
+            $(this).addClass('cractive');
         });
         $(".a_isAdvanceAuth").on("click", function() {
             $(this).siblings().removeClass("cractive");
