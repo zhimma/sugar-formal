@@ -471,17 +471,17 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                                 <input type="hidden" name="isAdvanceAuth" value="0">
                                                 @if($user_engroup==2)
                                                 <li>
-                                                    <span>是否為VIP</span>
+                                                    <span style="margin-top:5px;">是否為VIP</span>
                                                     <br>
-                                                    <div style="margin-left:20px; margin-top:15px;">
+                                                    <div style="margin-left:20px; margin-top:20px;">
                                                         <div class="custom_s a1 a_isVip @if( !empty( $_POST["isVip"] ) && $_POST["isVip"] == "1" ) cractive @elseif(!empty( $_GET["isVip"] ) && $_GET["isVip"] == "1") cractive @elseif(!empty( session()->get('search_page_key.isVip') ) && session()->get('search_page_key.isVip') == "1") cractive @endif" value="1">僅顯示VIP</div>
                                                     </div>
                                                 </li>
                                                 @endif
                                                 <li>
-                                                    <span>顯示已封鎖會員</span>
+                                                    <span style="margin-top:5px;">顯示已封鎖會員</span>
                                                     <br>
-                                                    <div style="margin-left:20px; margin-top:15px;">
+                                                    <div style="margin-left:20px; margin-top:20px;">
                                                         <div class="custom_s a1 a_isBlocked @if( !empty( $_POST["isBlocked"] ) && $_POST["isBlocked"] == "1" ) cractive 
                                                                                             @elseif(!empty( $_GET["isBlocked"] ) && $_GET["isBlocked"] == "1") cractive 
                                                                                             @elseif(!empty( session()->get('search_page_key.isBlocked') ) && session()->get('search_page_key.isBlocked') == "1") cractive
@@ -498,9 +498,9 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                                     </div>
                                                 </li>
                                                 <li>
-                                                    <span>顯示警示帳戶</span>
+                                                    <span style="margin-top:5px;">顯示警示帳戶</span>
                                                     <br>
-                                                    <div style="margin-left:20px; margin-top:15px;">
+                                                    <div style="margin-left:20px; margin-top:20px;">
                                                         <div class="custom_s a1 a_isWarned @if( !empty( $_POST["isWarned"] ) && $_POST["isWarned"] == "1" ) cractive 
                                                                                             @elseif(!empty( $_GET["isWarned"] ) && $_GET["isWarned"] == "1") cractive 
                                                                                             @elseif(!empty( session()->get('search_page_key.isWarned') ) && session()->get('search_page_key.isWarned') == "1") cractive
@@ -518,18 +518,18 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                                 </li>
                                                 @if($user_engroup==1)
                                                 <li>
-                                                    <span>通過進階驗證</span>
+                                                    <span style="margin-top:5px;">通過進階驗證</span>
                                                     <br>
-                                                    <div style="margin-left:20px; margin-top:15px;">
+                                                    <div style="margin-left:20px; margin-top:20px;">
                                                         <div class="custom_s a1 a_isAdvanceAuth @if( !empty( $_POST["isAdvanceAuth"] ) && $_POST["isAdvanceAuth"] == "1" ) cractive @elseif(!empty( $_GET["isAdvanceAuth"] ) && $_GET["isAdvanceAuth"] == "1") cractive  @elseif(!empty( session()->get('search_page_key.isAdvanceAuth') ) && session()->get('search_page_key.isAdvanceAuth') == "1") cractive @endif" value="1">顯示通過進階驗證會員</div>
                                                     </div>
                                                 </li>
                                                 @endif
                                                 @if($user_engroup==2)
                                                 <li>
-                                                    <span>通過手機驗證</span>
+                                                    <span style="margin-top:5px;">通過手機驗證</span>
                                                     <br>
-                                                    <div style="margin-left:20px; margin-top:15px;">
+                                                    <div style="margin-left:20px; margin-top:20px;">
                                                         <div class="custom_s a1 a_isPhoneAuth @if( (request()->isPhoneAuth ?? false)  && request()->isPhoneAuth == "1" ) cractive @elseif(!empty( session()->get('search_page_key.isPhoneAuth') ) && session()->get('search_page_key.isPhoneAuth') == "1") cractive @endif" value="1">顯示通過手機驗證會員</div>
                                                     </div>
                                                 </li>
