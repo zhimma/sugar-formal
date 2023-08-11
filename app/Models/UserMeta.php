@@ -736,7 +736,7 @@ class UserMeta extends Model
                     $query->whereIn('education', $education);
                 }
             }
-/*
+            /*
             if($isWarned != 1 && $userIsVip){
                 $query->where('isWarned', 0);
             }
