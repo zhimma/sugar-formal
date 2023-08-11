@@ -642,7 +642,13 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         </div> --}}
 
 
-                        <div style="text-align: center;"><div class="fenye"><span v-if="isPrePageShow"><a :href="'/dashboard/search?page=' + page_pre">上一頁</a></span><span class="new_page" v-if="isNowPageShow">第 <?php echo $page;?> 頁</span> <span v-if="isNextPageShow"><a :href="'/dashboard/search?page=' + page_next">下一頁</a></span></div></div>
+                        <div style="text-align: center;">
+                            <div class="fenye">
+                                <span v-if="isPrePageShow"><a :href="'/dashboard/search?page=' + page_pre">上一頁</a></span>
+                                <span class="new_page" v-if="isNowPageShow">第 <?php echo $page;?> 頁</span>
+                                <span v-if="isNextPageShow"><a :href="'/dashboard/search?page=' + page_next">下一頁</a></span>
+                            </div>
+                        </div>
 
                     </div>
                     
@@ -981,7 +987,10 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                     if(this.allPageDataCount>12){
                         this.isNowPageShow=true;
                         this.isPrePageShow=true;
-                        this.isNextPageShow=true;
+                        if({{$page}} * 12 < this.allPageDataCount)
+                        {
+                            this.isNextPageShow=true;
+                        }
                         if(this.singlePageCount<12){
                             this.page_next = (Math.floor( this.allPageDataCount / 12 ) + 1);
                         }

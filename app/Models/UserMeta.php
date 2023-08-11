@@ -694,7 +694,10 @@ class UserMeta extends Model
                     $query->where('is_pure_dating', 1);
                 }
                 else if($is_pure_dating=="0") {
-                    $query->where('is_pure_dating', 0);
+                    $query->where(function($query){
+                        $query->where('is_pure_dating', 0);
+                        $query->orWhereNull('is_pure_dating');
+                    });
                 }
             }
             if (isset($is_dating_other_county) && strlen($is_dating_other_county) != 0)
@@ -703,7 +706,10 @@ class UserMeta extends Model
                     $query->where('is_dating_other_county', 1);
                 }
                 else if($is_dating_other_county=="0") {
-                    $query->where('is_dating_other_county', 0);
+                    $query->where(function($query){
+                        $query->where('is_dating_other_county', 0);
+                        $query->orWhereNull('is_dating_other_county');
+                    });
                 }
             }
             if (isset($budget) && strlen($budget) != 0) $query->where('budget', $budget);
@@ -730,7 +736,7 @@ class UserMeta extends Model
                     $query->whereIn('education', $education);
                 }
             }
-/*
+            /*
             if($isWarned != 1 && $userIsVip){
                 $query->where('isWarned', 0);
             }
