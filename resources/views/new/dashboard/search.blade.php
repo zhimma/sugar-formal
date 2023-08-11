@@ -987,7 +987,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                     if(this.allPageDataCount>12){
                         this.isNowPageShow=true;
                         this.isPrePageShow=true;
-                        if({{$page}} * 12 <= this.allPageDataCount)
+                        if({{$page}} * 12 < this.allPageDataCount)
                         {
                             this.isNextPageShow=true;
                         }
