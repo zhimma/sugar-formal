@@ -1,0 +1,17 @@
+before_script:
+    - echo "$SSH_KNOWN_HOSTS" >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+    - cd /var/www/sugar-formal
+master_building:
+  stage: build
+  script:
+    - echo "build"
+    - git pull origin master
+    - php artisan migrate 
+    - php artisan cache:clear
+    - php artisan config:cache
+    - ./vendor/bin/pest
+  only:
+    - master
+  tags:
+    - build
