@@ -10,10 +10,11 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use App\Models\SimilarImages;
 use Illuminate\Support\Facades\DB;
+use romanzipp\QueueMonitor\Traits\IsMonitored;
 
 class SimilarImagesSearcher implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, IsMonitored;
 
     protected $targetImg_path;
 

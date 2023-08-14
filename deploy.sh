@@ -15,6 +15,8 @@ if [ "$(. ./.env; printf '%s' "$APP_ENV")" = "production" ]; then
     php artisan optimize
     php artisan queue:restart
     sudo service php8.1-fpm reload
+    # 需要時手動執行
+    # php artisan schedule-monitor:sync
 elif [ "$(. ./.env; printf '%s' "$APP_ENV")" = "build" ] || [ "$(. ./.env; printf '%s' "$APP_ENV")" = "staging" ]; then
     now=$(date +"%Y-%m-%d-%H-%M-%S")
     git fetch origin master

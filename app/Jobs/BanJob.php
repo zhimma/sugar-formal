@@ -15,10 +15,11 @@ use Carbon\Carbon;
 use App\Models\BannedUsersImplicitly;
 use App\Models\User;
 use Illuminate\Support\Facades\Log;
+use romanzipp\QueueMonitor\Traits\IsMonitored;
 
 class BanJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, IsMonitored;
     
     public $timeout = 300;
 

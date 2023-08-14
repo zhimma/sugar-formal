@@ -188,10 +188,10 @@ class StatController extends \App\Http\Controllers\BaseController
         if(isset($request->content)){
             $user = User::findByEmail($request->cuz_email_set);
             if($user){
-                SetAutoBan::setAutoBanAdd($request->type, $request->content, $request->set_ban, $user->id);
+                SetAutoBan::setAutoBanAdd($request->type, $request->content, $request->set_ban, $user->id, '0000-00-00 00:00:00', null, $request->remark);
 //                DB::table('set_auto_ban')->insert(['type' => $request->type, 'content' => $request->content, 'set_ban' => $request->set_ban, 'cuz_user_set' => $user->id,'expiry'=>$expiry]);
             }else{
-                SetAutoBan::setAutoBanAdd($request->type, $request->content, $request->set_ban);
+                SetAutoBan::setAutoBanAdd($request->type, $request->content, $request->set_ban, null, '0000-00-00 00:00:00', null, $request->remark);
 //                DB::table('set_auto_ban')->insert(['type' => $request->type, 'content' => $request->content, 'set_ban' => $request->set_ban,'expiry'=>$expiry]);
             }
         }
@@ -476,5 +476,82 @@ class StatController extends \App\Http\Controllers\BaseController
                     return $recommendedUsersMessages[0]->count . " / " . $recommendedUsersMessagesReplied[0]->count;
             }
         }
+    }
+
+    public function schedulerLog(Request $request) {
+        $tasks = \DB::table('monitored_scheduled_tasks')->get();
+
+        if ($tasks->isEmpty()) {            
+            return view('admin.stats.schedulerLog')->with('data', null);
+        }
+
+        if ($request->isMethod('POST')) {
+            $tasks->each(static fn($task) => \DB::table('monitored_scheduled_tasks')
+                ->where('id', $task->id)
+                ->update(['remark' => $request->get('remark_' . $task->id)]));
+            $tasks = \DB::table('monitored_scheduled_tasks')->get();
+        }
+
+        $headers = [
+            'Name',
+            '備註',
+            'Type',
+            'Frequency',
+            'Last started at',
+            'Last finished at',
+            'Last failed at',
+            'Next run date',
+            'Grace time',
+        ];
+
+        $dateFormat = config('schedule-monitor.date_format');
+        $that = $this;
+        $rows = $tasks->map(function ($task) use ($dateFormat, $that) {
+            $row = [
+                'id' => $task->id,
+                'name' => $task->name,
+                'remark' => $task->remark,
+                'type' => ucfirst($task->type),
+                'cron_expression' => $that->humanReadableCron($task->cron_expression),
+                'started_at' => $task->last_started_at ? \Carbon\Carbon::parse($task->last_started_at)->format($dateFormat) : 'Did not start yet',
+                'finished_at' => $task->last_finished_at ? \Carbon\Carbon::parse($task->last_finished_at)->format($dateFormat) : '',
+                'failed_at' => $task->last_failed_at ? \Carbon\Carbon::parse($task->last_failed_at)->format($dateFormat) : '',
+                'next_run' => $that->nextRunAt($task->cron_expression)->format($dateFormat),
+                'grace_time' => $task->grace_time_in_minutes,
+            ];
+
+            return $row;
+        });
+
+        $data = [
+            'headers' => $headers,
+            'rows' => $rows,
+        ];
+
+        return view('admin.stats.schedulerLog', compact('data'));
+    }
+
+    protected function humanReadableCron($cronExpression) {
+        try {
+            return \Lorisleiva\CronTranslator\CronTranslator::translate($cronExpression);
+        } catch (\Lorisleiva\CronTranslator\CronParsingException $exception) {
+            return $cronExpression;
+        }
+    }
+
+    protected function nextRunAt($cron_expression): \Carbon\CarbonInterface
+    {
+        $dateTime = \Cron\CronExpression::factory($cron_expression)->getNextRunDate(
+            now(),
+            0,
+            false,
+            config('app.timezone')
+        );
+
+        $date = \Illuminate\Support\Facades\Date::instance($dateTime);
+
+        $date->setTimezone(config('app.timezone'));
+
+        return $date;
     }
 }

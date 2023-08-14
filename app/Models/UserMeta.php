@@ -12,6 +12,7 @@ use Datetime;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class UserMeta extends Model
 {
@@ -117,7 +118,7 @@ class UserMeta extends Model
                                   $body,
                                   $userid,
                                   $exchange_period = '',
-                                  $isBlocked = 1,
+                                  $isBlocked = 2,
                                   $userIsVip = '',
                                   $heightfrom = '',
                                   $heightto = '',
@@ -250,7 +251,12 @@ class UserMeta extends Model
                 $query->whereBetween('height', [$heightfrom, $heightto]);
             }
             if (isset($situation) && strlen($situation) != 0) $query->where('situation', $situation);
-            if (isset($education) && strlen($education) != 0) $query->where('education', $education);
+            //if (isset($education) && strlen($education) != 0) $query->where('education', $education);
+            if (isset($education) && $education != ''){
+                if(count($education) > 0){
+                    $query->whereIn('education', $education);
+                }
+            }
 
             if($isWarned != 2 && $userIsVip){
                 $query->where('isWarned', '<>', 1);
@@ -343,7 +349,7 @@ class UserMeta extends Model
                 $query->whereIn('exchange_period', $exchange_period);
         }
 
-        if($isBlocked==1 && $userIsVip){
+        if($isBlocked==2 && $userIsVip){
             $query->whereNotIn('users.id', function($query) use ($userid){
                 // $blockedUsers
                 $query->select('blocked_id')
@@ -457,10 +463,12 @@ class UserMeta extends Model
         $body = $request->body;
         $userid = $request->user['id'];
         $exchange_period = $request->exchange_period ?? '';
-        $isBlocked = $request->isBlocked ?? 1;
+        $isBlocked = $request->isBlocked ?? 2;
         $userIsVip = $request->userIsVip ?? '';
         $heightfrom = $request->heightfrom ?? '';
         $heightto = $request->heightto ?? '';
+        $weightfrom = $request->weightfrom ?? '';
+        $weightto = $request->weightto ?? '';
         $prRange_none = $request->prRange_none ?? '';
         $prRange = $request->prRange ?? '';
         $situation = $request->situation ?? '';
@@ -525,6 +533,8 @@ class UserMeta extends Model
             $userIsVip,
             $heightfrom,
             $heightto,
+            $weightfrom,
+            $weightto,
             $situation,
             $education,
             $isWarned,
@@ -684,7 +694,10 @@ class UserMeta extends Model
                     $query->where('is_pure_dating', 1);
                 }
                 else if($is_pure_dating=="0") {
-                    $query->where('is_pure_dating', 0);
+                    $query->where(function($query){
+                        $query->where('is_pure_dating', 0);
+                        $query->orWhereNull('is_pure_dating');
+                    });
                 }
             }
             if (isset($is_dating_other_county) && strlen($is_dating_other_county) != 0)
@@ -693,7 +706,10 @@ class UserMeta extends Model
                     $query->where('is_dating_other_county', 1);
                 }
                 else if($is_dating_other_county=="0") {
-                    $query->where('is_dating_other_county', 0);
+                    $query->where(function($query){
+                        $query->where('is_dating_other_county', 0);
+                        $query->orWhereNull('is_dating_other_county');
+                    });
                 }
             }
             if (isset($budget) && strlen($budget) != 0) $query->where('budget', $budget);
@@ -710,10 +726,18 @@ class UserMeta extends Model
             if (isset($heightfrom) && isset($heightto) && strlen($heightfrom) != 0 && strlen($heightto) != 0) {
                 $query->whereBetween('height', [$heightfrom, $heightto]);
             }
+            if (isset($weightfrom) && isset($weightto) && strlen($weightfrom) != 0 && strlen($weightto) != 0) {
+                $query->whereBetween('weight', [$weightfrom, $weightto]);
+            }
             if (isset($situation) && strlen($situation) != 0) $query->where('situation', $situation);
-            if (isset($education) && strlen($education) != 0) $query->where('education', $education);
-/*
-            if($isWarned != 2 && $userIsVip){
+            //if (isset($education) && strlen($education) != 0) $query->where('education', $education);
+            if (isset($education) && $education != ''){
+                if(is_array($education) && count($education) > 0){
+                    $query->whereIn('education', $education);
+                }
+            }
+            /*
+            if($isWarned != 1 && $userIsVip){
                 $query->where('isWarned', 0);
             }
             */
@@ -749,7 +773,12 @@ class UserMeta extends Model
         $xref_constraint = function ($query) use ($relationship_status){
             if($relationship_status)
             {
-                $query->where('option_type', 2)->where('option_id', $relationship_status);
+                //$query->where('option_type', 2)->where('option_id', $relationship_status);
+                if (isset($relationship_status) && $relationship_status != ''){
+                    if(is_array($relationship_status) && count($relationship_status) > 0){
+                        $query->where('option_type', 2)->whereIn('option_id', $relationship_status);
+                    }
+                }
             }
         };
 
@@ -818,7 +847,7 @@ class UserMeta extends Model
                 $query->whereIn('exchange_period', $exchange_period);
         }
 
-        if($isBlocked==1 && $userIsVip){
+        if($isBlocked==2 && $userIsVip){
             $query->whereNotIn('users.id', function($query) use ($userid){
                 // $blockedUsers
                 $query->select('blocked_id')
@@ -827,7 +856,7 @@ class UserMeta extends Model
             });
         }
 
-        if($isWarned !=2 && $userIsVip){
+        if($isWarned !=1 && $userIsVip){
             $query->whereNotIn('users.id', function($query) use ($userid){
                 // $blockedUsers
                 $query->select('member_id')
@@ -889,7 +918,7 @@ class UserMeta extends Model
 
         }
 
-        if(isset($isPhoneAuth) && $isPhoneAuth==2 && $userIsVip){
+        if(isset($isPhoneAuth) && $isPhoneAuth==1 && $userIsVip){
             $query->whereIn('users.id', function($query) use ($userid){
                 // $blockedUsers
                 $query->select('member_id')
@@ -903,11 +932,29 @@ class UserMeta extends Model
 
 
         if($userIsVip && isset($isVip) && $isVip==1){
-            $query->whereIn('users.id', function($query) use ($userid, $isVip){
-                // $blockedUsers
-                $query->select('member_id')
-                    ->from(with(new Vip)->getTable())
-                    ->where('active', $isVip);
+            $query->where(function($query){
+                $query->whereIn('users.id', function($query){
+                    $query->select('member_id')
+                        ->from(with(new Vip)->getTable())
+                        ->where('active', 1);
+                });
+                $query->orWhere(function($query){
+                    $query->whereIn('users.id', function($query){
+                        $query->select('member_id')
+                            ->from(with(new ValueAddedService)->getTable())
+                            ->where('active', 1)
+                            ->where('service_name', 'VVIP')
+                            ->where(function($query) {
+                                $query->where('expiry', '0000-00-00 00:00:00')
+                                    ->orWhere('expiry', '>=', Carbon::now());
+                        });
+                    });
+                    $query->whereIn('users.id', function($query){
+                        $query->select('user_id')
+                            ->from(with(new VvipApplication)->getTable())
+                            ->where('status',1);
+                    });
+                });
             });
         }
 
@@ -924,7 +971,7 @@ class UserMeta extends Model
             $query->whereNotIn('users.id',$ignore_user_ids);
         }
         // $time_end = microtime(true);
-        if($isWarned !=2 && $userIsVip){
+        if($isWarned !=1 && $userIsVip){
             /*
             $constraintVipWarned = clone $constraint;
             $constraintVVipWarned = clone $constraint;
@@ -1083,7 +1130,7 @@ class UserMeta extends Model
             //return isset($this->smoking) && isset($this->drinking) && isset($this->marriage) && isset($this->education) && isset($this->about) && isset($this->style) && isset($this->birthdate) && isset($this->budget) && $this->height > 0 && isset($this->area) && isset($this->city) && isset($this->income) && isset($this->assets);
             return isset($this->smoking) && isset($this->drinking) && isset($this->marriage) && isset($this->education) && isset($this->about) && isset($this->style) && isset($this->birthdate) && $this->height > 0 && isset($this->area) && isset($this->city);
         } else {
-            return isset($this->smoking) && isset($this->drinking) && isset($this->marriage) && isset($this->education) && isset($this->about) && isset($this->style) && isset($this->birthdate) && $this->height > 0 && isset($this->area) && isset($this->city);
+            return isset($this->smoking) && isset($this->drinking) && isset($this->education) && isset($this->about) && isset($this->style) && isset($this->birthdate) && $this->height > 0 && isset($this->area) && isset($this->city);
         }
 
     }

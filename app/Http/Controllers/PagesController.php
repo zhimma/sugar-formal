@@ -4339,7 +4339,7 @@ class PagesController extends BaseController
                 }
             }
         }
-        if(!isset($input['page'])){
+        if((!isset($input['page'])) && (!str_contains(url()->previous(), '/viewuser'))){
             foreach ($input as $key => $value) {
                 session()->put('search_page_key.' . $key, array_get($input, $key, null));
             }
@@ -4348,7 +4348,47 @@ class PagesController extends BaseController
                     session()->put('search_page_key.' . $key, array_get($input, $key, null));
                 }
             }
-            
+
+            if(count($input))
+            {
+                //如果如果地區有空排則往前遞補位置
+                $countyKeys = ['county', 'county2', 'county3', 'county4', 'county5'];
+                $districtKeys = ['district', 'district2', 'district3', 'district4', 'district5'];
+                $tempArray = [];
+
+                // Create a temporary array with non-empty county and district values
+                foreach ($countyKeys as $index => $countyKey) {
+                    $countyValue = array_get($input, $countyKey);
+                    $districtValue = array_get($input, $districtKeys[$index]);
+                
+                    if(!empty($countyValue))
+                    {
+                        $tempArray[] = [
+                            'county' => $countyValue,
+                            'district' => $districtValue,
+                        ];
+                    }
+                }
+
+                // Clear existing values in session
+                foreach ($countyKeys as $countyKey) {
+                    session()->put('search_page_key.' . $countyKey, null);
+                    request()->offsetUnset($countyKey);
+                }
+                foreach ($districtKeys as $districtKey) {
+                    session()->put('search_page_key.' . $districtKey, null);
+                    request()->offsetUnset($districtKey);
+                }
+
+                // Put the adjusted values back into session
+                foreach ($tempArray as $index => $values) {
+                    session()->put('search_page_key.' . $countyKeys[$index], $values['county']);
+                    session()->put('search_page_key.' . $districtKeys[$index], $values['district']);
+                    request()->offsetSet('county'.($index==0 ? '' : ($index+ 1)), $values['county']);
+                    request()->offsetSet('district'.($index==0 ? '' : ($index+ 1)), $values['district']);
+                }
+            }
+
             if(auth()->user()->search_filter_remember) {
                 auth()->user()->search_filter_remember->filter = json_encode(session()->get('search_page_key',[]));
                 auth()->user()->search_filter_remember->save();
@@ -4356,8 +4396,6 @@ class PagesController extends BaseController
             else {
                 auth()->user()->search_filter_remember()->create(['filter'=>json_encode(session()->get('search_page_key',[]))]);            
             }
-                
-            
         }
 
         $user = $request->user();

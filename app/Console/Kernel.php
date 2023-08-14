@@ -54,44 +54,39 @@ class Kernel extends ConsoleKernel
             $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance')->timezone('Asia/Taipei')->dailyAt('21:00');            
             $puppetReq = new Request();
             $puppetReq->only = 'cfpid';
-            $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance',['request'=>$puppetReq])->timezone('Asia/Taipei')->dailyAt('03:00');
+            $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance',['request'=>$puppetReq])->timezone('Asia/Taipei')->dailyAt('03:00')->monitorName('Fingerprint 比對 - 僅 cfpid');
             //$schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance',['request'=>$puppetReq])->timezone('Asia/Taipei')->dailyAt('09:00');
             //$schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance',['request'=>$puppetReq])->timezone('Asia/Taipei')->dailyAt('15:00');
             //$schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance',['request'=>$puppetReq])->timezone('Asia/Taipei')->dailyAt('21:00');
         }
         if(app()->isProduction() || EnvironmentService::isLocalOrTestMachine()){
-            $schedule->command('FillDataForFilterByInfo')->timezone('Asia/Taipei')->dailyAt('01:00');
-            $schedule->command('MessageSchedule')->timezone('Asia/Taipei')->dailyAt('01:30');
+            $schedule->command('FillDataForFilterByInfo')->timezone('Asia/Taipei')->dailyAt('01:00')->monitorName('檢查發信、檢舉、封鎖的異常資料 - 01:00');
+            $schedule->command('MessageSchedule')->timezone('Asia/Taipei')->dailyAt('01:30')->monitorName('調整會員訊息的處理狀態');
             $schedule->call(function (){
                 $this->checkECPayVip();
                 $this->checkECPayForValueAddedService();
                 $this->checkEmailVailUser();
-            })->timezone('Asia/Taipei')->dailyAt('3:00');
+            })->timezone('Asia/Taipei')->dailyAt('3:00')->monitorName('檢查 VIP 訂單 + 檢查付費隱藏及 VVIP 訂單 + 刪除48小時未驗證會員');
             $schedule->call(function (){
                 $this->checkVipExpired();
-            })->timezone('Asia/Taipei')->dailyAt('3:10');
+            })->timezone('Asia/Taipei')->dailyAt('3:10')->monitorName('VIP 會員過期檢查');
             $schedule->call(function (){
-                $this->VIPCheck();
+                // $this->VIPCheck();
                 $this->checkEmailVailUser();
-            })->timezone('Asia/Taipei')->dailyAt('4:00');
-            $schedule->command('InsertPR')->timezone('Asia/Taipei')->dailyAt('04:00');
+            })->timezone('Asia/Taipei')->dailyAt('4:00')->monitorName('刪除48小時未驗證會員 - 4:00');
+            $schedule->command('InsertPR')->timezone('Asia/Taipei')->dailyAt('04:00')->monitorName('會員 PR 值計算');
             $schedule->call(function (){
                 $this->checkEmailVailUser();
-            })->timezone('Asia/Taipei')->dailyAt('5:00');
+            })->timezone('Asia/Taipei')->dailyAt('5:00')->monitorName('刪除48小時未驗證會員 - 5:00');
             $schedule->call(function (){
                 $this->deleteAnonymousChat();
-            })->timezone('Asia/Taipei')->weeklyOn(0, '23:59');
-
-            //每週檢查討論區
-            $schedule->command('ForumCheck')->timezone('Asia/Taipei')->weeklyOn(1, '2:15');
-
-            $schedule->command('TestCheck')->timezone('Asia/Taipei')->weeklyOn(1, '2:15');
+            })->timezone('Asia/Taipei')->weeklyOn(0, '23:59')->monitorName('刪除匿名聊天室訊息');
 
             //新增檢查等待更多資料名單
-            $schedule->command('Step2CheckExtendRecheck')->timezone('Asia/Taipei')->dailyAt('03:00');
-            $schedule->command('Step2CheckExtendRecheck')->timezone('Asia/Taipei')->dailyAt('09:00');
-            $schedule->command('Step2CheckExtendRecheck')->timezone('Asia/Taipei')->dailyAt('13:00');
-            $schedule->command('Step2CheckExtendRecheck')->timezone('Asia/Taipei')->dailyAt('18:30');
+            $schedule->command('Step2CheckExtendRecheck')->timezone('Asia/Taipei')->dailyAt('03:00')->monitorName('檢查等待更多資料名單 - 3:00');
+            $schedule->command('Step2CheckExtendRecheck')->timezone('Asia/Taipei')->dailyAt('09:00')->monitorName('檢查等待更多資料名單 - 9:00');
+            $schedule->command('Step2CheckExtendRecheck')->timezone('Asia/Taipei')->dailyAt('13:00')->monitorName('檢查等待更多資料名單 - 13:00');
+            $schedule->command('Step2CheckExtendRecheck')->timezone('Asia/Taipei')->dailyAt('18:30')->monitorName('檢查等待更多資料名單 - 18:30');
             //新增檢查等待更多資料名單
         }
         if(app()->environment('CFP')){
@@ -117,54 +112,54 @@ class Kernel extends ConsoleKernel
             
             $puppetReq = new Request();
             $puppetReq->only = 'vid';
-            $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance',['request'=>$puppetReq])->timezone('Asia/Taipei')->dailyAt('01:00');
-            $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance',['request'=>$puppetReq])->timezone('Asia/Taipei')->dailyAt('13:00');            
+            $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance',['request'=>$puppetReq])->timezone('Asia/Taipei')->dailyAt('01:00')->monitorName('Fingerprint 比對 - 全部 - 01:00');
+            $schedule->call('\App\Http\Controllers\Admin\FindPuppetController@entrance',['request'=>$puppetReq])->timezone('Asia/Taipei')->dailyAt('13:00')->monitorName('Fingerprint 比對 - 全部 - 13:00');            
             
             $schedule->call(function (){
                 $this->checkEmailVailUser();
-            })->timezone('Asia/Taipei')->dailyAt('8:00');
+            })->timezone('Asia/Taipei')->dailyAt('8:00')->monitorName('刪除48小時未驗證會員 - 8:00');
             $schedule->call(function (){
-                $this->VIPCheck();
+                // $this->VIPCheck();
                 $this->checkEmailVailUser();
-            })->timezone('Asia/Taipei')->dailyAt('12:00');
-            $schedule->command('FillDataForFilterByInfo')->timezone('Asia/Taipei')->dailyAt('13:00');
+            })->timezone('Asia/Taipei')->dailyAt('12:00')->monitorName('刪除48小時未驗證會員 - 12:00');
+            $schedule->command('FillDataForFilterByInfo')->timezone('Asia/Taipei')->dailyAt('13:00')->monitorName('檢查發信、檢舉、封鎖的異常資料 - 13:00');
             $schedule->call(function (){
-                $this->VIPCheck();
+                // $this->VIPCheck();
                 $this->checkEmailVailUser();
-            })->timezone('Asia/Taipei')->dailyAt('16:00');
+            })->timezone('Asia/Taipei')->dailyAt('16:00')->monitorName('刪除48小時未驗證會員 - 16:00');
             $schedule->call(function (){
-                $this->VIPCheck();
+                // $this->VIPCheck();
                 $this->checkEmailVailUser();
-            })->timezone('Asia/Taipei')->dailyAt('20:00');
+            })->timezone('Asia/Taipei')->dailyAt('20:00')->monitorName('刪除48小時未驗證會員 - 20:00');
             $schedule->call(function (){
-                $this->VIPCheck();
+                // $this->VIPCheck();
                 $this->checkEmailVailUser();
-            })->timezone('Asia/Taipei')->dailyAt('23:59');
+            })->timezone('Asia/Taipei')->dailyAt('23:59')->monitorName('刪除48小時未驗證會員 - 23:59');
             $schedule->call(function (){
                 $this->checkUserPics();
-            })->everyFiveMinutes();
+            })->everyFiveMinutes()->timezone('Asia/Taipei')->monitorName('檢查今日上傳的照片數量');
             $schedule->call(function (){
                 $this->resetUserPicsSwitches();
-            })->timezone('Asia/Taipei')->dailyAt('6:30');
+            })->timezone('Asia/Taipei')->dailyAt('6:30')->monitorName('重設今日上傳的照片數量');
 
-            $schedule->command('command:checkwarned')->timezone('Asia/Taipei')->dailyAt('07:00');           
+            $schedule->command('command:checkwarned')->timezone('Asia/Taipei')->dailyAt('07:00')->monitorName('會員警示、封鎖狀態調整及去重複資料');           
 
             //每週檢查討論區
-            $schedule->command('ForumCheck')->timezone('Asia/Taipei')->weeklyOn(1, '2:15');
-            $schedule->command('CompareImages')->timezone('Asia/Taipei')->dailyAt('08:00');       
-            $schedule->command('CompareImages  --dsort')->timezone('Asia/Taipei')->everyTenMinutes();//->between('02:00', '12:00');   
+            $schedule->command('ForumCheck')->timezone('Asia/Taipei')->weeklyOn(1, '2:15')->monitorName('檢查討論區');
+            $schedule->command('CompareImages')->timezone('Asia/Taipei')->dailyAt('08:00')->monitorName('照片比對');       
+            $schedule->command('CompareImages  --dsort')->timezone('Asia/Taipei')->everyTenMinutes()->monitorName('由最新記錄開始做照片比對');//->between('02:00', '12:00');   
             //$schedule->command('EncodeImagesForCompare')->timezone('Asia/Taipei')->dailyAt('02:01');
             //$schedule->command('queue:work --queue=compare_images --daemon --sleep=3 --tries=3 --delay=3  --timeout=0')->timezone('Asia/Taipei')->everyFiveMinutes()->between('02:00', '12:00');
 
             //每天計算統計資料
-            $schedule->command('ComputeStatisticInformation')->timezone('Asia/Taipei')->dailyAt('00:01'); 
+            $schedule->command('ComputeStatisticInformation')->timezone('Asia/Taipei')->dailyAt('00:01')->monitorName('計算統計資料'); 
 
             //每天檢查疑似八大名單
-            $schedule->command('CheckSuspiciousUserList')->timezone('Asia/Taipei')->dailyAt('00:30'); 
-            $schedule->command("auto:test")->timezone('Asia/Taipei')->everyFifteenMinutes();
+            $schedule->command('CheckSuspiciousUserList')->timezone('Asia/Taipei')->dailyAt('00:30')->monitorName('檢查疑似八大名單'); 
+            $schedule->command("auto:test")->timezone('Asia/Taipei')->everyFifteenMinutes()->monitorName('自動測試');
         }
         if(app()->isProduction()) {
-            $schedule->command('send_registed_users_statistics_by_LineNotify')->timezone('Asia/Taipei')->dailyAt('2:00'); 
+            $schedule->command('send_registed_users_statistics_by_LineNotify')->timezone('Asia/Taipei')->dailyAt('2:00')->monitorName('每日註冊會員統計'); 
             /*
             $schedule->call(function (){
                 $this->send_registed_users_statistics_by_LineNotify();

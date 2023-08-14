@@ -698,7 +698,15 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::group(['prefix'=>'users/message'], function() {
             Route::post('multiple/send', 'UserController@sendAdminMessageMultiple')->name('admin/send/multiple/readOnly');
         });
+    });    
+        
+    Route::group(['prefix' => 'admin/queue', 'middleware' => 'Admin', 'namespace' => 'Admin\Queue'], function () {
+        Route::get('/', ShowQueueMonitorController::class)->name('queue-monitor-index');
+        Route::delete('monitors/{monitor}', DeleteMonitorController::class)->name('queue-monitor-destroy');
+        Route::patch('monitors/retry/{monitor}', RetryMonitorController::class)->name('queue-monitor-retry');
+        Route::delete('purge', PurgeMonitorsController::class)->name('queue-monitor-purge');
     });
+
     Route::group(['prefix' => 'admin', 'namespace' => 'Admin', 'middleware' => 'Admin'], function () {
         /*
         |--------------------------------------------------------------------------
@@ -746,6 +754,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
             $exitCode = Artisan::call('config:cache');
             return '<h1>Clear Config cleared</h1>';
         });
+
 
         Route::get('dashboard/accessPermission', 'DashboardController@accessPermission')->name('accessPermission');
         Route::get('dashboard/accessPermission/show', 'DashboardController@showJuniorAdmin')->name('showJuniorAdmin');
@@ -1041,6 +1050,8 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::get('stats/vip_log/{id}', 'StatController@vipLog')->name('stats/vip_log');
         Route::get('stats/cron_log', 'StatController@cronLog')->name('stats/cron_log');
         Route::get('stats/date_file_log', 'StatController@datFileLog')->name('stats/date_file_log');
+        Route::post('stats/schedulerLog', 'StatController@schedulerLog');
+        Route::get('stats/schedulerLog', 'StatController@schedulerLog')->name('schedulerLog');
         Route::get('stats/set_autoBan', 'StatController@set_autoBan')->name('stats/set_autoBan');
         Route::post('stats/set_autoBan_add', 'StatController@set_autoBan_add')->name('stats/set_autoBan_add');
         Route::get('stats/set_autoBan_del/{id?}', 'StatController@set_autoBan_del')->name('stats/set_autoBan_del');

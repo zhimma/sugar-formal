@@ -1,0 +1,18 @@
+before_script:
+    - echo "$SSH_KNOWN_HOSTS" >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+    - cd /var/www/sugar-formal
+operations:
+  stage: test
+  script:
+    - echo "init"
+    - git fetch --all 
+    - git checkout $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
+    - ./vendor/bin/pest  
+  only:
+    refs:
+      - merge_requests
+    variables:
+      - $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master"
+  tags:
+    - staging
