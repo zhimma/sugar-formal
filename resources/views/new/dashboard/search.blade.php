@@ -1493,6 +1493,38 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
     </script>
     <script>
+        var weightfrom = document.getElementById("weightfrom");
+        weightfrom.addEventListener('input',function(){
+            if(weightfrom.checkValidity()){
+                weightfrom.classList.add('valid');
+                weightfrom.classList.remove('invalid');
+            }
+            else{
+                weightfrom.classList.remove('valid');
+                weightfrom.classList.add('invalid');
+                if(weightfrom.validity.stepMismatch){
+                    hint_str = "請輸入有效值。最接近的兩個有效值分別是" + (Math.floor((parseInt($("#weightfrom").val()) / 5)) * 5) + "和" + (Math.floor((parseInt($("#weightfrom").val()) / 5 + 1)) * 5) + "。";
+                    weightfrom.setCustomValidity(hint_str);
+                }
+            }
+        });
+
+        var weightto = document.getElementById("weightto");
+        weightto.addEventListener('input',function(){
+            if(weightto.checkValidity()){
+                weightto.classList.add('valid');
+                weightto.classList.remove('invalid');
+            }
+            else{
+                weightto.classList.remove('valid');
+                weightto.classList.add('invalid');
+                if(weightto.validity.stepMismatch){
+                    hint_str = "請輸入有效值。最接近的兩個有效值分別是" + (Math.floor((parseInt($("#weightto").val()) / 5)) * 5) + "和" + (Math.floor((parseInt($("#weightto").val()) / 5 + 1)) * 5) + "。";
+                    weightto.setCustomValidity(hint_str);
+                }
+            }
+        });
+
         $("#form").submit(function(e){
             heightfrom = $('#heightfrom').val();
             heightto = $('#heightto').val();
