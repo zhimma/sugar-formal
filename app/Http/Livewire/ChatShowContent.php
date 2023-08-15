@@ -41,11 +41,12 @@ class ChatShowContent extends Component
 
         if(Blocked::isBlocked($to->id, auth()->user()->id)  ||  Blocked::isBlocked( auth()->user()->id,$to->id)) {
             
-            $messages = DB::table('message');
+            //$messages = DB::table('message');
+            $messages = Message::addIncludeUnsendWhereToQuery();
             
             if (Blocked::isBlocked($to->id, auth()->user()->id)) {
                 $blockTime = Blocked::getBlockTime($to->id, auth()->user()->id);
-                //用model會抓不到unsend欄位 所以這邊用DB來抓
+                //model有預設條件，為求統一處理，盡量用model抓
                 $messages->where(function ($q) use ($to, $blockTime) {
                                 $q->where([
                                     ['to_id', $to->id],
@@ -62,7 +63,7 @@ class ChatShowContent extends Component
             
             if (Blocked::isBlocked(auth()->user()->id,$to->id)) {
                 $blockTimeFromSelf = Blocked::getBlockTime(auth()->user()->id,$to->id);
-                //用model會抓不到unsend欄位 所以這邊用DB來抓
+                //model有預設條件，為求統一處理，盡量用model抓
                 $messages->where(function ($q) use ($to, $blockTimeFromSelf) {
                                 $q->where([
                                     ['to_id', $to->id],
@@ -81,8 +82,8 @@ class ChatShowContent extends Component
             $messages->distinct()->orderBy('created_at', 'desc');
             
         } else {
-            //用model會抓不到unsend欄位 所以這邊用DB來抓
-            $messages = DB::table('message')->where(function ($q) use ($to) {
+            //model有預設條件，為求統一處理，盡量用model抓
+            $messages = Message::addIncludeUnsendWhereToQuery()->where(function ($q) use ($to) {
                 $q->where([
                     ['to_id', $to->id],
                     ['from_id', auth()->user()->id]
