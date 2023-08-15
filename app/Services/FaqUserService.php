@@ -355,7 +355,7 @@ class FaqUserService {
         $nowWrongReplyRecord = $this->getWrongReplyAnsWadRecord();
         $nowReplyedRecord = $this->getReplyedRecord(); 
         $countReplyedNum = 0;
-        
+        $ans_rs_data['nowReplyedRecord'] = $nowReplyedRecord;
         foreach($nowReplyedRecord as $v) {
             if($v!==null) $countReplyedNum++;
         }
@@ -371,6 +371,8 @@ class FaqUserService {
                 $ans_rs_data['all_finished'] = 1;
             }
         }
+        $ans_rs_data['countReplyedNum'] = $countReplyedNum;
+        $ans_rs_data['popupQuestionListNum'] = count($popupQuestionList);
         return $ans_rs_data;
     }
     
@@ -379,13 +381,17 @@ class FaqUserService {
     }
     
     public function recordQuestionByEntry($question_entry) {
-        session()->put('replyed_record.'.$question_entry->id,null);        
+        if(!($this->getReplyedRecord()[$question_entry->id]??null)) {
+            session()->put('replyed_record.'.$question_entry->id,null); 
+        }        
         return $this;        
     }
     
     public function recordReply($reply=null) {
         if($reply!==null && !is_countable($reply)) $reply = (string) $reply;
-        session()->put('replyed_record.'.$this->faq_service()->question_entry()->id,$reply);                
+        if(!($this->getReplyedRecord()[$this->faq_service()->question_entry()->id]??null)) {
+            session()->put('replyed_record.'.$this->faq_service()->question_entry()->id,$reply); 
+        }    
         return $this;
     } 
     
@@ -394,7 +400,9 @@ class FaqUserService {
     }
     
     public function recordWrongReplyAnsWad($ans_text=null) {
-        session()->put('wrong_reply_record.'.$this->faq_service()->question_entry()->id,$ans_text);        
+        if(!session()->get('wrong_reply_record.'.$this->faq_service()->question_entry()->id)) {
+            session()->put('wrong_reply_record.'.$this->faq_service()->question_entry()->id,$ans_text);
+        }
         return $this;
     }
     
