@@ -233,23 +233,9 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                         <dt>
                                             <div class="n_se left">
                                                 <span>標籤</span>
-                                                <span>
-                                                    <input type="text" 
-                                                            name="search_tag" 
-                                                            id="search_tag" 
-                                                            class="select_xx01" 
-                                                            list="search_tag_list" 
-                                                            value="@if(!empty($_POST["search_tag"])){{$_POST["search_tag"]}}@elseif(!empty($_GET["search_tag"])){{$_GET["search_tag"]}}@elseif(!empty(session()->get('search_page_key.search_tag'))){{session()->get('search_page_key.search_tag')}}@endif"
-                                                    >
-                                                    <datalist id="search_tag_list">
-                                                        <option value="">請選擇</option>
-                                                        @foreach($tag_example_list as $tag_example)
-                                                            <option value="{{$tag_example}}">
-                                                                {{$tag_example}}
-                                                            </option>
-                                                        @endforeach
-                                                    </datalist>
-                                                </span>
+                                                <select id="search_tag" name="search_tag" class="select_xx01">
+                                                    <option value="">請選擇</option>
+                                                </select>
                                             </div>
                                         </dt>
                                     @endif
@@ -1575,6 +1561,25 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             $(this).siblings().removeClass("cractive");
             $(this).toggleClass('cractive');
         });
+    </script>
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/i18n/zh-TW.js"></script>
+    <script>
+        $(function(){
+            $("#search_tag").select2({
+                language: 'zh-TW',
+                width: '100%',
+                // 最多字元限制
+                maximumInputLength: 10,
+                // 最少字元才觸發尋找, 0 不指定
+                minimumInputLength: 0,
+                // 當找不到可以使用輸入的文字
+                tags: true,
+                data: @json($tag_example_list),
+            });
+        })
     </script>
 @endsection
 
