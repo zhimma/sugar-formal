@@ -1934,6 +1934,45 @@ class PagesController extends BaseController
             ->with('currentVipData', $currentVipData);
     }
 
+    public function viewVipForPaidQuarterly(Request $request)
+    {
+
+        $cancel_vip = AdminCommonText::where('alias','cancel_vip')->get()->first();
+
+
+        /*編輯文案-檢舉會員訊息-START*/
+        $vip_text = AdminCommonText::where('alias','vip_text')->get()->first();
+        /*編輯文案-檢舉會員訊息-END*/
+
+        /*編輯文案-檢舉會員訊息-START*/
+        $upgrade_vip = AdminCommonText::where('alias','upgrade_vip')->get()->first();
+        /*編輯文案-檢舉會員訊息-END*/
+        $user = $request->user();
+        //VIP到期日
+        $expiry_time = Vip::select('expiry')
+            ->where('member_id', $user->id)
+            ->where('business_id','761404')
+            ->where('active',0)
+            ->orderBy('created_at', 'desc')
+            ->first();
+        $days=0;
+        if(isset($expiry_time)) {
+            $expiry_time = $expiry_time->expiry;
+            $expiry = Carbon::parse($expiry_time);
+            $days = $expiry->diffInDays(Carbon::now());
+        }
+        $currentVipData = Vip::where('member_id', $user->id)->orderBy('created_at', 'desc')->first();
+
+        return view('new.dashboard.vipForPaidQuarterly')
+            ->with('user', $user)->with('cur', $user)
+            ->with('vip_text', $vip_text->content)
+            ->with('upgrade_vip', $upgrade_vip->content)
+            ->with('cancel_vip', $cancel_vip->content)
+            ->with('expiry_time', $expiry_time)
+            ->with('days', $days)
+            ->with('currentVipData', $currentVipData);
+    }
+
     public function view_vip(Request $request)
     {
 
