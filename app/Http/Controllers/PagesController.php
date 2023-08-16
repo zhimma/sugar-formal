@@ -4294,6 +4294,7 @@ class PagesController extends BaseController
 
     public function search2(Request $request)
     {
+        //Log::Info($request);
         $input = $request->input();
         $search_page_key=session()->get('search_page_key',[]);
         if(!$search_page_key && !$input) {
@@ -4413,7 +4414,13 @@ class PagesController extends BaseController
             $this->service->dispatchCheckECPayForValueAddedService('VVIP', $valueAddedServiceData_VVIP);
         }
 
-        return view('new.dashboard.search')->with('user', $user)->with('rap_service',$rap_service);
+        $tag_example_list = DB::table('option_personality_traits')->get()->pluck('option_name');
+
+        return view('new.dashboard.search')
+                ->with('user', $user)
+                ->with('rap_service',$rap_service)
+                ->with('tag_example_list', $tag_example_list)
+                ;
     }
 
     public function upgrade_ec(Request $request)

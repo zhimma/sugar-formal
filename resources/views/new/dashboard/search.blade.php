@@ -229,6 +229,31 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                         </dt>
                                     @endif
 
+                                    @if($user_engroup==1)
+                                        <dt>
+                                            <div class="n_se left">
+                                                <span>標籤</span>
+                                                <span>
+                                                    <input type="text" 
+                                                            name="search_tag" 
+                                                            id="search_tag" 
+                                                            class="select_xx01" 
+                                                            list="search_tag_list" 
+                                                            value="@if(!empty($_POST["search_tag"])){{$_POST["search_tag"]}}@elseif(!empty($_GET["search_tag"])){{$_GET["search_tag"]}}@elseif(!empty(session()->get('search_page_key.search_tag'))){{session()->get('search_page_key.search_tag')}}@endif"
+                                                    >
+                                                    <datalist id="search_tag_list">
+                                                        <option value="">請選擇</option>
+                                                        @foreach($tag_example_list as $tag_example)
+                                                            <option value="{{$tag_example}}">
+                                                                {{$tag_example}}
+                                                            </option>
+                                                        @endforeach
+                                                    </datalist>
+                                                </span>
+                                            </div>
+                                        </dt>
+                                    @endif
+
                                     <div class="btn_more">
                                         進階搜尋
                                         <span class="right"><img src="/new/images/xq_06.png"></span>
@@ -598,8 +623,8 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         $district4 = search_variable("district4","");
                         $district5 = search_variable("district5","");
                         $relationship_status = search_variable('relationship_status',"");
-
                         $userIsAdvanceAuth = search_variable("isAdvanceAuth", 0);
+                        $search_tag = search_variable('search_tag',"");
                     }
                     catch (\Exception $e){
                         \Illuminate\Support\Facades\Log::info('Search error, $user: ' . $user);
@@ -974,7 +999,8 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 //新增體重
                 weight:"{{$weight}}",
                 relationship_status:{!! json_encode($relationship_status && is_array($relationship_status)? array_keys($relationship_status) :null) !!},
-                perPageCount:perPageCount
+                perPageCount:perPageCount,
+                search_tag:"{{$search_tag}}"
             };
             axios.post('/getSearchData', post_data)
             .then(response => {

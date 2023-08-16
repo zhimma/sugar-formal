@@ -494,12 +494,16 @@ class UserMeta extends Model
         // 是否接受約外縣市
         $is_dating_other_county = $request->is_dating_other_county ?? null;
         $relationship_status = $request->relationship_status ?? false;
+        $search_tag = $request->search_tag ?? false;
 
         $xref_option_search_switch = false;
 
         //如果xref type有在搜尋選項裡就開啟
         //type於option_type資料表內
         if ($relationship_status) {
+            $xref_option_search_switch = true;
+        }
+        if ($search_tag) {
             $xref_option_search_switch = true;
         }
 
@@ -770,7 +774,7 @@ class UserMeta extends Model
             return $query->where('is_active', 1);
         };
 
-        $xref_constraint = function ($query) use ($relationship_status){
+        $xref_constraint = function ($query) use ($relationship_status, $search_tag){
             if($relationship_status)
             {
                 //$query->where('option_type', 2)->where('option_id', $relationship_status);
@@ -778,6 +782,24 @@ class UserMeta extends Model
                     if(is_array($relationship_status) && count($relationship_status) > 0){
                         $query->where('option_type', 2)->whereIn('option_id', $relationship_status);
                     }
+                }
+            }
+            if($search_tag)
+            {
+                if (isset($search_tag) && $search_tag != ''){
+                    $query->where(function ($query) use ($search_tag){
+                        $type_list = DB::table('option_type')->get();
+                        foreach($type_list as $type_item)
+                        {
+                            $option_item = DB::table('option_' . $type_item->type_name)->where('option_name', $search_tag)->first();
+                            if($option_item ?? false)
+                            {
+                                $query->orWhere(function ($query) use ($type_item, $option_item){
+                                    $query->where('option_type', $type_item->id)->where('option_id', $option_item->id);
+                                });
+                            }
+                        }
+                    });
                 }
             }
         };
