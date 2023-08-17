@@ -4414,16 +4414,9 @@ class PagesController extends BaseController
             $this->service->dispatchCheckECPayForValueAddedService('VVIP', $valueAddedServiceData_VVIP);
         }
 
-        $tag_example_list = array_merge(
-            DB::table('option_relationship_status')->get()->pluck('option_name')->toArray(),
-            DB::table('option_personality_traits')->where('is_custom', 0)->get()->pluck('option_name')->toArray(),
-            DB::table('option_life_style')->where('is_custom', 0)->get()->pluck('option_name')->toArray()
-        );
-
         return view('new.dashboard.search')
                 ->with('user', $user)
                 ->with('rap_service',$rap_service)
-                ->with('tag_example_list', $tag_example_list)
                 ;
     }
 
@@ -11610,6 +11603,31 @@ class PagesController extends BaseController
         $search = array(" ", "　", "\n", "\r", "\t");
         $replace = array("", "", "", "", "");
         return str_replace($search, $replace, $str);
+    }
+
+    public function get_all_search_tag(Request $request)
+    {
+        if($request->search_str ?? false)
+        {
+            $search_str = $request->search_str;
+            $tag_list = [];
+            foreach(DB::table('option_type')->get()->pluck('type_name')->toArray() as $type)
+            {
+                $table_name = 'option_' . $type;
+                $tag_list = array_merge($tag_list, DB::table($table_name)->where('option_name', 'like', '%'.$search_str.'%')->get()->pluck('option_name')->toArray());
+            }
+            return response()->json($tag_list);
+        }
+        else
+        {
+            $tag_example_list = array_merge(
+                DB::table('option_relationship_status')->get()->pluck('option_name')->toArray(),
+                DB::table('option_personality_traits')->where('is_custom', 0)->get()->pluck('option_name')->toArray(),
+                DB::table('option_life_style')->where('is_custom', 0)->get()->pluck('option_name')->toArray()
+            );
+            return response()->json($tag_example_list);
+        }
+        
     }
 }
 

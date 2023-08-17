@@ -626,6 +626,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
         Route::post('/dashboard/chat/showMoreMessages/{randomNo?}', 'MessageController@chatviewMore')->name('showMoreMessages');
         Route::post('/dashboard/chat/showAllMessages/{randomNo?}', 'MessageController@chatviewAll')->name('showAllMessages');
         Route::get('/dashboard/chatShow/{cid}', 'PagesController@chat')->name('chatWithUser');
+        Route::get('/dashboard/get_all_search_tag', 'PagesController@get_all_search_tag');
 
         // delete message
         // Route::get('/dashboard/chat/deleteall/{uid}', ['uses' => 'MessageController@deleteAll', 'as' => 'deleteAll']);

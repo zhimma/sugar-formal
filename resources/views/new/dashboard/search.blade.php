@@ -1579,15 +1579,43 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
     <script>
         $(function(){
             $("#search_tag").select2({
-                language: 'zh-TW',
+                language: {
+                    noResults: function (params) {
+                    return "無此標籤";
+                    }
+                },
                 width: '100%',
                 // 最多字元限制
                 maximumInputLength: 10,
                 // 最少字元才觸發尋找, 0 不指定
                 minimumInputLength: 0,
                 // 當找不到可以使用輸入的文字
-                tags: true,
-                data: @json($tag_example_list),
+                ajax: {
+                    url: '/dashboard/get_all_search_tag',
+                    type: 'get',
+                    dataType: 'json',
+                    data: function(params) {
+                        return {
+                            search_str: params.term,
+                        };
+                    },
+                    processResults: function (data) {
+                        console.log($.map(data, function (item, index) {
+                                return {
+                                    text: item,
+                                    id: index
+                                }
+                            }));
+                        return {
+                            results: $.map(data, function (item, index) {
+                                return {
+                                    id: index,
+                                    text: item
+                                }
+                            })
+                        };
+                    },
+                },
             }).on("select2:open", function () {
                 $('.select2-results__options').niceScroll({
                     autohidemode:false,
