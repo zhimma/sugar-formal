@@ -2739,18 +2739,18 @@ class PagesController extends BaseController
                 ->whereNotNull('user_options_xref.id')
                 ->get();
             $personality_traits = DB::table('option_personality_traits')
-                ->leftJoin('user_options_xref', function ($join) use ($user) {
+                ->leftJoin('user_options_xref', function ($join) use ($to) {
                     $join->on('option_personality_traits.id', '=', 'user_options_xref.option_id')
-                        ->where('user_options_xref.user_id', '=', $user->id)
+                        ->where('user_options_xref.user_id', '=', $to->id)
                         ->where('user_options_xref.option_type', '=', 9);
                 })
                 ->select('option_personality_traits.*', 'user_options_xref.id as xref_id')
                 ->whereNotNull('user_options_xref.id')
                 ->get();
             $life_style = DB::table('option_life_style')
-                ->leftJoin('user_options_xref', function ($join) use ($user) {
+                ->leftJoin('user_options_xref', function ($join) use ($to) {
                     $join->on('option_life_style.id', '=', 'user_options_xref.option_id')
-                        ->where('user_options_xref.user_id', '=', $user->id)
+                        ->where('user_options_xref.user_id', '=', $to->id)
                         ->where('user_options_xref.option_type', '=', 10);
                 })
                 ->select('option_life_style.*', 'user_options_xref.id as xref_id')
