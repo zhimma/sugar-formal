@@ -102,6 +102,14 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
     .nt_img {
         left: 20px;
     }
+
+    .select2-selection {
+        height: 40px !important;
+    }
+
+    .select2-selection__rendered {
+        line-height: 40px !important;
+    }
 </style>
 @endsection
 
@@ -236,7 +244,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                                 <select id="search_tag" name="search_tag" class="select_xx01">
                                                     <option value="">請選擇</option>
                                                 </select>
-                                                <img id="clear_search_tag" src="/new/images/map-gb.png" height="24px" class="right" style="position: relative; margin-top: -26px; margin-right: 2px;">
+                                                <img id="clear_search_tag" src="/new/images/map-gb.png" height="30px" class="right" style="position: relative; margin-top: -35px; margin-right: 5px;">
                                             </div>
                                         </dt>
                                     @endif
@@ -1583,6 +1591,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             }).on("select2:open", function () {
                 $('.select2-results__options').niceScroll({
                     autohidemode:false,
+                    cursorcolor:'#fd5678',
                 });
             });
             $("#search_tag").val("@if(!empty($_POST["search_tag"])){{$_POST["search_tag"]}}@elseif(!empty($_GET["search_tag"])){{$_GET["search_tag"]}}@elseif(!empty(session()->get('search_page_key.search_tag'))){{session()->get('search_page_key.search_tag')}}@endif").change();
