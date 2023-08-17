@@ -789,15 +789,22 @@ class UserMeta extends Model
                 if (isset($search_tag) && $search_tag != ''){
                     $query->where(function ($query) use ($search_tag){
                         $type_list = DB::table('option_type')->get();
+                        $has_match_tag = false;
                         foreach($type_list as $type_item)
                         {
                             $option_item = DB::table('option_' . $type_item->type_name)->where('option_name', $search_tag)->first();
                             if($option_item ?? false)
                             {
+                                $has_match_tag = true;
                                 $query->orWhere(function ($query) use ($type_item, $option_item){
                                     $query->where('option_type', $type_item->id)->where('option_id', $option_item->id);
                                 });
                             }
+                        }
+                        //沒有符合的tag時不搜尋出東西
+                        if(!$has_match_tag)
+                        {
+                            $query->where('option_type', 0)->where('option_id', 0);
                         }
                     });
                 }

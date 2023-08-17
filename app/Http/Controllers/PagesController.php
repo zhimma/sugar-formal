@@ -4414,7 +4414,11 @@ class PagesController extends BaseController
             $this->service->dispatchCheckECPayForValueAddedService('VVIP', $valueAddedServiceData_VVIP);
         }
 
-        $tag_example_list = DB::table('option_personality_traits')->where('is_custom', 0)->get()->pluck('option_name');
+        $tag_example_list = array_merge(
+            DB::table('option_relationship_status')->get()->pluck('option_name')->toArray(),
+            DB::table('option_personality_traits')->where('is_custom', 0)->get()->pluck('option_name')->toArray(),
+            DB::table('option_life_style')->where('is_custom', 0)->get()->pluck('option_name')->toArray()
+        );
 
         return view('new.dashboard.search')
                 ->with('user', $user)

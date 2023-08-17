@@ -236,6 +236,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                                 <select id="search_tag" name="search_tag" class="select_xx01">
                                                     <option value="">請選擇</option>
                                                 </select>
+                                                <img id="clear_search_tag" src="/new/images/map-gb.png" height="24px" class="right" style="position: relative; margin-top: -26px; margin-right: 2px;">
                                             </div>
                                         </dt>
                                     @endif
@@ -1566,6 +1567,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/i18n/zh-TW.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.nicescroll/3.7.6/jquery.nicescroll.js"></script>
     <script>
         $(function(){
             $("#search_tag").select2({
@@ -1578,8 +1580,17 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 // 當找不到可以使用輸入的文字
                 tags: true,
                 data: @json($tag_example_list),
+            }).on("select2:open", function () {
+                $('.select2-results__options').niceScroll({
+                    autohidemode:false,
+                });
             });
+            $("#search_tag").val("@if(!empty($_POST["search_tag"])){{$_POST["search_tag"]}}@elseif(!empty($_GET["search_tag"])){{$_GET["search_tag"]}}@elseif(!empty(session()->get('search_page_key.search_tag'))){{session()->get('search_page_key.search_tag')}}@endif").change();
         })
+
+        $("#clear_search_tag").on("click", function(){
+            $("#search_tag").val("").change();
+        });
     </script>
 @endsection
 
