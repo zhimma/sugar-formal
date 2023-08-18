@@ -109,6 +109,17 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
     .select2-selection__rendered {
         line-height: 40px !important;
+        width: 95% !important;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: normal !important;
+        display: -webkit-box !important;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 1;
+    }
+
+    .select2-selection__arrow {
+        display: none !important;
     }
 </style>
 @endsection
@@ -244,7 +255,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                                 <select id="search_tag" name="search_tag" class="select_xx01">
                                                     <option value="">請選擇</option>
                                                 </select>
-                                                <img id="clear_search_tag" src="/new/images/map-gb.png" height="30px" class="right" style="position: relative; margin-top: -35px; margin-right: 5px;">
+                                                <img id="clear_search_tag" src="/new/images/map-gb.png" height="20px" class="right" style="position: relative; margin-top: -30px; margin-right: 10px; display:none;">
                                             </div>
                                         </dt>
                                     @endif
@@ -1600,16 +1611,10 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         };
                     },
                     processResults: function (data) {
-                        console.log($.map(data, function (item, index) {
-                                return {
-                                    text: item,
-                                    id: index
-                                }
-                            }));
                         return {
                             results: $.map(data, function (item, index) {
                                 return {
-                                    id: index,
+                                    id: item,
                                     text: item
                                 }
                             })
@@ -1621,12 +1626,30 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                     autohidemode:false,
                     cursorcolor:'#fd5678',
                 });
-            });
-            $("#search_tag").val("@if(!empty($_POST["search_tag"])){{$_POST["search_tag"]}}@elseif(!empty($_GET["search_tag"])){{$_GET["search_tag"]}}@elseif(!empty(session()->get('search_page_key.search_tag'))){{session()->get('search_page_key.search_tag')}}@endif").change();
+            }).on("select2:selecting", function() {
+                $("#clear_search_tag").show();
+            })
+            ;
+            //有舊選項時選擇舊選項
+            @if(!empty($_POST["search_tag"]))
+                $("#search_tag").append('<option value="{{$_POST["search_tag"]}}">{{$_POST["search_tag"]}}</option>');
+                $("#search_tag").val("{{$_POST["search_tag"]}}").change();
+                $("#clear_search_tag").show();
+            @elseif(!empty($_GET["search_tag"]))
+                $("#search_tag").append('<option value="{{$_GET["search_tag"]}}">{{$_GET["search_tag"]}}</option>');
+                $("#search_tag").val("{{$_GET["search_tag"]}}").change();
+                $("#clear_search_tag").show();
+            @elseif(!empty(session()->get('search_page_key.search_tag')))
+                $("#search_tag").append('<option value="{{session()->get('search_page_key.search_tag')}}">{{session()->get('search_page_key.search_tag')}}</option>');
+                $("#search_tag").val("{{session()->get('search_page_key.search_tag')}}").change();
+                $("#clear_search_tag").show();
+            @endif
+            //有舊選項時選擇舊選項
         })
 
         $("#clear_search_tag").on("click", function(){
             $("#search_tag").val("").change();
+            $("#clear_search_tag").hide();
         });
     </script>
 @endsection
