@@ -1037,7 +1037,7 @@ class OrderController extends \App\Http\Controllers\BaseController
 
                 $lastPayFailDate = '';
                 $theActualLastPayFailDateDate = '';
-                if($row->pay_fail != '') {
+                if($row->pay_fail != '' || $row->pay_fail != "null") {
                     $lastPayFailDate = last(json_decode($row->pay_fail));
                     $theActualLastPayFailDateDate = is_string($lastPayFailDate[0]) ? Carbon::parse($lastPayFailDate[0]) : $lastPayFailDate[0];
                 }
