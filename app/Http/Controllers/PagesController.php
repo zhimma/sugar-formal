@@ -11611,11 +11611,21 @@ class PagesController extends BaseController
         {
             $search_str = $request->search_str;
             $tag_list = [];
-            foreach(DB::table('option_type')->get()->pluck('type_name')->toArray() as $type)
+            foreach(DB::table('option_type')->get()->pluck('type_name')->toArray() as $type_key => $type)
             {
                 $table_name = 'option_' . $type;
-                $tag_list = array_merge($tag_list, DB::table($table_name)->where('option_name', 'like', '%'.$search_str.'%')->get()->pluck('option_name')->toArray());
+                $tag_list = array_merge($tag_list, DB::table($table_name)
+                                                    //篩選出有在user_options_xref的選項
+                                                    ->leftJoin('user_options_xref', $table_name.'.id', '=', 'user_options_xref.option_id')
+                                                    ->where('user_options_xref.option_type', '=', $type_key + 1) //option_type的id從1開始所以$type_key+1
+                                                    //篩選出有在user_options_xref的選項
+                                                    ->where('option_name', 'like', '%'.$search_str.'%')
+                                                    ->get()
+                                                    ->pluck('option_name')
+                                                    ->toArray()
+                );
             }
+            $tag_list = array_unique($tag_list);
             return response()->json($tag_list);
         }
         else
