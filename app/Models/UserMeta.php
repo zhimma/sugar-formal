@@ -787,7 +787,7 @@ class UserMeta extends Model
             if($search_tag)
             {
                 if (isset($search_tag) && $search_tag != ''){
-                    $query->where(function ($query) use ($search_tag){
+                    $query->orWhere(function ($query) use ($search_tag){
                         $type_list = DB::table('option_type')->get();
                         $has_match_tag = false;
                         foreach($type_list as $type_item)
