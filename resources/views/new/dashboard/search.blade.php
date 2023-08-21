@@ -259,9 +259,9 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                         <dt>
                                             <span>體重範圍<i class="ssrgf">(僅顯示有填寫者)</i></span>
                                             <span style="display: inline-flex;">
-                                                <input class="select_xx06" name="weightfrom" id="weightfrom" type="number" step="5" value="@if(!empty($_POST['weightfrom'])){{ $_POST['weightfrom'] }}@elseif(!empty($_GET['weightfrom'])){{$_GET['weightfrom']}}@elseif(!empty(session()->get('search_page_key.weightfrom'))){{ session()->get('search_page_key.weightfrom')  }}@endif">
+                                                <input class="select_xx06" name="weightfrom" id="weightfrom" type="number" value="@if(!empty($_POST['weightfrom'])){{ $_POST['weightfrom'] }}@elseif(!empty($_GET['weightfrom'])){{$_GET['weightfrom']}}@elseif(!empty(session()->get('search_page_key.weightfrom'))){{ session()->get('search_page_key.weightfrom')  }}@endif">
                                                 <div class="sew6">至</div>
-                                                <input class="select_xx06 right" name="weightto" id="weightto" type="number" step="5" value="@if(!empty($_POST['weightto'])){{$_POST['weightto'] }}@elseif(!empty($_GET['weightto'])){{$_GET['weightto']}}@elseif(!empty(session()->get('search_page_key.weightto'))){{ session()->get('search_page_key.weightto')  }}@endif">
+                                                <input class="select_xx06 right" name="weightto" id="weightto" type="number" value="@if(!empty($_POST['weightto'])){{$_POST['weightto'] }}@elseif(!empty($_GET['weightto'])){{$_GET['weightto']}}@elseif(!empty(session()->get('search_page_key.weightto'))){{ session()->get('search_page_key.weightto')  }}@endif">
                                             </span>
                                         </dt>
 
@@ -1493,35 +1493,13 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
     </script>
     <script>
-        var weightfrom = document.getElementById("weightfrom");
-        weightfrom.addEventListener('input',function(){
-            if(weightfrom.checkValidity()){
-            }
-            else{
-                if(weightfrom.validity.stepMismatch){
-                    hint_str = "請輸入有效值。最接近的兩個有效值分別是" + (Math.floor((parseInt($("#weightfrom").val()) / 5)) * 5) + "和" + (Math.floor((parseInt($("#weightfrom").val()) / 5 + 1)) * 5) + "。";
-                    weightfrom.setCustomValidity(hint_str);
-                }
-            }
-        });
-
-        var weightto = document.getElementById("weightto");
-        weightto.addEventListener('input',function(){
-            if(weightto.checkValidity()){
-            }
-            else{
-                if(weightto.validity.stepMismatch){
-                    hint_str = "請輸入有效值。最接近的兩個有效值分別是" + (Math.floor((parseInt($("#weightto").val()) / 5)) * 5) + "和" + (Math.floor((parseInt($("#weightto").val()) / 5 + 1)) * 5) + "。";
-                    weightto.setCustomValidity(hint_str);
-                }
-            }
-        });
-
         $("#form").submit(function(e){
             heightfrom = $('#heightfrom').val();
             heightto = $('#heightto').val();
             weightfrom = $('#weightfrom').val();
             weightto = $('#weightto').val();
+
+            //範圍須有值
             if((heightfrom == "" && heightto != "") || (heightfrom != "" && heightto == ""))
             {
                 event.preventDefault();
@@ -1534,6 +1512,24 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 c5('請輸入體重範圍');
                 return false;
             }
+            //範圍須有值
+
+            //數值限制
+            if(weightfrom % 5 != 0)
+            {
+                hint_str = "體重範圍請輸入有效值。最接近的兩個有效值分別是" + (Math.floor((parseInt(weightfrom) / 5)) * 5) + "和" + (Math.floor((parseInt(weightfrom) / 5 + 1)) * 5) + "。";
+                c5(hint_str);
+                return false;
+            }
+            if(weightto % 5 != 0)
+            {
+                hint_str = "體重範圍請輸入有效值。最接近的兩個有效值分別是" + (Math.floor((parseInt(weightto) / 5)) * 5) + "和" + (Math.floor((parseInt(weightto) / 5 + 1)) * 5) + "。";
+                c5(hint_str);
+                return false;
+            }
+            //數值限制
+
+            //大小交換
             if(heightfrom > heightto)
             {
                 $('#heightfrom').val(heightto);
@@ -1544,6 +1540,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 $('#weightfrom').val(weightto);
                 $('#weightto').val(weightfrom);
             }
+            //大小交換
 
             $('input[name="isVip"]').val($('.a_isVip.cractive').first().attr('value'));
             $('input[name="isBlocked"]').val($('.a_isBlocked.cractive').first().attr('value'));
