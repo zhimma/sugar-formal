@@ -55,7 +55,7 @@ class DeployController extends Controller
     }
 
     public function manualDeploy() {
-        DeployJob::dispatch();
+        DeployJob::dispatch()->onQueue('deploy');
         return "呼叫完成";
     }
 }
