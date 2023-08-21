@@ -1523,41 +1523,50 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             //範圍須有值
 
             //數值限制
-            if(agefrom < 18 || ageto < 18)
+            if(agefrom != "" || ageto != "")
             {
-                hint_str = "年齡範圍值必須大於或等於18。";
-                c5(hint_str);
-                return false;
+                if(agefrom < 18 || ageto < 18)
+                {
+                    hint_str = "年齡範圍值必須大於或等於18。";
+                    c5(hint_str);
+                    return false;
+                }
+                if(agefrom > 80 || ageto > 80)
+                {
+                    hint_str = "年齡範圍值必須小於或等於80。";
+                    c5(hint_str);
+                    return false;
+                }
             }
-            if(agefrom > 80 || ageto > 80)
+            if(heightfrom != "" || heightto != "")
             {
-                hint_str = "年齡範圍值必須小於或等於80。";
-                c5(hint_str);
-                return false;
+                if(heightfrom < 140 || heightto < 140)
+                {
+                    hint_str = "身高範圍值必須大於或等於140。";
+                    c5(hint_str);
+                    return false;
+                }
+                if(heightfrom > 210 || heightto > 210)
+                {
+                    hint_str = "身高範圍值必須小於或等於210。";
+                    c5(hint_str);
+                    return false;
+                }
             }
-            if(heightfrom < 140 || heightto < 140)
+            if(weightfrom != "" || weightto != "")
             {
-                hint_str = "身高範圍值必須大於或等於140。";
-                c5(hint_str);
-                return false;
-            }
-            if(heightfrom > 210 || heightto > 210)
-            {
-                hint_str = "身高範圍值必須小於或等於210。";
-                c5(hint_str);
-                return false;
-            }
-            if(weightfrom % 5 != 0)
-            {
-                hint_str = "體重範圍請輸入有效值。最接近的兩個有效值分別是" + (Math.floor((parseInt(weightfrom) / 5)) * 5) + "和" + (Math.floor((parseInt(weightfrom) / 5 + 1)) * 5) + "。";
-                c5(hint_str);
-                return false;
-            }
-            if(weightto % 5 != 0)
-            {
-                hint_str = "體重範圍請輸入有效值。最接近的兩個有效值分別是" + (Math.floor((parseInt(weightto) / 5)) * 5) + "和" + (Math.floor((parseInt(weightto) / 5 + 1)) * 5) + "。";
-                c5(hint_str);
-                return false;
+                if(weightfrom % 5 != 0)
+                {
+                    hint_str = "體重範圍請輸入有效值。最接近的兩個有效值分別是" + (Math.floor((parseInt(weightfrom) / 5)) * 5) + "和" + (Math.floor((parseInt(weightfrom) / 5 + 1)) * 5) + "。";
+                    c5(hint_str);
+                    return false;
+                }
+                if(weightto % 5 != 0)
+                {
+                    hint_str = "體重範圍請輸入有效值。最接近的兩個有效值分別是" + (Math.floor((parseInt(weightto) / 5)) * 5) + "和" + (Math.floor((parseInt(weightto) / 5 + 1)) * 5) + "。";
+                    c5(hint_str);
+                    return false;
+                }
             }
             //數值限制
 
