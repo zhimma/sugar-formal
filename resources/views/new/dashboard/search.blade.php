@@ -252,10 +252,14 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                         <dt>
                                             <div class="n_se left">
                                                 <span>標籤</span>
-                                                <select id="search_tag" name="search_tag" class="select_xx01">
-                                                    <option value="">請選擇</option>
-                                                </select>
-                                                <img id="clear_search_tag" src="/new/images/map-gb.png" height="20px" class="right" style="position: relative; margin-top: -30px; margin-right: 10px; display:none;">
+                                                @for($i = 0; $i < 10; $i++) 
+                                                    <div>
+                                                        <select name="search_tag[]" class="search_tag select_xx01" data-index="{{$i}}">
+                                                            <option value="">請選擇</option>
+                                                        </select>
+                                                        <img src="/new/images/map-gb.png" height="20px" class="clear_search_tag right" style="position: relative; margin-top: -30px; margin-right: 10px; display:none;" data-index="{{$i}}">
+                                                    </div>
+                                                @endfor
                                             </div>
                                         </dt>
                                     @endif
@@ -1006,7 +1010,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 weight:"{{$weight}}",
                 relationship_status:{!! json_encode($relationship_status && is_array($relationship_status)? array_keys($relationship_status) :null) !!},
                 perPageCount:perPageCount,
-                search_tag:"{{$search_tag}}"
+                search_tag:{!! json_encode($search_tag ?? []) !!}
             };
             axios.post('/getSearchData', post_data)
             .then(response => {
@@ -1589,7 +1593,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.nicescroll/3.7.6/jquery.nicescroll.js"></script>
     <script>
         $(function(){
-            $("#search_tag").select2({
+            $(".search_tag").select2({
                 language: {
                     noResults: function (params) {
                     return "無此標籤";
@@ -1627,29 +1631,38 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                     cursorcolor:'#fd5678',
                 });
             }).on("select2:selecting", function() {
-                $("#clear_search_tag").show();
+                search_tag_index = $(this).attr("data-index");
+                $(".clear_search_tag[data-index='" + search_tag_index + "']").show();
             })
             ;
             //有舊選項時選擇舊選項
             @if(!empty($_POST["search_tag"]))
-                $("#search_tag").append('<option value="{{$_POST["search_tag"]}}">{{$_POST["search_tag"]}}</option>');
-                $("#search_tag").val("{{$_POST["search_tag"]}}").change();
-                $("#clear_search_tag").show();
+                @php
+                    $search_tag_selected_list = $_POST["search_tag"];
+                @endphp
             @elseif(!empty($_GET["search_tag"]))
-                $("#search_tag").append('<option value="{{$_GET["search_tag"]}}">{{$_GET["search_tag"]}}</option>');
-                $("#search_tag").val("{{$_GET["search_tag"]}}").change();
-                $("#clear_search_tag").show();
+                @php
+                    $search_tag_selected_list = $_GET["search_tag"];
+                @endphp
             @elseif(!empty(session()->get('search_page_key.search_tag')))
-                $("#search_tag").append('<option value="{{session()->get('search_page_key.search_tag')}}">{{session()->get('search_page_key.search_tag')}}</option>');
-                $("#search_tag").val("{{session()->get('search_page_key.search_tag')}}").change();
-                $("#clear_search_tag").show();
+                @php
+                    $search_tag_selected_list = session()->get('search_page_key.search_tag');
+                @endphp
             @endif
+            @foreach($search_tag_selected_list as $key => $search_tag_selected)
+                $(".search_tag[data-index='{{$key}}']").first().append('<option value="{{$search_tag_selected}}">{{$search_tag_selected}}</option>');
+                $(".search_tag[data-index='{{$key}}']").first().val("{{$search_tag_selected}}").change();
+                @if($search_tag_selected != '')
+                    $(".clear_search_tag[data-index='{{$key}}']").first().show();
+                @endif
+            @endforeach
             //有舊選項時選擇舊選項
         })
 
-        $("#clear_search_tag").on("click", function(){
-            $("#search_tag").val("").change();
-            $("#clear_search_tag").hide();
+        $(".clear_search_tag").on("click", function(){
+            search_tag_index = $(this).attr("data-index");
+            $(".search_tag[data-index='" + search_tag_index + "']").val("").change();
+            $(".clear_search_tag[data-index='" + search_tag_index + "']").hide();
         });
     </script>
 @endsection

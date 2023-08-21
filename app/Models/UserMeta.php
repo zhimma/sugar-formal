@@ -792,7 +792,7 @@ class UserMeta extends Model
                         $has_match_tag = false;
                         foreach($type_list as $type_item)
                         {
-                            $option_item = DB::table('option_' . $type_item->type_name)->where('option_name', $search_tag)->first();
+                            $option_item = DB::table('option_' . $type_item->type_name)->whereIn('option_name', $search_tag)->first();
                             if($option_item ?? false)
                             {
                                 $has_match_tag = true;
