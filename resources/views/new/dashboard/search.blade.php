@@ -1636,6 +1636,9 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             })
             ;
             //有舊選項時選擇舊選項
+            @php
+                $search_tag_selected_list = [];
+            @endphp
             @if(!empty($_POST["search_tag"]))
                 @php
                     $search_tag_selected_list = $_POST["search_tag"];
