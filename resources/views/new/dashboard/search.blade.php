@@ -250,16 +250,15 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
                                     @if($user_engroup==1)
                                         <dt>
-                                            <div class="n_se left">
+                                            <div class="n_se left search_tag_div">
                                                 <span>標籤</span>
-                                                @for($i = 0; $i < 10; $i++) 
-                                                    <div>
-                                                        <select name="search_tag[]" class="search_tag select_xx01" data-index="{{$i}}">
-                                                            <option value="">請選擇</option>
-                                                        </select>
-                                                        <img src="/new/images/map-gb.png" height="20px" class="clear_search_tag right" style="position: relative; margin-top: -30px; margin-right: 10px; display:none;" data-index="{{$i}}">
-                                                    </div>
-                                                @endfor
+                                                <div id="search_tag_field">
+                                                </div>
+                                                <div>
+                                                    <select class="search_tag_select select_xx01">
+                                                        <option value="">請選擇</option>
+                                                    </select>
+                                                </div>
                                             </div>
                                         </dt>
                                     @endif
@@ -1572,8 +1571,10 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/i18n/zh-TW.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.nicescroll/3.7.6/jquery.nicescroll.js"></script>
     <script>
+        search_tag_max_count = 10;
         $(function(){
-            $(".search_tag").select2({
+            $(".search_tag_select")
+            .select2({
                 language: {
                     noResults: function (params) {
                     return "無此標籤";
@@ -1605,14 +1606,25 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         };
                     },
                 },
-            }).on("select2:open", function () {
+            })
+            .on("select2:open", function () {
                 $('.select2-results__options').niceScroll({
                     autohidemode:false,
                     cursorcolor:'#fd5678',
                 });
-            }).on("select2:selecting", function() {
-                search_tag_index = $(this).attr("data-index");
-                $(".clear_search_tag[data-index='" + search_tag_index + "']").show();
+            })
+            .on("select2:select", function(e) {
+                $(".search_tag_select").val("").change();
+                search_tag_item = 
+                    '<div class="custom_s a1 cractive">' +
+                        e.params.data.text + ' ' +
+                        '<img src="/new/images/map-gb.png" height="20px" class="clear_search_tag">' +
+                        '<input type="hidden" value="' + e.params.data.text + '" name="search_tag[]">' +
+                    '</div>';
+                $("#search_tag_field").append(search_tag_item);
+                search_tag_add_event();
+                search_tag_listen_event();
+                
             })
             ;
             //有舊選項時選擇舊選項
@@ -1633,20 +1645,35 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 @endphp
             @endif
             @foreach($search_tag_selected_list as $key => $search_tag_selected)
-                $(".search_tag[data-index='{{$key}}']").first().append('<option value="{{$search_tag_selected}}">{{$search_tag_selected}}</option>');
-                $(".search_tag[data-index='{{$key}}']").first().val("{{$search_tag_selected}}").change();
-                @if($search_tag_selected != '')
-                    $(".clear_search_tag[data-index='{{$key}}']").first().show();
-                @endif
+                search_tag_item = 
+                    '<div class="custom_s a1 cractive">' +
+                        '{{$search_tag_selected}}' + ' ' +
+                        '<img src="/new/images/map-gb.png" height="20px" class="clear_search_tag">' +
+                        '<input type="hidden" value="{{$search_tag_selected}}" name="search_tag[]">' +
+                    '</div>';
+                $("#search_tag_field").append(search_tag_item);
+                search_tag_add_event();
+                search_tag_listen_event();
             @endforeach
             //有舊選項時選擇舊選項
         })
 
-        $(".clear_search_tag").on("click", function(){
-            search_tag_index = $(this).attr("data-index");
-            $(".search_tag[data-index='" + search_tag_index + "']").val("").change();
-            $(".clear_search_tag[data-index='" + search_tag_index + "']").hide();
-        });
+        function search_tag_listen_event(){
+            $(".clear_search_tag").on("click", function(){
+                $(this).parent().remove();
+                if($('#search_tag_field').children('.cractive').length < search_tag_max_count)
+                {
+                    $('.search_tag_div .select2-container').show();
+                }
+            });
+        }
+
+        function search_tag_add_event(){
+            if($('#search_tag_field').children('.cractive').length >= search_tag_max_count)
+            {
+                $('.search_tag_div .select2-container').hide();
+            }
+        }
     </script>
 @endsection
 
