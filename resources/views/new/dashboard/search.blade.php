@@ -310,26 +310,6 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                                         <option value="偶爾抽" @if( !empty( $_POST["smoking"] ) && $_POST["smoking"] == "偶爾抽" ) selected @elseif(!empty( $_GET["smoking"] ) && $_GET["smoking"] == "偶爾抽") selected @elseif(!empty( session()->get('search_page_key.smoking') ) && session()->get('search_page_key.smoking') == "偶爾抽") selected @endif>偶爾抽</option>
                                                         <option value="常抽" @if( !empty( $_POST["smoking"] ) && $_POST["smoking"] == "常抽" ) selected @elseif(!empty( $_GET["smoking"] ) && $_GET["smoking"] == "常抽") selected @elseif(!empty( session()->get('search_page_key.smoking') ) && session()->get('search_page_key.smoking') == "常抽") selected @endif>常抽</option>
                                                     </select>
-                                                    {{--<span>感情狀況</span>
-                                                    <select name="relationship_status" class="select_xx01">
-                                                        <option value="">請選擇</option>
-                                                        @foreach(\DB::table('option_relationship_status')->get() as $option)
-                                                            <option value={{$option->id}} @if( !empty( $_POST["relationship_status"] ) && $_POST["relationship_status"] == $option->id ) selected @elseif(!empty( $_GET["relationship_status"] ) && $_GET["relationship_status"] == $option->id) selected @elseif(!empty( session()->get('search_page_key.relationship_status') ) && session()->get('search_page_key.relationship_status') == $option->id) selected @endif>{{$option->option_name}}</option>
-                                                        @endforeach
-                                                    </select>--}}
-                                                    {{--
-                                                    <span>現況</span>
-                                                    <select name="situation" class="select_xx01">
-                                                        <option value="">請選擇</option>
-                                                        <option value="學生" @if( !empty( $_POST["situation"] ) && $_POST["situation"] == "學生" ) selected @elseif(!empty( $_GET["situation"] ) && $_GET["situation"] == "學生") selected @elseif(!empty( session()->get('search_page_key.situation') ) && session()->get('search_page_key.situation') == "學生") selected @endif>學生</option>
-                                                        <option value="待業" @if( !empty( $_POST["situation"] ) && $_POST["situation"] == "待業" ) selected @elseif(!empty( $_GET["situation"] ) && $_GET["situation"] == "待業") selected @elseif(!empty( session()->get('search_page_key.situation') ) && session()->get('search_page_key.situation') == "待業") selected @endif>待業</option>
-                                                        <option value="休學" @if( !empty( $_POST["situation"] ) && $_POST["situation"] == "休學" ) selected @elseif(!empty( $_GET["situation"] ) && $_GET["situation"] == "休學") selected @elseif(!empty( session()->get('search_page_key.situation') ) && session()->get('search_page_key.situation') == "休學") selected @endif>休學</option>
-                                                        <option value="打工" @if( !empty( $_POST["situation"] ) && $_POST["situation"] == "打工" ) selected @elseif(!empty( $_GET["situation"] ) && $_GET["situation"] == "打工") selected @elseif(!empty( session()->get('search_page_key.situation') ) && session()->get('search_page_key.situation') == "打工") selected @endif>打工</option>
-                                                        <option value="上班族" @if( !empty( $_POST["situation"] ) && $_POST["situation"] == "上班族" ) selected @elseif(!empty( $_GET["situation"] ) && $_GET["situation"] == "上班族") selected @elseif(!empty( session()->get('search_page_key.situation') ) && session()->get('search_page_key.situation') == "上班族") selected @endif>上班族</option>
-                                                        <option value="在家工作" @if( !empty( $_POST["situation"] ) && $_POST["situation"] == "在家工作" ) selected @elseif(!empty( $_GET["situation"] ) && $_GET["situation"] == "在家工作") selected @elseif(!empty( session()->get('search_page_key.situation') ) && session()->get('search_page_key.situation') == "在家工作") selected @endif>在家工作</option>
-                                                        <option value="自行開業" @if( !empty( $_POST["situation"] ) && $_POST["situation"] == "自行開業" ) selected @elseif(!empty( $_GET["situation"] ) && $_GET["situation"] == "自行開業") selected @elseif(!empty( session()->get('search_page_key.situation') ) && session()->get('search_page_key.situation') == "自行開業") selected @endif>自行開業</option>
-                                                    </select>
-                                                    --}}
                                                 </div>
                                                 <div class="n_se right">
                                                     <span>是否想進一步發展?</span>
