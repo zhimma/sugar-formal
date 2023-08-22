@@ -272,9 +272,9 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                         <dt>
                                             <span>年齡範圍</span>
                                             <span style="display: inline-flex;">
-                                            <input class="select_xx06" name="agefrom" id="agefrom" type="number" min="18" max="80" value="@if(!empty($_POST['agefrom'])){{ $_POST['agefrom'] }}@elseif(!empty($_GET['agefrom'])){{$_GET['agefrom']}}@elseif(!empty(session()->get('search_page_key.agefrom'))){{ session()->get('search_page_key.agefrom')  }}@endif">
+                                            <input class="select_xx06" name="agefrom" id="agefrom" type="number" value="@if(!empty($_POST['agefrom'])){{ $_POST['agefrom'] }}@elseif(!empty($_GET['agefrom'])){{$_GET['agefrom']}}@elseif(!empty(session()->get('search_page_key.agefrom'))){{ session()->get('search_page_key.agefrom')  }}@endif">
                                             <div class="sew6">至</div>
-                                            <input class="select_xx06 right" name="ageto" id="ageto" type="number" min="18" max="80" value="@if(!empty($_POST['ageto'])){{$_POST['ageto'] }}@elseif(!empty($_GET['ageto'])){{$_GET['ageto']}}@elseif(!empty(session()->get('search_page_key.ageto'))){{ session()->get('search_page_key.ageto')  }}@endif">
+                                            <input class="select_xx06 right" name="ageto" id="ageto" type="number" value="@if(!empty($_POST['ageto'])){{$_POST['ageto'] }}@elseif(!empty($_GET['ageto'])){{$_GET['ageto']}}@elseif(!empty(session()->get('search_page_key.ageto'))){{ session()->get('search_page_key.ageto')  }}@endif">
                                             </span>
                                         </dt>
 
@@ -283,9 +283,9 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                             <span style="display: inline-flex;">
                                                 {{--150  <input id="heightRange" type="text" class="span2" name="heightRange" value="" data-slider-min="150" data-slider-max="180" data-slider-step="5" data-slider-value="[150,180]"/>  180--}}
                                                 {{--<input type="range" name="percent" min="50" max="100" value=@if(isset($_POST['percent']))"{{$_POST['percent']}}"@else"70"@endif class="form-control-range range" id="myRange">--}}
-                                            <input class="select_xx06" name="heightfrom" id="heightfrom" type="number" min="140" max="210" value="@if(!empty($_POST['heightfrom'])){{ $_POST['heightfrom'] }}@elseif(!empty($_GET['heightfrom'])){{$_GET['heightfrom']}}@elseif(!empty(session()->get('search_page_key.heightfrom'))){{ session()->get('search_page_key.heightfrom')  }}@endif">
+                                            <input class="select_xx06" name="heightfrom" id="heightfrom" type="number" value="@if(!empty($_POST['heightfrom'])){{ $_POST['heightfrom'] }}@elseif(!empty($_GET['heightfrom'])){{$_GET['heightfrom']}}@elseif(!empty(session()->get('search_page_key.heightfrom'))){{ session()->get('search_page_key.heightfrom')  }}@endif">
                                             <div class="sew6">至</div>
-                                            <input class="select_xx06 right" name="heightto" id="heightto" type="number" min="140" max="210" value="@if(!empty($_POST['heightto'])){{$_POST['heightto'] }}@elseif(!empty($_GET['heightto'])){{$_GET['heightto']}}@elseif(!empty(session()->get('search_page_key.heightto'))){{ session()->get('search_page_key.heightto')  }}@endif">
+                                            <input class="select_xx06 right" name="heightto" id="heightto" type="number" value="@if(!empty($_POST['heightto'])){{$_POST['heightto'] }}@elseif(!empty($_GET['heightto'])){{$_GET['heightto']}}@elseif(!empty(session()->get('search_page_key.heightto'))){{ session()->get('search_page_key.heightto')  }}@endif">
                                             {{--<input id="heightRange" name="heightRange" class="multi-range" type="range" />--}}
                                             </span>
                                         </dt>
@@ -293,9 +293,9 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                         <dt>
                                             <span>體重範圍<i class="ssrgf">(僅顯示有填寫者)</i></span>
                                             <span style="display: inline-flex;">
-                                                <input class="select_xx06" name="weightfrom" id="weightfrom" type="number" step="5" value="@if(!empty($_POST['weightfrom'])){{ $_POST['weightfrom'] }}@elseif(!empty($_GET['weightfrom'])){{$_GET['weightfrom']}}@elseif(!empty(session()->get('search_page_key.weightfrom'))){{ session()->get('search_page_key.weightfrom')  }}@endif">
+                                                <input class="select_xx06" name="weightfrom" id="weightfrom" type="number" value="@if(!empty($_POST['weightfrom'])){{ $_POST['weightfrom'] }}@elseif(!empty($_GET['weightfrom'])){{$_GET['weightfrom']}}@elseif(!empty(session()->get('search_page_key.weightfrom'))){{ session()->get('search_page_key.weightfrom')  }}@endif">
                                                 <div class="sew6">至</div>
-                                                <input class="select_xx06 right" name="weightto" id="weightto" type="number" step="5" value="@if(!empty($_POST['weightto'])){{$_POST['weightto'] }}@elseif(!empty($_GET['weightto'])){{$_GET['weightto']}}@elseif(!empty(session()->get('search_page_key.weightto'))){{ session()->get('search_page_key.weightto')  }}@endif">
+                                                <input class="select_xx06 right" name="weightto" id="weightto" type="number" value="@if(!empty($_POST['weightto'])){{$_POST['weightto'] }}@elseif(!empty($_GET['weightto'])){{$_GET['weightto']}}@elseif(!empty(session()->get('search_page_key.weightto'))){{ session()->get('search_page_key.weightto')  }}@endif">
                                             </span>
                                         </dt>
 
@@ -1509,21 +1509,89 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
     </script>
     <script>
         $("#form").submit(function(e){
+            agefrom = $('#agefrom').val();
+            ageto = $('#ageto').val();
             heightfrom = $('#heightfrom').val();
             heightto = $('#heightto').val();
             weightfrom = $('#weightfrom').val();
             weightto = $('#weightto').val();
-            if((heightfrom == "" && heightto != "") || (heightfrom != "" && heightto == ""))
+
+            @if ($user->isVIP()||$user->isVVIP())
+                //範圍須有值
+                if((agefrom == "" && ageto != "") || (agefrom != "" && ageto == ""))
+                {
+                    event.preventDefault();
+                    c5('請輸入年齡範圍');
+                    return false;
+                }
+                if((heightfrom == "" && heightto != "") || (heightfrom != "" && heightto == ""))
+                {
+                    event.preventDefault();
+                    c5('請輸入身高範圍');
+                    return false;
+                }
+                if((weightfrom == "" && weightto != "") || (weightfrom != "" && weightto == ""))
+                {
+                    event.preventDefault();
+                    c5('請輸入體重範圍');
+                    return false;
+                }
+                //範圍須有值
+
+                //數值限制
+                if(agefrom != "" || ageto != "")
+                {
+                    if(agefrom < 18 || ageto < 18)
+                    {
+                        hint_str = "年齡範圍值必須大於或等於18。";
+                        c5(hint_str);
+                        return false;
+                    }
+                    if(agefrom > 80 || ageto > 80)
+                    {
+                        hint_str = "年齡範圍值必須小於或等於80。";
+                        c5(hint_str);
+                        return false;
+                    }
+                }
+                if(heightfrom != "" || heightto != "")
+                {
+                    if(heightfrom < 140 || heightto < 140)
+                    {
+                        hint_str = "身高範圍值必須大於或等於140。";
+                        c5(hint_str);
+                        return false;
+                    }
+                    if(heightfrom > 210 || heightto > 210)
+                    {
+                        hint_str = "身高範圍值必須小於或等於210。";
+                        c5(hint_str);
+                        return false;
+                    }
+                }
+                if(weightfrom != "" || weightto != "")
+                {
+                    if(weightfrom % 5 != 0)
+                    {
+                        hint_str = "體重範圍請輸入有效值。最接近的兩個有效值分別是" + (Math.floor((parseInt(weightfrom) / 5)) * 5) + "和" + (Math.floor((parseInt(weightfrom) / 5 + 1)) * 5) + "。";
+                        c5(hint_str);
+                        return false;
+                    }
+                    if(weightto % 5 != 0)
+                    {
+                        hint_str = "體重範圍請輸入有效值。最接近的兩個有效值分別是" + (Math.floor((parseInt(weightto) / 5)) * 5) + "和" + (Math.floor((parseInt(weightto) / 5 + 1)) * 5) + "。";
+                        c5(hint_str);
+                        return false;
+                    }
+                }
+                //數值限制
+            @endif
+
+            //大小交換
+            if(agefrom > ageto)
             {
-                event.preventDefault();
-                c5('請輸入身高範圍');
-                return false;
-            }
-            if((weightfrom == "" && weightto != "") || (weightfrom != "" && weightto == ""))
-            {
-                event.preventDefault();
-                c5('請輸入體重範圍');
-                return false;
+                $('#agefrom').val(ageto);
+                $('#ageto').val(agefrom);
             }
             if(heightfrom > heightto)
             {
@@ -1535,6 +1603,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 $('#weightfrom').val(weightto);
                 $('#weightto').val(weightfrom);
             }
+            //大小交換
 
             $('input[name="isVip"]').val($('.a_isVip.cractive').first().attr('value'));
             $('input[name="isBlocked"]').val($('.a_isBlocked.cractive').first().attr('value'));

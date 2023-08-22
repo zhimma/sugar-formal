@@ -621,14 +621,7 @@ class Message extends Model
             $query = self::addAutoDestroyWhereToQuery($query);
 
             if ($includeUnsend) {
-                $query->withTrashed()->where(function ($q) {
-                    $q->where(function ($q1) {
-                        $q1->where('unsend', 0)->whereNull('deleted_at');
-                    })
-                        ->orWhere(function ($q2) {
-                            $q2->where('unsend', 1);
-                        });
-                });
+                $this->addIncludeUnsendWhereToQuery($query);
             }
         }
         else {
@@ -690,6 +683,7 @@ class Message extends Model
 
     public static function addAutoDestroyWhereToQuery($query)
     {
+        if(!$query) $query = self::query();
         return $query
             ->where(function ($q) {
                 $q->where('views_count_quota', '>', 0)
@@ -705,6 +699,18 @@ class Message extends Model
                 })->orWhere('show_time_limit', 0)
                     ->orWhereNull('show_time_limit');
             });
+    }
+    
+    public static function addIncludeUnsendWhereToQuery($query=null) 
+    {
+        if(!$query) $query = self::query();
+        return $query->withTrashed()->where(function ($q) {
+            $q->where(function ($q1) {
+                $q1->where('unsend', 0)->whereNull('deleted_at');
+            })->orWhere(function ($q2) {
+                $q2->where('unsend', 1);
+            });
+        });        
     }
 
     public static function getNotShowBadUserDate($uid, $sid)

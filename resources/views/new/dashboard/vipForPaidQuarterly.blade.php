@@ -41,8 +41,8 @@
                                             <h3>舊會員專屬專案</h3>
                                             </div>
                                             <div class="new_fanext">
-                                            <h3>888</h3>
-                                            <h3>$NTD/每月</h3>
+                                            <h3>2964</h3>
+                                            <h3>$NTD/每季</h3>
                                             </div>
                                         </div>
                                     </li>
@@ -50,10 +50,12 @@
                             </div>
                             <div class="gvip_input">
                                 <span>
-                                    @if(isset($currentVipData) && $currentVipData->amount == 888)
+                                    @if(isset($currentVipData) && ($currentVipData->amount == 888 || $currentVipData->amount == 1388 || $currentVipData->amount == 2964))
                                         <form class="m-form m-form--fit" action="{{ route('upgradepay_ec') }}" method=post>
                                         <input type="hidden" name="_token" value="{{ csrf_token() }}" >
                                         <input type="hidden" name="userId" value="{{$user->id}}">
+                                        <input type="hidden" name="amount" value="2964">
+                                        <input type="hidden" name="frequency" value="3">
                                         <button type="submit" class="gvipbut n_vip01" style="border-style: none;">購買</button>
                                         </form>
                                     @else
@@ -114,7 +116,7 @@
         }
 
         {{--alert({{$days}});--}}
-        @if(isset($currentVipData) && $currentVipData->active == 0 && $currentVipData->amount == 888)
+        @if(isset($currentVipData) && $currentVipData->active == 0 && ($currentVipData->amount == 888 || $currentVipData->amount == 1388 || $currentVipData->amount == 2964))
 
         @else
             c5('此為舊會員專屬優惠頁');

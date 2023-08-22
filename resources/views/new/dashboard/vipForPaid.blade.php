@@ -115,7 +115,7 @@
         }
 
         {{--alert({{$days}});--}}
-        @if(isset($currentVipData) && $currentVipData->amount == 888)
+        @if(isset($currentVipData) && $currentVipData->active == 0 && ($currentVipData->amount == 888 || $currentVipData->amount == 1388))
 
         @else
             c5('此為舊會員專屬優惠頁');

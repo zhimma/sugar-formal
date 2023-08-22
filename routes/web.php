@@ -415,6 +415,7 @@ Route::group(['middleware' => ['auth', 'global', 'active', 'femaleActive', 'vipC
 
     Route::get('/dashboard/vipForNewebPay', 'PagesController@viewVipForNewebPay'); //new route
     Route::get('/dashboard/vipForPaid', 'PagesController@viewVipForPaid'); //new route
+    Route::get('/dashboard/vipForPaidQuarterly', 'PagesController@viewVipForPaidQuarterly'); //new route
     Route::get('/dashboard/suspicious', 'PagesController@viewSuspicious'); //new route
     Route::get('/dashboard/suspicious_list', 'PagesController@suspicious_list');
     Route::get('/dashboard/suspicious_posts', 'PagesController@suspicious_posts');

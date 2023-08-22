@@ -768,7 +768,7 @@ class Message_newController extends BaseController {
                     $count = 0;
                     foreach ($data as $d)
                     {
-                        if((!$d['isVip']))
+                        if((!$d['isVip']) && (!$d['isVVIP']))
                         {
                             unset($data[$count]);
                         }

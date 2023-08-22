@@ -1712,7 +1712,8 @@ display: flex;-webkit-box-pack: center;-ms-flex-pack: center;-webkit-justify-con
             fdata.append(value.name, value.value);
         });
         fdata.append('_token', '{{ csrf_token() }}');
-
+        $(swiper.navigation.nextEl).hide();
+        $(swiper.navigation.prevEl).hide();
         $.ajax({
             type: 'POST',
             url: '{{ route("checkFaqAnswer") }}',
@@ -1721,7 +1722,6 @@ display: flex;-webkit-box-pack: center;-ms-flex-pack: center;-webkit-justify-con
             contentType: false, 
             processData: false,            
             success: function(data, status, xhr){
-
                 var error_msg = '';
                 if(data.error!=undefined || data.exception=='Error') {
                     switch (data.error) {
@@ -1799,8 +1799,13 @@ display: flex;-webkit-box-pack: center;-ms-flex-pack: center;-webkit-justify-con
                     @endif                    
                 }
                 
+                $(swiper.navigation.nextEl).show();
+                $(swiper.navigation.prevEl).show();                
+                
             },
             error: function(xhr, status, error){
+                $(swiper.navigation.nextEl).show();
+                $(swiper.navigation.prevEl).show();                
                 if(error=='Unauthorized') {
                     wdt();
                     $('.bl_tab,.evaluation_bg').hide();
@@ -1985,7 +1990,7 @@ display: flex;-webkit-box-pack: center;-ms-flex-pack: center;-webkit-justify-con
             nowFormElt.find('input[type=radio],input[type=checkbox]').css({"width":'1px',"height":'1px','position':'relative','top':'45px'}).addClass('force_show');           
             var chk_elt = nowFormElt.find('input[type=checkbox]:checked');
             var replace_elt = nowFormElt.find('.faq_replace_required_elt');
-            if(chk_elt.length>0) {
+            if(chk_elt.length>0 && replace_elt.length) {
                 replace_elt.get(0).setCustomValidity('');
                 chk_elt.each(function() {
                     var old_val = replace_elt.val();

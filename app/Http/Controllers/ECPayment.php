@@ -17,10 +17,17 @@ class ECPayment extends BaseController
         *    Credit信用卡付款產生訂單範例
         */
 
+        $type = '';
         if($request->amount && $request->amount>0){
             $amount = $request->amount;
             $PeriodType = 'M';
-            $Frequency = '1';
+            if($request->frequency && $request->frequency>1){
+                $Frequency = '3';
+                $type = 'cc_quarterly_payment';
+            }else {
+                $Frequency = '1';
+                $type = 'cc_monthly_payment';
+            }
             $PeriodAmount = $request->amount;
             $ExecTimes = '99';
         }else {
@@ -30,6 +37,7 @@ class ECPayment extends BaseController
             $Frequency = '1';
             $PeriodAmount = '888';
             $ExecTimes = '99';
+            $type = 'cc_monthly_payment';
         }
 
         //new payment
@@ -57,6 +65,10 @@ class ECPayment extends BaseController
             $Frequency = '';
             $PeriodAmount = '';
             $ExecTimes = '';
+        }
+
+        if($request->type && $request->type != ''){
+            $type = $request->type;
         }
 
         try {
@@ -150,7 +162,7 @@ class ECPayment extends BaseController
 
             // $obj->Send['IgnorePayment']     = ECPay_PaymentMethod::GooglePay ;           //不使用付款方式:GooglePay
             $obj->Send['CustomField1'] = $request->userId;
-            $obj->Send['CustomField3'] = $request->type;
+            $obj->Send['CustomField3'] = $type;
             $obj->Send['CustomField4'] = "VIP";
 
             //CustomField2 記錄前次單次VIP付費者未到期剩餘天數
