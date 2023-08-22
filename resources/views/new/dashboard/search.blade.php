@@ -250,11 +250,11 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
 
                                     @if($user_engroup==1)
                                         <dt>
-                                            <div class="n_se left search_tag_div">
+                                            <div class="search_tag_div">
                                                 <span>標籤</span>
                                                 <div id="search_tag_field">
                                                 </div>
-                                                <div>
+                                                <div class="n_se">
                                                     <select class="search_tag_select select_xx01">
                                                         <option value="">請選擇</option>
                                                     </select>
