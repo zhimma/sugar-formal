@@ -229,7 +229,7 @@ class LoginController extends \App\Http\Controllers\BaseController
 
         if($user) {
             //登入時進行自動警示
-            LoginAutoBan::dispatchSync($user->id);
+            LoginAutoBan::dispatch($user->id);
             //SetAutoBan::login_warned($user->id);
         }
 
