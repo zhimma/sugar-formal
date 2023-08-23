@@ -1684,15 +1684,21 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             })
             .on("select2:select", function(e) {
                 $(".search_tag_select").val("").change();
-                search_tag_item = 
-                    '<div class="custom_s a1 cractive">' +
-                        e.params.data.text + ' ' +
-                        '<img src="/new/images/map-gb.png" height="20px" class="clear_search_tag">' +
-                        '<input type="hidden" value="' + e.params.data.text + '" name="search_tag[]">' +
-                    '</div>';
-                $("#search_tag_field").append(search_tag_item);
-                search_tag_add_event();
-                search_tag_listen_event();
+                exist_option_list = [];
+                $("#search_tag_field .cractive input").each(function(){
+                    exist_option_list.push($(this).val());
+                });
+                if(!exist_option_list.includes(e.params.data.text)){
+                    search_tag_item = 
+                        '<div class="custom_s a1 cractive">' +
+                            e.params.data.text + ' ' +
+                            '<img src="/new/images/map-gb.png" height="20px" class="clear_search_tag">' +
+                            '<input type="hidden" value="' + e.params.data.text + '" name="search_tag[]">' +
+                        '</div>';
+                    $("#search_tag_field").append(search_tag_item);
+                    search_tag_add_event();
+                    search_tag_listen_event();
+                }
                 
             })
             ;
