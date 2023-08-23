@@ -29,6 +29,7 @@ elif [ "$(. ./.env; printf '%s' "$APP_ENV")" = "build" ] || [ "$(. ./.env; print
     git checkout ready_to_deploy/$now
     git push origin ready_to_deploy/$now
     hub pull-request --base mmmaya111:master --head mmmaya111:ready_to_deploy/$now -m "auto pull-request $now"
+    php artisan optimize:clear
 else    
     git fetch origin master
     # update source code
