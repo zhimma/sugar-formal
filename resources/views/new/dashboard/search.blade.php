@@ -102,6 +102,25 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
     .nt_img {
         left: 20px;
     }
+
+    .select2-selection {
+        height: 40px !important;
+    }
+
+    .select2-selection__rendered {
+        line-height: 40px !important;
+        width: 95% !important;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: normal !important;
+        display: -webkit-box !important;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 1;
+    }
+
+    .select2-selection__arrow {
+        display: none !important;
+    }
 </style>
 @endsection
 
@@ -229,6 +248,21 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                         </dt>
                                     @endif
 
+                                    @if($user_engroup==1)
+                                        <dt>
+                                            <div class="search_tag_div">
+                                                <span>標籤</span>
+                                                <div id="search_tag_field">
+                                                </div>
+                                                <div class="n_se">
+                                                    <select class="search_tag_select select_xx01">
+                                                        <option value="">請選擇</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </dt>
+                                    @endif
+
                                     <div class="btn_more">
                                         進階搜尋
                                         <span class="right"><img src="/new/images/xq_06.png"></span>
@@ -275,26 +309,6 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                                         <option value="偶爾抽" @if( !empty( $_POST["smoking"] ) && $_POST["smoking"] == "偶爾抽" ) selected @elseif(!empty( $_GET["smoking"] ) && $_GET["smoking"] == "偶爾抽") selected @elseif(!empty( session()->get('search_page_key.smoking') ) && session()->get('search_page_key.smoking') == "偶爾抽") selected @endif>偶爾抽</option>
                                                         <option value="常抽" @if( !empty( $_POST["smoking"] ) && $_POST["smoking"] == "常抽" ) selected @elseif(!empty( $_GET["smoking"] ) && $_GET["smoking"] == "常抽") selected @elseif(!empty( session()->get('search_page_key.smoking') ) && session()->get('search_page_key.smoking') == "常抽") selected @endif>常抽</option>
                                                     </select>
-                                                    {{--<span>感情狀況</span>
-                                                    <select name="relationship_status" class="select_xx01">
-                                                        <option value="">請選擇</option>
-                                                        @foreach(\DB::table('option_relationship_status')->get() as $option)
-                                                            <option value={{$option->id}} @if( !empty( $_POST["relationship_status"] ) && $_POST["relationship_status"] == $option->id ) selected @elseif(!empty( $_GET["relationship_status"] ) && $_GET["relationship_status"] == $option->id) selected @elseif(!empty( session()->get('search_page_key.relationship_status') ) && session()->get('search_page_key.relationship_status') == $option->id) selected @endif>{{$option->option_name}}</option>
-                                                        @endforeach
-                                                    </select>--}}
-                                                    {{--
-                                                    <span>現況</span>
-                                                    <select name="situation" class="select_xx01">
-                                                        <option value="">請選擇</option>
-                                                        <option value="學生" @if( !empty( $_POST["situation"] ) && $_POST["situation"] == "學生" ) selected @elseif(!empty( $_GET["situation"] ) && $_GET["situation"] == "學生") selected @elseif(!empty( session()->get('search_page_key.situation') ) && session()->get('search_page_key.situation') == "學生") selected @endif>學生</option>
-                                                        <option value="待業" @if( !empty( $_POST["situation"] ) && $_POST["situation"] == "待業" ) selected @elseif(!empty( $_GET["situation"] ) && $_GET["situation"] == "待業") selected @elseif(!empty( session()->get('search_page_key.situation') ) && session()->get('search_page_key.situation') == "待業") selected @endif>待業</option>
-                                                        <option value="休學" @if( !empty( $_POST["situation"] ) && $_POST["situation"] == "休學" ) selected @elseif(!empty( $_GET["situation"] ) && $_GET["situation"] == "休學") selected @elseif(!empty( session()->get('search_page_key.situation') ) && session()->get('search_page_key.situation') == "休學") selected @endif>休學</option>
-                                                        <option value="打工" @if( !empty( $_POST["situation"] ) && $_POST["situation"] == "打工" ) selected @elseif(!empty( $_GET["situation"] ) && $_GET["situation"] == "打工") selected @elseif(!empty( session()->get('search_page_key.situation') ) && session()->get('search_page_key.situation') == "打工") selected @endif>打工</option>
-                                                        <option value="上班族" @if( !empty( $_POST["situation"] ) && $_POST["situation"] == "上班族" ) selected @elseif(!empty( $_GET["situation"] ) && $_GET["situation"] == "上班族") selected @elseif(!empty( session()->get('search_page_key.situation') ) && session()->get('search_page_key.situation') == "上班族") selected @endif>上班族</option>
-                                                        <option value="在家工作" @if( !empty( $_POST["situation"] ) && $_POST["situation"] == "在家工作" ) selected @elseif(!empty( $_GET["situation"] ) && $_GET["situation"] == "在家工作") selected @elseif(!empty( session()->get('search_page_key.situation') ) && session()->get('search_page_key.situation') == "在家工作") selected @endif>在家工作</option>
-                                                        <option value="自行開業" @if( !empty( $_POST["situation"] ) && $_POST["situation"] == "自行開業" ) selected @elseif(!empty( $_GET["situation"] ) && $_GET["situation"] == "自行開業") selected @elseif(!empty( session()->get('search_page_key.situation') ) && session()->get('search_page_key.situation') == "自行開業") selected @endif>自行開業</option>
-                                                    </select>
-                                                    --}}
                                                 </div>
                                                 <div class="n_se right">
                                                     <span>是否想進一步發展?</span>
@@ -598,8 +612,8 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         $district4 = search_variable("district4","");
                         $district5 = search_variable("district5","");
                         $relationship_status = search_variable('relationship_status',"");
-
                         $userIsAdvanceAuth = search_variable("isAdvanceAuth", 0);
+                        $search_tag = search_variable('search_tag',"");
                     }
                     catch (\Exception $e){
                         \Illuminate\Support\Facades\Log::info('Search error, $user: ' . $user);
@@ -974,7 +988,8 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 //新增體重
                 weight:"{{$weight}}",
                 relationship_status:{!! json_encode($relationship_status && is_array($relationship_status)? array_keys($relationship_status) :null) !!},
-                perPageCount:perPageCount
+                perPageCount:perPageCount,
+                search_tag:{!! json_encode($search_tag ?? []) !!}
             };
             axios.post('/getSearchData', post_data)
             .then(response => {
@@ -1618,6 +1633,122 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             $(this).siblings().removeClass("cractive");
             $(this).toggleClass('cractive');
         });
+    </script>
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/i18n/zh-TW.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.nicescroll/3.7.6/jquery.nicescroll.js"></script>
+    <script>
+        search_tag_max_count = 10;
+        $(function(){
+            $(".search_tag_select")
+            .select2({
+                language: {
+                    noResults: function (params) {
+                    return "無此標籤";
+                    }
+                },
+                width: '100%',
+                // 最多字元限制
+                maximumInputLength: 10,
+                // 最少字元才觸發尋找, 0 不指定
+                minimumInputLength: 0,
+                // 當找不到可以使用輸入的文字
+                ajax: {
+                    url: '/dashboard/get_all_search_tag',
+                    type: 'get',
+                    dataType: 'json',
+                    data: function(params) {
+                        return {
+                            search_str: params.term,
+                        };
+                    },
+                    processResults: function (data) {
+                        return {
+                            results: $.map(data, function (item, index) {
+                                return {
+                                    id: item,
+                                    text: item
+                                }
+                            })
+                        };
+                    },
+                },
+            })
+            .on("select2:open", function () {
+                $('.select2-results__options').niceScroll({
+                    autohidemode:false,
+                    cursorcolor:'#fd5678',
+                });
+            })
+            .on("select2:select", function(e) {
+                $(".search_tag_select").val("").change();
+                exist_option_list = [];
+                $("#search_tag_field .cractive input").each(function(){
+                    exist_option_list.push($(this).val());
+                });
+                if(!exist_option_list.includes(e.params.data.text)){
+                    search_tag_item = 
+                        '<div class="custom_s a1 cractive">' +
+                            e.params.data.text + ' ' +
+                            '<img src="/new/images/map-gb.png" height="20px" class="clear_search_tag">' +
+                            '<input type="hidden" value="' + e.params.data.text + '" name="search_tag[]">' +
+                        '</div>';
+                    $("#search_tag_field").append(search_tag_item);
+                    search_tag_add_event();
+                    search_tag_listen_event();
+                }
+                
+            })
+            ;
+            //有舊選項時選擇舊選項
+            @php
+                $search_tag_selected_list = [];
+            @endphp
+            @if(!empty($_POST["search_tag"]))
+                @php
+                    $search_tag_selected_list = $_POST["search_tag"];
+                @endphp
+            @elseif(!empty($_GET["search_tag"]))
+                @php
+                    $search_tag_selected_list = $_GET["search_tag"];
+                @endphp
+            @elseif(!empty(session()->get('search_page_key.search_tag')))
+                @php
+                    $search_tag_selected_list = session()->get('search_page_key.search_tag');
+                @endphp
+            @endif
+            @foreach($search_tag_selected_list as $key => $search_tag_selected)
+                search_tag_item = 
+                    '<div class="custom_s a1 cractive">' +
+                        '{{$search_tag_selected}}' + ' ' +
+                        '<img src="/new/images/map-gb.png" height="20px" class="clear_search_tag">' +
+                        '<input type="hidden" value="{{$search_tag_selected}}" name="search_tag[]">' +
+                    '</div>';
+                $("#search_tag_field").append(search_tag_item);
+                search_tag_add_event();
+                search_tag_listen_event();
+            @endforeach
+            //有舊選項時選擇舊選項
+        })
+
+        function search_tag_listen_event(){
+            $(".clear_search_tag").on("click", function(){
+                $(this).parent().remove();
+                if($('#search_tag_field').children('.cractive').length < search_tag_max_count)
+                {
+                    $('.search_tag_div .select2-container').show();
+                }
+            });
+        }
+
+        function search_tag_add_event(){
+            if($('#search_tag_field').children('.cractive').length >= search_tag_max_count)
+            {
+                $('.search_tag_div .select2-container').hide();
+            }
+        }
     </script>
 @endsection
 
