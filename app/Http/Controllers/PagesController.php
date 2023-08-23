@@ -11656,7 +11656,9 @@ class PagesController extends BaseController
                 $tag_list = array_merge($tag_list, DB::table($table_name)
                                                     //篩選出有在user_options_xref的選項
                                                     ->leftJoin('user_options_xref', $table_name.'.id', '=', 'user_options_xref.option_id')
+                                                    ->leftJoin('users', 'user_options_xref.user_id', '=', 'users.id')
                                                     ->where('user_options_xref.option_type', '=', $type_key + 1) //option_type的id從1開始所以$type_key+1
+                                                    ->where('users.accountStatus', 1) //排除關閉帳號的用戶
                                                     //篩選出有在user_options_xref的選項
                                                     ->where('option_name', 'like', '%'.$search_str.'%')
                                                     ->get()
