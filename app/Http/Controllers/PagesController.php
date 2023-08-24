@@ -11676,6 +11676,8 @@ class PagesController extends BaseController
                                         }
                                     })
                                     ;
+        
+        //有輸入關鍵字時動作
         if($request->search_str ?? false)
         {
             $search_str = $request->search_str;
@@ -11685,6 +11687,7 @@ class PagesController extends BaseController
         {
             
         }
+
         $xref_list = $xref_list->get();
 
         //排序
