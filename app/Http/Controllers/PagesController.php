@@ -103,6 +103,8 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Intervention\Image\Facades\Image;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
 
 class PagesController extends BaseController
 {
@@ -11647,36 +11649,59 @@ class PagesController extends BaseController
     public function get_all_search_tag(Request $request)
     {
         $tag_list = [];
+
+        //會員自定義的標籤清單option_list[type_id][option_id]
+        $option_list = [];
+        foreach(DB::table('option_type')->get() as $type)
+        {
+            $table_name = 'option_' . $type->type_name;
+            if(Schema::hasColumn($table_name, 'is_custom')) {
+                foreach(DB::table($table_name)->where('is_custom', 1)->get() as $option)
+                {
+                    $option_list[$type->id][$option->id] = $option->option_name;
+                }
+            }
+        }
+
+        $xref_list = UserOptionsXref::leftJoin('users', 'user_options_xref.user_id', '=', 'users.id')
+                                    ->where('users.last_login', '>=', Carbon::now()->subDays(7)) //篩選出7天內登入的會員
+                                    ->where('users.accountStatus', 1) //排除關閉帳號的用戶
+                                    ->where('account_status_admin', 1) //排除站方關閉帳號的用戶
+                                    ->where(function($query) use($option_list){
+                                        foreach($option_list as $type_id => $option_id_list)
+                                        {
+                                            $query->orWhere(function($query) use($type_id, $option_id_list){
+                                                $query->where('option_type', $type_id)->whereIn('option_id', array_keys($option_id_list));
+                                            });
+                                        }
+                                    })
+                                    ;
         if($request->search_str ?? false)
         {
             $search_str = $request->search_str;
-            foreach(DB::table('option_type')->get()->pluck('type_name')->toArray() as $type_key => $type)
-            {
-                $table_name = 'option_' . $type;
-                $tag_list = array_merge($tag_list, DB::table($table_name)
-                                                    //篩選出有在user_options_xref的選項
-                                                    ->leftJoin('user_options_xref', $table_name.'.id', '=', 'user_options_xref.option_id')
-                                                    ->leftJoin('users', 'user_options_xref.user_id', '=', 'users.id')
-                                                    ->where('user_options_xref.option_type', '=', $type_key + 1) //option_type的id從1開始所以$type_key+1
-                                                    ->where('users.accountStatus', 1) //排除關閉帳號的用戶
-                                                    //篩選出有在user_options_xref的選項
-                                                    ->where('option_name', 'like', '%'.$search_str.'%')
-                                                    ->get()
-                                                    ->pluck('option_name')
-                                                    ->toArray()
-                );
-            }
-            $tag_list = array_unique($tag_list);
+            $xref_list = $xref_list->where('option_name', 'like', '%'.$search_str.'%');
         }
         else
         {
-            $tag_list = array_merge(
-                //DB::table('option_relationship_status')->get()->pluck('option_name')->toArray(),
-                DB::table('option_personality_traits')->where('is_custom', 0)->get()->pluck('option_name')->toArray(),
-                DB::table('option_life_style')->where('is_custom', 0)->get()->pluck('option_name')->toArray()
-            );
             
         }
+        $xref_list = $xref_list->get();
+
+        //排序
+        $count_list = [];
+        foreach($xref_list as $xref_item)
+        {
+            $count_list[json_encode([$xref_item->option_type, $xref_item->option_id])] = ($count_list[json_encode([$xref_item->option_type, $xref_item->option_id])] ?? 0) + 1;
+        }
+        arsort($count_list); //由小至大排序
+        $count_list = array_slice($count_list, 0, 10); //取前n筆資料
+
+        foreach($count_list as $json_option_id_pair => $count)
+        {
+            $option_id_pair_array = json_decode($json_option_id_pair);
+            $tag_list[] = $option_list[$option_id_pair_array[0]][$option_id_pair_array[1]];
+        }
+
         return response()->json($tag_list);
         
     }
