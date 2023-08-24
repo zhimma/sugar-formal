@@ -11646,10 +11646,10 @@ class PagesController extends BaseController
 
     public function get_all_search_tag(Request $request)
     {
+        $tag_list = [];
         if($request->search_str ?? false)
         {
             $search_str = $request->search_str;
-            $tag_list = [];
             foreach(DB::table('option_type')->get()->pluck('type_name')->toArray() as $type_key => $type)
             {
                 $table_name = 'option_' . $type;
@@ -11667,17 +11667,17 @@ class PagesController extends BaseController
                 );
             }
             $tag_list = array_unique($tag_list);
-            return response()->json($tag_list);
         }
         else
         {
-            $tag_example_list = array_merge(
+            $tag_list = array_merge(
                 //DB::table('option_relationship_status')->get()->pluck('option_name')->toArray(),
                 DB::table('option_personality_traits')->where('is_custom', 0)->get()->pluck('option_name')->toArray(),
                 DB::table('option_life_style')->where('is_custom', 0)->get()->pluck('option_name')->toArray()
             );
-            return response()->json($tag_example_list);
+            
         }
+        return response()->json($tag_list);
         
     }
 }
