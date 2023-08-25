@@ -229,7 +229,11 @@ class LoginController extends \App\Http\Controllers\BaseController
 
         if($user) {
             //登入時進行自動警示
-            LoginAutoBan::dispatch($user->id);
+            if (\App::isProduction()) {
+                LoginAutoBan::dispatch($user->id)->onConnection('sqs')->onQueue('auto-ban');
+            } else {
+                LoginAutoBan::dispatch($user->id)->onConnection('sqs')->onQueue('auto-ban-test');
+            }
             //SetAutoBan::login_warned($user->id);
         }
 
