@@ -558,8 +558,12 @@ class ImageController extends BaseController
                 'updated_at'  => now(),
                 'uploaded_at' => $meta->updated_at,
             ]);
-
+            
+            $blur_fullPath = '';
+            if($meta->pic_blur) $blur_fullPath = public_path($meta->pic_blur);
+            if($blur_fullPath && File::exists($blur_fullPath)) unlink($blur_fullPath);
             $meta->pic = NULL;
+            $meta->pic_blur = NULL;
             $meta->save();
             CheckPointUser::where('user_id', auth()->id())->delete();
             $msg="刪除成功";
