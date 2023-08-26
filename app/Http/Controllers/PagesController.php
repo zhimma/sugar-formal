@@ -4333,6 +4333,7 @@ class PagesController extends BaseController
 
     public function search2(Request $request)
     {
+        //Log::Info($request);
         $input = $request->input();
         $search_page_key=session()->get('search_page_key',[]);
         if(!$search_page_key && !$input) {
@@ -4452,7 +4453,10 @@ class PagesController extends BaseController
             $this->service->dispatchCheckECPayForValueAddedService('VVIP', $valueAddedServiceData_VVIP);
         }
 
-        return view('new.dashboard.search')->with('user', $user)->with('rap_service',$rap_service);
+        return view('new.dashboard.search')
+                ->with('user', $user)
+                ->with('rap_service',$rap_service)
+                ;
     }
 
     public function upgrade_ec(Request $request)
@@ -11638,6 +11642,41 @@ class PagesController extends BaseController
         $search = array(" ", "　", "\n", "\r", "\t");
         $replace = array("", "", "", "", "");
         return str_replace($search, $replace, $str);
+    }
+
+    public function get_all_search_tag(Request $request)
+    {
+        if($request->search_str ?? false)
+        {
+            $search_str = $request->search_str;
+            $tag_list = [];
+            foreach(DB::table('option_type')->get()->pluck('type_name')->toArray() as $type_key => $type)
+            {
+                $table_name = 'option_' . $type;
+                $tag_list = array_merge($tag_list, DB::table($table_name)
+                                                    //篩選出有在user_options_xref的選項
+                                                    ->leftJoin('user_options_xref', $table_name.'.id', '=', 'user_options_xref.option_id')
+                                                    ->where('user_options_xref.option_type', '=', $type_key + 1) //option_type的id從1開始所以$type_key+1
+                                                    //篩選出有在user_options_xref的選項
+                                                    ->where('option_name', 'like', '%'.$search_str.'%')
+                                                    ->get()
+                                                    ->pluck('option_name')
+                                                    ->toArray()
+                );
+            }
+            $tag_list = array_unique($tag_list);
+            return response()->json($tag_list);
+        }
+        else
+        {
+            $tag_example_list = array_merge(
+                //DB::table('option_relationship_status')->get()->pluck('option_name')->toArray(),
+                DB::table('option_personality_traits')->where('is_custom', 0)->get()->pluck('option_name')->toArray(),
+                DB::table('option_life_style')->where('is_custom', 0)->get()->pluck('option_name')->toArray()
+            );
+            return response()->json($tag_example_list);
+        }
+        
     }
 }
 
