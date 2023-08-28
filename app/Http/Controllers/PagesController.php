@@ -11655,10 +11655,14 @@ class PagesController extends BaseController
         foreach(DB::table('option_type')->get() as $type)
         {
             $table_name = 'option_' . $type->type_name;
-            if(Schema::hasColumn($table_name, 'is_custom')) {
-                foreach(DB::table($table_name)->where('is_custom', 1)->get() as $option)
-                {
-                    $option_list[$type->id][$option->id] = $option->option_name;
+            $exclude_array = ['occupation'];
+            if(!in_array($exclude_array, $type->type_name))
+            {
+                if(Schema::hasColumn($table_name, 'is_custom')) {
+                    foreach(DB::table($table_name)->where('is_custom', 1)->get() as $option)
+                    {
+                        $option_list[$type->id][$option->id] = $option->option_name;
+                    }
                 }
             }
         }
