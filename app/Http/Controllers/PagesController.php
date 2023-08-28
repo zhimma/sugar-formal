@@ -11659,7 +11659,15 @@ class PagesController extends BaseController
             if(!in_array($type->type_name, $exclude_type_array))
             {
                 if(Schema::hasColumn($table_name, 'is_custom')) {
-                    foreach(DB::table($table_name)->where('is_custom', 1)->get() as $option)
+                    $temp_option_list = DB::table($table_name)->where('is_custom', 1);
+                    //有輸入關鍵字時動作
+                    if($request->search_str ?? false)
+                    {
+                        $search_str = $request->search_str;
+                        $xref_list = $temp_option_list->where('option_name', 'like', '%'.$search_str.'%');
+                    }
+                    $temp_option_list = $temp_option_list->get();
+                    foreach($temp_option_list as $option)
                     {
                         $option_list[$type->id][$option->id] = $option->option_name;
                     }
@@ -11680,20 +11688,8 @@ class PagesController extends BaseController
                                             });
                                         }
                                     })
+                                    ->get()
                                     ;
-        
-        //有輸入關鍵字時動作
-        if($request->search_str ?? false)
-        {
-            $search_str = $request->search_str;
-            $xref_list = $xref_list->where('option_name', 'like', '%'.$search_str.'%');
-        }
-        else
-        {
-            
-        }
-
-        $xref_list = $xref_list->get();
 
         //排序
         $count_list = [];
