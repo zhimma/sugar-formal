@@ -11671,7 +11671,7 @@ class PagesController extends BaseController
                                     ->where('users.last_login', '>=', Carbon::now()->subDays(7)) //篩選出7天內登入的會員
                                     ->where('users.accountStatus', 1) //排除關閉帳號的用戶
                                     ->where('account_status_admin', 1) //排除站方關閉帳號的用戶
-                                    ->where('id', '!=', 1049) //排除站長
+                                    ->where('users.id', '!=', 1049) //排除站長
                                     ->where(function($query) use($option_list){
                                         foreach($option_list as $type_id => $option_id_list)
                                         {
