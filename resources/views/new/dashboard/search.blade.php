@@ -1644,11 +1644,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
         $(function(){
             $(".search_tag_select")
             .select2({
-                language: {
-                    noResults: function (params) {
-                    return "無此標籤";
-                    }
-                },
+                language: 'zh-TW',
                 width: '100%',
                 // 最多字元限制
                 maximumInputLength: 10,

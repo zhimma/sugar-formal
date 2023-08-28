@@ -11700,12 +11700,15 @@ class PagesController extends BaseController
         arsort($count_list); //由小至大排序
         $count_list = array_slice($count_list, 0, 10); //取前n筆資料
 
-        foreach($count_list as $json_option_id_pair => $count)
+        if(count($option_list))
         {
-            $option_id_pair_array = json_decode($json_option_id_pair);
-            $tag_list[] = $option_list[$option_id_pair_array[0]][$option_id_pair_array[1]];
+            foreach($count_list as $json_option_id_pair => $count)
+            {
+                $option_id_pair_array = json_decode($json_option_id_pair);
+                $tag_list[] = $option_list[$option_id_pair_array[0]][$option_id_pair_array[1]];
+            }
         }
-
+        
         return response()->json($tag_list);
         
     }
