@@ -2351,7 +2351,7 @@ class PagesController extends BaseController
                             //                            }
                             //                            else {
                             $offVIP = '您已成功取消 VVIP，下個月起將不再繼續扣款，目前的付費功能權限可以維持到 ' . $date;
-//                            }
+                            //}
                         }
                         logger('$expiry: ' . $data->expiry);
                         logger('base day: ' . $date);
