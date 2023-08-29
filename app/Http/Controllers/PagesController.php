@@ -4335,6 +4335,7 @@ class PagesController extends BaseController
 
     public function search2(Request $request)
     {
+        $search_data = [];
         //Log::Info($request);
         $input = $request->input();
         $search_page_key=session()->get('search_page_key',[]);
@@ -4347,55 +4348,66 @@ class PagesController extends BaseController
         $rap_service = $this->rap_service;
 
         //篩選search_tag是否有不符合的用戶
-        $search_tag_array = $request->search_tag;
-        if($search_tag_array)
+        $search_tag_selected_list = [];
+        if(!empty($_POST["search_tag"]))
         {
-            $option_list = []; //會員自定義的標籤清單option_list[type_id][option_id]
-            foreach(DB::table('option_type')->get() as $type)
-            {
-                $table_name = 'option_' . $type->type_name;
-                $exclude_type_array = ['occupation'];
-                if(!in_array($type->type_name, $exclude_type_array))
-                {
-                    if(Schema::hasColumn($table_name, 'is_custom')) {
-                        $temp_option_list = DB::table($table_name)
-                                                ->where('is_custom', 1)
-                                                ->whereIn('option_name', $search_tag_array)
-                                                ->get();
-                        foreach($temp_option_list as $option)
-                        {
-                            $option_list[$type->id][$option->id] = $option->option_name;
-                        }
-                    }
-                }
-            }
-            $xref_list = UserOptionsXref::select('user_options_xref.option_type', 'user_options_xref.option_id')
-                                        ->leftJoin('users', 'user_options_xref.user_id', '=', 'users.id')
-                                        ->leftJoin('banned_users', 'users.id', '=', 'banned_users.member_id')
-                                        ->leftJoin('banned_users_implicitly', 'users.id', '=', 'banned_users_implicitly.user_id')
-                                        ->where('users.last_login', '>=', Carbon::now()->subDays(7)) //篩選出7天內登入的會員
-                                        ->where('users.accountStatus', 1) //排除關閉帳號的用戶
-                                        ->where('account_status_admin', 1) //排除站方關閉帳號的用戶
-                                        ->where('users.id', '!=', 1049) //排除站長
-                                        ->whereNull('banned_users.id') //排除封鎖
-                                        ->whereNull('banned_users_implicitly.id') //排除隱性封鎖
-                                        ->get()
-                                        ;
-            if(count($option_list))
-            {
-                $temp_search_tag_array = [];
-                foreach($xref_list as $xref_item)
-                {
-                    if(isset($option_list[$xref_item->option_type][$xref_item->option_id]))
-                    {
-                        $temp_search_tag_array[] = $option_list[$xref_item->option_type][$xref_item->option_id];
-                    }
-                }
-                $search_tag_array = $temp_search_tag_array;
-            }
-            $search_tag_array = array_unique($search_tag_array);
-            request()->search_tag = $search_tag_array;
+            $search_tag_selected_list = $_POST["search_tag"];
         }
+        elseif(!empty($_GET["search_tag"]))
+        {
+            $search_tag_selected_list = $_GET["search_tag"];
+        }
+        elseif(!empty(session()->get('search_page_key.search_tag')))
+        {
+            $search_tag_selected_list = session()->get('search_page_key.search_tag');
+        }
+
+        $option_list = []; //會員自定義的標籤清單option_list[type_id][option_id]
+        foreach(DB::table('option_type')->get() as $type)
+        {
+            $table_name = 'option_' . $type->type_name;
+            $exclude_type_array = ['occupation'];
+            if(!in_array($type->type_name, $exclude_type_array))
+            {
+                if(Schema::hasColumn($table_name, 'is_custom')) {
+                    $temp_option_list = DB::table($table_name)
+                                            ->where('is_custom', 1)
+                                            ->whereIn('option_name', $search_tag_selected_list)
+                                            ->get();
+                    foreach($temp_option_list as $option)
+                    {
+                        $option_list[$type->id][$option->id] = $option->option_name;
+                    }
+                }
+            }
+        }
+        $xref_list = UserOptionsXref::select('user_options_xref.option_type', 'user_options_xref.option_id')
+                                    ->leftJoin('users', 'user_options_xref.user_id', '=', 'users.id')
+                                    ->leftJoin('banned_users', 'users.id', '=', 'banned_users.member_id')
+                                    ->leftJoin('banned_users_implicitly', 'users.id', '=', 'banned_users_implicitly.user_id')
+                                    ->where('users.last_login', '>=', Carbon::now()->subDays(7)) //篩選出7天內登入的會員
+                                    ->where('users.accountStatus', 1) //排除關閉帳號的用戶
+                                    ->where('account_status_admin', 1) //排除站方關閉帳號的用戶
+                                    ->where('users.id', '!=', 1049) //排除站長
+                                    ->whereNull('banned_users.id') //排除封鎖
+                                    ->whereNull('banned_users_implicitly.id') //排除隱性封鎖
+                                    ->get()
+                                    ;
+        if(count($option_list))
+        {
+            $temp_search_tag_array = [];
+            foreach($xref_list as $xref_item)
+            {
+                if(isset($option_list[$xref_item->option_type][$xref_item->option_id]))
+                {
+                    $temp_search_tag_array[] = $option_list[$xref_item->option_type][$xref_item->option_id];
+                }
+            }
+            $search_tag_selected_list = $temp_search_tag_array;
+            $search_tag_selected_list = array_unique($search_tag_selected_list);
+        }
+        $search_data['search_tag'] = $search_tag_selected_list;
+        //篩選search_tag是否有不符合的用戶
 
         $county_array = ['county', 'county2', 'county3', 'county4', 'county5'];
         foreach ($input as $key => $value) {
@@ -4509,6 +4521,7 @@ class PagesController extends BaseController
         return view('new.dashboard.search')
                 ->with('user', $user)
                 ->with('rap_service',$rap_service)
+                ->with('search_data',$search_data)
                 ;
     }
 
