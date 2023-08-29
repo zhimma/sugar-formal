@@ -792,12 +792,12 @@ class UserMeta extends Model
                         $has_match_tag = false;
                         foreach($type_list as $type_item)
                         {
-                            $option_item = DB::table('option_' . $type_item->type_name)->whereIn('option_name', $search_tag)->first();
+                            $option_item = DB::table('option_' . $type_item->type_name)->whereIn('option_name', $search_tag)->get();
                             if($option_item ?? false)
                             {
                                 $has_match_tag = true;
                                 $query->orWhere(function ($query) use ($type_item, $option_item){
-                                    $query->where('option_type', $type_item->id)->where('option_id', $option_item->id);
+                                    $query->where('option_type', $type_item->id)->whereIn('option_id', $option_item->pluck('id'));
                                 });
                             }
                         }
