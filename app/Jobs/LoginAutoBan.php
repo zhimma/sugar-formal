@@ -24,11 +24,14 @@ class LoginAutoBan implements ShouldQueue
      */
     protected $uid;
 
+    public $timeout = 600;
+
     public function __construct($uid)
     {
         Log::info('start_jobs_LoginAutoBan_construct');
         Log::info($uid);
         $this->uid = $uid;
+        ini_set('max_execution_time', 600);
     }
 
     /**
