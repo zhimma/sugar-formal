@@ -4391,7 +4391,6 @@ class PagesController extends BaseController
                                     ->where('users.account_status_admin', 1) //排除站方關閉帳號的用戶
                                     ->whereNull('banned_users.id') //排除封鎖
                                     ->whereNull('banned_users_implicitly.id') //排除隱性封鎖
-                                    ->take(1000)
                                     ->get()
                                     ;
         if(count($option_list))
