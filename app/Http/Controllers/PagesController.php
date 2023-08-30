@@ -11763,11 +11763,19 @@ class PagesController extends BaseController
         $count_list = [];
         foreach($xref_list as $xref_item)
         {
-            $count_list[$option_list[$xref_item->option_type][$xref_item->option_id]] = ($count_list[$option_list[$xref_item->option_type][$xref_item->option_id]] ?? 0) + 1;
+            $count_list[json_encode([$xref_item->option_type, $xref_item->option_id])] = ($count_list[json_encode([$xref_item->option_type, $xref_item->option_id])] ?? 0) + 1;
         }
         arsort($count_list); //由小至大排序
-        $count_list = array_slice($count_list, 0, 10, true); //取前n筆資料
-        $tag_list = array_keys($count_list);
+        $count_list = array_slice($count_list, 0, 10); //取前n筆資料
+
+        if(count($option_list))
+        {
+            foreach($count_list as $json_option_id_pair => $count)
+            {
+                $option_id_pair_array = json_decode($json_option_id_pair);
+                $tag_list[] = $option_list[$option_id_pair_array[0]][$option_id_pair_array[1]];
+            }
+        }
         
         return response()->json($tag_list);
         
