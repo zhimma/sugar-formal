@@ -4388,7 +4388,7 @@ class PagesController extends BaseController
                                     ->where('users.id', '!=', 1049) //排除站長
                                     ->where('users.last_login', '>=', Carbon::now()->subDays(7)) //篩選出7天內登入的會員
                                     ->where('users.accountStatus', 1) //排除關閉帳號的用戶
-                                    ->where('account_status_admin', 1) //排除站方關閉帳號的用戶
+                                    ->where('users.account_status_admin', 1) //排除站方關閉帳號的用戶
                                     ->whereNull('banned_users.id') //排除封鎖
                                     ->whereNull('banned_users_implicitly.id') //排除隱性封鎖
                                     ->get()
