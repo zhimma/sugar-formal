@@ -1599,7 +1599,7 @@
 #faq_tab { top:2%;}
 }
 @media (max-width:450px){
-#faq_tab { width:90%; left:5%; top:15%;}
+#faq_tab { width:90%; left:5%;}
 }
 </style>
 <style>
