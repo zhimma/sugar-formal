@@ -2376,7 +2376,14 @@ class PagesController extends BaseController
                     return redirect('/dashboard/valueAddedHideOnline')->with('user', $user)->withErrors(['取消失敗！'])->with('cancel_notice', '本次取消資訊沒有成功寫入，請再試一次。');
                 }
             } else {
-                return back()->with('message', '帳號密碼輸入錯誤');
+                if(str_contains(url()->previous(), '/dashboard/valueAddedHideOnline'))
+                {
+                    return redirect('/dashboard/valueAddedHideOnline#valueAddedServiceCanceled')->with('message', '帳號密碼輸入錯誤');
+                }
+                else
+                {
+                    return back()->with('message', '帳號密碼輸入錯誤');
+                }
             }
         } else {
             Log::error('User not found.');
