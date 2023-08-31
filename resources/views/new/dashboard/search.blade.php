@@ -102,6 +102,25 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
     .nt_img {
         left: 20px;
     }
+
+    .select2-selection {
+        height: 40px !important;
+    }
+
+    .select2-selection__rendered {
+        line-height: 40px !important;
+        width: 95% !important;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: normal !important;
+        display: -webkit-box !important;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 1;
+    }
+
+    .select2-selection__arrow {
+        display: none !important;
+    }
 </style>
 @endsection
 
@@ -229,6 +248,21 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                         </dt>
                                     @endif
 
+                                    @if($user_engroup==1)
+                                        <dt>
+                                            <div class="search_tag_div">
+                                                <span>標籤</span>
+                                                <div id="search_tag_field">
+                                                </div>
+                                                <div class="n_se">
+                                                    <select class="search_tag_select select_xx01">
+                                                        <option value="">請選擇</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </dt>
+                                    @endif
+
                                     <div class="btn_more">
                                         進階搜尋
                                         <span class="right"><img src="/new/images/xq_06.png"></span>
@@ -238,9 +272,9 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                         <dt>
                                             <span>年齡範圍</span>
                                             <span style="display: inline-flex;">
-                                            <input class="select_xx06" name="agefrom" id="agefrom" type="number" min="18" max="80" value="@if(!empty($_POST['agefrom'])){{ $_POST['agefrom'] }}@elseif(!empty($_GET['agefrom'])){{$_GET['agefrom']}}@elseif(!empty(session()->get('search_page_key.agefrom'))){{ session()->get('search_page_key.agefrom')  }}@endif">
+                                            <input class="select_xx06" name="agefrom" id="agefrom" type="number" value="@if(!empty($_POST['agefrom'])){{ $_POST['agefrom'] }}@elseif(!empty($_GET['agefrom'])){{$_GET['agefrom']}}@elseif(!empty(session()->get('search_page_key.agefrom'))){{ session()->get('search_page_key.agefrom')  }}@endif">
                                             <div class="sew6">至</div>
-                                            <input class="select_xx06 right" name="ageto" id="ageto" type="number" min="18" max="80" value="@if(!empty($_POST['ageto'])){{$_POST['ageto'] }}@elseif(!empty($_GET['ageto'])){{$_GET['ageto']}}@elseif(!empty(session()->get('search_page_key.ageto'))){{ session()->get('search_page_key.ageto')  }}@endif">
+                                            <input class="select_xx06 right" name="ageto" id="ageto" type="number" value="@if(!empty($_POST['ageto'])){{$_POST['ageto'] }}@elseif(!empty($_GET['ageto'])){{$_GET['ageto']}}@elseif(!empty(session()->get('search_page_key.ageto'))){{ session()->get('search_page_key.ageto')  }}@endif">
                                             </span>
                                         </dt>
 
@@ -249,9 +283,9 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                             <span style="display: inline-flex;">
                                                 {{--150  <input id="heightRange" type="text" class="span2" name="heightRange" value="" data-slider-min="150" data-slider-max="180" data-slider-step="5" data-slider-value="[150,180]"/>  180--}}
                                                 {{--<input type="range" name="percent" min="50" max="100" value=@if(isset($_POST['percent']))"{{$_POST['percent']}}"@else"70"@endif class="form-control-range range" id="myRange">--}}
-                                            <input class="select_xx06" name="heightfrom" id="heightfrom" type="number" min="140" max="210" value="@if(!empty($_POST['heightfrom'])){{ $_POST['heightfrom'] }}@elseif(!empty($_GET['heightfrom'])){{$_GET['heightfrom']}}@elseif(!empty(session()->get('search_page_key.heightfrom'))){{ session()->get('search_page_key.heightfrom')  }}@endif">
+                                            <input class="select_xx06" name="heightfrom" id="heightfrom" type="number" value="@if(!empty($_POST['heightfrom'])){{ $_POST['heightfrom'] }}@elseif(!empty($_GET['heightfrom'])){{$_GET['heightfrom']}}@elseif(!empty(session()->get('search_page_key.heightfrom'))){{ session()->get('search_page_key.heightfrom')  }}@endif">
                                             <div class="sew6">至</div>
-                                            <input class="select_xx06 right" name="heightto" id="heightto" type="number" min="140" max="210" value="@if(!empty($_POST['heightto'])){{$_POST['heightto'] }}@elseif(!empty($_GET['heightto'])){{$_GET['heightto']}}@elseif(!empty(session()->get('search_page_key.heightto'))){{ session()->get('search_page_key.heightto')  }}@endif">
+                                            <input class="select_xx06 right" name="heightto" id="heightto" type="number" value="@if(!empty($_POST['heightto'])){{$_POST['heightto'] }}@elseif(!empty($_GET['heightto'])){{$_GET['heightto']}}@elseif(!empty(session()->get('search_page_key.heightto'))){{ session()->get('search_page_key.heightto')  }}@endif">
                                             {{--<input id="heightRange" name="heightRange" class="multi-range" type="range" />--}}
                                             </span>
                                         </dt>
@@ -259,9 +293,9 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                         <dt>
                                             <span>體重範圍<i class="ssrgf">(僅顯示有填寫者)</i></span>
                                             <span style="display: inline-flex;">
-                                                <input class="select_xx06" name="weightfrom" id="weightfrom" type="number" step="5" value="@if(!empty($_POST['weightfrom'])){{ $_POST['weightfrom'] }}@elseif(!empty($_GET['weightfrom'])){{$_GET['weightfrom']}}@elseif(!empty(session()->get('search_page_key.weightfrom'))){{ session()->get('search_page_key.weightfrom')  }}@endif">
+                                                <input class="select_xx06" name="weightfrom" id="weightfrom" type="number" value="@if(!empty($_POST['weightfrom'])){{ $_POST['weightfrom'] }}@elseif(!empty($_GET['weightfrom'])){{$_GET['weightfrom']}}@elseif(!empty(session()->get('search_page_key.weightfrom'))){{ session()->get('search_page_key.weightfrom')  }}@endif">
                                                 <div class="sew6">至</div>
-                                                <input class="select_xx06 right" name="weightto" id="weightto" type="number" step="5" value="@if(!empty($_POST['weightto'])){{$_POST['weightto'] }}@elseif(!empty($_GET['weightto'])){{$_GET['weightto']}}@elseif(!empty(session()->get('search_page_key.weightto'))){{ session()->get('search_page_key.weightto')  }}@endif">
+                                                <input class="select_xx06 right" name="weightto" id="weightto" type="number" value="@if(!empty($_POST['weightto'])){{$_POST['weightto'] }}@elseif(!empty($_GET['weightto'])){{$_GET['weightto']}}@elseif(!empty(session()->get('search_page_key.weightto'))){{ session()->get('search_page_key.weightto')  }}@endif">
                                             </span>
                                         </dt>
 
@@ -275,26 +309,6 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                                                         <option value="偶爾抽" @if( !empty( $_POST["smoking"] ) && $_POST["smoking"] == "偶爾抽" ) selected @elseif(!empty( $_GET["smoking"] ) && $_GET["smoking"] == "偶爾抽") selected @elseif(!empty( session()->get('search_page_key.smoking') ) && session()->get('search_page_key.smoking') == "偶爾抽") selected @endif>偶爾抽</option>
                                                         <option value="常抽" @if( !empty( $_POST["smoking"] ) && $_POST["smoking"] == "常抽" ) selected @elseif(!empty( $_GET["smoking"] ) && $_GET["smoking"] == "常抽") selected @elseif(!empty( session()->get('search_page_key.smoking') ) && session()->get('search_page_key.smoking') == "常抽") selected @endif>常抽</option>
                                                     </select>
-                                                    {{--<span>感情狀況</span>
-                                                    <select name="relationship_status" class="select_xx01">
-                                                        <option value="">請選擇</option>
-                                                        @foreach(\DB::table('option_relationship_status')->get() as $option)
-                                                            <option value={{$option->id}} @if( !empty( $_POST["relationship_status"] ) && $_POST["relationship_status"] == $option->id ) selected @elseif(!empty( $_GET["relationship_status"] ) && $_GET["relationship_status"] == $option->id) selected @elseif(!empty( session()->get('search_page_key.relationship_status') ) && session()->get('search_page_key.relationship_status') == $option->id) selected @endif>{{$option->option_name}}</option>
-                                                        @endforeach
-                                                    </select>--}}
-                                                    {{--
-                                                    <span>現況</span>
-                                                    <select name="situation" class="select_xx01">
-                                                        <option value="">請選擇</option>
-                                                        <option value="學生" @if( !empty( $_POST["situation"] ) && $_POST["situation"] == "學生" ) selected @elseif(!empty( $_GET["situation"] ) && $_GET["situation"] == "學生") selected @elseif(!empty( session()->get('search_page_key.situation') ) && session()->get('search_page_key.situation') == "學生") selected @endif>學生</option>
-                                                        <option value="待業" @if( !empty( $_POST["situation"] ) && $_POST["situation"] == "待業" ) selected @elseif(!empty( $_GET["situation"] ) && $_GET["situation"] == "待業") selected @elseif(!empty( session()->get('search_page_key.situation') ) && session()->get('search_page_key.situation') == "待業") selected @endif>待業</option>
-                                                        <option value="休學" @if( !empty( $_POST["situation"] ) && $_POST["situation"] == "休學" ) selected @elseif(!empty( $_GET["situation"] ) && $_GET["situation"] == "休學") selected @elseif(!empty( session()->get('search_page_key.situation') ) && session()->get('search_page_key.situation') == "休學") selected @endif>休學</option>
-                                                        <option value="打工" @if( !empty( $_POST["situation"] ) && $_POST["situation"] == "打工" ) selected @elseif(!empty( $_GET["situation"] ) && $_GET["situation"] == "打工") selected @elseif(!empty( session()->get('search_page_key.situation') ) && session()->get('search_page_key.situation') == "打工") selected @endif>打工</option>
-                                                        <option value="上班族" @if( !empty( $_POST["situation"] ) && $_POST["situation"] == "上班族" ) selected @elseif(!empty( $_GET["situation"] ) && $_GET["situation"] == "上班族") selected @elseif(!empty( session()->get('search_page_key.situation') ) && session()->get('search_page_key.situation') == "上班族") selected @endif>上班族</option>
-                                                        <option value="在家工作" @if( !empty( $_POST["situation"] ) && $_POST["situation"] == "在家工作" ) selected @elseif(!empty( $_GET["situation"] ) && $_GET["situation"] == "在家工作") selected @elseif(!empty( session()->get('search_page_key.situation') ) && session()->get('search_page_key.situation') == "在家工作") selected @endif>在家工作</option>
-                                                        <option value="自行開業" @if( !empty( $_POST["situation"] ) && $_POST["situation"] == "自行開業" ) selected @elseif(!empty( $_GET["situation"] ) && $_GET["situation"] == "自行開業") selected @elseif(!empty( session()->get('search_page_key.situation') ) && session()->get('search_page_key.situation') == "自行開業") selected @endif>自行開業</option>
-                                                    </select>
-                                                    --}}
                                                 </div>
                                                 <div class="n_se right">
                                                     <span>是否想進一步發展?</span>
@@ -598,8 +612,8 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         $district4 = search_variable("district4","");
                         $district5 = search_variable("district5","");
                         $relationship_status = search_variable('relationship_status',"");
-
                         $userIsAdvanceAuth = search_variable("isAdvanceAuth", 0);
+                        $search_tag = search_variable('search_tag',"");
                     }
                     catch (\Exception $e){
                         \Illuminate\Support\Facades\Log::info('Search error, $user: ' . $user);
@@ -974,7 +988,8 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 //新增體重
                 weight:"{{$weight}}",
                 relationship_status:{!! json_encode($relationship_status && is_array($relationship_status)? array_keys($relationship_status) :null) !!},
-                perPageCount:perPageCount
+                perPageCount:perPageCount,
+                search_tag:{!! json_encode($search_tag ?? []) !!}
             };
             axios.post('/getSearchData', post_data)
             .then(response => {
@@ -1494,21 +1509,89 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
     </script>
     <script>
         $("#form").submit(function(e){
+            agefrom = $('#agefrom').val();
+            ageto = $('#ageto').val();
             heightfrom = $('#heightfrom').val();
             heightto = $('#heightto').val();
             weightfrom = $('#weightfrom').val();
             weightto = $('#weightto').val();
-            if((heightfrom == "" && heightto != "") || (heightfrom != "" && heightto == ""))
+
+            @if ($user->isVIP()||$user->isVVIP())
+                //範圍須有值
+                if((agefrom == "" && ageto != "") || (agefrom != "" && ageto == ""))
+                {
+                    event.preventDefault();
+                    c5('請輸入年齡範圍');
+                    return false;
+                }
+                if((heightfrom == "" && heightto != "") || (heightfrom != "" && heightto == ""))
+                {
+                    event.preventDefault();
+                    c5('請輸入身高範圍');
+                    return false;
+                }
+                if((weightfrom == "" && weightto != "") || (weightfrom != "" && weightto == ""))
+                {
+                    event.preventDefault();
+                    c5('請輸入體重範圍');
+                    return false;
+                }
+                //範圍須有值
+
+                //數值限制
+                if(agefrom != "" || ageto != "")
+                {
+                    if(agefrom < 18 || ageto < 18)
+                    {
+                        hint_str = "年齡範圍值必須大於或等於18。";
+                        c5(hint_str);
+                        return false;
+                    }
+                    if(agefrom > 80 || ageto > 80)
+                    {
+                        hint_str = "年齡範圍值必須小於或等於80。";
+                        c5(hint_str);
+                        return false;
+                    }
+                }
+                if(heightfrom != "" || heightto != "")
+                {
+                    if(heightfrom < 140 || heightto < 140)
+                    {
+                        hint_str = "身高範圍值必須大於或等於140。";
+                        c5(hint_str);
+                        return false;
+                    }
+                    if(heightfrom > 210 || heightto > 210)
+                    {
+                        hint_str = "身高範圍值必須小於或等於210。";
+                        c5(hint_str);
+                        return false;
+                    }
+                }
+                if(weightfrom != "" || weightto != "")
+                {
+                    if(weightfrom % 5 != 0)
+                    {
+                        hint_str = "體重範圍請輸入有效值。最接近的兩個有效值分別是" + (Math.floor((parseInt(weightfrom) / 5)) * 5) + "和" + (Math.floor((parseInt(weightfrom) / 5 + 1)) * 5) + "。";
+                        c5(hint_str);
+                        return false;
+                    }
+                    if(weightto % 5 != 0)
+                    {
+                        hint_str = "體重範圍請輸入有效值。最接近的兩個有效值分別是" + (Math.floor((parseInt(weightto) / 5)) * 5) + "和" + (Math.floor((parseInt(weightto) / 5 + 1)) * 5) + "。";
+                        c5(hint_str);
+                        return false;
+                    }
+                }
+                //數值限制
+            @endif
+
+            //大小交換
+            if(agefrom > ageto)
             {
-                event.preventDefault();
-                c5('請輸入身高範圍');
-                return false;
-            }
-            if((weightfrom == "" && weightto != "") || (weightfrom != "" && weightto == ""))
-            {
-                event.preventDefault();
-                c5('請輸入體重範圍');
-                return false;
+                $('#agefrom').val(ageto);
+                $('#ageto').val(agefrom);
             }
             if(heightfrom > heightto)
             {
@@ -1520,6 +1603,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                 $('#weightfrom').val(weightto);
                 $('#weightto').val(weightfrom);
             }
+            //大小交換
 
             $('input[name="isVip"]').val($('.a_isVip.cractive').first().attr('value'));
             $('input[name="isBlocked"]').val($('.a_isBlocked.cractive').first().attr('value'));
@@ -1549,6 +1633,122 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             $(this).siblings().removeClass("cractive");
             $(this).toggleClass('cractive');
         });
+    </script>
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/i18n/zh-TW.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.nicescroll/3.7.6/jquery.nicescroll.js"></script>
+    <script>
+        search_tag_max_count = 10;
+        $(function(){
+            $(".search_tag_select")
+            .select2({
+                language: {
+                    noResults: function (params) {
+                    return "無此標籤";
+                    }
+                },
+                width: '100%',
+                // 最多字元限制
+                maximumInputLength: 10,
+                // 最少字元才觸發尋找, 0 不指定
+                minimumInputLength: 0,
+                // 當找不到可以使用輸入的文字
+                ajax: {
+                    url: '/dashboard/get_all_search_tag',
+                    type: 'get',
+                    dataType: 'json',
+                    data: function(params) {
+                        return {
+                            search_str: params.term,
+                        };
+                    },
+                    processResults: function (data) {
+                        return {
+                            results: $.map(data, function (item, index) {
+                                return {
+                                    id: item,
+                                    text: item
+                                }
+                            })
+                        };
+                    },
+                },
+            })
+            .on("select2:open", function () {
+                $('.select2-results__options').niceScroll({
+                    autohidemode:false,
+                    cursorcolor:'#fd5678',
+                });
+            })
+            .on("select2:select", function(e) {
+                $(".search_tag_select").val("").change();
+                exist_option_list = [];
+                $("#search_tag_field .cractive input").each(function(){
+                    exist_option_list.push($(this).val());
+                });
+                if(!exist_option_list.includes(e.params.data.text)){
+                    search_tag_item = 
+                        '<div class="custom_s a1 cractive">' +
+                            e.params.data.text + ' ' +
+                            '<img src="/new/images/map-gb.png" height="20px" class="clear_search_tag">' +
+                            '<input type="hidden" value="' + e.params.data.text + '" name="search_tag[]">' +
+                        '</div>';
+                    $("#search_tag_field").append(search_tag_item);
+                    search_tag_add_event();
+                    search_tag_listen_event();
+                }
+                
+            })
+            ;
+            //有舊選項時選擇舊選項
+            @php
+                $search_tag_selected_list = [];
+            @endphp
+            @if(!empty($_POST["search_tag"]))
+                @php
+                    $search_tag_selected_list = $_POST["search_tag"];
+                @endphp
+            @elseif(!empty($_GET["search_tag"]))
+                @php
+                    $search_tag_selected_list = $_GET["search_tag"];
+                @endphp
+            @elseif(!empty(session()->get('search_page_key.search_tag')))
+                @php
+                    $search_tag_selected_list = session()->get('search_page_key.search_tag');
+                @endphp
+            @endif
+            @foreach($search_tag_selected_list as $key => $search_tag_selected)
+                search_tag_item = 
+                    '<div class="custom_s a1 cractive">' +
+                        '{{$search_tag_selected}}' + ' ' +
+                        '<img src="/new/images/map-gb.png" height="20px" class="clear_search_tag">' +
+                        '<input type="hidden" value="{{$search_tag_selected}}" name="search_tag[]">' +
+                    '</div>';
+                $("#search_tag_field").append(search_tag_item);
+                search_tag_add_event();
+                search_tag_listen_event();
+            @endforeach
+            //有舊選項時選擇舊選項
+        })
+
+        function search_tag_listen_event(){
+            $(".clear_search_tag").on("click", function(){
+                $(this).parent().remove();
+                if($('#search_tag_field').children('.cractive').length < search_tag_max_count)
+                {
+                    $('.search_tag_div .select2-container').show();
+                }
+            });
+        }
+
+        function search_tag_add_event(){
+            if($('#search_tag_field').children('.cractive').length >= search_tag_max_count)
+            {
+                $('.search_tag_div .select2-container').hide();
+            }
+        }
     </script>
 @endsection
 

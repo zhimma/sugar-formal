@@ -160,7 +160,7 @@ div.new_poptk{color:#6783c7;overflow-y:scroll;}
                         </div>
                         <div class="de_input01 dlmarbot">
                             <input type="password" style="display:none" />
-                            <input style="-webkit-text-security: disc;" data-parsley-required id="pw" minlength="6"  data-parsley-minlength="6" name="password" type="password" class="zcinput" placeholder="密碼" value="{{old('password')}}" autocomplete="off" data-parsley-required-message="請輸入密碼">
+                            <input data-parsley-required id="pw" minlength="6"  data-parsley-minlength="6" name="password" type="password" class="zcinput" placeholder="密碼" value="{{old('password')}}" autocomplete="off" data-parsley-required-message="請輸入密碼">
                         </div>
                         <div class="de_input01 dlmarbot">
                             <input  data-parsley-equalto="#pw" data-parsley-required name="password_confirmation" type="password" class="zcinput" placeholder="密碼確認" value="{{old('password_confirmation')}}" autocomplete="off" data-parsley-required-message="請再次輸入密碼">

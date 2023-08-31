@@ -1441,9 +1441,11 @@ class PagesController extends BaseController
         $user = $request->user();
         $input = $request->input();
 
+        //驗證帳號
         if(strtolower(trim($user->email)) == strtolower(trim($input['email']))){
             $input['email'] = $user->email;
-            if(Auth::attempt(array('email' => strtolower( $input['email']), 'password' => $input['password'])) ){
+            if(Hash::check($input['password'], $user->password))
+            {
                 //驗證成功
                 $reasonType = $request->get('reasonType');
                 if ($reasonType == '3') {
@@ -1544,9 +1546,11 @@ class PagesController extends BaseController
             }
 
             if((auth()->user()->isVip() || auth()->user()->isVVIP()) || $waitDay <=0){
+                //驗證帳號
                 if(strtolower(trim($user->email)) == strtolower(trim($input['email']))){
                     $input['email'] = $user->email;
-                    if(Auth::attempt(array('email' => strtolower( $input['email']), 'password' => $input['password'])) ){
+                    if(Hash::check($input['password'], $user->password))
+                    {
                         //驗證成功
                         $user->accountStatus = 1;
                         $user->accountStatus_updateTime = Carbon::now();
@@ -2329,7 +2333,9 @@ class PagesController extends BaseController
             $log->service_name = $payload['service_name'];
             $log->created_at = \Carbon\Carbon::now();
             $log->save();
-            if(Auth::attempt(array('email' => $payload['email'], 'password' => $payload['password']))){
+            //驗證帳號
+            if(strtolower(trim($user->email)) == strtolower(trim($payload['email'])) && Hash::check($payload['password'], $user->password))
+            {
                 $valueAddedServiceData = ValueAddedService::findByIdAndServiceNameWithDateDesc($user->id, $payload['service_name']);
                 $this->logService->cancelLog($valueAddedServiceData);
                 $this->logService->writeLogToDB();
@@ -2351,7 +2357,7 @@ class PagesController extends BaseController
                             //                            }
                             //                            else {
                             $offVIP = '您已成功取消 VVIP，下個月起將不再繼續扣款，目前的付費功能權限可以維持到 ' . $date;
-//                            }
+                            //}
                         }
                         logger('$expiry: ' . $data->expiry);
                         logger('base day: ' . $date);
@@ -2370,7 +2376,14 @@ class PagesController extends BaseController
                     return redirect('/dashboard/valueAddedHideOnline')->with('user', $user)->withErrors(['取消失敗！'])->with('cancel_notice', '本次取消資訊沒有成功寫入，請再試一次。');
                 }
             } else {
-                return back()->with('message', '帳號密碼輸入錯誤');
+                if(str_contains(url()->previous(), '/dashboard/valueAddedHideOnline'))
+                {
+                    return redirect('/dashboard/valueAddedHideOnline#valueAddedServiceCanceled')->with('message', '帳號密碼輸入錯誤');
+                }
+                else
+                {
+                    return back()->with('message', '帳號密碼輸入錯誤');
+                }
             }
         } else {
             Log::error('User not found.');
@@ -2739,18 +2752,18 @@ class PagesController extends BaseController
                 ->whereNotNull('user_options_xref.id')
                 ->get();
             $personality_traits = DB::table('option_personality_traits')
-                ->leftJoin('user_options_xref', function ($join) use ($user) {
+                ->leftJoin('user_options_xref', function ($join) use ($to) {
                     $join->on('option_personality_traits.id', '=', 'user_options_xref.option_id')
-                        ->where('user_options_xref.user_id', '=', $user->id)
+                        ->where('user_options_xref.user_id', '=', $to->id)
                         ->where('user_options_xref.option_type', '=', 9);
                 })
                 ->select('option_personality_traits.*', 'user_options_xref.id as xref_id')
                 ->whereNotNull('user_options_xref.id')
                 ->get();
             $life_style = DB::table('option_life_style')
-                ->leftJoin('user_options_xref', function ($join) use ($user) {
+                ->leftJoin('user_options_xref', function ($join) use ($to) {
                     $join->on('option_life_style.id', '=', 'user_options_xref.option_id')
-                        ->where('user_options_xref.user_id', '=', $user->id)
+                        ->where('user_options_xref.user_id', '=', $to->id)
                         ->where('user_options_xref.option_type', '=', 10);
                 })
                 ->select('option_life_style.*', 'user_options_xref.id as xref_id')
@@ -4333,6 +4346,7 @@ class PagesController extends BaseController
 
     public function search2(Request $request)
     {
+        //Log::Info($request);
         $input = $request->input();
         $search_page_key=session()->get('search_page_key',[]);
         if(!$search_page_key && !$input) {
@@ -4452,7 +4466,10 @@ class PagesController extends BaseController
             $this->service->dispatchCheckECPayForValueAddedService('VVIP', $valueAddedServiceData_VVIP);
         }
 
-        return view('new.dashboard.search')->with('user', $user)->with('rap_service',$rap_service);
+        return view('new.dashboard.search')
+                ->with('user', $user)
+                ->with('rap_service',$rap_service)
+                ;
     }
 
     public function upgrade_ec(Request $request)
@@ -4674,7 +4691,9 @@ class PagesController extends BaseController
             $log = new \App\Models\LogCancelVip();
             $log->user_id = $user->id;
             $log->save();
-            if(Auth::attempt(array('email' => $payload['email'], 'password' => $payload['password']))){
+            //驗證帳號
+            if(strtolower(trim($user->email)) == strtolower(trim($payload['email'])) && Hash::check($payload['password'], $user->password))
+            {
                 logger('User ' . $user->id . ' cancellation initiated.');
                 $vip = Vip::findByIdWithDateDesc($user->id);
                 $this->logService->cancelLog($vip);
@@ -11638,6 +11657,41 @@ class PagesController extends BaseController
         $search = array(" ", "　", "\n", "\r", "\t");
         $replace = array("", "", "", "", "");
         return str_replace($search, $replace, $str);
+    }
+
+    public function get_all_search_tag(Request $request)
+    {
+        if($request->search_str ?? false)
+        {
+            $search_str = $request->search_str;
+            $tag_list = [];
+            foreach(DB::table('option_type')->get()->pluck('type_name')->toArray() as $type_key => $type)
+            {
+                $table_name = 'option_' . $type;
+                $tag_list = array_merge($tag_list, DB::table($table_name)
+                                                    //篩選出有在user_options_xref的選項
+                                                    ->leftJoin('user_options_xref', $table_name.'.id', '=', 'user_options_xref.option_id')
+                                                    ->where('user_options_xref.option_type', '=', $type_key + 1) //option_type的id從1開始所以$type_key+1
+                                                    //篩選出有在user_options_xref的選項
+                                                    ->where('option_name', 'like', '%'.$search_str.'%')
+                                                    ->get()
+                                                    ->pluck('option_name')
+                                                    ->toArray()
+                );
+            }
+            $tag_list = array_unique($tag_list);
+            return response()->json($tag_list);
+        }
+        else
+        {
+            $tag_example_list = array_merge(
+                //DB::table('option_relationship_status')->get()->pluck('option_name')->toArray(),
+                DB::table('option_personality_traits')->where('is_custom', 0)->get()->pluck('option_name')->toArray(),
+                DB::table('option_life_style')->where('is_custom', 0)->get()->pluck('option_name')->toArray()
+            );
+            return response()->json($tag_example_list);
+        }
+        
     }
 }
 
