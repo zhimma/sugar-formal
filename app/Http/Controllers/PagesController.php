@@ -79,6 +79,7 @@ use App\Models\VvipSelectionReward;
 use App\Models\VvipSelectionRewardApply;
 use App\Models\VvipSelectionRewardIgnore;
 use App\Models\VvipSubOptionXref;
+use App\Models\TempOptionsXrefCount;
 use App\Repositories\SuspiciousRepository;
 use App\Services\AdminService;
 use App\Services\EnvironmentService;
@@ -4362,51 +4363,7 @@ class PagesController extends BaseController
             $search_tag_selected_list = session()->get('search_page_key.search_tag');
         }
 
-        $option_list = []; //會員自定義的標籤清單option_list[type_id][option_id]
-        foreach(DB::table('option_type')->get() as $type)
-        {
-            $table_name = 'option_' . $type->type_name;
-            $exclude_type_array = ['occupation'];
-            if(!in_array($type->type_name, $exclude_type_array))
-            {
-                if(Schema::hasColumn($table_name, 'is_custom')) {
-                    $temp_option_list = DB::table($table_name)
-                                            ->where('is_custom', 1)
-                                            ->whereIn('option_name', $search_tag_selected_list)
-                                            ->get();
-                    foreach($temp_option_list as $option)
-                    {
-                        $option_list[$type->id][$option->id] = $option->option_name;
-                    }
-                }
-            }
-        }
-        $xref_list = UserOptionsXref::select('user_options_xref.option_type', 'user_options_xref.option_id')
-                                    ->leftJoin('users', 'user_options_xref.user_id', '=', 'users.id')
-                                    ->leftJoin('banned_users', 'users.id', '=', 'banned_users.member_id')
-                                    ->leftJoin('banned_users_implicitly', 'users.id', '=', 'banned_users_implicitly.user_id')
-                                    ->where('users.last_login', '>=', Carbon::now()->subDays(7)) //篩選出7天內登入的會員
-                                    ->where('users.accountStatus', 1) //排除關閉帳號的用戶
-                                    ->where('account_status_admin', 1) //排除站方關閉帳號的用戶
-                                    ->where('users.id', '!=', 1049) //排除站長
-                                    ->whereNull('banned_users.id') //排除封鎖
-                                    ->whereNull('banned_users_implicitly.id') //排除隱性封鎖
-                                    ->get()
-                                    ;
-        if(count($option_list))
-        {
-            $temp_search_tag_array = [];
-            foreach($xref_list as $xref_item)
-            {
-                if(isset($option_list[$xref_item->option_type][$xref_item->option_id]))
-                {
-                    $temp_search_tag_array[] = $option_list[$xref_item->option_type][$xref_item->option_id];
-                }
-            }
-            $search_tag_selected_list = $temp_search_tag_array;
-            $search_tag_selected_list = array_unique($search_tag_selected_list);
-        }
-        $search_data['search_tag'] = $search_tag_selected_list;
+        $search_data['search_tag'] = TempOptionsXrefCount::whereIn('option_name', $search_tag_selected_list)->pluck('option_name');
         //篩選search_tag是否有不符合的用戶
 
         $county_array = ['county', 'county2', 'county3', 'county4', 'county5'];
@@ -11714,60 +11671,15 @@ class PagesController extends BaseController
     {
         $tag_list = [];
 
-        //會員自定義的標籤清單option_list[type_id][option_id]
-        $option_list = [];
-        foreach(DB::table('option_type')->get() as $type)
+        $temp_option_list = TempOptionsXrefCount::all();
+        if($request->search_str ?? false)
         {
-            $table_name = 'option_' . $type->type_name;
-            $exclude_type_array = ['occupation'];
-            if(!in_array($type->type_name, $exclude_type_array))
-            {
-                if(Schema::hasColumn($table_name, 'is_custom')) {
-                    $temp_option_list = DB::table($table_name)->where('is_custom', 1);
-                    //有輸入關鍵字時動作
-                    if($request->search_str ?? false)
-                    {
-                        $search_str = $request->search_str;
-                        $temp_option_list = $temp_option_list->where('option_name', 'like', '%'.$search_str.'%');
-                    }
-                    $temp_option_list = $temp_option_list->get();
-                    foreach($temp_option_list as $option)
-                    {
-                        $option_list[$type->id][$option->id] = $option->option_name;
-                    }
-                }
-            }
+            $search_str = $request->search_str;
+            $temp_option_list = $temp_option_list->where('option_name', 'like', '%'.$search_str.'%');
         }
+        $temp_option_list = $temp_option_list->take(10);
 
-        $xref_list = UserOptionsXref::leftJoin('users', 'user_options_xref.user_id', '=', 'users.id')
-                                    ->leftJoin('banned_users', 'users.id', '=', 'banned_users.member_id')
-                                    ->leftJoin('banned_users_implicitly', 'users.id', '=', 'banned_users_implicitly.user_id')
-                                    ->where('users.last_login', '>=', Carbon::now()->subDays(7)) //篩選出7天內登入的會員
-                                    ->where('users.accountStatus', 1) //排除關閉帳號的用戶
-                                    ->where('account_status_admin', 1) //排除站方關閉帳號的用戶
-                                    ->where('users.id', '!=', 1049) //排除站長
-                                    ->whereNull('banned_users.id') //排除封鎖
-                                    ->whereNull('banned_users_implicitly.id') //排除隱性封鎖
-                                    ->where(function($query) use($option_list){
-                                        foreach($option_list as $type_id => $option_id_list)
-                                        {
-                                            $query->orWhere(function($query) use($type_id, $option_id_list){
-                                                $query->where('option_type', $type_id)->whereIn('option_id', array_keys($option_id_list));
-                                            });
-                                        }
-                                    })
-                                    ->get()
-                                    ;
-
-        //排序
-        $count_list = [];
-        foreach($xref_list as $xref_item)
-        {
-            $count_list[$option_list[$xref_item->option_type][$xref_item->option_id]] = ($count_list[$option_list[$xref_item->option_type][$xref_item->option_id]] ?? 0) + 1;
-        }
-        arsort($count_list); //由小至大排序
-        $count_list = array_slice($count_list, 0, 10, true); //取前n筆資料
-        $tag_list = array_keys($count_list);
+        $tag_list = $temp_option_list->pluck('option_name');
         
         return response()->json($tag_list);
         
