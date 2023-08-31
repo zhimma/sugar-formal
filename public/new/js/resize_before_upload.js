@@ -1,5 +1,6 @@
 rbupld_image_handling_numSet={};
 rbupld_image_handled_numSet={};
+rbupld_blob_elt_list={};
 rbupld_not_support_file_numSet={};
 rbupld_add_not_support_file_numSet={};
 rbupld_uploader_index = 0;
@@ -17,11 +18,13 @@ function resize_before_upload(uploader,checkWidth
         var 
         imgNewHeight = checkHeight, 
         imgNewWidth =checkWidth, 
-        file, fileReader, dataUrl=[];
+        file, fileReader=[];
+        
+        var dataUrl = {};
 
         var cur_uploader_api = $.fileuploader.getInstance($(curUploaderElt));
-        var blobElt = []; 
-        var blobEltOfIos = [];
+        var blobElt = rbupld_blob_elt_list; 
+        var blobEltOfIos = {};
         var listInputElt = cur_uploader_api.getListInputEl();
 
         cur_uploader_api.rbupld_uploader_index = rbupld_uploader_index++;
@@ -40,7 +43,6 @@ function resize_before_upload(uploader,checkWidth
                     cur_uploader_api.getParentEl()
                     .append('<div class="announce_bg"></div>');
                     cur_uploader_api.getParentEl().find(".announce_bg").show();
-
                 $("#tab_loading").show();                
             }
             else return false;            
@@ -58,12 +60,55 @@ function resize_before_upload(uploader,checkWidth
 
              
             var needless_resize = true;
+            var reassign_attr_file_num = 0;
             var exist_selected_file_num = 0;
 
             for(i=0;i<fileSelected.length;i++) {
-                
+                let curFileEntry = fileSelected[i];
                 if(resize_before_upload_fileReaderSet[index][fileSelected[i].name]!=undefined) {
                     exist_selected_file_num++;
+                    reassign_attr_file_num++;
+
+                    let now_blob = blobElt[nowEltName][curFileEntry.name];
+                    let blob_file = new File([now_blob],curFileEntry.name);
+                    delete curFileEntry.file;
+                    curFileEntry.file = blob_file;
+                    if(typeof curFileEntry?.reader?.src!='undefined') delete curFileEntry.reader.src;
+                    if(typeof curFileEntry?.reader?.node?.currentSrc!='undefined') delete curFileEntry.reader.node.currentSrc;
+                    if(typeof curFileEntry.reader.node!='undefined') delete curFileEntry.reader.node;
+                    curFileEntry.reader.node = new Image();
+                    let reader = new FileReader();
+                    reader.readAsDataURL(now_blob); 
+
+                    reader.onload = function() {
+         
+                        setTimeout(()=>{                                
+   
+                            if(!curFileEntry.format && (curFileEntry.extension=='heic' || curFileEntry.extension=='heif') ) {
+                                  curFileEntry.format = 'image';
+                            }        
+                            curFileEntry.reader.node = new Image();                    
+                            curFileEntry.reader.src = curFileEntry.reader.node.src = curFileEntry.reader.node.currentSrc  = reader.result; // data url
+                            curFileEntry.reader.node.onload = function() {
+                                curFileEntry.reader.width = curFileEntry.reader.node.width;
+                                curFileEntry.reader.height = curFileEntry.reader.node.height;
+
+                            }
+                            
+
+                            reassign_attr_file_num--;
+                            
+                            if(!reassign_attr_file_num && rbupld_image_handling_numSet[index]==rbupld_image_handled_numSet[index]) {
+                                
+                                resize_pic_loading_close(cur_uploader_option,listEl,parentEl, newInputEl, inputEl); 
+                            } 
+                        },3000);                             
+                            
+                            
+                            
+                    };                    
+                    
+
                     if(resize_before_upload_fileReaderSet[index][fileSelected[i].name].not_support_file!=undefined 
                     && resize_before_upload_fileReaderSet[index][fileSelected[i].name].not_support_file==1)  {
                         rbupld_not_support_file_numSet[index]++;
@@ -74,7 +119,7 @@ function resize_before_upload(uploader,checkWidth
                 }
                 else needless_resize = false;
 
-                let curFileEntry = fileSelected[i];
+                
                 resize_before_upload_fileReaderSet[index][curFileEntry.name]  = new FileReader();
 
                 resize_before_upload_fileReaderSet[index][curFileEntry.name].onload = function(evt) {
@@ -89,7 +134,7 @@ function resize_before_upload(uploader,checkWidth
                     ) 
                     {
                         rbupld_image_handling_numSet[index]++;
-                        create_img_to_resize(checkWidth,checkHeight,dataUrl[curFileEntry.name] ,blobElt,nowEltName,curFileEntry.name,curFileEntry.type,cur_uploader_option,listEl,parentEl, newInputEl, inputEl,exist_selected_file_num,index) ;                      
+                        create_img_to_resize(checkWidth,checkHeight,dataUrl[curFileEntry.name] ,blobElt,nowEltName,curFileEntry,curFileEntry.type,cur_uploader_option,listEl,parentEl, newInputEl, inputEl,exist_selected_file_num,index,cur_uploader_api) ;                      
                     }
                     else {
                         if(file_ext_name.toLowerCase()=='heic' || file_ext_name.toLowerCase()=='heif' ) {
@@ -102,7 +147,7 @@ function resize_before_upload(uploader,checkWidth
                                 quality: 1
                               }))
                               .then((blob) => {
-                                 create_img_to_resize(checkWidth,checkHeight,URL.createObjectURL(blob),blobElt,nowEltName,curFileEntry.name,blob.type,cur_uploader_option,listEl,parentEl, newInputEl, inputEl,exist_selected_file_num,index) ;
+                                 create_img_to_resize(checkWidth,checkHeight,URL.createObjectURL(blob),blobElt,nowEltName,curFileEntry,blob.type,cur_uploader_option,listEl,parentEl, newInputEl, inputEl,exist_selected_file_num,index,cur_uploader_api) ;
 
                               })
                               .catch((e) => {
@@ -128,15 +173,23 @@ function resize_before_upload(uploader,checkWidth
                             
                         }
                     }                    
+
+
+
                 }
                 resize_before_upload_fileReaderSet[index][curFileEntry.name].readAsDataURL(curFileEntry.file);
-                
 
 
             }  
             
-            if(needless_resize ||  ((exist_selected_file_num+rbupld_not_support_file_numSet[index])==fileSelected.length)) {
-                resize_pic_loading_close(cur_uploader_option,listEl,parentEl, newInputEl, inputEl);               
+            if((needless_resize) ||  ((exist_selected_file_num+rbupld_not_support_file_numSet[index])==fileSelected.length)) {
+                if(!reassign_attr_file_num) {resize_pic_loading_close(cur_uploader_option,listEl,parentEl, newInputEl, inputEl);} 
+                else {
+                    setTimeout(()=>{
+                       resize_pic_loading_close(cur_uploader_option,listEl,parentEl, newInputEl, inputEl); 
+                    },5000);
+                    
+                }
             }
            
         });  
@@ -479,7 +532,7 @@ evt.preventDefault();
 }
 
 
-function create_img_to_resize(checkWidth,checkHeight,dataUrl,blobElt,eltName,fileName,fileType,cur_uploader_option,listEl,parentEl, newInputEl, inputEl,exist_selected_file_num,index) {
+function create_img_to_resize(checkWidth,checkHeight,dataUrl,blobElt,eltName,curFileEntry,fileType,cur_uploader_option,listEl,parentEl, newInputEl, inputEl,exist_selected_file_num,index,cur_uploader_api) {
     var img = new Image();
     img.src = dataUrl;
 
@@ -516,10 +569,56 @@ function create_img_to_resize(checkWidth,checkHeight,dataUrl,blobElt,eltName,fil
        newImg = canvas.toDataURL(fileType, compressRatio);
 
        canvas.toBlob(function(blob) {
-           if(typeof(blobElt[eltName])=='undefined') blobElt[eltName] = [];
-           blobElt[eltName][fileName]=blob;
+            if(typeof(blobElt[eltName])=='undefined') blobElt[eltName] = {};
+            blobElt[eltName][curFileEntry.name] = rbupld_blob_elt_list[eltName][curFileEntry.name] =blob;
+            let lazy_time = 5000;
+            if(curFileEntry.size>6000000) {lazy_time=10000;};
+            blob.name = curFileEntry.name;
+            blob.lastModifiedDate = new Date();
+            blob.lastModified = blob.lastModifiedDate.getTime();
+            blob.webkitRelativePath = curFileEntry.file.webkitRelativePath;
+            let blob_file = new File([blob],curFileEntry.name);
+            delete curFileEntry.file;
+            curFileEntry.file = blob_file;
+            if(typeof curFileEntry?.reader?.src!='undefined') delete curFileEntry.reader.src;
+            if(typeof curFileEntry?.reader?.node?.currentSrc!='undefined') delete curFileEntry.reader.node.currentSrc;
+            if(typeof curFileEntry.reader.node=='undefined')  curFileEntry.reader.node = new Image();
+            let reader = new FileReader();
+            reader.readAsDataURL(blob); // converts the blob to base64 and calls onload
 
-           rbupld_image_handled_numSet[index]++;
+            reader.onload = function() {
+                setTimeout(()=>{ 
+                    if(!curFileEntry.format && (curFileEntry.extension=='heic' || curFileEntry.extension=='heif') ) {
+                        curFileEntry.format = 'image';
+                        curFileEntry.reader.node = new Image();
+                    }  
+                    if(typeof curFileEntry.reader.node=='undefined' || curFileEntry.reader.node==null) curFileEntry.reader.node = new Image();
+                    curFileEntry.reader.src = curFileEntry.reader.node.src = curFileEntry.reader.node.currentSrc  = reader.result; // data url
+                    
+                    curFileEntry.reader.node.onload = function() {
+                        curFileEntry.reader.width = curFileEntry.reader.node.width;
+                        curFileEntry.reader.height = curFileEntry.reader.node.height;
+                        rbupld_image_handled_numSet[index]++;
+                        
+                        if(rbupld_image_handling_numSet[index]==rbupld_image_handled_numSet[index]) { 
+                            var cur_api = $.fileuploader.getInstance(inputEl.get(0));
+                            var cur_fileSelected = cur_api.getChoosedFiles();               
+
+                            if(rbupld_not_support_file_numSet[index]>0 
+                            && (exist_selected_file_num+rbupld_image_handled_numSet[index]+rbupld_add_not_support_file_numSet[index])==cur_fileSelected.length
+                            ) {
+                               alert('所選取的檔案中，有'+rbupld_not_support_file_numSet[index]+'個檔案將不會被上傳，因檔案格式不被支援。');
+                            }
+
+                            resize_pic_loading_close(cur_uploader_option,listEl,parentEl, newInputEl, inputEl);
+                            rbupld_image_handling_numSet[index]=rbupld_image_handled_numSet[index]=0;               
+                       }                                
+                    }
+                },lazy_time);
+                
+            };
+
+           
 
            if(rbupld_image_handling_numSet[index]==rbupld_image_handled_numSet[index]) { 
                var cur_api = $.fileuploader.getInstance(inputEl.get(0));
@@ -560,7 +659,7 @@ function resize_pic_loading_close(cur_uploader_option,listEl,parentEl, newInputE
         var cur_api = $.fileuploader.getInstance(inputEl.get(0));
         parentEl.find(".announce_bg").remove();
 
-		$("#tab_loading").hide();  
+        $("#tab_loading").hide();  
         $('#tabPopM').hide();   
         $('.tab05_for_resize_before_upload').hide().removeClass('tab05_for_resize_before_upload');
 

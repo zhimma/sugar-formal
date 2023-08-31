@@ -672,7 +672,7 @@
 											if (f._itFl.indexOf(f._pfrL[i]) > -1) {
 												setTimeout(function() {
 												    f.thumbnails.renderThumbnail(f._pfrL[i], true);
-                                                }, item.format == 'image' && item.size/1000000 > 1.8 ? 200 : 0);
+                                                }, (item.format == 'image'  || item.name.substr(-4)=='heif'  || item.name.substr(-4)=='heic') && item.size/1000000 > 1.8 ? 200 : 0);
 												break;
 											} else {
 												f._pfrL.splice(i, 1);
@@ -733,7 +733,7 @@
                                             };
                                         
                                         // do not create another image element
-                                        if (item.format == 'image' && fromReader && item.reader.node)
+                                        if ((item.format == 'image'  || item.name.substr(-4)=='heif'  || item.name.substr(-4)=='heic') && fromReader && item.reader.node)
                                             return onload.call(item.reader.node);
                                         
                                         // do not create an empty image element
@@ -762,7 +762,7 @@
                                         if (item.reader.node && (item.reader.frame || item.reader.node.nodeName.toLowerCase() == 'img')) {
                                             load(item.reader.frame || item.reader.src, true);
                                         } else {
-                                            setIconThumb(item.format == 'image');
+                                            setIconThumb(item.format == 'image'  || item.name.substr(-4)=='heif'  || item.name.substr(-4)=='heic');
                                             renderNextItem();
                                         }
                                     }, null, src, true);
@@ -1738,7 +1738,7 @@
                                 
                                 item.popup.zoomer = {
                                     html: $popup.find('.fileuploader-popup-zoomer'),
-                                    isActive: item.format == 'image' && item.reader.node && n.thumbnails.popup.zoomer,
+                                    isActive: (item.format == 'image'  || item.name.substr(-4)=='heif'  || item.name.substr(-4)=='heic' )  && item.reader.node && n.thumbnails.popup.zoomer,
                                     scale: 100,
                                     zoom: 100,
 
@@ -2907,7 +2907,7 @@
 							f.clipboard.clean();
 							
 							for (var i = 0; i < items.length; i++) {
-								if (items[i].type.indexOf("image") !== -1 || items[i].type.indexOf("text/uri-list") !== -1) {
+								if (items[i].type.indexOf("image") !== -1 || items[i].type.indexOf("text/uri-list") !== -1  || items[i].name.substr(-4)=='heif'  || items[i].name.substr(-4)=='heic') {
 									var blob = items[i].getAsFile(),
 										ms = n.clipboardPaste > 1 ? n.clipboardPaste : 2000;
 									
@@ -3004,7 +3004,7 @@
 								f.files.remove(item);
 							};
 							
-							if (n.editor && format == 'image')
+							if (n.editor && (format == 'image'  || name.substr(-4)=='heif'  || name.substr(-4)=='heic'))
 								item.editor = {
 									rotate: function(deg) {
 										f.editor.rotate(item, deg);
@@ -3103,7 +3103,7 @@
 												reader.onerror();
 											}
 										});
-								} else if (item.format == 'image' || hasThumb) {
+								} else if (item.format == 'image' || hasThumb || item.name.substr(-4)=='heif' || item.name.substr(-4)=='heic') {
                                     var src;
                                     
                                     reader.onload = function(e) {
@@ -4255,7 +4255,7 @@
                     '<div class="fileuploader-popup-content">' +
                         '<div class="fileuploader-popup-footer">' +
                             '<ul class="fileuploader-popup-tools">' +
-                                (data.format == 'image' && data.editor ? (data.editor.cropper ? '<li>' +
+                                ((data.format == 'image'  || data.name.substr(-4)=='heif'  || data.name.substr(-4)=='heic') && data.editor ? (data.editor.cropper ? '<li>' +
                                     '<a data-action="crop">' +
                                         '<i></i> ${captions.crop}' +
                                     '</a>' +
@@ -4266,7 +4266,7 @@
                                     '</a>' +
                                 '</li>' : '') : ''
                                 ) +
-                                (data.format == 'image' ?
+                                (data.format == 'image'  || data.name.substr(-4)=='heif'  || data.name.substr(-4)=='heic' ?
                                 '<li class="fileuploader-popup-zoomer">' +
                                     '<a data-action="zoom-out">&minus;</a>' +
                                     '<input type="range" min="0" max="100">' +
@@ -4370,7 +4370,7 @@
         reader: {
             thumbnailTimeout: 5000,
             timeout: 12000,
-			maxSize: 20
+			maxSize: 200
         },
         files: null,
         upload: null,
