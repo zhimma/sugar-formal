@@ -364,7 +364,7 @@ class ImageController extends BaseController
         if(($upload['hasWarnings']??false) || !$upload['files']) {
             if(!$upload['files'])  {
                 
-                foreach($listInput['values']  as $input_value) {
+                foreach(($listInput['values']??[])  as $input_value) {
                     if($is_only_edited) break;
                     if(($input_value['editor']??false) && is_array($input_value['editor'])) {
                         $is_only_edited = true;
@@ -762,7 +762,7 @@ class ImageController extends BaseController
         if(($upload['hasWarnings']??false) || !$upload['files']) {
             if(!$upload['files'])  {
                 
-                foreach($listInput['values']  as $input_value) {
+                foreach(($listInput['values']??[])  as $input_value) {
                     if($is_only_edited) break;
                     if(($input_value['editor']??false) && is_array($input_value['editor'])) {
                         $is_only_edited = true;
