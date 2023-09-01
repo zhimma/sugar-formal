@@ -358,11 +358,26 @@ class ImageController extends BaseController
         ));
 
         $upload = $fileUploader->upload();
-
+        $listInput = $fileUploader->getListInput();
+        $is_only_edited = false;
+        
         if(($upload['hasWarnings']??false) || !$upload['files']) {
             if(!$upload['files'])  {
-                if(is_array($upload['warnings'])) $upload['warnings'][] = '您沒有選擇檔案。請重新選擇一個。';
-                else $upload['warnings'] = '您沒有選擇檔案。請重新選擇一個。';
+                
+                foreach(($listInput['values']??[])  as $input_value) {
+                    if($is_only_edited) break;
+                    if(($input_value['editor']??false) && is_array($input_value['editor'])) {
+                        $is_only_edited = true;
+                    }
+                }                
+                
+                if(!$is_only_edited) {
+                    if(is_array($upload['warnings'])) $upload['warnings'][] = '您沒有選擇檔案。請重新選擇一個。';
+                    else $upload['warnings'] = '您沒有選擇檔案。請重新選擇一個。';
+                }
+                else {
+                    $upload['warnings'] = '修改成功';
+                }
             }
             if($request->ajax()) {
                 echo is_array($upload['warnings'])?implode("\r\r",$upload['warnings']):$upload['warnings'];
@@ -558,8 +573,12 @@ class ImageController extends BaseController
                 'updated_at'  => now(),
                 'uploaded_at' => $meta->updated_at,
             ]);
-
+            
+            $blur_fullPath = '';
+            if($meta->pic_blur) $blur_fullPath = public_path($meta->pic_blur);
+            if($blur_fullPath && File::exists($blur_fullPath)) unlink($blur_fullPath);
             $meta->pic = NULL;
+            $meta->pic_blur = NULL;
             $meta->save();
             CheckPointUser::where('user_id', auth()->id())->delete();
             $msg="刪除成功";
@@ -738,11 +757,25 @@ class ImageController extends BaseController
 //        }
 
         $upload = $fileUploader->upload();
-
+        $listInput = $fileUploader->getListInput();
+        $is_only_edited = false;
         if(($upload['hasWarnings']??false) || !$upload['files']) {
             if(!$upload['files'])  {
-                if(is_array($upload['warnings'])) $upload['warnings'][] = '您沒有選擇檔案。請重新選擇一個。';
-                else $upload['warnings'] = '您沒有選擇檔案。請重新選擇一個。';
+                
+                foreach(($listInput['values']??[])  as $input_value) {
+                    if($is_only_edited) break;
+                    if(($input_value['editor']??false) && is_array($input_value['editor'])) {
+                        $is_only_edited = true;
+                    }
+                }
+                
+                if(!$is_only_edited) {
+                    if(is_array($upload['warnings'])) $upload['warnings'][] = '您沒有選擇檔案。請重新選擇一個。';
+                    else $upload['warnings'] = '您沒有選擇檔案。請重新選擇一個。';
+                }
+                else {
+                    $upload['warnings'] = '修改成功';
+                }
             }            
             
             if($request->ajax()) {

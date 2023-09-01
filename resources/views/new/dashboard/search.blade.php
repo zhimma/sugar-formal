@@ -613,7 +613,7 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
                         $district5 = search_variable("district5","");
                         $relationship_status = search_variable('relationship_status',"");
                         $userIsAdvanceAuth = search_variable("isAdvanceAuth", 0);
-                        $search_tag = $search_data['search_tag'];
+                        $search_tag = search_variable('search_tag',"");
                     }
                     catch (\Exception $e){
                         \Illuminate\Support\Facades\Log::info('Search error, $user: ' . $user);
@@ -1644,7 +1644,11 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
         $(function(){
             $(".search_tag_select")
             .select2({
-                language: 'zh-TW',
+                language: {
+                    noResults: function (params) {
+                    return "無此標籤";
+                    }
+                },
                 width: '100%',
                 // 最多字元限制
                 maximumInputLength: 10,
@@ -1700,8 +1704,21 @@ header("Expires: Fri, 01 Jan 1990 00:00:00 GMT");
             ;
             //有舊選項時選擇舊選項
             @php
-                $search_tag_selected_list = $search_data['search_tag'];
+                $search_tag_selected_list = [];
             @endphp
+            @if(!empty($_POST["search_tag"]))
+                @php
+                    $search_tag_selected_list = $_POST["search_tag"];
+                @endphp
+            @elseif(!empty($_GET["search_tag"]))
+                @php
+                    $search_tag_selected_list = $_GET["search_tag"];
+                @endphp
+            @elseif(!empty(session()->get('search_page_key.search_tag')))
+                @php
+                    $search_tag_selected_list = session()->get('search_page_key.search_tag');
+                @endphp
+            @endif
             @foreach($search_tag_selected_list as $key => $search_tag_selected)
                 search_tag_item = 
                     '<div class="custom_s a1 cractive">' +

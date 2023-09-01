@@ -104,8 +104,6 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Intervention\Image\Facades\Image;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 
 class PagesController extends BaseController
 {
@@ -1444,9 +1442,11 @@ class PagesController extends BaseController
         $user = $request->user();
         $input = $request->input();
 
+        //驗證帳號
         if(strtolower(trim($user->email)) == strtolower(trim($input['email']))){
             $input['email'] = $user->email;
-            if(Auth::attempt(array('email' => strtolower( $input['email']), 'password' => $input['password'])) ){
+            if(Hash::check($input['password'], $user->password))
+            {
                 //驗證成功
                 $reasonType = $request->get('reasonType');
                 if ($reasonType == '3') {
@@ -1547,9 +1547,11 @@ class PagesController extends BaseController
             }
 
             if((auth()->user()->isVip() || auth()->user()->isVVIP()) || $waitDay <=0){
+                //驗證帳號
                 if(strtolower(trim($user->email)) == strtolower(trim($input['email']))){
                     $input['email'] = $user->email;
-                    if(Auth::attempt(array('email' => strtolower( $input['email']), 'password' => $input['password'])) ){
+                    if(Hash::check($input['password'], $user->password))
+                    {
                         //驗證成功
                         $user->accountStatus = 1;
                         $user->accountStatus_updateTime = Carbon::now();
@@ -2332,7 +2334,9 @@ class PagesController extends BaseController
             $log->service_name = $payload['service_name'];
             $log->created_at = \Carbon\Carbon::now();
             $log->save();
-            if(Auth::attempt(array('email' => $payload['email'], 'password' => $payload['password']))){
+            //驗證帳號
+            if(strtolower(trim($user->email)) == strtolower(trim($payload['email'])) && Hash::check($payload['password'], $user->password))
+            {
                 $valueAddedServiceData = ValueAddedService::findByIdAndServiceNameWithDateDesc($user->id, $payload['service_name']);
                 $this->logService->cancelLog($valueAddedServiceData);
                 $this->logService->writeLogToDB();
@@ -2354,7 +2358,7 @@ class PagesController extends BaseController
                             //                            }
                             //                            else {
                             $offVIP = '您已成功取消 VVIP，下個月起將不再繼續扣款，目前的付費功能權限可以維持到 ' . $date;
-//                            }
+                            //}
                         }
                         logger('$expiry: ' . $data->expiry);
                         logger('base day: ' . $date);
@@ -2373,7 +2377,14 @@ class PagesController extends BaseController
                     return redirect('/dashboard/valueAddedHideOnline')->with('user', $user)->withErrors(['取消失敗！'])->with('cancel_notice', '本次取消資訊沒有成功寫入，請再試一次。');
                 }
             } else {
-                return back()->with('message', '帳號密碼輸入錯誤');
+                if(str_contains(url()->previous(), '/dashboard/valueAddedHideOnline'))
+                {
+                    return redirect('/dashboard/valueAddedHideOnline#valueAddedServiceCanceled')->with('message', '帳號密碼輸入錯誤');
+                }
+                else
+                {
+                    return back()->with('message', '帳號密碼輸入錯誤');
+                }
             }
         } else {
             Log::error('User not found.');
@@ -4336,7 +4347,6 @@ class PagesController extends BaseController
 
     public function search2(Request $request)
     {
-        $search_data = [];
         //Log::Info($request);
         $input = $request->input();
         $search_page_key=session()->get('search_page_key',[]);
@@ -4478,7 +4488,6 @@ class PagesController extends BaseController
         return view('new.dashboard.search')
                 ->with('user', $user)
                 ->with('rap_service',$rap_service)
-                ->with('search_data',$search_data)
                 ;
     }
 
@@ -4701,7 +4710,9 @@ class PagesController extends BaseController
             $log = new \App\Models\LogCancelVip();
             $log->user_id = $user->id;
             $log->save();
-            if(Auth::attempt(array('email' => $payload['email'], 'password' => $payload['password']))){
+            //驗證帳號
+            if(strtolower(trim($user->email)) == strtolower(trim($payload['email'])) && Hash::check($payload['password'], $user->password))
+            {
                 logger('User ' . $user->id . ' cancellation initiated.');
                 $vip = Vip::findByIdWithDateDesc($user->id);
                 $this->logService->cancelLog($vip);
