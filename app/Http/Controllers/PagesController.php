@@ -11671,7 +11671,7 @@ class PagesController extends BaseController
     {
         $tag_list = [];
 
-        $temp_option_list = TempOptionsXrefCount::all();
+        $temp_option_list = new TempOptionsXrefCount;
         if($request->search_str ?? false)
         {
             $search_str = $request->search_str;
