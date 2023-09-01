@@ -104,6 +104,8 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Intervention\Image\Facades\Image;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
 
 class PagesController extends BaseController
 {
@@ -4347,6 +4349,7 @@ class PagesController extends BaseController
 
     public function search2(Request $request)
     {
+        $search_data = [];
         //Log::Info($request);
         $input = $request->input();
         $search_page_key=session()->get('search_page_key',[]);
@@ -4488,6 +4491,7 @@ class PagesController extends BaseController
         return view('new.dashboard.search')
                 ->with('user', $user)
                 ->with('rap_service',$rap_service)
+                ->with('search_data',$search_data)
                 ;
     }
 
