@@ -355,7 +355,7 @@ class Message_newController extends BaseController {
             $messagePosted = $this->message_pic_save($messageInfo->id, $request->file('images'));
             $this->addEssenceStatisticsLog(['user_id'=>$user->id, 'to_id'=>$payload['to'], 'message_data'=>$messageInfo]);
         
-            $todayTop3Msgs = $user->message_sent()->where('sys_notice','<>', 1)->whereDate('created_at', Carbon::today())->orderBy('id')->take(3)->get();
+            $todayTop3Msgs = $user->message_sent()->where('sys_notice','<>', 1)->whereDate('created_at', Carbon::today())->orderBy('created_at')->take(3)->get();
             if($todayTop3Msgs->where('id',$messagePosted->id)->count()) {
                 $messagePosted->encodeImages('Message_newController@postChat');
             }
