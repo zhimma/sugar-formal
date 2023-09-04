@@ -2266,7 +2266,7 @@
                                     <span class="cfp_bp" style="{{ $logInLog->CfpID['CfpID_blocked_people'][$gpKey] > 0 ? 'background-color: yellow;' : '' }}">
                                         [{{ $logInLog->CfpID['CfpID_blocked_people'][$gpKey] }}/{{ $logInLog->CfpID['CfpID_online_people'][$gpKey] }}]
                                     </span>
-                                    <button> + </button>
+                                    <button class="add_auto_ban add_auto_ban_cfp" value="{{$group->cfp_id}}"> + </button>
                                 </td>
                                 @php
                                     $CfpID_link_array[$group->cfp_id] = '<td class="loginItem" data-sectionName="cfpID' . substr($logInLog->loginDate,0,7) . '_group' . $gpKey . '" data-assign_user_id="' .  $user->id  . '" data-yearMonth="' . substr($logInLog->loginDate,0,7) . '" data-cfpID="' . $group->cfp_id . '" data-blocked-people="' .  $logInLog->CfpID['CfpID_blocked_people'][$gpKey]  . '" data-online-people="' .  $logInLog->CfpID['CfpID_online_people'][$gpKey]  . '" data-count="' .  $group->dataCount  . '" style="margin-left: 20px;min-width: 100px;' .  ($group->CfpID_set_auto_ban ? 'background:yellow;' : '')  . '">' .  $group->cfp_id  . ' <span class="cfp_bp" style="' .  ($logInLog->CfpID['CfpID_blocked_people'][$gpKey] > 0 ? 'background-color: yellow;' : '')  . '">[' .  $logInLog->CfpID['CfpID_blocked_people'][$gpKey]  . '/' .  $logInLog->CfpID['CfpID_online_people'][$gpKey]  . ']</span></td>';
@@ -2293,7 +2293,7 @@
                                     <span class="cfp_bp" style="{{ $logInLog->Ip['Ip_blocked_people'][$gpKey] > 0 ? 'background-color: yellow;' : '' }}">
                                         [{{ $logInLog->Ip['Ip_blocked_people'][$gpKey] }}/{{ $logInLog->Ip['Ip_online_people'][$gpKey] }}]
                                     </span>
-                                    <button> + </button>
+                                    <button class="add_auto_ban add_auto_ban_ip" value="{{$group->ip}}"> + </button>
                                 </td>
                             @endif
                         @endforeach
@@ -3014,6 +3014,13 @@
         <input type="hidden" value="" name="Recommended" id="Recommended">
         <input type="hidden" value="advInfo" name="page">
     </form>
+    <form id="set_autoBan_add" action="{{ route('stats/set_autoBan_add') }}" method="post">
+    	{!! csrf_field() !!}
+        <input type = "hidden" name="type" value="">
+        <input type = "hidden" name="content" value="">
+	    <input type = "hidden" name="cuz_email_set" value="{{$user->id}}">
+        <input type = "hidden" name="set_ban" value="1">
+	</form>
 </div>
 <!--照片查看-->
 <div class="big_img">
@@ -3946,5 +3953,28 @@ $('#show_track_reason').popover({
     content: function () { return $('#show_track_reason').attr('reason'); }
 });
 @endif
+
+$(".add_auto_ban").click(function(){
+    type = '';
+    value = '';
+    if($(this).hasClass('add_auto_ban_cfp'))
+    {
+        type = 'cfp_id';
+        value = $(this).val();
+    }
+    elseif($(this).hasClass('add_auto_ban_ip'))
+    {
+        type = 'ip';
+        value = $(this).val();
+    }
+    elseif($(this).hasClass('add_auto_ban_pic'))
+    {
+        type = 'pic';
+        value = '';
+    }
+    $('#set_autoBan_add [name="type"]').val(type);
+    $('#set_autoBan_add [name="value"]').val(value);
+    $('#set_autoBan_add').submit();
+});
 </script>
 </html>
