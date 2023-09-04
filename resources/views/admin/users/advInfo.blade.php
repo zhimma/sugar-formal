@@ -3958,24 +3958,16 @@ $('#show_track_reason').popover({
 });
 @endif
 
-$(".add_auto_ban").click(function(){
-    type = '';
-    value = '';
-    if($(this).hasClass('add_auto_ban_cfp'))
-    {
-        type = 'cfp_id';
-        value = $(this).val();
-    }
-    else if($(this).hasClass('add_auto_ban_ip'))
-    {
-        type = 'ip';
-        value = $(this).val();
-    }
-    else if($(this).hasClass('add_auto_ban_pic'))
-    {
-        type = 'pic';
-        value = $(this).val();
-    }
+$(".add_auto_ban_cfp").click(function(){
+    type = 'cfp_id';
+    value = $(this).val();
+    $('#set_autoBan_add [name="type"]').val(type);
+    $('#set_autoBan_add [name="content"]').val(value);
+    $('#set_autoBan_add').submit();
+});
+$(".add_auto_ban_ip").click(function(){
+    type = 'ip';
+    value = $(this).val();
     $('#set_autoBan_add [name="type"]').val(type);
     $('#set_autoBan_add [name="content"]').val(value);
     $('#set_autoBan_add').submit();

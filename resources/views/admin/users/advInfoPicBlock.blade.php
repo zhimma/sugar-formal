@@ -757,6 +757,15 @@ $(document).ready(function () {
         @endforelse
     </tbody>
 </table>
+<script>
+    $(".add_auto_ban_pic").click(function(){
+        type = 'pic';
+        value = $(this).val();
+        $('#set_autoBan_add [name="type"]').val(type);
+        $('#set_autoBan_add [name="content"]').val(value);
+        $('#set_autoBan_add').submit();
+    });
+</script>
 
 {{--<h4>停留時間</h4>
 <table class="table table-bordered">
