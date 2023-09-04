@@ -79,6 +79,7 @@ use App\Models\VvipSelectionReward;
 use App\Models\VvipSelectionRewardApply;
 use App\Models\VvipSelectionRewardIgnore;
 use App\Models\VvipSubOptionXref;
+use App\Models\TempOptionsXrefCount;
 use App\Repositories\SuspiciousRepository;
 use App\Services\AdminService;
 use App\Services\EnvironmentService;
@@ -103,6 +104,8 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Intervention\Image\Facades\Image;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
 
 class PagesController extends BaseController
 {
@@ -4346,6 +4349,7 @@ class PagesController extends BaseController
 
     public function search2(Request $request)
     {
+        $search_data = [];
         //Log::Info($request);
         $input = $request->input();
         $search_page_key=session()->get('search_page_key',[]);
@@ -4356,6 +4360,24 @@ class PagesController extends BaseController
             }
         }
         $rap_service = $this->rap_service;
+
+        //篩選search_tag是否有不符合的用戶
+        $search_tag_selected_list = [];
+        if(!empty($_POST["search_tag"]))
+        {
+            $search_tag_selected_list = $_POST["search_tag"];
+        }
+        elseif(!empty($_GET["search_tag"]))
+        {
+            $search_tag_selected_list = $_GET["search_tag"];
+        }
+        elseif(!empty(session()->get('search_page_key.search_tag')))
+        {
+            $search_tag_selected_list = session()->get('search_page_key.search_tag');
+        }
+
+        $search_data['search_tag'] = TempOptionsXrefCount::whereIn('option_name', $search_tag_selected_list)->pluck('option_name');
+        //篩選search_tag是否有不符合的用戶
 
         $county_array = ['county', 'county2', 'county3', 'county4', 'county5'];
         foreach ($input as $key => $value) {
@@ -4469,6 +4491,7 @@ class PagesController extends BaseController
         return view('new.dashboard.search')
                 ->with('user', $user)
                 ->with('rap_service',$rap_service)
+                ->with('search_data',$search_data)
                 ;
     }
 
@@ -11661,36 +11684,19 @@ class PagesController extends BaseController
 
     public function get_all_search_tag(Request $request)
     {
+        $tag_list = [];
+
+        $temp_option_list = new TempOptionsXrefCount;
         if($request->search_str ?? false)
         {
             $search_str = $request->search_str;
-            $tag_list = [];
-            foreach(DB::table('option_type')->get()->pluck('type_name')->toArray() as $type_key => $type)
-            {
-                $table_name = 'option_' . $type;
-                $tag_list = array_merge($tag_list, DB::table($table_name)
-                                                    //篩選出有在user_options_xref的選項
-                                                    ->leftJoin('user_options_xref', $table_name.'.id', '=', 'user_options_xref.option_id')
-                                                    ->where('user_options_xref.option_type', '=', $type_key + 1) //option_type的id從1開始所以$type_key+1
-                                                    //篩選出有在user_options_xref的選項
-                                                    ->where('option_name', 'like', '%'.$search_str.'%')
-                                                    ->get()
-                                                    ->pluck('option_name')
-                                                    ->toArray()
-                );
-            }
-            $tag_list = array_unique($tag_list);
-            return response()->json($tag_list);
+            $temp_option_list = $temp_option_list->where('option_name', 'like', '%'.$search_str.'%');
         }
-        else
-        {
-            $tag_example_list = array_merge(
-                //DB::table('option_relationship_status')->get()->pluck('option_name')->toArray(),
-                DB::table('option_personality_traits')->where('is_custom', 0)->get()->pluck('option_name')->toArray(),
-                DB::table('option_life_style')->where('is_custom', 0)->get()->pluck('option_name')->toArray()
-            );
-            return response()->json($tag_example_list);
-        }
+        $temp_option_list = $temp_option_list->take(10);
+
+        $tag_list = $temp_option_list->pluck('option_name');
+        
+        return response()->json($tag_list);
         
     }
 }

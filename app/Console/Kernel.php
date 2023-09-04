@@ -166,6 +166,10 @@ class Kernel extends ConsoleKernel
             })->timezone('Asia/Taipei')->dailyAt('2:00');
             */
         }
+
+        //計算options_xref的統計數量
+        $schedule->command('ComputeOptionXrefCount')->timezone('Asia/Taipei')->dailyAt('23:59');
+        $schedule->command('ComputeOptionXrefCount')->timezone('Asia/Taipei')->dailyAt('11:59');
     }
 
     /**

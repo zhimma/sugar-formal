@@ -358,11 +358,26 @@ class ImageController extends BaseController
         ));
 
         $upload = $fileUploader->upload();
-
+        $listInput = $fileUploader->getListInput();
+        $is_only_edited = false;
+        
         if(($upload['hasWarnings']??false) || !$upload['files']) {
             if(!$upload['files'])  {
-                if(is_array($upload['warnings'])) $upload['warnings'][] = '您沒有選擇檔案。請重新選擇一個。';
-                else $upload['warnings'] = '您沒有選擇檔案。請重新選擇一個。';
+                
+                foreach(($listInput['values']??[])  as $input_value) {
+                    if($is_only_edited) break;
+                    if(($input_value['editor']??false) && is_array($input_value['editor'])) {
+                        $is_only_edited = true;
+                    }
+                }                
+                
+                if(!$is_only_edited) {
+                    if(is_array($upload['warnings'])) $upload['warnings'][] = '您沒有選擇檔案。請重新選擇一個。';
+                    else $upload['warnings'] = '您沒有選擇檔案。請重新選擇一個。';
+                }
+                else {
+                    $upload['warnings'] = '修改成功';
+                }
             }
             if($request->ajax()) {
                 echo is_array($upload['warnings'])?implode("\r\r",$upload['warnings']):$upload['warnings'];
@@ -742,11 +757,25 @@ class ImageController extends BaseController
 //        }
 
         $upload = $fileUploader->upload();
-
+        $listInput = $fileUploader->getListInput();
+        $is_only_edited = false;
         if(($upload['hasWarnings']??false) || !$upload['files']) {
             if(!$upload['files'])  {
-                if(is_array($upload['warnings'])) $upload['warnings'][] = '您沒有選擇檔案。請重新選擇一個。';
-                else $upload['warnings'] = '您沒有選擇檔案。請重新選擇一個。';
+                
+                foreach(($listInput['values']??[])  as $input_value) {
+                    if($is_only_edited) break;
+                    if(($input_value['editor']??false) && is_array($input_value['editor'])) {
+                        $is_only_edited = true;
+                    }
+                }
+                
+                if(!$is_only_edited) {
+                    if(is_array($upload['warnings'])) $upload['warnings'][] = '您沒有選擇檔案。請重新選擇一個。';
+                    else $upload['warnings'] = '您沒有選擇檔案。請重新選擇一個。';
+                }
+                else {
+                    $upload['warnings'] = '修改成功';
+                }
             }            
             
             if($request->ajax()) {
