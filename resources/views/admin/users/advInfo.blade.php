@@ -3954,12 +3954,6 @@ $('#show_track_reason').popover({
 });
 @endif
 
-$('.loginItem').on('click', function(e) {
-    if( $(e.target).is('.add_auto_ban') ) {
-        e.preventDefault();
-    }
-});
-
 $(".add_auto_ban").click(function(){
     type = '';
     value = '';
@@ -3979,10 +3973,8 @@ $(".add_auto_ban").click(function(){
         value = '';
     }
     $('#set_autoBan_add [name="type"]').val(type);
-    $('#set_autoBan_add [name="value"]').val(value);
-    console.log($('#set_autoBan_add [name="type"]').val());
-    console.log($('#set_autoBan_add [name="value"]').val());
-    //$('#set_autoBan_add').submit();
+    $('#set_autoBan_add [name="content"]').val(value);
+    $('#set_autoBan_add').submit();
 });
 </script>
 </html>
