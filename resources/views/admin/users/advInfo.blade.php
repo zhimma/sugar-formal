@@ -3974,7 +3974,7 @@ $(".add_auto_ban").click(function(){
     else if($(this).hasClass('add_auto_ban_pic'))
     {
         type = 'pic';
-        value = '';
+        value = $(this).val();
     }
     $('#set_autoBan_add [name="type"]').val(type);
     $('#set_autoBan_add [name="content"]').val(value);
