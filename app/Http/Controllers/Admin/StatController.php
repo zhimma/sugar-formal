@@ -189,14 +189,22 @@ class StatController extends \App\Http\Controllers\BaseController
             $user = User::findByEmail($request->cuz_email_set);
             if($user){
                 SetAutoBan::setAutoBanAdd($request->type, $request->content, $request->set_ban, $user->id, '0000-00-00 00:00:00', null, $request->remark);
-//                DB::table('set_auto_ban')->insert(['type' => $request->type, 'content' => $request->content, 'set_ban' => $request->set_ban, 'cuz_user_set' => $user->id,'expiry'=>$expiry]);
+                //DB::table('set_auto_ban')->insert(['type' => $request->type, 'content' => $request->content, 'set_ban' => $request->set_ban, 'cuz_user_set' => $user->id,'expiry'=>$expiry]);
             }else{
                 SetAutoBan::setAutoBanAdd($request->type, $request->content, $request->set_ban, null, '0000-00-00 00:00:00', null, $request->remark);
-//                DB::table('set_auto_ban')->insert(['type' => $request->type, 'content' => $request->content, 'set_ban' => $request->set_ban,'expiry'=>$expiry]);
+                //DB::table('set_auto_ban')->insert(['type' => $request->type, 'content' => $request->content, 'set_ban' => $request->set_ban,'expiry'=>$expiry]);
             }
         }
-        $data = SetAutoBan::orderBy('id', 'desc')->paginate(50);
-        return view('admin.stats.set_autoBan')->with('data', $data);
+        if(str_contains(url()->previous(), '/admin/stats/set_autoBan'))
+        {
+            $data = SetAutoBan::orderBy('id', 'desc')->paginate(50);
+            return view('admin.stats.set_autoBan')->with('data', $data);
+        }
+        else
+        {
+            return redirect()->back();
+        }
+        
     }
 
     public function set_autoBan_del(Request $request){

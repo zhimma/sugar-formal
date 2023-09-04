@@ -2266,7 +2266,7 @@
                                     <span class="cfp_bp" style="{{ $logInLog->CfpID['CfpID_blocked_people'][$gpKey] > 0 ? 'background-color: yellow;' : '' }}">
                                         [{{ $logInLog->CfpID['CfpID_blocked_people'][$gpKey] }}/{{ $logInLog->CfpID['CfpID_online_people'][$gpKey] }}]
                                     </span>
-                                    <a type="button" class="add_auto_ban add_auto_ban_cfp" value="{{$group->cfp_id}}"> + </a>
+                                    <a type="button" class="btn btn-danger add_auto_ban add_auto_ban_cfp" value="{{$group->cfp_id}}"> + </a>
                                 </td>
                                 @php
                                     $CfpID_link_array[$group->cfp_id] = '<td class="loginItem" data-sectionName="cfpID' . substr($logInLog->loginDate,0,7) . '_group' . $gpKey . '" data-assign_user_id="' .  $user->id  . '" data-yearMonth="' . substr($logInLog->loginDate,0,7) . '" data-cfpID="' . $group->cfp_id . '" data-blocked-people="' .  $logInLog->CfpID['CfpID_blocked_people'][$gpKey]  . '" data-online-people="' .  $logInLog->CfpID['CfpID_online_people'][$gpKey]  . '" data-count="' .  $group->dataCount  . '" style="margin-left: 20px;min-width: 100px;' .  ($group->CfpID_set_auto_ban ? 'background:yellow;' : '')  . '">' .  $group->cfp_id  . ' <span class="cfp_bp" style="' .  ($logInLog->CfpID['CfpID_blocked_people'][$gpKey] > 0 ? 'background-color: yellow;' : '')  . '">[' .  $logInLog->CfpID['CfpID_blocked_people'][$gpKey]  . '/' .  $logInLog->CfpID['CfpID_online_people'][$gpKey]  . ']</span></td>';
@@ -2293,7 +2293,7 @@
                                     <span class="cfp_bp" style="{{ $logInLog->Ip['Ip_blocked_people'][$gpKey] > 0 ? 'background-color: yellow;' : '' }}">
                                         [{{ $logInLog->Ip['Ip_blocked_people'][$gpKey] }}/{{ $logInLog->Ip['Ip_online_people'][$gpKey] }}]
                                     </span>
-                                    <a type="button" class="add_auto_ban add_auto_ban_ip" value="{{$group->ip}}"> + </a>
+                                    <a type="button" class="btn btn-danger add_auto_ban add_auto_ban_ip" value="{{$group->ip}}"> + </a>
                                 </td>
                             @endif
                         @endforeach
