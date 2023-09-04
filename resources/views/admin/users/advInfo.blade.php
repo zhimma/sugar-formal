@@ -3974,7 +3974,9 @@ $(".add_auto_ban").click(function(){
     }
     $('#set_autoBan_add [name="type"]').val(type);
     $('#set_autoBan_add [name="value"]').val(value);
-    $('#set_autoBan_add').submit();
+    console.log($('#set_autoBan_add [name="type"]').val());
+    console.log($('#set_autoBan_add [name="value"]').val());
+    //$('#set_autoBan_add').submit();
 });
 </script>
 </html>
