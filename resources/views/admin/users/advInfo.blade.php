@@ -3018,7 +3018,7 @@
     	{!! csrf_field() !!}
         <input type = "hidden" name="type" value="">
         <input type = "hidden" name="content" value="">
-	    <input type = "hidden" name="cuz_email_set" value="{{$user->id}}">
+	    <input type = "hidden" name="cuz_email_set" value="{{$user->email}}">
         <input type = "hidden" name="set_ban" value="1">
 	</form>
 </div>
