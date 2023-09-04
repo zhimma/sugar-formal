@@ -3955,6 +3955,7 @@ $('#show_track_reason').popover({
 @endif
 
 $(".add_auto_ban").click(function(){
+    console.log('start_add_auto_ban');
     type = '';
     value = '';
     if($(this).hasClass('add_auto_ban_cfp'))
