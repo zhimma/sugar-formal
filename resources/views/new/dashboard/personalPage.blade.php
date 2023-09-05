@@ -8,6 +8,8 @@
 <script src="/new/js/aws-sdk-2.1143.0.min.js"></script>
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <link rel="stylesheet" href="/new/css/iconfont.css">
+<link rel="stylesheet" href="/new/css/swiper.min.css">
+<script src="/new/js/swiper.min.js"></script>
 <style>
     #self_auth_state_block .tabbox_h2 .tu_dfont {min-height:30px;width:100%;}
     .sa_video_status {cursor: pointer;display:inline-block;}
@@ -108,6 +110,20 @@
     #tab08 .tab_cancel_btn{ float:right; margin-right:11px;}
     #tab08 .tab_confirm_btn{ float:left; margin-left:11px;}
     #tab08 .n_fengs {text-align:center;}
+
+    .swiper-container {width: 100%;height: auto;border-radius:10px}	
+    .swiper-slide {width: 100%;margin: 0 auto;padding: 0px;display: table}		
+    .swiper-slide img {width: 100%;height: 100%;}
+    .swiper-pagination-bullet-active {opacity: 1 !important;background: #fd5678;}
+    .swiper-pagination-bullet {width:15px;height: 5px;display: inline-block;border-radius: 10px;background: #fd5678; opacity: .4;}
+    .swiper-container-horizontal>.swiper-pagination-bullets, .swiper-pagination-custom, .swiper-pagination-fraction {bottom: 5px;left: 0;width: 100%;}
+    .swiper-container-horizontal>.swiper-pagination-bullets .swiper-pagination-bullet {margin: 0 3px;}
+    .imgov {width: auto;height: auto;max-width: 100%;max-height: 100%;}
+    .xs{ overflow: inherit;}
+    .xs1{ overflow: inherit;}
+    .xs2{ overflow: inherit;}
+    .z_ftepe{ float: left;}
+    .padfont h2{ display: table;}
 </style>
 <link rel="stylesheet" href="/new/css/vvip_selection_reward.css">
 @stop
@@ -664,6 +680,118 @@
                             </div>
                         </dd>
                     </div>
+                    @if($user->engroup == 1)
+						<div class="niew_aa">
+							<div class="niew_aa_dt"><span>新進甜心</span></div>
+                            <div class="content" style="width: 95%; margin: 0 auto;">
+                                <div class="swiper-container xs">
+                                    <div class="swiper-wrapper">
+
+
+                                        <div class="swiper-slide xs_side">
+                                            <div class="paxiaoshou">
+                                                <a href="" class="pxs_img_cc clay"></a>
+                                                <div class="pxs_img"><img src="/new/images/z_pic_1.png" class="imgov"></div>
+                                                <div class="pxs">NEW</div>
+                                                <div class="pa_db">
+                                                    <div class="padfont">
+                                                        <h2><span class="left">測試賬測試試,</span><font class="z_ftepe">19歲<span class="lgrn"></span></font></h2><h3>台北</h3>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="swiper-slide xs_side">
+                                            <div class="paxiaoshou">
+                                                <a href="" class="pxs_img_cc clay"></a>
+                                                <div class="pxs_img"><img src="/new/images/z_pic_1.png" class="imgov"></div>
+                                                <div class="pxs">NEW</div>
+                                                <div class="pa_db">
+                                                    <div class="padfont">
+                                                        <h2><span class="left">測試賬測試試,</span><font class="z_ftepe">19歲<span class="lgrn"></span></font></h2><h3>台北</h3>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                        
+                                    </div>
+                                    <div class="swiper-pagination"></div>
+                                </div>
+                                <script>
+                                    var swiper = new Swiper('.xs', {
+                                    slidesPerView:3.5,
+                                    spaceBetween:30,
+                                    // init: false,
+                                    pagination: {
+                                        el: '.swiper-pagination',
+                                        clickable: true,
+                                    },
+                                    breakpoints: {
+                                        1024: {
+                                        slidesPerView:3.5,
+                                        spaceBetween:15,
+                                        }
+                                    },
+                                    breakpoints: {
+                                        450: {
+                                        slidesPerView:2.5,
+                                        spaceBetween:15,
+                                        }
+                                    }
+                                    });
+                                </script>
+                            </div>
+						</div>
+						<div class="niew_aa">
+							<div class="niew_aa_dt"><span>人氣甜心</span></div>
+                            <div class="content" style="width: 95%; margin: 0 auto;">
+                                <div class="swiper-container xs1">
+                                    <div class="swiper-wrapper">
+                                        
+
+                                        <div class="swiper-slide xs_side">
+                                            <div class="paxiaoshou">
+                                                <a href="" class="pxs_img_cc clay"></a>
+                                                <div class="pxs_img"><img src="/new/images/z_pic_5.png" class="imgov"></div>
+                                                <div class="pxs01"><img src="/new/images/z_huo.png" ></div>
+                                                <div class="pa_db">
+                                                    <div class="padfont">
+                                                            <h2><span class="left">Halima,</span><font class="z_ftepe">19<span class="lgrn"></span></font></h2><h3>台北</h3>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                        
+                                    </div>
+                                    <div class="swiper-pagination"></div>
+                                </div>
+                                <script>
+                                    var swiper = new Swiper('.xs1', {
+                                    slidesPerView:3.5,
+                                    spaceBetween:30,
+                                    // init: false,
+                                    pagination: {
+                                        el: '.swiper-pagination',
+                                        clickable: true,
+                                    },
+                                    breakpoints: {
+                                        1024: {
+                                        slidesPerView:3.5,
+                                        spaceBetween:15,
+                                        }
+                                    },
+                                    breakpoints: {
+                                        450: {
+                                        slidesPerView:2.5,
+                                        spaceBetween:15,
+                                        }
+                                    }
+                                    });
+                                </script>
+                            </div>
+						</div>
+                    @endif
                 </div>
             </div>
 
@@ -2011,5 +2139,7 @@ display: flex;-webkit-box-pack: center;-ms-flex-pack: center;-webkit-justify-con
     }
     
 </script>
+
+
 @endif
 @stop
