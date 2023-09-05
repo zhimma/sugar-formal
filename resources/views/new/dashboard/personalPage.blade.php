@@ -111,13 +111,13 @@
     #tab08 .tab_confirm_btn{ float:left; margin-left:11px;}
     #tab08 .n_fengs {text-align:center;}
 
-    .swiper-container {width: 100%;height: auto;border-radius:10px}	
-    .swiper-slide {width: 100%;margin: 0 auto;padding: 0px;display: table}		
-    .swiper-slide img {width: 100%;height: 100%;}
-    .swiper-pagination-bullet-active {opacity: 1 !important;background: #fd5678;}
-    .swiper-pagination-bullet {width:15px;height: 5px;display: inline-block;border-radius: 10px;background: #fd5678; opacity: .4;}
-    .swiper-container-horizontal>.swiper-pagination-bullets, .swiper-pagination-custom, .swiper-pagination-fraction {bottom: 5px;left: 0;width: 100%;}
-    .swiper-container-horizontal>.swiper-pagination-bullets .swiper-pagination-bullet {margin: 0 3px;}
+    .list_swiper-container {width: 100%;height: auto;border-radius:10px}
+    .list_swiper-container .swiper-slide {width: 100%;margin: 0 auto;padding: 0px;display: table}
+    .list_swiper-container .swiper-slide img {width: 100%;height: 100%;}
+    .list_swiper-container .swiper-pagination-bullet-active {opacity: 1 !important;background: #fd5678;}
+    .list_swiper-container .swiper-pagination-bullet {width:15px;height: 5px;display: inline-block;border-radius: 10px;background: #fd5678; opacity: .4;}
+    .list_swiper-container .swiper-container-horizontal>.swiper-pagination-bullets, .swiper-pagination-custom, .swiper-pagination-fraction {bottom: 5px;left: 0;width: 100%;}
+    .list_swiper-container .swiper-container-horizontal>.swiper-pagination-bullets .swiper-pagination-bullet {margin: 0 3px;}
     .imgov {width: auto;height: auto;max-width: 100%;max-height: 100%;}
     .xs{ overflow: inherit;}
     .xs1{ overflow: inherit;}
@@ -684,7 +684,7 @@
 						<div class="niew_aa">
 							<div class="niew_aa_dt"><span>新進甜心</span></div>
                             <div class="content" style="width: 95%; margin: 0 auto;">
-                                <div class="swiper-container xs">
+                                <div class="list_swiper-container xs">
                                     <div class="swiper-wrapper">
                                         @foreach($recommend_new_sweetheart as $sweetheart)
                                             <div class="swiper-slide xs_side">
@@ -735,7 +735,7 @@
 						<div class="niew_aa">
 							<div class="niew_aa_dt"><span>人氣甜心</span></div>
                             <div class="content" style="width: 95%; margin: 0 auto;">
-                                <div class="swiper-container xs1">
+                                <div class="list_swiper-container xs1">
                                     <div class="swiper-wrapper">
                                         @foreach($recommend_popular_sweetheart as $sweetheart)
                                             <div class="swiper-slide xs_side">
