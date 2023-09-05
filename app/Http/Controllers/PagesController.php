@@ -91,6 +91,7 @@ use App\Services\SearchIgnoreService;
 use App\Services\ShortMessageService;
 use App\Services\UserService;
 use App\Services\VipLogService;
+use App\Services\SearchService;
 use Auth;
 use Carbon\Carbon;
 use FileUploader;
@@ -9194,6 +9195,11 @@ class PagesController extends BaseController
         $VVIP_info = ValueAddedService::findByIdAndServiceNameWithDateDesc($user->id, 'VVIP');
         $hideOnline_info = ValueAddedService::findByIdAndServiceNameWithDateDesc($user->id, 'hideOnline');
 
+        //人氣甜心
+        $recommend_popular_sweetheart = SearchService::personal_page_recommend_popular_sweetheart();
+        //新進甜心
+        $recommend_new_sweetheart = SearchService::personal_page_recommend_new_sweetheart();
+
         if (isset($user)) {
             $data = array(
                 'vipStatus' => $vipStatus,
@@ -9228,7 +9234,9 @@ class PagesController extends BaseController
                 'vvip_selection_reward_apply_self' => $vvip_selection_reward_apply_self,
                 'VIP_info' => $VIP_info,
                 'VVIP_info' => $VVIP_info,
-                'hideOnline_info' => $hideOnline_info
+                'hideOnline_info' => $hideOnline_info,
+                'recommend_popular_sweetheart' => $recommend_popular_sweetheart,
+                'recommend_new_sweetheart' => $recommend_new_sweetheart
             );
             $allMessage = \App\Models\Message::allMessage($user->id);
             $forum = Forum::withTrashed()->where('user_id',$user->id)->orderby('id','desc')->first();
