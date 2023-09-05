@@ -274,6 +274,7 @@
 	  function show_line_notify_set_alert() {
 		  $(".announce_bg").show();
 		  $('#line_notify_set_failure').show();
+		  $('body').css("overflow","hidden");
 	  }
   
 	  function show_block() {
