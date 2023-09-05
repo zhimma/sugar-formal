@@ -686,33 +686,23 @@
                             <div class="content" style="width: 95%; margin: 0 auto;">
                                 <div class="swiper-container xs">
                                     <div class="swiper-wrapper">
-
-
-                                        <div class="swiper-slide xs_side">
-                                            <div class="paxiaoshou">
-                                                <a href="" class="pxs_img_cc clay"></a>
-                                                <div class="pxs_img"><img src="/new/images/z_pic_1.png" class="imgov"></div>
-                                                <div class="pxs">NEW</div>
-                                                <div class="pa_db">
-                                                    <div class="padfont">
-                                                        <h2><span class="left">測試賬測試試,</span><font class="z_ftepe">19歲<span class="lgrn"></span></font></h2><h3>台北</h3>
+                                        @foreach($recommend_new_sweetheart as $sweetheart)
+                                            <div class="swiper-slide xs_side">
+                                                <div class="paxiaoshou" style="width: 200px;">
+                                                    <a href="" class="pxs_img_cc clay"></a>
+                                                    <div class="pxs_img"><img src="/new/images/z_pic_1.png" class="imgov"></div>
+                                                    <div class="pxs">NEW</div>
+                                                    <div class="pa_db">
+                                                        <div class="padfont">
+                                                            <h2>
+                                                                <span class="left">{{$sweetheart->name}},</span><font class="z_ftepe">{{$sweetheart->age()}}歲<span class="lgrn"></span></font>
+                                                            </h2>
+                                                            <h3>台北</h3>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                        <div class="swiper-slide xs_side">
-                                            <div class="paxiaoshou">
-                                                <a href="" class="pxs_img_cc clay"></a>
-                                                <div class="pxs_img"><img src="/new/images/z_pic_1.png" class="imgov"></div>
-                                                <div class="pxs">NEW</div>
-                                                <div class="pa_db">
-                                                    <div class="padfont">
-                                                        <h2><span class="left">測試賬測試試,</span><font class="z_ftepe">19歲<span class="lgrn"></span></font></h2><h3>台北</h3>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
+                                        @endforeach
                         
                                     </div>
                                     <div class="swiper-pagination"></div>
@@ -747,22 +737,23 @@
                             <div class="content" style="width: 95%; margin: 0 auto;">
                                 <div class="swiper-container xs1">
                                     <div class="swiper-wrapper">
-                                        
-
-                                        <div class="swiper-slide xs_side">
-                                            <div class="paxiaoshou">
-                                                <a href="" class="pxs_img_cc clay"></a>
-                                                <div class="pxs_img"><img src="/new/images/z_pic_5.png" class="imgov"></div>
-                                                <div class="pxs01"><img src="/new/images/z_huo.png" ></div>
-                                                <div class="pa_db">
-                                                    <div class="padfont">
-                                                            <h2><span class="left">Halima,</span><font class="z_ftepe">19<span class="lgrn"></span></font></h2><h3>台北</h3>
+                                        @foreach($recommend_popular_sweetheart as $sweetheart)
+                                            <div class="swiper-slide xs_side">
+                                                <div class="paxiaoshou" style="width: 200px;">
+                                                    <a href="" class="pxs_img_cc clay"></a>
+                                                    <div class="pxs_img"><img src="/new/images/z_pic_5.png" class="imgov"></div>
+                                                    <div class="pxs01"><img src="/new/images/z_huo.png" ></div>
+                                                    <div class="pa_db">
+                                                        <div class="padfont">
+                                                            <h2>
+                                                                <span class="left">{{$sweetheart->name}},</span><font class="z_ftepe">{{$sweetheart->age()}}歲<span class="lgrn"></span></font>
+                                                            </h2>
+                                                            <h3>台北</h3>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                        
-                        
+                                        @endforeach
                                     </div>
                                     <div class="swiper-pagination"></div>
                                 </div>
