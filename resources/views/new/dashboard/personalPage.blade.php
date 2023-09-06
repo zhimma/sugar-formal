@@ -690,18 +690,20 @@
                                             <div class="swiper-slide xs_side">
                                                 <div class="paxiaoshou">
                                                     <a href="" class="pxs_img_cc clay"></a>
-                                                    <div class="pxs_img"><img src="/new/images/z_pic_1.png" class="imgov"></div>
+                                                    <div class="pxs_img">
+                                                        <img src="{{$sweetheart->meta->pic_blur ?? '/new/images/female.png'}}" class="imgov">
+                                                    </div>
                                                     <div class="pxs">NEW</div>
                                                     <div class="pa_db">
                                                         <div class="padfont">
                                                             <h2>
                                                                 <span class="left">{{$sweetheart->name}},</span>
                                                                 <font class="z_ftepe">
-                                                                    {{$sweetheart->age()}}歲
+                                                                    {{$sweetheart->age() ?? '??'}}歲
                                                                     <span class="lgrn"></span>
                                                                 </font>
                                                             </h2>
-                                                            <h3>台北</h3>
+                                                            <h3>{{$sweetheart->meta->city ?? '未填寫'}}</h3>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -745,18 +747,20 @@
                                             <div class="swiper-slide xs_side">
                                                 <div class="paxiaoshou">
                                                     <a href="" class="pxs_img_cc clay"></a>
-                                                    <div class="pxs_img"><img src="/new/images/z_pic_5.png" class="imgov"></div>
+                                                    <div class="pxs_img">
+                                                        <img src="{{$sweetheart->meta->pic_blur ?? '/new/images/female.png'}}" class="imgov">
+                                                    </div>
                                                     <div class="pxs01"><img src="/new/images/z_huo.png" ></div>
                                                     <div class="pa_db">
                                                         <div class="padfont">
                                                             <h2>
                                                                 <span class="left">{{$sweetheart->name}},</span>
                                                                 <font class="z_ftepe">
-                                                                    {{$sweetheart->age()}}歲
+                                                                    {{$sweetheart->age() ?? '??'}}歲
                                                                     <span class="lgrn"></span>
                                                                 </font>
                                                             </h2>
-                                                            <h3>台北</h3>
+                                                            <h3>{{$sweetheart->meta->city ?? '未填寫'}}</h3>
                                                         </div>
                                                     </div>
                                                 </div>
