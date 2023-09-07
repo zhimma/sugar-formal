@@ -109,7 +109,10 @@ $(document).ready(function () {
         {{-- 當前頭像 --}}
         @if($user->meta->pic)
         <tr>
-            <td class="user_recorded_img"><img src="{{ url($user->meta->pic) }}" width="120px"></td>
+            <td class="user_recorded_img">
+                <img src="{{ url($user->meta->pic) }}" width="120px">
+                <button class="btn btn-sm btn-danger add_auto_ban add_auto_ban_pic" value="{{$user->meta->pic}}"> + </button>
+            </td>
             <td>{{ $user->meta->updated_at }}</td>
             <td>未刪除</td>
             <td>未刪除</td>
@@ -262,7 +265,10 @@ $(document).ready(function () {
         {{-- 已刪除的頭像 --}}
         @forelse ($user->avatar_deleted as $pic)
         <tr>
-            <td class="user_recorded_img"><img src="{{ url($pic->pic) }}" width="120px"></td>
+            <td class="user_recorded_img">
+                <img src="{{ url($pic->pic) }}" width="120px">
+                <button class="btn btn-sm btn-danger add_auto_ban add_auto_ban_pic" value="{{$pic->pic}}"> + </button>
+            </td>
             <td class="text-nowrap">{{ $pic->uploaded_at }}</td>
             <td class="text-nowrap">{{ $pic->created_at }}</td>
             <td>
@@ -432,7 +438,10 @@ $(document).ready(function () {
         {{-- 當前生活照 --}}
         @forelse ($user->pic_orderByDecs as $pic)
         <tr>
-            <td class="user_recorded_img"><img src="{{ url($pic->pic) }}" width="120px"></td>
+            <td class="user_recorded_img">
+                <img src="{{ url($pic->pic) }}" width="120px">
+                <button class="btn btn-sm btn-danger add_auto_ban add_auto_ban_pic" value="{{$pic->pic}}"> + </button>
+            </td>
             <td>{{ $pic->created_at }}</td>
             <td>未刪除</td>
             <td>未刪除</td>
@@ -584,7 +593,10 @@ $(document).ready(function () {
         {{-- 已刪除的生活照 --}}
         @forelse ($user->pic_onlyTrashed as $pic)
         <tr>
-            <td class="user_recorded_img"><img src="{{ url($pic->pic) }}" width="120px"></td>
+            <td class="user_recorded_img">
+                <img src="{{ url($pic->pic) }}" width="120px">
+                <button class="btn btn-sm btn-danger add_auto_ban add_auto_ban_pic" value="{{$pic->pic}}"> + </button>
+            </td>
             <td class="text-nowrap">{{ $pic->created_at }}</td>
             <td class="text-nowrap">{{ $pic->deleted_at }}</td>
             <td>
@@ -745,6 +757,15 @@ $(document).ready(function () {
         @endforelse
     </tbody>
 </table>
+<script>
+    $(".add_auto_ban_pic").click(function(){
+        type = 'pic';
+        value = $(this).val();
+        $('#set_autoBan_add [name="type"]').val(type);
+        $('#set_autoBan_add [name="content"]').val(value);
+        $('#set_autoBan_add').submit();
+    });
+</script>
 
 {{--<h4>停留時間</h4>
 <table class="table table-bordered">
