@@ -47,14 +47,14 @@ class SearchService
             }
         }
 
-        return [$search_county, $search_district];
+        return ['country' => $search_county, 'district' => $search_district];
     }
 
     public static function get_user_search_meta_constraint()
     {
         $country_and_district_list = SearchService::get_user_search_country_and_district();
-        $country_list = $country_and_district_list[0];
-        $district_list = $country_and_district_list[1];
+        $country_list = $country_and_district_list['country'];
+        $district_list = $country_and_district_list['district'];
 
         $constraint = function($query) use($country_list, $district_list){
             $query->where(function($query) use($country_list, $district_list){
