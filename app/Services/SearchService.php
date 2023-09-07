@@ -50,7 +50,7 @@ class SearchService
         return [$search_county, $search_district];
     }
 
-    public static function get_user_search_constraint()
+    public static function get_user_search_meta_constraint()
     {
         $country_and_district_list = SearchService::get_user_search_country_and_district();
         $country_list = $country_and_district_list[0];
@@ -93,11 +93,25 @@ class SearchService
         return $constraint;
     }
 
+    public static function get_user_search_received_message_constraint()
+    {
+        $constraint = function($query){
+            $now_time = Carbon::now();
+            $query->where('created_at', '>=', Carbon::now()->subWeeks(2))->where('is_truth', 1);
+        };
+
+        return $constraint;
+    }
+
     public static function personal_page_recommend_popular_sweetheart()
     {
-        $constraint = SearchService::get_user_search_constraint();
+        $meta_constraint = SearchService::get_user_search_meta_constraint();
+        $received_message_constraint = SearchService::get_user_search_received_message_constraint();
         $sweetheart = User::where('engroup', 2)
-                            ->whereHas('user_meta', $constraint)
+                            ->whereHas('user_meta', $meta_constraint)
+                            ->whereHas('receivedMessages', $received_message_constraint)
+                            ->withCount(['receivedMessages' => $received_message_constraint])
+                            ->having('received_messages_count', '>=', 2)
                             ->inRandomOrder()
                             ->limit(5)
                             ->get();
@@ -107,10 +121,10 @@ class SearchService
     public static function personal_page_recommend_new_sweetheart()
     {
         $now_time = Carbon::now();
-        $constraint = SearchService::get_user_search_constraint();
+        $meta_constraint = SearchService::get_user_search_meta_constraint();
         $sweetheart = User::where('engroup', 2)
                             ->where('created_at', '>=', $now_time->subDays(30))
-                            ->whereHas('user_meta', $constraint)
+                            ->whereHas('user_meta', $meta_constraint)
                             ->inRandomOrder()
                             ->limit(5)
                             ->get();
