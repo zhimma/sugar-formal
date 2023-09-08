@@ -52,9 +52,12 @@ class SearchService
 
     public static function get_user_search_meta_constraint()
     {
-        $country_and_district_list = SearchService::get_user_search_country_and_district();
-        $country_list = $country_and_district_list['country'];
-        $district_list = $country_and_district_list['district'];
+        $user = auth()->user();
+        $country_list = $user->get_city_list();
+        $district_list = $user->get_area_list();
+        //$country_and_district_list = SearchService::get_user_search_country_and_district();
+        //$country_list = $country_and_district_list['country'];
+        //$district_list = $country_and_district_list['district'];
 
         $constraint = function($query) use($country_list, $district_list){
             $query->where(function($query) use($country_list, $district_list){
@@ -111,8 +114,8 @@ class SearchService
                             ->whereHas('user_meta', $meta_constraint)
                             ->whereHas('receivedMessages', $received_message_constraint)
                             ->withCount(['receivedMessages' => $received_message_constraint])
-                            ->having('received_messages_count', '>=', 2)
-                            ->inRandomOrder()
+                            ->having('received_messages_count', '>', 0)
+                            ->orderByDesc('received_messages_count')
                             ->limit(5)
                             ->get();
         return $sweetheart;
