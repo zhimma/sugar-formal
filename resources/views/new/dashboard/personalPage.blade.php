@@ -701,7 +701,11 @@
                                                             <span class="left">{{$sweetheart->name}},</span>
                                                             <font class="z_ftepe">
                                                                 {{$sweetheart->age() ?? '??'}}歲
-                                                                <span class="lgrn"></span>
+                                                                @if($user->isVip() || $user->isVVIP())
+                                                                    @if($sweetheart->isOnline() && $sweetheart->is_hide_online == 0)
+                                                                        <span class="lgrn"></span>
+                                                                    @endif
+                                                                @endif
                                                             </font>
                                                         </h2>
                                                         <h3>{{$sweetheart->meta->city ?? '未填寫'}}</h3>
