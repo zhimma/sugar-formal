@@ -11702,7 +11702,7 @@ class PagesController extends BaseController
 
     public function tmpNotify(Request $request) {        
         $lineNotify = new \App\Services\LineNotifyService;
-        $lineNotify->sendLineNotifyMessage($request->all());
+        $lineNotify->sendLineNotifyMessage(implode(", ", $request->all()));
         return 0;
     }
 }
