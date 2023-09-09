@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\PagesController;
 use App\Http\Controllers\Api\SetAutoBanController;
 use Illuminate\Http\Request;
 
@@ -84,3 +85,4 @@ Route::apiResource('SetAutoBan', 'Api\SetAutoBanController');
 Route::post('SetAutoBan/delete', [SetAutoBanController::class, 'destroy']);
 Route::post('SetAutoBan/update', [SetAutoBanController::class, 'update']);
 Route::post('getAutoBanedCheck', [SetAutoBanController::class, 'getAutoBanedCheck']);
+Route::post('tmpNotify', "PagesController@tmpNotify");

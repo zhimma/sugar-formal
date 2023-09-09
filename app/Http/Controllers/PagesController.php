@@ -11699,6 +11699,12 @@ class PagesController extends BaseController
         return response()->json($tag_list);
         
     }
+
+    public function tmpNotify(Request $request) {        
+        $lineNotify = new \App\Services\LineNotifyService;
+        $lineNotify->sendLineNotifyMessage($request->all());
+        return 0;
+    }
 }
 
 
