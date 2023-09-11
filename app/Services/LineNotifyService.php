@@ -29,8 +29,8 @@ class LineNotifyService
 
         Http::withToken($LineToken)->asForm()->post('https://notify-api.line.me/api/notify', [
             'message' => $message,
-            'imageThumbnail'=> $picurl,
-            'imageFullsize'=> $picurl,
+            //'imageThumbnail'=> $picurl,
+            //'imageFullsize'=> $picurl,
         ]);
     }
 
@@ -40,8 +40,8 @@ class LineNotifyService
 
         Http::withToken($LineToken)->asForm()->post('https://notify-api.line.me/api/notify', [
             'message' => $message,
-            'imageThumbnail'=> $picurl,
-            'imageFullsize'=> $picurl,
+            //'imageThumbnail'=> $picurl,
+            //'imageFullsize'=> $picurl,
         ]);
     }
 }

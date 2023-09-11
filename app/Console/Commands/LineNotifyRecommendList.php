@@ -47,9 +47,9 @@ class LineNotifyRecommendList extends Command
         foreach($new_sweetheart_list as $sweetheart)
         {
             $message = "\n";
-            $message .= "推薦新進甜心:";
+            $message .= "推薦新進甜心: ";
             $message .= $sweetheart->name . "\n";
-            $message .= route("users/advInfo", ['id' => $sweetheart->id]) . "\n";
+            $message .= route("viewuser", ['uid' => $sweetheart->id]) . "\n";
             $picurl = url('/') . ($sweetheart->meta->pic ? (file_exists(public_path() . $sweetheart->meta->pic) ? $sweetheart->meta->pic : '/new/images/female.png') : '/new/images/female.png');
             $lineNotify->sendLineNotifyPopularRecommendList($message, $picurl);
         }
@@ -60,9 +60,9 @@ class LineNotifyRecommendList extends Command
         foreach($popular_sweetheart_list as $sweetheart)
         {
             $message = "\n";
-            $message .= "推薦人氣甜心:";
+            $message .= "推薦人氣甜心: ";
             $message .= $sweetheart->name . "(真心話數:" . $sweetheart->received_messages_count . ")" . "\n";
-            $message .= route("users/advInfo", ['id' => $sweetheart->id]) . "\n";
+            $message .= route("viewuser", ['uid' => $sweetheart->id]) . "\n";
             $picurl = url('/') . ($sweetheart->meta->pic ? (file_exists(public_path() . $sweetheart->meta->pic) ? $sweetheart->meta->pic : '/new/images/female.png') : '/new/images/female.png');
             $lineNotify->sendLineNotifyNewRecommendList($message, $picurl);
         }
