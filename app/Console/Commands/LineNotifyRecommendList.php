@@ -55,7 +55,7 @@ class LineNotifyRecommendList extends Command
         $message .= "推薦人氣甜心名單:\n";
         foreach($popular_sweetheart_list as $sweetheart)
         {
-            $message .= $sweetheart->name . "\n";
+            $message .= $sweetheart->name . "(真心話數:" . $sweetheart->received_messages_count . ")" . "\n";
             $message .= route("users/advInfo", ['id' => $sweetheart->id]) . "\n";
         }
 
