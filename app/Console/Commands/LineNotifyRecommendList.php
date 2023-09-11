@@ -42,12 +42,13 @@ class LineNotifyRecommendList extends Command
         $new_sweetheart_list = SearchService::personal_page_recommend_new_sweetheart_all_list_query()->get();
         $popular_sweetheart_list = SearchService::personal_page_recommend_popular_sweetheart_all_list_query()->get();
 
+        
         $message = "\n";
         $message .= "推薦新進甜心名單:\n";
         foreach($new_sweetheart_list as $sweetheart)
         {
             $message .= $sweetheart->name . "\n";
-            $message .= route("viewuser", ['uid' => $sweetheart->id]) . "\n";
+            $message .= route("users/advInfo", ['uid' => $sweetheart->id]) . "\n";
         }
 
         $message  .= "\n";
@@ -55,7 +56,7 @@ class LineNotifyRecommendList extends Command
         foreach($popular_sweetheart_list as $sweetheart)
         {
             $message .= $sweetheart->name . "\n";
-            $message .= route("viewuser", ['uid' => $sweetheart->id]) . "\n";
+            $message .= route("users/advInfo", ['uid' => $sweetheart->id]) . "\n";
         }
 
         $lineNotify = new LineNotify;
