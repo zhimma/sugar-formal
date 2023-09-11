@@ -681,6 +681,7 @@
                         </dd>
                     </div>
                 </div>
+                {{--
                 @if($user->engroup == 1)
                     <div class="niew_aa" style="width: 90%;margin: 0 auto;">
                         <div class="niew_aa_dt"><span>新進甜心</span></div>
@@ -804,6 +805,7 @@
                         </div>
                     </div>
                 @endif
+                --}}
             </div>
 
         </div>

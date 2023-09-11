@@ -22,6 +22,15 @@ class LineNotifyService
             'message' => $message
         ]);
     }
+
+    public function sendLineNotifyRecommendList($message){
+
+        $LineToken = '';
+
+        Http::withToken($LineToken)->asForm()->post('https://notify-api.line.me/api/notify', [
+            'message' => $message
+        ]);
+    }
 }
 
 ?>

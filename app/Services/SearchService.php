@@ -106,31 +106,48 @@ class SearchService
         return $constraint;
     }
 
-    public static function personal_page_recommend_popular_sweetheart()
+    public static function personal_page_recommend_popular_sweetheart_all_list_query()
     {
-        $meta_constraint = SearchService::get_user_search_meta_constraint();
+        
         $received_message_constraint = SearchService::get_user_search_received_message_constraint();
-        $sweetheart = User::where('engroup', 2)
-                            ->whereHas('user_meta', $meta_constraint)
+        $sweetheart_query = User::where('engroup', 2)
                             ->whereHas('receivedMessages', $received_message_constraint)
                             ->withCount(['receivedMessages' => $received_message_constraint])
                             ->having('received_messages_count', '>', 0)
-                            ->orderByDesc('received_messages_count')
-                            ->limit(5)
-                            ->get();
+                            ;
+        return $sweetheart_query;
+    }
+
+    public static function personal_page_recommend_popular_sweetheart()
+    {
+        $meta_constraint = SearchService::get_user_search_meta_constraint();
+        $sweetheart = SearchService::personal_page_recommend_popular_sweetheart_all_list_query()
+                                    ->whereHas('user_meta', $meta_constraint)
+                                    ->orderByDesc('received_messages_count')
+                                    ->limit(5)
+                                    ->get();
         return $sweetheart;
+    }
+
+    public static function personal_page_recommend_new_sweetheart_all_list_query()
+    {
+        $now_time = Carbon::now();
+        
+        $sweetheart_query = User::where('engroup', 2)
+                            ->where('created_at', '>=', $now_time->subDays(30))
+                            
+                            ;
+        return $sweetheart_query;       
     }
 
     public static function personal_page_recommend_new_sweetheart()
     {
-        $now_time = Carbon::now();
         $meta_constraint = SearchService::get_user_search_meta_constraint();
-        $sweetheart = User::where('engroup', 2)
-                            ->where('created_at', '>=', $now_time->subDays(30))
-                            ->whereHas('user_meta', $meta_constraint)
-                            ->inRandomOrder()
-                            ->limit(5)
-                            ->get();
+        $sweetheart = SearchService::personal_page_recommend_new_sweetheart_all_list_query()
+                                    ->whereHas('user_meta', $meta_constraint)
+                                    ->inRandomOrder()
+                                    ->limit(5)
+                                    ->get();
         return $sweetheart;       
     }
 }
