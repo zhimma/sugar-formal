@@ -48,7 +48,7 @@ class LineNotifyRecommendList extends Command
         foreach($new_sweetheart_list as $sweetheart)
         {
             $message .= $sweetheart->name . "\n";
-            $message .= route("users/advInfo", ['uid' => $sweetheart->id]) . "\n";
+            $message .= route("users/advInfo", ['id' => $sweetheart->id]) . "\n";
         }
 
         $message  .= "\n";
@@ -56,7 +56,7 @@ class LineNotifyRecommendList extends Command
         foreach($popular_sweetheart_list as $sweetheart)
         {
             $message .= $sweetheart->name . "\n";
-            $message .= route("users/advInfo", ['uid' => $sweetheart->id]) . "\n";
+            $message .= route("users/advInfo", ['id' => $sweetheart->id]) . "\n";
         }
 
         $lineNotify = new LineNotify;
