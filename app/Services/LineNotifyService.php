@@ -23,12 +23,25 @@ class LineNotifyService
         ]);
     }
 
-    public function sendLineNotifyRecommendList($message){
+    public function sendLineNotifyNewRecommendList($message, $picurl){
 
         $LineToken = '';
 
         Http::withToken($LineToken)->asForm()->post('https://notify-api.line.me/api/notify', [
-            'message' => $message
+            'message' => $message,
+            'imageThumbnail'=> $picurl,
+            'imageFullsize'=> $picurl,
+        ]);
+    }
+
+    public function sendLineNotifyPopularRecommendList($message, $picurl){
+
+        $LineToken = '';
+
+        Http::withToken($LineToken)->asForm()->post('https://notify-api.line.me/api/notify', [
+            'message' => $message,
+            'imageThumbnail'=> $picurl,
+            'imageFullsize'=> $picurl,
         ]);
     }
 }

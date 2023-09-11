@@ -39,28 +39,33 @@ class LineNotifyRecommendList extends Command
      */
     public function handle()
     {
-        $new_sweetheart_list = SearchService::personal_page_recommend_new_sweetheart_all_list_query()->get();
-        $popular_sweetheart_list = SearchService::personal_page_recommend_popular_sweetheart_all_list_query()->get();
+        $lineNotify = new LineNotify;
 
+        //新進甜心
+        $new_sweetheart_list = SearchService::personal_page_recommend_new_sweetheart_all_list_query()->get();
         
-        $message = "\n";
-        $message .= "推薦新進甜心名單:\n";
         foreach($new_sweetheart_list as $sweetheart)
         {
+            $message = "\n";
+            $message .= "推薦新進甜心:";
             $message .= $sweetheart->name . "\n";
             $message .= route("users/advInfo", ['id' => $sweetheart->id]) . "\n";
+            $picurl = $sweetheart->meta->pic ?? '/new/images/female.png';
+            $lineNotify->sendLineNotifyPopularRecommendList($message, $picurl);
         }
 
-        $message  .= "\n";
-        $message .= "推薦人氣甜心名單:\n";
+        //人氣甜心
+        $popular_sweetheart_list = SearchService::personal_page_recommend_popular_sweetheart_all_list_query()->get();
+        
         foreach($popular_sweetheart_list as $sweetheart)
         {
+            $message = "\n";
+            $message .= "推薦人氣甜心:";
             $message .= $sweetheart->name . "(真心話數:" . $sweetheart->received_messages_count . ")" . "\n";
             $message .= route("users/advInfo", ['id' => $sweetheart->id]) . "\n";
+            $picurl = $sweetheart->meta->pic ?? '/new/images/female.png';
+            $lineNotify->sendLineNotifyNewRecommendList($message, $picurl);
         }
-
-        $lineNotify = new LineNotify;
-        $lineNotify->sendLineNotifyRecommendList($message);
-        return 0;
+        
     }
 }
