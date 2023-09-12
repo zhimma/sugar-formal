@@ -181,7 +181,7 @@ if(location.hash=='' ) {
                             <img src="/sop/images/3.png" class="zp_pcimg zp_pc">
                             <div class="zpfont_f">
                                 <img src="/sop/images/dpicon.png">
-                                <h2><span>●</span><var>數字有基本共識後，請對方刷站內車馬費。如果對方願刷又不是VIP，站長強烈建議你要提高警覺，千萬不要接受”任何”後付款的條件</var></h2>
+                                <h2><span>●</span><var>數字有基本共識後，請對方刷站內車馬費。如果對方不願意刷卡又不是VIP，站長強烈建議你要提高警覺，千萬不要接受”任何”後付款的條件</var></h2>
                                 <h2><span>●</span><var>此時不建議給Line</var></h2>
                                 <h2><span>●</span><var>如果一定要互加通訊軟件，強烈建議請新辦一個之前沒使用過的通訊軟件<font class="sop_bz">ID千萬不要取跟自已相關的例如自已的英文名字，生日等等</font></var></h2>
                             </div>
