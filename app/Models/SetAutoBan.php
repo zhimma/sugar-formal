@@ -839,42 +839,42 @@ class SetAutoBan extends Model
     {
         $ban_list = [];
         $user = User::find($uid);
-            try {
-                if(isset($user) && $user->can('admin')){
-                    return;
-                }
-            }
-            catch (\Exception $e){
-
-            }
-            if(!$user || !$uid) {
-                logger('SetAutoBan local_machine_ban_and_warn() user not set, referer: ' . \Request::server('HTTP_REFERER'));
+        try {
+            if(isset($user) && $user->can('admin')){
                 return;
             }
+        }
+        catch (\Exception $e){
 
-            //執行時間預設是30秒改為無上限
-            set_time_limit(-1);
+        }
+        if(!$user || !$uid) {
+            logger('SetAutoBan local_machine_ban_and_warn() user not set, referer: ' . \Request::server('HTTP_REFERER'));
+            return;
+        }
 
-            $ban_set_type = collect(['name', 'email', 'title']);
+        //執行時間預設是30秒改為無上限
+        set_time_limit(-1);
+
+        $ban_set_type = collect(['name', 'email', 'title']);
 
         $all_check_rule_sets = SetAutoBan::retrive('allcheck');
 
-            $ban_set_type->each(function($type) use ($user, $all_check_rule_sets, $probing, &$ban_list) {
-                $type_rule_sets = SetAutoBan::retrive($type);
-                $rule_sets = $type_rule_sets->merge($all_check_rule_sets);
-                $rule_sets->each(function($rule_set) use ($user, $type, $probing, &$ban_list) {
-                    if (str_contains($user->$type, $rule_set->content)) {
-                        if ($probing) {
-                            echo $rule_set->id . ' ' . $rule_set->type;
-                        }
-                        if ($rule_set && $rule_set->id) {
-                            $ban_list[] = [$user->id, $rule_set->id, 'profile'];
-                        }
+        $ban_set_type->each(function($type) use ($user, $all_check_rule_sets, $probing, &$ban_list) {
+            $type_rule_sets = SetAutoBan::retrive($type);
+            $rule_sets = $type_rule_sets->merge($all_check_rule_sets);
+            $rule_sets->each(function($rule_set) use ($user, $type, $probing, &$ban_list) {
+                if (str_contains($user->$type, $rule_set->content)) {
+                    if ($probing) {
+                        echo $rule_set->id . ' ' . $rule_set->type;
                     }
-                });
+                    if ($rule_set && $rule_set->id) {
+                        $ban_list[] = [$user->id, $rule_set->id, 'profile'];
+                    }
+                }
             });
+        });
 
-            return $ban_list;
+        return $ban_list;
     }
 
     public static function local_machine_ban_and_warn_check($user, $ip, $probing = false)
