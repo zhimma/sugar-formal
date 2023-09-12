@@ -74,7 +74,7 @@
                             <div class="zpfont_f">
                                 @if($user->engroup==2)
                                 <img src="/new/images/dpicon.png">
-                                <h2><span>●</span><var>數字有基本共識後，請對方刷站內車馬費。如果對方不願刷又不是VIP，站長強烈建議你要提高警覺，千萬不要接受”任何”後付款的條件。</var></h2>
+                                <h2><span>●</span><var>數字有基本共識後，請對方刷站內車馬費。如果對方不願意刷卡又不是VIP，站長強烈建議你要提高警覺，千萬不要接受”任何”後付款的條件。</var></h2>
                                 <h2><span>●</span><var>此時站長強烈不建議給 line。</var></h2>
                                 <h2><span>●</span><var>如果一定要互加通訊軟體，強烈建議請新辦一個之前沒使用過的通訊軟體，<font class="sop_bz">ID千萬不要取跟自己相關的例如自己的英文名字，生日等等。</font></var></h2>
                                 @else
