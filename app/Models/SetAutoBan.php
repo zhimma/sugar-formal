@@ -727,6 +727,7 @@ class SetAutoBan extends Model
                 });
             }
 
+            /*
             $ip_rule_sets = SetAutoBan::retrive('ip');
             if(!$bypass){
                 $auto_ban_rule_sets = $ip_rule_sets->merge($pic_rule_sets);
@@ -800,6 +801,7 @@ class SetAutoBan extends Model
 
                 }
             }
+            */
 
             return $ban_list;
     }
@@ -873,6 +875,46 @@ class SetAutoBan extends Model
                 }
             });
         });
+
+        $ip_rule_sets = SetAutoBan::retrive('ip');
+        $auto_ban_rule_sets = $ip_rule_sets;
+
+        foreach ($auto_ban_rule_sets as $ban_set) {
+            $content = $ban_set->content;
+            $violation = false;
+            $caused_by = $ban_set->type;
+            switch ($ban_set->type) {
+                case 'ip':
+                    if($ban_set->expiry=='0000-00-00 00:00:00') {
+                        SetAutoBan::ip_update_send('update', $ban_set->id);
+                    }
+                    if($ban_set->expiry<=\Carbon\Carbon::now()->format('Y-m-d H:i:s')) {
+                        SetAutoBan::ip_update_send('delete', $ban_set->id);
+                        break;
+                    }
+                    $ip = $user->log_user_login->where('created_at', '>', Carbon::now()->subDay())->sortByDesc('created_at')->first();
+                    if($ip?->ip == $content) {
+                        $violation = true;
+                        SetAutoBan::ip_update_send('update', $ban_set->id);
+                    }
+                    break;
+
+                default:
+                    break;
+            }
+
+            if ($violation) {
+                $type = 'profile';
+                if($probing) {
+                    echo $caused_by;
+                }
+                else {
+                    logger("User $uid is banned by $caused_by");
+                }
+                $ban_list[] = [$uid, $ban_set->id, $type];
+
+            }
+        }
 
         return $ban_list;
     }
