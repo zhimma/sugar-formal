@@ -727,6 +727,7 @@ class SetAutoBan extends Model
                 });
             }
 
+            /*
             $ip_rule_sets = SetAutoBan::retrive('ip');
             if(!$bypass){
                 $auto_ban_rule_sets = $ip_rule_sets->merge($pic_rule_sets);
@@ -800,6 +801,7 @@ class SetAutoBan extends Model
 
                 }
             }
+            */
 
             return $ban_list;
     }
@@ -839,42 +841,82 @@ class SetAutoBan extends Model
     {
         $ban_list = [];
         $user = User::find($uid);
-            try {
-                if(isset($user) && $user->can('admin')){
-                    return;
-                }
-            }
-            catch (\Exception $e){
-
-            }
-            if(!$user || !$uid) {
-                logger('SetAutoBan local_machine_ban_and_warn() user not set, referer: ' . \Request::server('HTTP_REFERER'));
+        try {
+            if(isset($user) && $user->can('admin')){
                 return;
             }
+        }
+        catch (\Exception $e){
 
-            //執行時間預設是30秒改為無上限
-            set_time_limit(-1);
+        }
+        if(!$user || !$uid) {
+            logger('SetAutoBan local_machine_ban_and_warn() user not set, referer: ' . \Request::server('HTTP_REFERER'));
+            return;
+        }
 
-            $ban_set_type = collect(['name', 'email', 'title']);
+        //執行時間預設是30秒改為無上限
+        set_time_limit(-1);
+
+        $ban_set_type = collect(['name', 'email', 'title']);
 
         $all_check_rule_sets = SetAutoBan::retrive('allcheck');
 
-            $ban_set_type->each(function($type) use ($user, $all_check_rule_sets, $probing, &$ban_list) {
-                $type_rule_sets = SetAutoBan::retrive($type);
-                $rule_sets = $type_rule_sets->merge($all_check_rule_sets);
-                $rule_sets->each(function($rule_set) use ($user, $type, $probing, &$ban_list) {
-                    if (str_contains($user->$type, $rule_set->content)) {
-                        if ($probing) {
-                            echo $rule_set->id . ' ' . $rule_set->type;
-                        }
-                        if ($rule_set && $rule_set->id) {
-                            $ban_list[] = [$user->id, $rule_set->id, 'profile'];
-                        }
+        $ban_set_type->each(function($type) use ($user, $all_check_rule_sets, $probing, &$ban_list) {
+            $type_rule_sets = SetAutoBan::retrive($type);
+            $rule_sets = $type_rule_sets->merge($all_check_rule_sets);
+            $rule_sets->each(function($rule_set) use ($user, $type, $probing, &$ban_list) {
+                if (str_contains($user->$type, $rule_set->content)) {
+                    if ($probing) {
+                        echo $rule_set->id . ' ' . $rule_set->type;
                     }
-                });
+                    if ($rule_set && $rule_set->id) {
+                        $ban_list[] = [$user->id, $rule_set->id, 'profile'];
+                    }
+                }
             });
+        });
 
-            return $ban_list;
+        $ip_rule_sets = SetAutoBan::retrive('ip');
+        $auto_ban_rule_sets = $ip_rule_sets;
+
+        foreach ($auto_ban_rule_sets as $ban_set) {
+            $content = $ban_set->content;
+            $violation = false;
+            $caused_by = $ban_set->type;
+            switch ($ban_set->type) {
+                case 'ip':
+                    if($ban_set->expiry=='0000-00-00 00:00:00') {
+                        SetAutoBan::ip_update_send('update', $ban_set->id);
+                    }
+                    if($ban_set->expiry<=\Carbon\Carbon::now()->format('Y-m-d H:i:s')) {
+                        SetAutoBan::ip_update_send('delete', $ban_set->id);
+                        break;
+                    }
+                    $ip = $user->log_user_login->where('created_at', '>', Carbon::now()->subDay())->sortByDesc('created_at')->first();
+                    if($ip?->ip == $content) {
+                        $violation = true;
+                        SetAutoBan::ip_update_send('update', $ban_set->id);
+                    }
+                    break;
+
+                default:
+                    break;
+            }
+
+            if ($violation) {
+                $type = 'profile';
+                if($probing) {
+                    echo $caused_by;
+                }
+                else {
+                    logger("User $uid is banned by $caused_by");
+                }
+                $ban_list[] = [$uid, $ban_set->id, $type];
+
+            }
+        }
+
+        return $ban_list;
     }
 
     public static function local_machine_ban_and_warn_check($user, $ip, $probing = false)
