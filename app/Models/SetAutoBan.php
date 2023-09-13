@@ -630,6 +630,8 @@ class SetAutoBan extends Model
 
             //執行時間預設是30秒改為無上限
             set_time_limit(-1);
+            //執行記憶體改為無上限
+            ini_set('memory_limit',-1);
 
             if(!$bypass){
                 $ban_set_type = collect(['name', 'email', 'title']);
@@ -856,6 +858,8 @@ class SetAutoBan extends Model
 
         //執行時間預設是30秒改為無上限
         set_time_limit(-1);
+        //執行記憶體改為無上限
+        ini_set('memory_limit',-1);
 
         $ban_set_type = collect(['name', 'email', 'title']);
 
