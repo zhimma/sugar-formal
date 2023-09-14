@@ -96,10 +96,24 @@ class SearchService
         return $constraint;
     }
 
+    public static function get_user_exclude_constraint()
+    {
+        $constraint = function($query){
+            $query->doesntHave('banned')
+                ->orDoesntHave('warned_users')
+                ->orDoesntHave('implicitlyBanned')
+                ->orWhere('is_hide_online', '!=', 1)
+                ->orWhere('accountStatus', '!=', 1)
+                ->orWhere('account_status_admin', '!=', 1)
+                ;
+        };
+
+        return $constraint;
+    }
+
     public static function get_user_search_received_message_constraint()
     {
         $constraint = function($query){
-            $now_time = Carbon::now();
             $query->where('created_at', '>=', Carbon::now()->subWeeks(2))->where('is_truth', 1);
         };
 
@@ -108,13 +122,11 @@ class SearchService
 
     public static function personal_page_recommend_popular_sweetheart_all_list_query()
     {
-        
         $received_message_constraint = SearchService::get_user_search_received_message_constraint();
         $sweetheart_query = User::where('engroup', 2)
                             ->whereHas('receivedMessages', $received_message_constraint)
                             ->withCount(['receivedMessages' => $received_message_constraint])
-                            ->having('received_messages_count', '>', 0)
-                            ;
+                            ->having('received_messages_count', '>', 0);
         return $sweetheart_query;
     }
 
@@ -123,6 +135,7 @@ class SearchService
         $meta_constraint = SearchService::get_user_search_meta_constraint();
         $sweetheart = SearchService::personal_page_recommend_popular_sweetheart_all_list_query()
                                     ->whereHas('user_meta', $meta_constraint)
+                                    ->where(SearchService::get_user_exclude_constraint())
                                     ->orderByDesc('received_messages_count')
                                     ->limit(5)
                                     ->get();
@@ -134,9 +147,7 @@ class SearchService
         $now_time = Carbon::now();
         
         $sweetheart_query = User::where('engroup', 2)
-                            ->where('created_at', '>=', $now_time->subDays(30))
-                            
-                            ;
+                            ->where('created_at', '>=', $now_time->subDays(30));
         return $sweetheart_query;       
     }
 
@@ -145,6 +156,7 @@ class SearchService
         $meta_constraint = SearchService::get_user_search_meta_constraint();
         $sweetheart = SearchService::personal_page_recommend_new_sweetheart_all_list_query()
                                     ->whereHas('user_meta', $meta_constraint)
+                                    ->where(SearchService::get_user_exclude_constraint())
                                     ->inRandomOrder()
                                     ->limit(5)
                                     ->get();

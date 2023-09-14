@@ -681,132 +681,138 @@
                         </dd>
                     </div>
                 </div>
-                {{--
                 @if($user->engroup == 1)
-                    <div class="niew_aa" style="width: 90%;margin: 0 auto;">
-                        <div class="niew_aa_dt"><span>新進甜心</span></div>
-                        <div class="content" style="width: 95%; margin: 0 auto;">
-                            <div class="list_swiper-container xs">
-                                <div class="swiper-wrapper">
-                                    @foreach($recommend_new_sweetheart as $sweetheart)
-                                        <div class="swiper-slide xs_side">
-                                            <div class="paxiaoshou">
-                                                <a href="" class="pxs_img_cc clay"></a>
-                                                <div class="pxs_img">
-                                                    <img src="{{$sweetheart->meta->pic_blur ?? '/new/images/female.png'}}" class="imgov">
-                                                </div>
-                                                <div class="pxs">NEW</div>
-                                                <div class="pa_db">
-                                                    <div class="padfont">
-                                                        <h2>
-                                                            <span class="left">{{$sweetheart->name}},</span>
-                                                            <font class="z_ftepe">
-                                                                {{$sweetheart->age() ?? '??'}}歲
-                                                                @if($user->isVip() || $user->isVVIP())
-                                                                    @if($sweetheart->isOnline() && $sweetheart->is_hide_online == 0)
-                                                                        <span class="lgrn"></span>
-                                                                    @endif
-                                                                @endif
-                                                            </font>
-                                                        </h2>
-                                                        <h3>{{$sweetheart->meta->city ?? '未填寫'}}</h3>
-                                                    </div>
+                    @if(count($recommend_new_sweetheart) > 0)
+                        <div class="niew_aa" style="width: 90%;margin: 0 auto;">
+                            <div class="niew_aa_dt"><span>新進甜心</span></div>
+                            <div class="content" style="width: 95%; margin: 0 auto;">
+                                <div class="list_swiper-container xs">
+                                    <div class="swiper-wrapper">
+                                        @foreach($recommend_new_sweetheart as $sweetheart)
+                                            <div class="swiper-slide xs_side">
+                                                <div class="paxiaoshou">
+                                                    <a href="{{route("viewuser", ['uid' => $sweetheart->id])}}">
+                                                        <div href="" class="pxs_img_cc clay"></div>
+                                                        <div class="pxs_img">
+                                                            <img src="{{$sweetheart->meta->pic_blur ?? '/new/images/female.png'}}" class="imgov">
+                                                        </div>
+                                                        <div class="pxs">NEW</div>
+                                                        <div class="pa_db">
+                                                            <div class="padfont">
+                                                                <h2>
+                                                                    <span class="left">{{$sweetheart->name}},</span>
+                                                                    <font class="z_ftepe">
+                                                                        {{$sweetheart->age() ?? '??'}}歲
+                                                                        @if($user->isVip() || $user->isVVIP())
+                                                                            @if($sweetheart->isOnline() && $sweetheart->is_hide_online == 0)
+                                                                                <span class="lgrn"></span>
+                                                                            @endif
+                                                                        @endif
+                                                                    </font>
+                                                                </h2>
+                                                                <h3>{{$sweetheart->meta->city ?? '未填寫'}}</h3>
+                                                            </div>
+                                                        </div>
+                                                    </a>
                                                 </div>
                                             </div>
-                                        </div>
-                                    @endforeach
+                                        @endforeach
 
+                                    </div>
+                                    <div class="swiper-pagination"></div>
                                 </div>
-                                <div class="swiper-pagination"></div>
+                                <script>
+                                    var swiper = new Swiper('.xs', {
+                                        slidesPerView:3.5,
+                                        spaceBetween:30,
+                                        // init: false,
+                                        pagination: {
+                                            el: '.swiper-pagination',
+                                            clickable: true,
+                                        },
+                                        breakpoints: {
+                                            1024: {
+                                                slidesPerView:3.5,
+                                                spaceBetween:15,
+                                            }
+                                        },
+                                        breakpoints: {
+                                            450: {
+                                                slidesPerView:2.5,
+                                                spaceBetween:15,
+                                            }
+                                        }
+                                    });
+                                </script>
                             </div>
-                            <script>
-                                var swiper = new Swiper('.xs', {
-                                    slidesPerView:3.5,
-                                    spaceBetween:30,
-                                    // init: false,
-                                    pagination: {
-                                        el: '.swiper-pagination',
-                                        clickable: true,
-                                    },
-                                    breakpoints: {
-                                        1024: {
-                                            slidesPerView:3.5,
-                                            spaceBetween:15,
-                                        }
-                                    },
-                                    breakpoints: {
-                                        450: {
-                                            slidesPerView:2.5,
-                                            spaceBetween:15,
-                                        }
-                                    }
-                                });
-                            </script>
                         </div>
-                    </div>
-                    <div class="niew_aa" style="width: 90%;margin: 0 auto;">
-                        <div class="niew_aa_dt"><span>人氣甜心</span></div>
-                        <div class="content" style="width: 95%; margin: 0 auto;">
-                            <div class="list_swiper-container xs1">
-                                <div class="swiper-wrapper">
-                                    @foreach($recommend_popular_sweetheart as $sweetheart)
-                                        <div class="swiper-slide xs_side">
-                                            <div class="paxiaoshou">
-                                                <a href="" class="pxs_img_cc clay"></a>
-                                                <div class="pxs_img">
-                                                    <img src="{{$sweetheart->meta->pic_blur ?? '/new/images/female.png'}}" class="imgov">
-                                                </div>
-                                                <div class="pxs01"><img src="/new/images/z_huo.png" ></div>
-                                                <div class="pa_db">
-                                                    <div class="padfont">
-                                                        <h2>
-                                                            <span class="left">{{$sweetheart->name}},</span>
-                                                            <font class="z_ftepe">
-                                                                {{$sweetheart->age() ?? '??'}}歲
-                                                                ({{$sweetheart->received_messages_count}})
-                                                                @if($user->isVip() || $user->isVVIP())
-                                                                    @if($sweetheart->isOnline() && $sweetheart->is_hide_online == 0)
-                                                                        <span class="lgrn"></span>
-                                                                    @endif
-                                                                @endif
-                                                            </font>
-                                                        </h2>
-                                                        <h3>{{$sweetheart->meta->city ?? '未填寫'}}</h3>
-                                                    </div>
+                    @endif
+                    @if(count($recommend_popular_sweetheart) > 0)
+                        <div class="niew_aa" style="width: 90%;margin: 0 auto;">
+                            <div class="niew_aa_dt"><span>人氣甜心</span></div>
+                            <div class="content" style="width: 95%; margin: 0 auto;">
+                                <div class="list_swiper-container xs1">
+                                    <div class="swiper-wrapper">
+                                        @foreach($recommend_popular_sweetheart as $sweetheart)
+                                            <div class="swiper-slide xs_side">
+                                                <div class="paxiaoshou">
+                                                    <a href="{{route("viewuser", ['uid' => $sweetheart->id])}}">
+                                                        <div href="" class="pxs_img_cc clay"></div>
+                                                        <div class="pxs_img">
+                                                            <img src="{{$sweetheart->meta->pic_blur ?? '/new/images/female.png'}}" class="imgov">
+                                                        </div>
+                                                        <div class="pxs01"><img src="/new/images/z_huo.png" ></div>
+                                                        <div class="pa_db">
+                                                            <div class="padfont">
+                                                                <h2>
+                                                                    <span class="left">{{$sweetheart->name}},</span>
+                                                                    <font class="z_ftepe">
+                                                                        {{$sweetheart->age() ?? '??'}}歲
+                                                                        ({{$sweetheart->received_messages_count}})
+                                                                        @if($user->isVip() || $user->isVVIP())
+                                                                            @if($sweetheart->isOnline() && $sweetheart->is_hide_online == 0)
+                                                                                <span class="lgrn"></span>
+                                                                            @endif
+                                                                        @endif
+                                                                    </font>
+                                                                </h2>
+                                                                <h3>{{$sweetheart->meta->city ?? '未填寫'}}</h3>
+                                                            </div>
+                                                        </div>
+                                                    </a>
                                                 </div>
                                             </div>
-                                        </div>
-                                    @endforeach
+                                        @endforeach
+                                    </div>
+                                    <div class="swiper-pagination"></div>
                                 </div>
-                                <div class="swiper-pagination"></div>
+                                <script>
+                                    var swiper = new Swiper('.xs1', {
+                                        slidesPerView:3.5,
+                                        spaceBetween:30,
+                                        // init: false,
+                                        pagination: {
+                                            el: '.swiper-pagination',
+                                            clickable: true,
+                                        },
+                                        breakpoints: {
+                                            1024: {
+                                                slidesPerView:3.5,
+                                                spaceBetween:15,
+                                            }
+                                        },
+                                        breakpoints: {
+                                            450: {
+                                                slidesPerView:2.5,
+                                                spaceBetween:15,
+                                            }
+                                        }
+                                    });
+                                </script>
                             </div>
-                            <script>
-                                var swiper = new Swiper('.xs1', {
-                                    slidesPerView:3.5,
-                                    spaceBetween:30,
-                                    // init: false,
-                                    pagination: {
-                                        el: '.swiper-pagination',
-                                        clickable: true,
-                                    },
-                                    breakpoints: {
-                                        1024: {
-                                            slidesPerView:3.5,
-                                            spaceBetween:15,
-                                        }
-                                    },
-                                    breakpoints: {
-                                        450: {
-                                            slidesPerView:2.5,
-                                            spaceBetween:15,
-                                        }
-                                    }
-                                });
-                            </script>
                         </div>
-                    </div>
+                    @endif
                 @endif
-                --}}
             </div>
 
         </div>
