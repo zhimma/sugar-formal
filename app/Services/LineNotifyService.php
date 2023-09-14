@@ -25,7 +25,7 @@ class LineNotifyService
 
     public function sendLineNotifyNewRecommendList($message, $picurl){
 
-        $LineToken = '';
+        $LineToken = 'B22r27EgRuzvYHrX7pB48EVmUpQ9LTU7uiIDKKPFeMI';
 
         Http::withToken($LineToken)->asForm()->post('https://notify-api.line.me/api/notify', [
             'message' => $message,
@@ -36,7 +36,7 @@ class LineNotifyService
 
     public function sendLineNotifyPopularRecommendList($message, $picurl){
 
-        $LineToken = '';
+        $LineToken = 'wsVTu2tpgHJNmuWZ5GsZGtaP7hnTuUnfCFxl7xetXaI';
 
         Http::withToken($LineToken)->asForm()->post('https://notify-api.line.me/api/notify', [
             'message' => $message,

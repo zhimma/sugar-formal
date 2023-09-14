@@ -51,7 +51,7 @@ class LineNotifyRecommendList extends Command
             $message .= $sweetheart->name . "\n";
             $message .= route("viewuser", ['uid' => $sweetheart->id]) . "\n";
             $picurl = url('/') . ($sweetheart->meta->pic ? (file_exists(public_path() . $sweetheart->meta->pic) ? $sweetheart->meta->pic : '/new/images/female.png') : '/new/images/female.png');
-            $lineNotify->sendLineNotifyPopularRecommendList($message, $picurl);
+            $lineNotify->sendLineNotifyNewRecommendList($message, $picurl);
         }
 
         //人氣甜心
@@ -64,7 +64,8 @@ class LineNotifyRecommendList extends Command
             $message .= $sweetheart->name . "(真心話數:" . $sweetheart->received_messages_count . ")" . "\n";
             $message .= route("viewuser", ['uid' => $sweetheart->id]) . "\n";
             $picurl = url('/') . ($sweetheart->meta->pic ? (file_exists(public_path() . $sweetheart->meta->pic) ? $sweetheart->meta->pic : '/new/images/female.png') : '/new/images/female.png');
-            $lineNotify->sendLineNotifyNewRecommendList($message, $picurl);
+            
+            $lineNotify->sendLineNotifyPopularRecommendList($message, $picurl);
         }
         
     }
