@@ -763,6 +763,7 @@
                                                             <span class="left">{{$sweetheart->name}},</span>
                                                             <font class="z_ftepe">
                                                                 {{$sweetheart->age() ?? '??'}}歲
+                                                                ({{$sweetheart->received_messages_count}})
                                                                 @if($user->isVip() || $user->isVVIP())
                                                                     @if($sweetheart->isOnline() && $sweetheart->is_hide_online == 0)
                                                                         <span class="lgrn"></span>
