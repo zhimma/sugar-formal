@@ -1874,7 +1874,7 @@ class User extends Authenticatable implements JWTSubject
     }
 
     public static function userLoginLog($user_id, $request){
-        $userLogin_log = LogUserLogin::selectRaw('LEFT(created_at,7) as loginMonth, DATE(created_at) as loginDate, user_id as userID, ip, count(*) as dataCount')
+        $userLogin_log = LogUserLogin::selectRaw('LEFT(created_at,4) as Year, RIGHT(LEFT(created_at,7), 2) as Month, LEFT(created_at,7) as loginMonth, DATE(created_at) as loginDate, user_id as userID, ip, count(*) as dataCount')
             ->where('user_id', $user_id)
             ->groupBy(DB::raw("LEFT(created_at,7)"));
 
@@ -1882,25 +1882,37 @@ class User extends Authenticatable implements JWTSubject
             $userLogin_log=$userLogin_log->where('created_at','>=', date('Y-m-d', strtotime('-3 months')));
         }
         $userLogin_log=$userLogin_log->orderBy('created_at', 'DESC')->get();
+
         foreach ($userLogin_log as $key => $value) {
-            $dataLog = LogUserLogin::where('user_id', $user_id)->where('created_at', 'like', '%' . $value->loginMonth . '%')->orderBy('created_at', 'DESC');
+            $dataLog = LogUserLogin::where('user_id', $user_id)->whereYear('created_at', $value->Year)->whereMonth('created_at', $value->Month)->orderBy('created_at', 'DESC');
             $userLogin_log[$key]['items'] = $dataLog->get();
 
             //ip
-            $Ip_group = LogUserLogin::where('user_id', $user_id)->where('created_at', 'like', '%' . $value->loginMonth . '%')
+            $Ip_group = LogUserLogin::where('user_id', $user_id)->whereYear('created_at', $value->Year)->whereMonth('created_at', $value->Month)
                 ->from('log_user_login as log')
                 ->selectRaw('ip, count(*) as dataCount, (select created_at from log_user_login as s where s.user_id=log.user_id and s.ip=log.ip and s.created_at like "%' . $value->loginMonth . '%" order by created_at desc LIMIT 1 ) as loginTime')
                 ->groupBy(DB::raw("ip"))->orderBy('loginTime', 'desc')->get();
             $Ip = array();
-            foreach ($Ip_group as $Ip_key => $group) {
-                $group['IP_set_auto_ban']=SetAutoBan::whereRaw('(content="'.$group['ip'].'" AND expiry >="'. now().'")')->orWhereRaw('(content="'.$group['ip'].'" AND expiry="0000-00-00 00:00:00")')->get()->count();
-                $IpUsers = LogUserLogin::where('ip',$group->ip)->distinct('user_id')->groupBy('user_id')->get()->toarray();
-                $IpUsers = array_column($IpUsers,'user_id');
 
+            //
+            $ip_list = $Ip_group->pluck('ip');
+            $ip_set_auto_ban_list = SetAutoBan::where('type', 'ip')->whereIn('content', $ip_list)->get();
+            $ip_login_list = LogUserLogin::whereIn('ip', $ip_list)->get();
+            $user_time_login_list = LogUserLogin::where('user_id', $user_id)->whereYear('created_at', $value->Year)->whereMonth('created_at', $value->Month)->get();
+
+            $ip_login_user_list = $ip_login_list->pluck('user_id')->unique();
+            $ip_banned_users_list = banned_users::whereIn('member_id', $ip_login_user_list)->get();
+            //
+
+            
+            foreach ($Ip_group as $Ip_key => $group) {
+                $group['IP_set_auto_ban'] = $ip_set_auto_ban_list->where('content', $group['ip'])->where('expiry', '>=', now())->count() + $ip_set_auto_ban_list->where('content', $group['ip'])->where('expiry', '0000-00-00 00:00:00')->count();
                 $Ip['Ip_group'][$Ip_key] = $group;
-                $Ip['Ip_group_items'][$Ip_key] = LogUserLogin::where('user_id', $user_id)->where('created_at', 'like', '%' . $value->loginMonth . '%')->where('ip', $group->ip)->orderBy('created_at', 'DESC')->get();
-                $Ip['Ip_online_people'][$Ip_key] = LogUserLogin::where('ip',$group->ip)->distinct('user_id')->count();
-                $Ip['Ip_blocked_people'][$Ip_key] = banned_users::whereIn('member_id',$IpUsers)->distinct('member_id')->count();
+                $Ip['Ip_group_items'][$Ip_key] = $user_time_login_list->where('ip', $group->ip)->sortByDesc('created_at')->values();
+                $Ip['Ip_online_people'][$Ip_key] = $ip_login_list->where('ip', $group->ip)->unique('user_id')->count();
+
+                $IpUsers = $ip_login_list->where('ip', $group->ip)->pluck('user_id')->unique();
+                $Ip['Ip_blocked_people'][$Ip_key] = $ip_banned_users_list->whereIn('member_id',$IpUsers)->unique('member_id')->count();
             }
 
             //排序$Ip
@@ -1918,25 +1930,38 @@ class User extends Authenticatable implements JWTSubject
             $userLogin_log[$key]['Ip'] = $sortIp;
 
             //cfp_id
-            $CfpID_group = LogUserLogin::where('user_id', $user_id)->where('created_at', 'like', '%' . $value->loginMonth . '%')
+            $CfpID_group = LogUserLogin::where('user_id', $user_id)->whereYear('created_at', $value->Year)->whereMonth('created_at', $value->Month)
                 ->from('log_user_login as log')
                 ->selectRaw('cfp_id,count(*) as dataCount, (select created_at from log_user_login as s where s.user_id=log.user_id and s.cfp_id=log.cfp_id and s.created_at like "%' . $value->loginMonth . '%" order by created_at desc LIMIT 1 ) as loginTime')
                 ->whereNotNull('cfp_id')
                 ->groupBy(DB::raw("cfp_id"))->orderBy('loginTime', 'desc')->get();
             $CfpID = array();
-            foreach ($CfpID_group as $CfpID_key => $group) {
-                $group['CfpID_set_auto_ban']=SetAutoBan::whereRaw('(content="'.$group['cfp_id'].'" AND expiry >="'. now().'")')->orWhereRaw('(content="'.$group['cfp_id'].'" AND expiry="0000-00-00 00:00:00")')->get()->count();
-                $CfpIDUsers = LogUserLogin::where('cfp_id',$group->cfp_id)->distinct('user_id')->groupBy('user_id')->get()->toarray();
-                $CfpIDUsers = array_column($CfpIDUsers,'user_id');
 
+            //
+            $cfp_id_list = $CfpID_group->pluck('cfp_id');
+            $cfp_id_set_auto_ban_list = SetAutoBan::where('type', 'cfp_id')->whereIn('content', $cfp_id_list)->get();
+            $cfp_id_login_list = LogUserLogin::whereIn('cfp_id', $cfp_id_list)->get();
+            $user_time_login_list = LogUserLogin::where('user_id', $user_id)->whereYear('created_at', $value->Year)->whereMonth('created_at', $value->Month)->get();
+
+            $cfp_id_login_user_list = $cfp_id_login_list->pluck('user_id')->unique();
+            $cfp_id_banned_users_list = banned_users::whereIn('member_id', $cfp_id_login_user_list)->get();
+            //
+
+            foreach ($CfpID_group as $CfpID_key => $group) {
+                //
+                $group['CfpID_set_auto_ban'] = $cfp_id_set_auto_ban_list->where('content', $group['ip'])->where('expiry', '>=', now())->count() + $cfp_id_set_auto_ban_list->where('content', $group['cfp_id'])->where('expiry', '0000-00-00 00:00:00')->count();
                 $CfpID['CfpID_group'][$CfpID_key] = $group;
-                $CfpID['CfpID_group_items'][$CfpID_key] = LogUserLogin::where('user_id', $user_id)->where('created_at', 'like', '%' . $value->loginMonth . '%')->where('cfp_id', $group->cfp_id)->orderBy('created_at', 'DESC')->get();
-                $CfpID['CfpID_online_people'][$CfpID_key] = count($CfpIDUsers);
-                $CfpID['CfpID_blocked_people'][$CfpID_key] = banned_users::whereIn('member_id',$CfpIDUsers)->distinct('member_id')->count();
+                $CfpID['CfpID_group_items'][$CfpID_key] = $user_time_login_list->where('cfp_id', $group->cfp_id)->sortByDesc('created_at')->values();
+                $CfpID['CfpID_online_people'][$CfpID_key] = $cfp_id_login_list->where('cfp_id', $group->cfp_id)->unique('user_id')->count();
+
+                $CfpIDUsers = $cfp_id_login_list->where('cfp_id', $group->cfp_id)->pluck('user_id')->unique();
+                $CfpID['CfpID_blocked_people'][$CfpID_key] = $cfp_id_banned_users_list->whereIn('member_id',$CfpIDUsers)->unique('member_id')->count();
+                //
 
             }
             $userLogin_log[$key]['CfpID'] = $CfpID;
         }
+
         return $userLogin_log;
     }
 
