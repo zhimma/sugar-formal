@@ -42,7 +42,9 @@ class LineNotifyRecommendList extends Command
         $lineNotify = new LineNotify;
 
         //新進甜心
+        $meta_constraint = SearchService::get_user_search_area_constraint(['高雄市', '臺南市', '臺中市', '桃園市', '新北市', '臺北市'], [null, null, null, null, null, null]);
         $new_sweetheart_list = SearchService::personal_page_recommend_new_sweetheart_all_list_query()
+                                            ->whereHas('user_meta', $meta_constraint) //暫時限制地區為六都
                                             ->get();
         
         foreach($new_sweetheart_list as $sweetheart)
@@ -56,7 +58,9 @@ class LineNotifyRecommendList extends Command
         }
 
         //人氣甜心
+        $meta_constraint = SearchService::get_user_search_area_constraint(['高雄市', '臺南市', '臺中市', '桃園市', '新北市', '臺北市'], [null, null, null, null, null, null]);
         $popular_sweetheart_list = SearchService::personal_page_recommend_popular_sweetheart_all_list_query()
+                                                ->whereHas('user_meta', $meta_constraint) //暫時限制地區為六都
                                                 ->get();
         
         foreach($popular_sweetheart_list as $sweetheart)
