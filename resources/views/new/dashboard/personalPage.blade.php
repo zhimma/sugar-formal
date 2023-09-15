@@ -681,6 +681,7 @@
                         </dd>
                     </div>
                 </div>
+                {{--
                 @if($user->engroup == 1)
                     @if(count($recommend_new_sweetheart) > 0)
                         <div class="niew_aa" style="width: 90%;margin: 0 auto;">
@@ -813,6 +814,7 @@
                         </div>
                     @endif
                 @endif
+                --}}
             </div>
 
         </div>
