@@ -2636,4 +2636,14 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasOne(user_record::class, 'user_id', 'id');
     }
+
+    public function get_city_list()
+    {
+        return explode(",", $this->meta->city);
+    }
+
+    public function get_area_list()
+    {
+        return explode(",", $this->meta->area);
+    }
 }

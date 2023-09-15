@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use App\Models\LogSystemDayStatistic;
 use Illuminate\Support\Facades\Http;
+use App\Services\LineNotifyService as LineNotify;
 
 class send_registed_users_statistics_by_LineNotify extends Command
 {
@@ -41,8 +42,6 @@ class send_registed_users_statistics_by_LineNotify extends Command
      */
     public function handle()
     {
-        $LineToken = 'fb4KiuX5WJE9Nodq8Xo5xALrNCQE7buHta0ukQ4lgv4';
-
         $date_yesterday = Carbon::yesterday()->toDateString();
 
         // 昨日男會員數
@@ -121,8 +120,7 @@ class send_registed_users_statistics_by_LineNotify extends Command
         $message .= "\n大前日註冊男會員-被Ban男會員: $three_days_ago_male_count_without_banned 人 ( $three_days_ago_male_count - $three_days_ago_male_count_with_banned = $three_days_ago_male_count_without_banned )";
         $message .= "\n大前日註冊女會員-被Ban女會員: $three_days_ago_womale_count_without_banned 人 ( $three_days_ago_womale_count - $three_days_ago_womale_count_with_banned = $three_days_ago_womale_count_without_banned )";
 
-        Http::withToken($LineToken)->asForm()->post('https://notify-api.line.me/api/notify', [
-            'message' => $message
-        ]);
+        $lineNotify = new LineNotify;
+        $lineNotify->sendLineNotifyMessage($message);
     }
 }

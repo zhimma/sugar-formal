@@ -22,6 +22,28 @@ class LineNotifyService
             'message' => $message
         ]);
     }
+
+    public function sendLineNotifyNewRecommendList($message, $picurl){
+
+        $LineToken = 'B22r27EgRuzvYHrX7pB48EVmUpQ9LTU7uiIDKKPFeMI';
+
+        Http::withToken($LineToken)->asForm()->post('https://notify-api.line.me/api/notify', [
+            'message' => $message,
+            'imageThumbnail'=> $picurl,
+            'imageFullsize'=> $picurl,
+        ]);
+    }
+
+    public function sendLineNotifyPopularRecommendList($message, $picurl){
+
+        $LineToken = 'wsVTu2tpgHJNmuWZ5GsZGtaP7hnTuUnfCFxl7xetXaI';
+
+        Http::withToken($LineToken)->asForm()->post('https://notify-api.line.me/api/notify', [
+            'message' => $message,
+            'imageThumbnail'=> $picurl,
+            'imageFullsize'=> $picurl,
+        ]);
+    }
 }
 
 ?>
