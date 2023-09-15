@@ -50,15 +50,8 @@ class SearchService
         return ['country' => $search_county, 'district' => $search_district];
     }
 
-    public static function get_user_search_meta_constraint()
+    public static function get_user_search_area_constraint($country_list, $district_list)
     {
-        $user = auth()->user();
-        $country_list = $user->get_city_list();
-        $district_list = $user->get_area_list();
-        //$country_and_district_list = SearchService::get_user_search_country_and_district();
-        //$country_list = $country_and_district_list['country'];
-        //$district_list = $country_and_district_list['district'];
-
         $constraint = function($query) use($country_list, $district_list){
             $query->where(function($query) use($country_list, $district_list){
                 foreach($country_list as $key => $country)
@@ -132,7 +125,8 @@ class SearchService
 
     public static function personal_page_recommend_popular_sweetheart()
     {
-        $meta_constraint = SearchService::get_user_search_meta_constraint();
+        $user = auth()->user();
+        $meta_constraint = SearchService::get_user_search_area_constraint($user->get_city_list(), $user->get_area_list());
         $sweetheart = SearchService::personal_page_recommend_popular_sweetheart_all_list_query()
                                     ->whereHas('user_meta', $meta_constraint)
                                     ->where(SearchService::get_user_exclude_constraint())
@@ -153,7 +147,8 @@ class SearchService
 
     public static function personal_page_recommend_new_sweetheart()
     {
-        $meta_constraint = SearchService::get_user_search_meta_constraint();
+        $user = auth()->user();
+        $meta_constraint = SearchService::get_user_search_area_constraint($user->get_city_list(), $user->get_area_list());
         $sweetheart = SearchService::personal_page_recommend_new_sweetheart_all_list_query()
                                     ->whereHas('user_meta', $meta_constraint)
                                     ->where(SearchService::get_user_exclude_constraint())

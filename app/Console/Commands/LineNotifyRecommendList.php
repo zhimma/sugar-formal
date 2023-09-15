@@ -42,7 +42,8 @@ class LineNotifyRecommendList extends Command
         $lineNotify = new LineNotify;
 
         //新進甜心
-        $new_sweetheart_list = SearchService::personal_page_recommend_new_sweetheart_all_list_query()->get();
+        $new_sweetheart_list = SearchService::personal_page_recommend_new_sweetheart_all_list_query()
+                                            ->get();
         
         foreach($new_sweetheart_list as $sweetheart)
         {
@@ -55,7 +56,8 @@ class LineNotifyRecommendList extends Command
         }
 
         //人氣甜心
-        $popular_sweetheart_list = SearchService::personal_page_recommend_popular_sweetheart_all_list_query()->get();
+        $popular_sweetheart_list = SearchService::personal_page_recommend_popular_sweetheart_all_list_query()
+                                                ->get();
         
         foreach($popular_sweetheart_list as $sweetheart)
         {
