@@ -43,7 +43,7 @@
                         <span>精華文章專區</span>
                         <font>Article</font>
                     </div>
-                    <a href="/dashboard/essence_list" class="toug_back btn_img01 userlogo xzgn">
+                    <a href="/dashboard/essence_main" class="toug_back btn_img01 userlogo xzgn">
                         <div class="btn_back"><img src="/posts/images/tg_03.png">查看所有文章</div>
                     </a>
 

@@ -125,10 +125,11 @@
                             <div class="tal_w1"><span class="wsp"></span><span class="wsp_r"></span><span class="wsp_font1">站長文章</span></div>
                         </a>
                         {{--<div class="tal_w2 ta_mar30"><span class="wsp"></span><span class="wsp_r"></span><span class="wsp_font2">優選會員文章</span></div>--}}
-                        <a href="/dashboard/essence_list?s=normal">
+                        <a href="{{ $user->engroup==1 ? '/dashboard/essence_list' : '/dashboard/essence_list?s=normal' }}">
                             <div class="tal_w3 ta_mar30"><span class="wsp"></span><span class="wsp_r"></span><span class="wsp_font3">一般會員文章</span></div>
                         </a>
                     </div>
+                    @if($user->engroup==2)
                     <div class="talist">
                         <li>
                             <div class="ta_img">
@@ -141,6 +142,7 @@
                             <div class="ta_font02"><span>May 31</span>{{--<span class="ta_yuan"></span><span>1k view</span>--}}</div>
                         </li>
                     </div>
+                    @endif
                 </div>
             </div>
         </div>
