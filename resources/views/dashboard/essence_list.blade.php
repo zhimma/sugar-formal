@@ -22,6 +22,21 @@
 
         .hycov{ border-radius: 100px;}
 
+        .jh_blue:hover {
+            box-shadow: inset 0.2rem 0.2rem 0.5rem var(--greyLight-2),
+            inset -0.2rem -0.2rem 0.5rem var(--white);
+        }
+
+        .jh_hu04:hover {
+            box-shadow: inset 0.2rem 0.2rem 0.5rem var(--greyLight-2),
+            inset -0.2rem -0.2rem 0.5rem var(--white);
+        }
+
+        .jh_huise:hover {
+            box-shadow: inset 0.2rem 0.2rem 0.5rem var(--greyLight-2),
+            inset -0.2rem -0.2rem 0.5rem var(--white);
+        }
+
     </style>
 @endsection
 @section('app-content')
@@ -152,8 +167,8 @@
                                 @php
                                     $admin_info=\App\Models\User::leftJoin('user_meta', 'users.id','=','user_meta.user_id')->where('users.id', 1049)->first();
                                 @endphp
-                                <a href="/dashboard/newer_manual" class="newer_article">
-                                    <li>
+                                <li>
+                                    <a href="/dashboard/newer_manual" class="newer_article">
                                         <div class="jh_blue">
                                             <div class="jh_biaoq"><span><img src="/posts/images/jh_03.png">新手教學手冊</span></div>
                                             <div class="jh_one">
@@ -165,10 +180,11 @@
                                                 <h3 style="display: block;">歡迎新手光臨本站，這篇絕對要好好看過！這篇絕對要好好看過</h3>
                                             </div>
                                         </div>
-                                    </li>
-                                </a>
-                                <a href="/dashboard/anti_fraud_manual" class="newer_article">
-                                    <li>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="/dashboard/anti_fraud_manual" class="newer_article">
+
                                         <div class="jh_blue">
                                             <div class="jh_biaoq"><span><img src="/posts/images/jh_03.png">拒絕詐騙手冊</span></div>
                                             <div class="jh_one">
@@ -180,8 +196,8 @@
                                                 <h3 style="display: block;">正常找包養女孩，一定要注意的事情有哪些？</h3>
                                             </div>
                                         </div>
-                                    </li>
-                                </a>
+                                    </a>
+                                </li>
                                @include('dashboard.essence_law_article_female')
                             @endif
                             @if($user->engroup==1 && Request()->get('s')=='admin')
@@ -196,8 +212,9 @@
                                         $uID=\App\Models\User::findById($detail->uid);
                                         $isBlurAvatar = \App\Services\UserService::isBlurAvatar($uID, $user);
                                     @endphp
-                                    <a href="/dashboard/essence_post_detail/{{ $detail->pid }}" class="others">
-                                        <li>
+                                    <li>
+                                        <a href="/dashboard/essence_post_detail/{{ $detail->pid }}" class="others">
+
                                             <div class="{{ $detail->uid==1049 ? 'jh_blue' : ($detail->verify_status==2 ? 'jh_huise' : 'jh_huise hus_ad') }}">
                                                 <div class="{{ $detail->uid==1049 ? 'jh_biaoq' : ($detail->verify_status==2 ? 'jh_biaoq01' : 'jh_biaoq01 jh_biaoq01_hs') }}"><span><img src="/posts/images/{{ $detail->engroup==1 ? 'jh_03.png' : 'jh_09.png' }}">{{ \App\Models\EssencePosts::CATEGORY[$detail->category] }}</span></div>
                                                 <div class="jh_one">
@@ -209,8 +226,8 @@
                                                     <h3>{{ $detail->contents }}</h3>
                                                 </div>
                                             </div>
-                                        </li>
-                                    </a>
+                                        </a>
+                                    </li>
                                 @endforeach
                             @else
                                 @if($user->engroup!==2 && Request()->get('s')!=='admin')
