@@ -173,7 +173,7 @@ class Kernel extends ConsoleKernel
 
         //發送推薦名單line通知方便後台人員檢查
         $schedule->command('ComputeDailyRecommendSweetheart')->timezone('Asia/Taipei')->dailyAt('00:00');
-        $schedule->command('LineNotifyRecommendList')->timezone('Asia/Taipei')->dailyAt('00:01');
+        $schedule->command('LineNotifyRecommendList')->timezone('Asia/Taipei')->dailyAt('00:05');
     }
 
     /**
