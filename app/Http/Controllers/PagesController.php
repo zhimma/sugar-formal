@@ -80,6 +80,7 @@ use App\Models\VvipSelectionRewardApply;
 use App\Models\VvipSelectionRewardIgnore;
 use App\Models\VvipSubOptionXref;
 use App\Models\TempOptionsXrefCount;
+use App\Models\DailyRecommendSweetheart;
 use App\Repositories\SuspiciousRepository;
 use App\Services\AdminService;
 use App\Services\EnvironmentService;
@@ -9191,10 +9192,23 @@ class PagesController extends BaseController
         $VVIP_info = ValueAddedService::findByIdAndServiceNameWithDateDesc($user->id, 'VVIP');
         $hideOnline_info = ValueAddedService::findByIdAndServiceNameWithDateDesc($user->id, 'hideOnline');
 
+        $meta_constraint = SearchService::get_user_search_area_constraint($user->get_city_list(), $user->get_area_list());
         //人氣甜心
-        $recommend_popular_sweetheart = SearchService::personal_page_recommend_popular_sweetheart();
+        $recommend_popular_sweetheart = DailyRecommendSweetheart::get_daily_recommend_popular_sweetheart_query()
+                                                                ->whereHas('user', function($query) use($meta_constraint) {
+                                                                    $query->whereHas('user_meta', $meta_constraint);
+                                                                })
+                                                                ->orderByDesc('truth_message_count')
+                                                                ->limit(5)
+                                                                ->get();
         //新進甜心
-        $recommend_new_sweetheart = SearchService::personal_page_recommend_new_sweetheart();
+        $recommend_new_sweetheart = DailyRecommendSweetheart::get_daily_recommend_new_sweetheart_query()
+                                                            ->whereHas('user', function($query) use($meta_constraint) {
+                                                                $query->whereHas('user_meta', $meta_constraint);
+                                                            })
+                                                            ->inRandomOrder()
+                                                            ->limit(5)
+                                                            ->get();
 
         if (isset($user)) {
             $data = array(
