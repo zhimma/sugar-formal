@@ -171,7 +171,6 @@ class Kernel extends ConsoleKernel
         $schedule->command('ComputeOptionXrefCount')->timezone('Asia/Taipei')->dailyAt('23:59');
         $schedule->command('ComputeOptionXrefCount')->timezone('Asia/Taipei')->dailyAt('11:59');
 
-        //發送推薦名單line通知方便後台人員檢查
         $schedule->command('ComputeDailyRecommendSweetheart')->timezone('Asia/Taipei')->dailyAt('00:00');
         if(app()->isProduction()) {
             //發送推薦名單line通知方便後台人員檢查
