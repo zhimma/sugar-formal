@@ -692,26 +692,26 @@
                                         @foreach($recommend_new_sweetheart as $sweetheart)
                                             <div class="swiper-slide xs_side">
                                                 <div class="paxiaoshou">
-                                                    <a href="{{route("viewuser", ['uid' => $sweetheart->id])}}">
+                                                    <a href="{{route("viewuser", ['uid' => $sweetheart->user->id])}}">
                                                         <div href="" class="pxs_img_cc clay"></div>
                                                         <div class="pxs_img">
-                                                            <img src="{{$sweetheart->meta->pic_blur ?? '/new/images/female.png'}}" class="imgov">
+                                                            <img src="{{$sweetheart->user->meta->pic_blur ?? '/new/images/female.png'}}" class="imgov">
                                                         </div>
                                                         <div class="pxs">NEW</div>
                                                         <div class="pa_db">
                                                             <div class="padfont">
                                                                 <h2>
-                                                                    <span class="left">{{$sweetheart->name}},</span>
+                                                                    <span class="left">{{$sweetheart->user->name}},</span>
                                                                     <font class="z_ftepe">
-                                                                        {{$sweetheart->age() ?? '??'}}歲
+                                                                        {{$sweetheart->user->age() ?? '??'}}歲
                                                                         @if($user->isVip() || $user->isVVIP())
-                                                                            @if($sweetheart->isOnline() && $sweetheart->is_hide_online == 0)
+                                                                            @if($sweetheart->user->isOnline() && $sweetheart->user->is_hide_online == 0)
                                                                                 <span class="lgrn"></span>
                                                                             @endif
                                                                         @endif
                                                                     </font>
                                                                 </h2>
-                                                                <h3>{{$sweetheart->meta->city ?? '未填寫'}}</h3>
+                                                                <h3>{{$sweetheart->user->meta->city ?? '未填寫'}}</h3>
                                                             </div>
                                                         </div>
                                                     </a>
@@ -757,27 +757,27 @@
                                         @foreach($recommend_popular_sweetheart as $sweetheart)
                                             <div class="swiper-slide xs_side">
                                                 <div class="paxiaoshou">
-                                                    <a href="{{route("viewuser", ['uid' => $sweetheart->id])}}">
+                                                    <a href="{{route("viewuser", ['uid' => $sweetheart->user->id])}}">
                                                         <div href="" class="pxs_img_cc clay"></div>
                                                         <div class="pxs_img">
-                                                            <img src="{{$sweetheart->meta->pic_blur ?? '/new/images/female.png'}}" class="imgov">
+                                                            <img src="{{$sweetheart->user->meta->pic_blur ?? '/new/images/female.png'}}" class="imgov">
                                                         </div>
                                                         <div class="pxs01"><img src="/new/images/z_huo.png" ></div>
                                                         <div class="pa_db">
                                                             <div class="padfont">
                                                                 <h2>
-                                                                    <span class="left">{{$sweetheart->name}},</span>
+                                                                    <span class="left">{{$sweetheart->user->name}},</span>
                                                                     <font class="z_ftepe">
-                                                                        {{$sweetheart->age() ?? '??'}}歲
-                                                                        ({{$sweetheart->received_messages_count}})
+                                                                        {{$sweetheart->user->age() ?? '??'}}歲
+                                                                        ({{$sweetheart->truth_message_count}})
                                                                         @if($user->isVip() || $user->isVVIP())
-                                                                            @if($sweetheart->isOnline() && $sweetheart->is_hide_online == 0)
+                                                                            @if($sweetheart->user->isOnline() && $sweetheart->user->is_hide_online == 0)
                                                                                 <span class="lgrn"></span>
                                                                             @endif
                                                                         @endif
                                                                     </font>
                                                                 </h2>
-                                                                <h3>{{$sweetheart->meta->city ?? '未填寫'}}</h3>
+                                                                <h3>{{$sweetheart->user->meta->city ?? '未填寫'}}</h3>
                                                             </div>
                                                         </div>
                                                     </a>

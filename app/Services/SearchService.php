@@ -2,6 +2,7 @@
 
 namespace App\Services;
 use App\Models\User;
+use App\Models\DailyRecommendSweetheart;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
@@ -119,21 +120,11 @@ class SearchService
         $sweetheart_query = User::where('engroup', 2)
                             ->whereHas('receivedMessages', $received_message_constraint)
                             ->withCount(['receivedMessages' => $received_message_constraint])
-                            ->having('received_messages_count', '>', 0);
+                            ->having('received_messages_count', '>', 0)
+                            ->where(SearchService::get_user_exclude_constraint())
+                            ->orderByDesc('received_messages_count')
+                            ;
         return $sweetheart_query;
-    }
-
-    public static function personal_page_recommend_popular_sweetheart()
-    {
-        $user = auth()->user();
-        $meta_constraint = SearchService::get_user_search_area_constraint($user->get_city_list(), $user->get_area_list());
-        $sweetheart = SearchService::personal_page_recommend_popular_sweetheart_all_list_query()
-                                    ->whereHas('user_meta', $meta_constraint)
-                                    ->where(SearchService::get_user_exclude_constraint())
-                                    ->orderByDesc('received_messages_count')
-                                    ->limit(5)
-                                    ->get();
-        return $sweetheart;
     }
 
     public static function personal_page_recommend_new_sweetheart_all_list_query()
@@ -141,20 +132,10 @@ class SearchService
         $now_time = Carbon::now();
         
         $sweetheart_query = User::where('engroup', 2)
-                            ->where('created_at', '>=', $now_time->subDays(30));
+                            ->where('created_at', '>=', $now_time->subDays(30))
+                            ->where(SearchService::get_user_exclude_constraint())
+                            ->inRandomOrder()
+                            ;
         return $sweetheart_query;       
-    }
-
-    public static function personal_page_recommend_new_sweetheart()
-    {
-        $user = auth()->user();
-        $meta_constraint = SearchService::get_user_search_area_constraint($user->get_city_list(), $user->get_area_list());
-        $sweetheart = SearchService::personal_page_recommend_new_sweetheart_all_list_query()
-                                    ->whereHas('user_meta', $meta_constraint)
-                                    ->where(SearchService::get_user_exclude_constraint())
-                                    ->inRandomOrder()
-                                    ->limit(5)
-                                    ->get();
-        return $sweetheart;       
     }
 }
