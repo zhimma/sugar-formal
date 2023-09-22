@@ -48,6 +48,7 @@ class LineNotifyRecommendList extends Command
                                                         ->whereHas('user', function($query) use($meta_constraint) {
                                                             $query->whereHas('user_meta', $meta_constraint);
                                                         })
+                                                        ->limit(20)
                                                         ->get();
         
         foreach($new_sweetheart_list as $sweetheart)
@@ -66,6 +67,7 @@ class LineNotifyRecommendList extends Command
                                                             ->whereHas('user', function($query) use($meta_constraint) {
                                                                 $query->whereHas('user_meta', $meta_constraint);
                                                             })
+                                                            ->limit(20)
                                                             ->get();
                                                 
         
