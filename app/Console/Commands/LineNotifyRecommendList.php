@@ -48,6 +48,7 @@ class LineNotifyRecommendList extends Command
                                                         ->whereHas('user', function($query) use($meta_constraint) {
                                                             $query->whereHas('user_meta', $meta_constraint);
                                                         })
+                                                        ->limit(20)
                                                         ->get();
         
         foreach($new_sweetheart_list as $sweetheart)
@@ -66,6 +67,7 @@ class LineNotifyRecommendList extends Command
                                                             ->whereHas('user', function($query) use($meta_constraint) {
                                                                 $query->whereHas('user_meta', $meta_constraint);
                                                             })
+                                                            ->limit(20)
                                                             ->get();
                                                 
         
@@ -73,7 +75,7 @@ class LineNotifyRecommendList extends Command
         {
             $message = "\n";
             $message .= "推薦人氣甜心: ";
-            $message .= $sweetheart->user->name . "(真心話數:" . $sweetheart->user->received_messages_count . ")" . "\n";
+            $message .= $sweetheart->user->name . "(真心話數:" . $sweetheart->truth_message_count . ")" . "\n";
             $message .= route("viewuser", ['uid' => $sweetheart->user->id]) . "\n";
             $picurl = url('/') . ($sweetheart->user->meta->pic ? (file_exists(public_path() . $sweetheart->user->meta->pic) ? $sweetheart->user->meta->pic : '/new/images/female.png') : '/new/images/female.png');
             
